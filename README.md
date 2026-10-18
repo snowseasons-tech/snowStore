@@ -1,6 +1,6 @@
 # micro-saas-site
 
-Storefront for [Snow Seasons Technologies](https://snowseasonstech.net): a static site plus Vercel serverless functions that sell digital products through Stripe Checkout, deliver files from a private S3/R2 bucket, and run a small customer portal.
+Storefront for [Snow Seasons Technologies](https://snowseasonstech.net): a static site plus Cloudflare Pages Functions that sell digital products through Stripe Checkout, deliver files from a private S3/R2 bucket, and run a small customer portal.
 
 ## How it works
 
@@ -16,11 +16,13 @@ Storefront for [Snow Seasons Technologies](https://snowseasonstech.net): a stati
 |---|---|
 | `index.html`, `privacy.html`, `terms.html`, `refund.html`, `success.html`, `cancel.html`, `page.css` | Public site pages |
 | `storefront/` | Checkout page and customer portal (`portal.html`, `portal.js`) |
-| `api/` | Vercel serverless functions (one file per endpoint) |
+| `functions/` | Cloudflare Pages Functions that serve `/api/*` in production (one file per endpoint) |
+| `api/` | Original Vercel-style handlers; kept because `functions/` reuses `api/_lib/` |
 | `api/_lib/` | Shared helpers: catalog, Stripe, store (Upstash/in-memory), auth, mail (Resend), fulfilment, SigV4 presigning |
+| `pages/_headers` | Security headers for static files (copied into `dist/` by the build) |
 | `scripts/` | Admin scripts: `upload.js` (put a deliverable in the bucket), `add-user.js` (create or update a portal account) |
 | `tests/` | `node:test` suite |
-| `products/` | Source for the products being sold. Not deployed (see `.vercelignore`); deliverables go to the private bucket |
+| `products/` | Source for the products being sold. Not deployed (`scripts/build-pages.js` publishes only an allowlist); deliverables go to the private bucket |
 
 ## API
 
@@ -47,7 +49,7 @@ npm run lint
 
 ### Environment variables
 
-Set these in Vercel (and in `.env.local` for local work, which is gitignored).
+Set these in Cloudflare Pages (Settings → Variables and Secrets; use test-mode values for Preview and live ones only for Production).
 
 | Variable | Purpose |
 |---|---|
@@ -89,4 +91,12 @@ The password is read from stdin. Running it again for the same email updates the
 
 ## Deployment
 
-Deployed on Vercel. Files that shouldn't be public (`products/`, `scripts/`, `tests/`, Markdown) are excluded by `.vercelignore`.
+Deployed on Cloudflare Pages, connected to this repo's `main` branch.
+
+| Setting | Value |
+|---|---|
+| Build command | `npm run build:pages` |
+| Build output directory | `dist` |
+| Functions | `functions/` at the repo root (picked up automatically) |
+
+`scripts/build-pages.js` copies only an allowlist into `dist/` (site pages, `page.css`, `storefront/`, `_headers`), so `products/`, `api/`, `scripts/`, `tests/` and Markdown are never published. Point the production domain (`snowseasonstech.net`) at this Pages project, not at GitHub Pages.

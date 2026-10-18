@@ -23,14 +23,12 @@ test('dist is rebuilt from scratch and fails on a missing index', () => {
   assert.throws(() => build({ root: tmp, out: path.join(tmp, 'dist') }), /index\.html/);
 });
 
-test('security headers match across Functions, pages/_headers and vercel.json', async () => {
+test('security headers match across Functions and pages/_headers', async () => {
   const { SECURITY_HEADERS } = await import('../functions/_lib/headers.js');
   const { send } = await import('../functions/_lib/http.js');
   const parsed = Object.fromEntries(fs.readFileSync(path.join(root, 'pages/_headers'), 'utf8').split('\n')
     .filter((l) => /^\s+\S+: /.test(l)).map((l) => l.trim().split(/: (.*)/s).slice(0, 2)));
   assert.deepStrictEqual(parsed, SECURITY_HEADERS);
-  const vercel = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8')).headers[0].headers;
-  assert.deepStrictEqual(Object.fromEntries(vercel.map((h) => [h.key, h.value])), SECURITY_HEADERS);
   const res = send(200, { ok: true });
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) assert.strictEqual(res.headers.get(k), v);
 });
