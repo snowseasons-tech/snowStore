@@ -49,7 +49,7 @@ npm run lint
 
 ### Environment variables
 
-Set these in Cloudflare Pages (Settings → Variables and Secrets; use test-mode values for Preview and live ones only for Production).
+Set these in Cloudflare Pages (Settings → Variables and Secrets; use test-mode values for Preview and live ones only for Production). Add them as **Secret** (encrypted): because `wrangler.toml` exists, it is the source of truth for plain-text variables, so plain-text ones set only in the dashboard are not applied.
 
 | Variable | Purpose |
 |---|---|
@@ -96,7 +96,8 @@ Deployed on Cloudflare Pages, connected to this repo's `main` branch.
 | Setting | Value |
 |---|---|
 | Build command | `npm run build:pages` |
-| Build output directory | `dist` |
+| Build output directory | `dist` (also set by `pages_build_output_dir` in `wrangler.toml`) |
 | Functions | `functions/` at the repo root (picked up automatically) |
+| Compatibility flags | `nodejs_compat`, set in `wrangler.toml` (required: `api/_lib/` uses Node's `crypto`) |
 
 `scripts/build-pages.js` copies only an allowlist into `dist/` (site pages, `page.css`, `storefront/`, `_headers`), so `products/`, `api/`, `scripts/`, `tests/` and Markdown are never published. Point the production domain (`snowseasonstech.net`) at this Pages project, not at GitHub Pages.
