@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
       metadata: { product_id: body.productId },
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/cancel`,
-      automatic_tax: { enabled: process.env.STRIPE_AUTOMATIC_TAX === 'true' },
+      ...(process.env.STRIPE_AUTOMATIC_TAX === 'true' ? { automatic_tax: { enabled: true } } : {}),
       allow_promotion_codes: true,
       ...(isSub ? { subscription_data: { metadata: { product_id: body.productId } } } : {}),
     });

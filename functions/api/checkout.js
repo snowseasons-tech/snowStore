@@ -21,7 +21,7 @@ export async function onRequestPost({ request, env }) {
       metadata: { product_id: body.productId },
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/cancel`,
-      automatic_tax: { enabled: env.STRIPE_AUTOMATIC_TAX === 'true' },
+      ...(env.STRIPE_AUTOMATIC_TAX === 'true' ? { automatic_tax: { enabled: true } } : {}),
       allow_promotion_codes: true,
       ...(isSub ? { subscription_data: { metadata: { product_id: body.productId } } } : {}),
     });
