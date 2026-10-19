@@ -35,6 +35,16 @@ module.exports = {
     version: '1.0.0',
     sha256: 'ec9549da34d85b76a2059a231be5c716be471cabeb7cb0f1509ebac6ea1f1c2f',
   },
+  'lead-generator': {
+    name: 'Lead Generation Pipeline',
+    priceEnv: 'PRICE_LEAD_GENERATOR',
+    fileKey: 'lead-generator/lead-generator.zip',
+    filename: 'lead-generator.zip',
+    category: 'utilities',
+    blurb: 'Turn a list of company names into websites, phone numbers and contact details. Python scripts you run on your own machine or on a schedule.',
+    version: '1.0.0',
+    sha256: 'af5645308b4682f9506d4453adfbcb44dfc826cf9f26f76e5e711534e259aae3',
+  },
   // Example subscription product (uncomment, create the recurring Price in Stripe test mode first):
   // 'bi-dashboards': { name: 'BI Dashboards', kind: 'subscription', priceEnv: 'PRICE_BI_MONTHLY', appUrl: 'https://app.snowseasonstech.net/bi' },
 };
