@@ -62,8 +62,8 @@ module.exports = {
     filename: 'booking-app.zip',
     category: 'utilities',
     blurb: 'A white-label weekly booking calendar for React with double-booking prevention and live stats. Built with TypeScript, Tailwind and shadcn/ui.',
-    version: '1.0.0',
-    sha256: 'fd70633d62ddc524c88d53285bbd1fa58ac6065a8320f655ef3456c02ce9c0c5',
+    version: '1.0.1',
+    sha256: '0cb37769324e187d0e2d307ea006768150b229d8e07052b0671832663bb1cad7',
   },
   'inventory-tracker': {
     name: 'Store Inventory Tracker',

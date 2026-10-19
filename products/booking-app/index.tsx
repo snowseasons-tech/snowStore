@@ -65,8 +65,6 @@ export default function App() {
           <CardContent><p className="text-2xl font-bold text-sky-400">{days.length * timeSlots.length - weekCount}</p></CardContent></Card>
       </div>
 
-      </div>
-
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="border-slate-800 bg-slate-900">
           <CardHeader><CardTitle>New booking</CardTitle></CardHeader>
