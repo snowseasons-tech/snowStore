@@ -47,7 +47,7 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .flip>.back{rotate:y 180deg}
 .flip.flipped>.front{rotate:y -180deg}.flip.flipped>.back{rotate:y 0deg}
 .flip>[inert]{pointer-events:none}
-.tagline{font-size:.92rem;font-weight:600;color:var(--primary)}.flip .hint{font-size:.8rem;color:var(--muted)}.flip .price{margin-top:auto}.flip .actions{margin-top:0}
+.thumb{display:block;width:calc(100% + 48px);max-width:none;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:top left;margin:-24px -24px 4px;border-radius:15px 15px 0 0;border-bottom:1px solid var(--glass-b);background:var(--sec)}.tagline{font-size:.92rem;font-weight:600;color:var(--primary)}.flip .hint{font-size:.8rem;color:var(--muted)}.flip .price{margin-top:auto}.flip .actions{margin-top:0}
 .specs{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.92rem}.specs dt{color:var(--muted)}
 .back h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
 .codewrap{margin-top:24px;overflow-x:auto;border-radius:14px;background:var(--code);border:1px solid var(--glass-b);box-shadow:var(--shadow)}
@@ -122,50 +122,59 @@ const PRODUCTS=[
   blurb:"Scan or type an ISBN and get a live lookup with estimated used-market value and a quick profit check. Built for book resellers.",
   features:["Barcode-scanner friendly","Live data from Open Library and Google Books","Profit check and running scan list","Single HTML file, no backend"],
   delivery:"Single HTML file",runs:"Any modern browser",bestFor:"Book resellers sourcing at sales and thrift stores",
+  img:"img/products/bookscan.webp",alt:"BookScan Live showing a lookup for Effective Java with marketplace offers and a profit check",
   unit:"one-time"}, // price is loaded from Stripe via /api/products
  {id:"vanilla-webpage",name:"Vanilla Webpage Template",category:"Website Template",
   blurb:"A lightweight single-file products page for your own site. Open it in a browser and it works.",
   features:["Light and dark theme toggle","Responsive layout","No frameworks, no build step","Single HTML file, no dependencies"],
   delivery:"Single HTML file",runs:"Any browser or static host",bestFor:"Small businesses that want a simple products page",
+  img:"img/products/vanilla-webpage.webp",alt:"The Vanilla Webpage Template's header and hero section",
   unit:"one-time"},
  {id:"bi-dashboard",name:"BI Engagement Dashboard",category:"Business Intelligence",
   blurb:"A single-file operations dashboard for tracking client engagements and your project pipeline.",
   features:["KPI cards and pipeline charts","3-step engagement wizard","Filterable opportunity table","CSV export, no backend"],
   delivery:"Single HTML file",runs:"Any modern browser (charts load Chart.js from a CDN)",bestFor:"Consultants and agencies tracking client work",
+  img:"img/products/bi-dashboard.webp",alt:"BI Engagement Dashboard with KPI cards, a pipeline donut chart and engagements by service",
   unit:"one-time"},
  {id:"lead-generator",name:"Lead Generation Pipeline",category:"Sales Automation",
   blurb:"Turn a list of company names into websites, phone numbers and contact details, on your own machine.",
   features:["Finds each company's official website","Collects public emails, phones and names","Respects robots.txt, resumes after failures","Python scripts, runs nightly with cron"],
   delivery:"ZIP of Python scripts",runs:"Python 3 on Linux or macOS",bestFor:"Sales teams building prospect lists",
+  img:"img/products/lead-generator.svg",alt:"Diagram: company names become websites, then leads, then contacts, run with ./run_pipeline.sh",
   unit:"one-time"},
  {id:"blog-gen",name:"Blog Roundup Generator",category:"Content Automation",
   blurb:"Build weekly blog roundups from RSS feeds and web pages, with no APIs or AI costs.",
   features:["Pulls from RSS, listing pages or single URLs","Summaries with attribution links","Publishes drafts to Hugo, WordPress or Ghost","Node.js, runs on a schedule"],
   delivery:"ZIP of a Node.js project",runs:"Node.js 18 or newer",bestFor:"Newsletter and blog editors",
+  img:"img/products/blog-gen.svg",alt:"Diagram: RSS feeds, listing pages and single URLs become a weekly roundup posted to Hugo, WordPress or Ghost",
   unit:"one-time"},
  {id:"booking-app",name:"Booking App Component",category:"Web App",
   blurb:"A white-label weekly booking calendar to drop into your React app.",
   features:["Weekly slot grid with cancel","Double-booking prevention","Live booking and open-slot stats","React, TypeScript, Tailwind, shadcn/ui"],
   delivery:"ZIP with a React .tsx component",runs:"A React app with Tailwind and shadcn/ui",bestFor:"Developers adding appointments to a client site",
+  img:"img/products/booking-app.webp",alt:"Booking App weekly calendar with booked and open slots next to a new booking form",
   unit:"one-time"},
  {id:"inventory-tracker",name:"Store Inventory Tracker",category:"Retail",
   blurb:"Track stock for a small shop in one file that works offline, with no account or server.",
   features:["Low-stock and out-of-stock alerts","Search, filter and sort by SKU or category","CSV import and export","Stock value at cost and retail"],
   delivery:"ZIP with a single HTML file",runs:"Any modern browser, fully offline",bestFor:"Small shops and market sellers",
+  img:"img/products/inventory-tracker.webp",alt:"Store Inventory Tracker with stock totals and a product table flagging low and out-of-stock items",
   unit:"one-time"},
  {id:"invoice-generator",name:"Invoice Generator",category:"Small Business",
   blurb:"Make professional invoices in your browser and save them as PDFs. Built for freelancers and small sellers.",
   tagline:"No account, no watermark, your data stays local.",
   features:["Line items with discount, tax and shipping","Draft, Sent and Paid status with a PAID stamp","Saved invoices, JSON backup and CSV export","Prints a clean PDF from any browser"],
   delivery:"ZIP with a single HTML file",runs:"Any modern browser, fully offline",bestFor:"Freelancers and small sellers",
+  img:"img/products/invoice-generator.webp",alt:"Invoice Generator preview of a sample invoice with a $1,012.81 balance due",
   unit:"one-time"},
 ];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function notify(m){const n=$("#notice");n.textContent=m;n.style.display="block";clearTimeout(notify.t);notify.t=setTimeout(()=>n.style.display="none",4500)}
 const specs=p=>{const r=[["You get",p.delivery],["Runs on",p.runs],["Best for",p.bestFor]].filter(([,v])=>v).map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");return r&&`<h4>Details</h4><dl class="specs">${r}</dl>`};
+const thumb=p=>p.img?`<img class="thumb" src="${esc(p.img)}" alt="${esc(p.alt||"")}" width="800" height="450" loading="lazy" decoding="async">`:"";
 const tagline=p=>p.tagline?`<p class="tagline">${esc(p.tagline)}</p>`:"";
-$("#product-grid").innerHTML=PRODUCTS.map(p=>p.soon?`<article class="card soonc"><span class="tag soon">Coming soon</span><h3>${esc(p.name)}</h3><p class="sub">${esc(p.category)}</p><p>${esc(p.blurb)}</p>${tagline(p)}<div class="actions"><a class="btn alt" href="mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Notify me: "+p.name)}">Notify me</a></div></article>`:`<article class="flip"><div class="card front"><span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for features and requirements.</p><div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div><div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">Buy now</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
+$("#product-grid").innerHTML=PRODUCTS.map(p=>p.soon?`<article class="card soonc">${thumb(p)}<span class="tag soon">Coming soon</span><h3>${esc(p.name)}</h3><p class="sub">${esc(p.category)}</p><p>${esc(p.blurb)}</p>${tagline(p)}<div class="actions"><a class="btn alt" href="mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Notify me: "+p.name)}">Notify me</a></div></article>`:`<article class="flip"><div class="card front">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for features and requirements.</p><div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div><div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">Buy now</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
  +`<div class="card back" inert><h3>${esc(p.name)}</h3><h4>Features</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>${specs(p)}<div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div><div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">Buy now</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
 document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
  if(!t&&(e.target.closest("a,button")||String(getSelection())))return;
