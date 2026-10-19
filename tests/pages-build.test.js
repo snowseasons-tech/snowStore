@@ -13,7 +13,7 @@ test('dist contains only the public site', () => {
   const out = build({ root, out: fs.mkdtempSync(path.join(os.tmpdir(), 'dist-')) });
   const files = list(out).sort();
   for (const f of ['index.html', '404.html', 'success.html', 'cancel.html', 'privacy.html', 'refund.html', 'terms.html', 'page.css', '_headers',
-    'storefront/checkout.html', 'storefront/portal.html', 'storefront/portal.js', 'storefront/styles.css', 'img/hero-banner.jpg']) assert.ok(files.includes(f), `${f} missing`);
+    'storefront/checkout.html', 'storefront/portal.html', 'storefront/portal.js', 'storefront/styles.css', 'img/hero-banner.jpg', 'img/flake-1.png']) assert.ok(files.includes(f), `${f} missing`);
   const leaks = files.filter((f) => /^(api|functions|products|private-files|scripts|tests|node_modules|ecommerce-expert|\.)/.test(f) || /\.md$|\.env|package|vercel\.json/.test(f));
   assert.deepStrictEqual(leaks, []);
 });

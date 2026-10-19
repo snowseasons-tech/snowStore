@@ -4,10 +4,10 @@
 <title>Snow Seasons Tech: Standalone Business Apps</title>
 <script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(_){}</script>
 <style>
-:root{--bg:#f4f7fb;--text:#1f2937;--muted:#5b6472;--primary:#2878b5;--btn:#2878b5;--sec:#eef2f7;--glass:rgba(255,255,255,.6);--glass-b:rgba(255,255,255,.85);--hi:rgba(255,255,255,.7);--shadow:0 8px 30px rgba(31,41,55,.08);--glow:rgba(40,120,181,.35);--b1:rgba(40,120,181,.2);--b2:rgba(124,92,255,.14);--b3:rgba(0,184,217,.14);--hero-filter:none;--hero-sub:#4b5563;--code:#0f172a;--codet:#e2e8f0;--w:1100px;
+:root{--bg:#f4f7fb;--text:#1f2937;--muted:#5b6472;--primary:#2878b5;--btn:#2878b5;--sec:#eef2f7;--glass:rgba(255,255,255,.6);--glass-b:rgba(255,255,255,.85);--hi:rgba(255,255,255,.7);--shadow:0 8px 30px rgba(31,41,55,.08);--glow:rgba(40,120,181,.35);--b1:rgba(40,120,181,.2);--b2:rgba(124,92,255,.14);--b3:rgba(0,184,217,.14);--hero-filter:none;--flake:rgba(40,95,215,.75);--hero-sub:#4b5563;--code:#0f172a;--codet:#e2e8f0;--w:1100px;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--hero-filter:brightness(.34) saturate(1.15);--hero-sub:#d3d9e1;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--hero-filter:brightness(.34) saturate(1.15);--hero-sub:#d3d9e1;color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--hero-filter:brightness(.34) saturate(1.15);--flake:rgba(255,255,255,.85);--hero-sub:#d3d9e1;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--hero-filter:brightness(.34) saturate(1.15);--flake:rgba(255,255,255,.85);--hero-sub:#d3d9e1;color-scheme:dark}
 html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:var(--text);min-height:100vh;
@@ -50,8 +50,8 @@ footer{text-align:center;padding:40px 0;background:var(--glass);border-top:1px s
 #notice{display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--glass);color:var(--text);border:1px solid var(--glass-b);box-shadow:var(--shadow),0 0 24px -6px var(--glow);padding:12px 18px;border-radius:12px;max-width:90vw;z-index:200}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){header,.card,footer,#notice,.btn-toggle{background:var(--sec)}}
 .snow{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent)}
-.snow i{position:absolute;top:-10px;border-radius:50%;background:#fff;box-shadow:0 0 6px rgba(255,255,255,.9),0 0 2px rgba(40,120,181,.45);animation:snowfall linear infinite;will-change:transform}
-@keyframes snowfall{to{transform:translate3d(var(--dx),720px,0)}}
+.snow i{position:absolute;top:-40px;background:var(--flake);-webkit-mask:center/contain no-repeat;mask:center/contain no-repeat;animation:snowfall linear infinite;will-change:transform}
+@keyframes snowfall{to{transform:translate3d(var(--dx),760px,0) rotate(var(--rot))}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.card:hover,.btn:hover{transform:none}.snow{display:none}}
 @media(max-width:600px){nav{flex-wrap:wrap}.nav-links{gap:.75rem}#hero{padding:80px 0 64px}#hero h1{font-size:2.1rem}}
 </style></head>
@@ -150,9 +150,9 @@ $("#kit-dl").addEventListener("click",()=>{
  catch(_){notify("Couldn't start the download. Please try again.")}});
 (()=>{if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
  const w=document.createElement("div");w.className="snow";w.setAttribute("aria-hidden","true");
- for(let i=0;i<36;i++){const f=document.createElement("i"),z=2+Math.random()*4,d=9+Math.random()*10;
-  f.style.cssText=`left:${(Math.random()*100).toFixed(1)}%;width:${z.toFixed(1)}px;height:${z.toFixed(1)}px;opacity:${(.45+Math.random()*.5).toFixed(2)};animation-duration:${d.toFixed(1)}s;animation-delay:${(-Math.random()*d).toFixed(1)}s;--dx:${Math.round(Math.random()*80-40)}px`;
-  w.appendChild(f)}
+ for(let i=0;i<28;i++){const f=document.createElement("i"),z=10+Math.random()*16,d=10+Math.random()*12,img=`url(img/flake-${1+Math.floor(Math.random()*6)}.png)`;
+  f.style.cssText=`left:${(Math.random()*100).toFixed(1)}%;width:${z.toFixed(1)}px;height:${z.toFixed(1)}px;opacity:${(.5+Math.random()*.5).toFixed(2)};animation-duration:${d.toFixed(1)}s;animation-delay:${(-Math.random()*d).toFixed(1)}s;--dx:${Math.round(Math.random()*90-45)}px;--rot:${Math.round(Math.random()*360-180)}deg`;
+  f.style.webkitMaskImage=f.style.maskImage=img;w.appendChild(f)}
  $("#hero").prepend(w)})();
 const tg=$("#theme-toggle"),root=document.documentElement;
 const isDark=()=>root.dataset.theme?root.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
