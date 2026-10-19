@@ -22,8 +22,8 @@ module.exports = {
     filename: 'vanilla-webpage.html',
     category: 'utilities',
     blurb: 'A lightweight single-file products page with light/dark theme, responsive layout and no dependencies. Open it in a browser and it works.',
-    version: '1.0.0',
-    sha256: 'e9783abe5d22df5702139dae7ee824ad4295f1633a2a728db7de5e9f8c527283',
+    version: '1.1.0',
+    sha256: '2b33fef11b4c4d9546a5be5cec68dbe160ec3d5a2c12881574179fe25e902ca7',
   },
   'bi-dashboard': {
     name: 'BI Engagement Dashboard',

@@ -1,75 +1,74 @@
-# Snow Seasons — Vanilla Webpage Template
+# Vanilla Webpage Template
 
-A lightweight, dependency-free single-page website template for a products page. Everything — HTML, CSS, and JavaScript — lives in one self-contained `index.html` file. No frameworks, no build step, no CDNs. Open it in a browser and it works.
+A lightweight, dependency-free products page for your own site. Everything (HTML, CSS and JavaScript) lives in one self-contained `index.html` file. No frameworks, no build step, no CDNs. Open it in a browser and it works.
 
 Built by Snow Seasons Tech ([snowseasonstech.net](https://snowseasonstech.net)).
 
 ## Features
 
-- **Zero dependencies** — pure HTML, CSS, and vanilla JS in a single file
-- **Light/dark theme toggle** — driven by a `data-theme` attribute on `<html>`, with an accessible `aria-pressed` state on the toggle button
-- **CSS variable theming** — all colors and the container width are defined once in `:root` and overridden for dark mode
-- **Responsive layout** — auto-fit card grid plus a mobile breakpoint at 600px that reflows the nav and scales the hero
-- **Sticky header** with smooth anchor navigation to the About and Features sections
-- **Semantic, accessible markup** — `header`/`main`/`footer` landmarks, `aria-label` on the nav, real `<button>` for the theme toggle
+- **Zero dependencies**: pure HTML, CSS and vanilla JS in a single file. Icons are inline SVG.
+- **Products grid**: three product cards with image area, badge, description, price and Buy button. Copy a card to add more; the grid adjusts on its own.
+- **Light/dark theme**: follows the visitor's system setting until they pick, then remembers their choice. No flash of the wrong theme on load.
+- **CSS variable theming**: every color, the corner radius and the container width are set once in `:root`.
+- **Responsive layout**: auto-fit grids, and on phones the nav links move to their own row under the logo.
+- **Accessible by default**: landmarks, labelled nav, a real `<button>` for the theme toggle with `aria-pressed`, visible keyboard focus, and reduced-motion support.
 
-## Page Structure
+## Page structure
 
 | Section | ID | Contents |
-|---------|----|----------|
-| Header / Nav | — | "Snow Seasons" logo, anchor links (About, Features), theme toggle |
-| Hero | `#hero` | Headline, intro copy, "Explore features" call-to-action |
-| About | `#about` | Blurb about BI/CI/CD pipelines and micro-SaaS offerings |
-| Features | `#features` | Three cards: Responsive layout, Theme toggle, Easy to customize |
-| Footer | — | © 2026 snowseasonstech.net |
+| --- | --- | --- |
+| Header / Nav | — | Logo, links (Products, About, Features, Contact), theme toggle |
+| Hero | `#hero` | Eyebrow, headline, intro copy, two buttons, a short reassurance line |
+| Products | `#products` | Three product cards: Starter Kit, Pro Toolkit, Complete Bundle |
+| About | `#about` | Short story plus four stat tiles |
+| Features | `#features` | Three "why us" cards with icons |
+| Contact | `#contact` | Call-to-action banner with an email button |
+| Footer | — | Copyright with the current year, Privacy, Terms and email links |
+
+All copy is placeholder text written as instructions ("Describe the first benefit…"), so it's clear what to replace.
 
 ## Theming
 
-All visual styling is controlled by CSS variables in the `<style>` block:
+Edit the variables at the top of the `<style>` block. Dark mode overrides the color values.
 
 | Variable | Purpose | Light | Dark |
-|----------|---------|-------|------|
-| `--bg-color` | Page background | `#ffffff` | `#1a1a1a` |
-| `--text-color` | Body text | `#333333` | `#f4f4f4` |
-| `--primary-color` | Logo, links, buttons | `#3498db` | *(same)* |
-| `--secondary-color` | Header, footer, cards | `#f4f4f4` | `#2d2d2d` |
-| `--accent-color` | Accent (available, currently unused in markup) | `#e74c3c` | *(same)* |
+| --- | --- | --- | --- |
+| `--bg-color` | Page background | `#ffffff` | `#0f1218` |
+| `--text-color` | Body text | `#1f2937` | `#e8ebf0` |
+| `--muted-color` | Secondary text | `#5b6472` | `#a3abb8` |
+| `--primary-color` | Logo mark, links, buttons | `#2563eb` | `#6ea8fe` |
+| `--primary-text` | Text on primary buttons | `#ffffff` | `#0b1220` |
+| `--accent-color` | "Most popular" badge | `#ea580c` | `#fb923c` |
+| `--secondary-color` | Alternating sections, hover backgrounds | `#f3f5f8` | `#161b23` |
+| `--card-color` | Card backgrounds | `#ffffff` | `#1a2029` |
+| `--border-color` | Borders and dividers | `#e3e7ee` | `#2a323f` |
+| `--shadow` | Card shadow | soft | deeper |
+| `--radius` | Card corner radius | `14px` | — |
 | `--container-width` | Max content width | `1100px` | — |
-| `--transition` | Global transition preset | `all 0.3s ease` | — |
+| `--transition` | Hover transition timing | `0.2s ease` | — |
 
-To rebrand the template, edit `--primary-color` and the logo text in the header — the rest follows automatically.
+To rebrand: change `--primary-color` (and its dark value), the logo text and the letter in `.logo-mark`. The dark values appear twice, once under `[data-theme="dark"]` and once under `prefers-color-scheme: dark`, so update both.
 
-## How the Theme Toggle Works
+## Product images
 
-```js
-const themeToggle = document.querySelector("#theme-toggle");
+Each card starts with a colored placeholder (`<div class="thumb thumb-1">`). To use a photo, replace that `<div>` with:
 
-themeToggle.addEventListener("click", () => {
-    const isDark = document.documentElement.dataset.theme !== "dark";
-    document.documentElement.dataset.theme = isDark ? "dark" : "light";
-    themeToggle.setAttribute("aria-pressed", String(isDark));
-});
+```html
+<img class="thumb" src="images/starter-kit.jpg" alt="Starter Kit in its box">
 ```
 
-Clicking the toggle flips the `data-theme` attribute between `dark` and `light`, which swaps the CSS variable overrides. The `aria-pressed` attribute keeps the button's state exposed to assistive technology.
+The image is cropped to a 16:10 frame, so it can be any size.
 
-## Getting Started
+## Buy buttons
+
+The Buy buttons link to `#contact` by default. Point each one at your checkout: a Stripe Payment Link, a Gumroad or Lemon Squeezy product URL, or a `mailto:` link.
+
+## Getting started
 
 1. Save `index.html` anywhere.
-2. Open it in any modern browser — no server or build tooling required.
-3. Customize the colors, copy, and sections to fit your product.
+2. Open it in any modern browser; no server or build tooling required.
+3. Replace the copy, prices and links, then upload it to any static host (Netlify, Cloudflare Pages, GitHub Pages or your own server).
 
-## Customization Ideas
+## How the theme toggle works
 
-- **Content** — replace the hero headline and the three feature cards with your product's benefits.
-- **Persistence** — the theme choice currently resets on reload; save it with `localStorage` and set `data-theme` on page load.
-- **More sections** — duplicate a `<section>` block; nav links use anchor IDs (`#about`, `#features`).
-- **Typography** — swap the `font-family` stack (`Segoe UI, Tahoma, Geneva, Verdana, sans-serif`).
-- **Accent color** — `--accent-color` is defined but not yet used; wire it into badges or highlights.
-
-## Accessibility Notes
-
-- Navigation has `aria-label="Main navigation"`.
-- The toggle button is a real `<button type="button">` with `aria-pressed` tracking the current theme.
-- All interactive elements are reachable via keyboard; hover/focus styles come from the global transition.
-- One note: the intro copy contains a typo ("envirnment") you may want to fix before publishing.
+A tiny script in `<head>` applies a saved theme before the page paints. The toggle button flips `data-theme` on `<html>` between `light` and `dark`, saves the choice in `localStorage`, and updates its label and `aria-pressed`. With nothing saved, the page follows the visitor's system setting through `prefers-color-scheme`. If storage is blocked, the toggle still works for the current visit.
