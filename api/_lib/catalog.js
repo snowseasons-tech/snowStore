@@ -45,6 +45,16 @@ module.exports = {
     version: '1.0.0',
     sha256: 'af5645308b4682f9506d4453adfbcb44dfc826cf9f26f76e5e711534e259aae3',
   },
+  'blog-gen': {
+    name: 'Blog Roundup Generator',
+    priceEnv: 'PRICE_BLOG_GEN',
+    fileKey: 'blog-gen/blog-gen.zip',
+    filename: 'blog-gen.zip',
+    category: 'utilities',
+    blurb: 'Build weekly blog roundups from RSS feeds and web pages, then publish drafts to Hugo, WordPress or Ghost. No APIs or AI costs.',
+    version: '1.0.0',
+    sha256: '6123220c5212a2bac4c6130cada0dfa1baddf711fb133d245a78e0305e4e9f29',
+  },
   // Example subscription product (uncomment, create the recurring Price in Stripe test mode first):
   // 'bi-dashboards': { name: 'BI Dashboards', kind: 'subscription', priceEnv: 'PRICE_BI_MONTHLY', appUrl: 'https://app.snowseasonstech.net/bi' },
 };
