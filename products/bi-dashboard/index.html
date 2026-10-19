@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SnowSeasonsTech | Engagement Dashboard</title>
+  <title>Your Company | Engagement Dashboard</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>
@@ -29,8 +29,8 @@
   <!-- Sidebar -->
   <aside class="w-64 bg-slate-950 border-r border-slate-800 flex flex-col justify-between shrink-0">
     <div>
-      <a href="https://snowseasonstech.net" target="_blank" rel="noopener noreferrer" class="h-16 flex items-center px-6 border-b border-slate-800 font-bold text-lg text-sky-400">
-        SnowSeasonsTech
+      <a href="#" class="h-16 flex items-center px-6 border-b border-slate-800 font-bold text-lg text-sky-400">
+        Your Company
       </a>
       <nav class="p-4 space-y-1">
         <button onclick="switchTab('overview')" id="nav-overview" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-sky-600/20 text-sky-400">
@@ -76,7 +76,7 @@
 
       <!-- SECTION 1: DASHBOARD OVERVIEW -->
       <section id="tab-overview" class="tab-content space-y-6">
-        <p class="text-sm text-slate-400">Illustrative sample records only. This dashboard is not connected to SnowSeasonsTech systems or live company metrics.</p>
+        <p class="text-sm text-slate-400">Sample records are included to show how the dashboard works. Replace them with your own data.</p>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="bg-slate-800/50 border border-slate-700/50 p-5 rounded-xl">
             <p class="text-sm text-slate-400 font-medium">Active Engagements</p>
@@ -209,7 +209,7 @@
           <div>
             <p class="text-sm text-slate-400">Security-first engineering for systems that matter.</p>
           </div>
-          <a href="https://snowseasonstech.net/" target="_blank" rel="noopener noreferrer" class="text-sm text-sky-400 hover:text-sky-300">Explore all services ↗</a>
+          <a href="#" class="text-sm text-sky-400 hover:text-sky-300">Explore all services ↗</a>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           <article class="bg-slate-800/50 border border-slate-700/50 p-5 rounded-xl">
@@ -426,7 +426,7 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'snowseasonstech-opportunities.csv';
+      link.download = 'opportunities.csv';
       link.click();
       URL.revokeObjectURL(url);
     }

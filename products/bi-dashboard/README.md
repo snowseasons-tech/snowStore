@@ -29,7 +29,7 @@ Includes a live progress bar and step indicator. On submit, the new engagement i
 - Sortable opportunity table with color-coded fit scores (green > 70, amber otherwise) and status badges.
 - **Filters**: view all opportunities or only those with a fit score above 75.
 - **Add Opportunity** modal for creating new entries (organization, service area, fit score 0–100, status).
-- **Export CSV** — downloads the current opportunity list as `snowseasonstech-opportunities.csv` (UTF-8 with BOM, CSV-injection safe: cells beginning with `=`, `+`, `-`, or `@` are neutralized).
+- **Export CSV** — downloads the current opportunity list as `opportunities.csv` (UTF-8 with BOM, CSV-injection safe: cells beginning with `=`, `+`, `-`, or `@` are neutralized).
 
 ### 4. Services
 

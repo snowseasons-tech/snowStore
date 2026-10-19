@@ -33,7 +33,7 @@ module.exports = {
     category: 'utilities',
     blurb: 'A single-file operations dashboard with KPI cards, pipeline charts, an engagement wizard and CSV export. No backend needed.',
     version: '1.0.0',
-    sha256: '137393acb1f7123af783d31139807ab875878e4b193d84e4275dfc276bdeb0af',
+    sha256: 'ec9549da34d85b76a2059a231be5c716be471cabeb7cb0f1509ebac6ea1f1c2f',
   },
   // Example subscription product (uncomment, create the recurring Price in Stripe test mode first):
   // 'bi-dashboards': { name: 'BI Dashboards', kind: 'subscription', priceEnv: 'PRICE_BI_MONTHLY', appUrl: 'https://app.snowseasonstech.net/bi' },
