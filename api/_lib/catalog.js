@@ -55,6 +55,16 @@ module.exports = {
     version: '1.0.0',
     sha256: '6123220c5212a2bac4c6130cada0dfa1baddf711fb133d245a78e0305e4e9f29',
   },
+  'booking-app': {
+    name: 'Booking App Component',
+    priceEnv: 'PRICE_BOOKING_APP',
+    fileKey: 'booking-app/booking-app.zip',
+    filename: 'booking-app.zip',
+    category: 'utilities',
+    blurb: 'A white-label weekly booking calendar for React with double-booking prevention and live stats. Built with TypeScript, Tailwind and shadcn/ui.',
+    version: '1.0.0',
+    sha256: 'fd70633d62ddc524c88d53285bbd1fa58ac6065a8320f655ef3456c02ce9c0c5',
+  },
   // Example subscription product (uncomment, create the recurring Price in Stripe test mode first):
   // 'bi-dashboards': { name: 'BI Dashboards', kind: 'subscription', priceEnv: 'PRICE_BI_MONTHLY', appUrl: 'https://app.snowseasonstech.net/bi' },
 };
