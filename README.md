@@ -1,6 +1,6 @@
 # micro-saas-site
 
-Storefront for [Snow Seasons Technologies](https://snowseasonstech.net): a static site plus Cloudflare Pages Functions that sell digital products through Stripe Checkout, deliver files from a private S3/R2 bucket, and run a small customer portal.
+Storefront for [Snow Seasons Technologies](https://snowseasonstech.store): a static site plus Cloudflare Pages Functions that sell digital products through Stripe Checkout, deliver files from a private S3/R2 bucket, and run a small customer portal.
 
 ## How it works
 
@@ -53,7 +53,7 @@ Set these in Cloudflare Pages (Settings → Variables and Secrets; use test-mode
 
 | Variable | Purpose |
 |---|---|
-| `SITE_URL` | Public base URL, e.g. `https://snowseasonstech.net` (used for redirects and email links) |
+| `SITE_URL` | Public base URL, e.g. `https://snowseasonstech.store` (used for redirects and email links) |
 | `STRIPE_SECRET_KEY` | Stripe secret key. Live keys (`sk_live_`) are refused unless `ALLOW_LIVE=1` |
 | `ALLOW_LIVE` | Set to `1` only on the production deployment |
 | `STRIPE_WEBHOOK_SECRET` | Signing secret of the webhook endpoint |
@@ -100,4 +100,4 @@ Deployed on Cloudflare Pages, connected to this repo's `main` branch.
 | Functions | `functions/` at the repo root (picked up automatically) |
 | Compatibility flags | `nodejs_compat`, set in `wrangler.toml` (required: `api/_lib/` uses Node's `crypto`) |
 
-`scripts/build-pages.js` copies only an allowlist into `dist/` (site pages, `page.css`, `storefront/`, `_headers`), so `products/`, `api/`, `scripts/`, `tests/` and Markdown are never published. Point the production domain (`snowseasonstech.net`) at this Pages project, not at GitHub Pages.
+`scripts/build-pages.js` copies only an allowlist into `dist/` (site pages, `page.css`, `storefront/`, `_headers`), so `products/`, `api/`, `scripts/`, `tests/` and Markdown are never published. Point the production domain (`snowseasonstech.store`) at this Pages project (Custom domains), not at GitHub Pages.

@@ -13,7 +13,7 @@
   "dependencies": {
     "stripe": "^23.0.0"
   },
-  "description": "Storefront for [Snow Seasons Technologies](https://snowseasonstech.net): a static site plus Vercel serverless functions that sell digital products through Stripe Checkout, deliver files from a private S3/R2 bucket, and run a small customer portal.",
+  "description": "Storefront for [Snow Seasons Technologies](https://snowseasonstech.store): a static site plus Vercel serverless functions that sell digital products through Stripe Checkout, deliver files from a private S3/R2 bucket, and run a small customer portal.",
   "directories": {
     "test": "tests"
   },
