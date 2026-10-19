@@ -47,7 +47,7 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .flip>.back{rotate:y 180deg}
 .flip.flipped>.front{rotate:y -180deg}.flip.flipped>.back{rotate:y 0deg}
 .flip>[inert]{pointer-events:none}
-.flip .hint{font-size:.8rem;color:var(--muted)}.flip .price{margin-top:auto}.flip .actions{margin-top:0}
+.tagline{font-size:.92rem;font-weight:600;color:var(--primary)}.flip .hint{font-size:.8rem;color:var(--muted)}.flip .price{margin-top:auto}.flip .actions{margin-top:0}
 .specs{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.92rem}.specs dt{color:var(--muted)}
 .back h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
 .codewrap{margin-top:24px;overflow-x:auto;border-radius:14px;background:var(--code);border:1px solid var(--glass-b);box-shadow:var(--shadow)}
@@ -153,12 +153,19 @@ const PRODUCTS=[
   features:["Low-stock and out-of-stock alerts","Search, filter and sort by SKU or category","CSV import and export","Stock value at cost and retail"],
   delivery:"ZIP with a single HTML file",runs:"Any modern browser, fully offline",bestFor:"Small shops and market sellers",
   unit:"one-time"},
+ {id:"invoice-generator",name:"Invoice Generator",category:"Small Business",
+  blurb:"Make professional invoices in your browser and save them as PDFs. Built for freelancers and small sellers.",
+  tagline:"No account, no watermark, your data stays local.",
+  features:["Line items with discount, tax and shipping","Draft, Sent and Paid status with a PAID stamp","Saved invoices, JSON backup and CSV export","Prints a clean PDF from any browser"],
+  delivery:"ZIP with a single HTML file",runs:"Any modern browser, fully offline",bestFor:"Freelancers and small sellers",
+  unit:"one-time",soon:true}, // remove soon once PRICE_INVOICE_GENERATOR and the catalog entry exist
 ];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function notify(m){const n=$("#notice");n.textContent=m;n.style.display="block";clearTimeout(notify.t);notify.t=setTimeout(()=>n.style.display="none",4500)}
 const specs=p=>{const r=[["You get",p.delivery],["Runs on",p.runs],["Best for",p.bestFor]].filter(([,v])=>v).map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");return r&&`<h4>Details</h4><dl class="specs">${r}</dl>`};
-$("#product-grid").innerHTML=PRODUCTS.map(p=>p.soon?`<article class="card soonc"><span class="tag soon">Coming soon</span><h3>${esc(p.name)}</h3><p class="sub">${esc(p.category)}</p><p>${esc(p.blurb)}</p><div class="actions"><a class="btn alt" href="mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Notify me: "+p.name)}">Notify me</a></div></article>`:`<article class="flip"><div class="card front"><span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p><p class="hint">Click the card for features and requirements.</p><div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div><div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">Buy now</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
+const tagline=p=>p.tagline?`<p class="tagline">${esc(p.tagline)}</p>`:"";
+$("#product-grid").innerHTML=PRODUCTS.map(p=>p.soon?`<article class="card soonc"><span class="tag soon">Coming soon</span><h3>${esc(p.name)}</h3><p class="sub">${esc(p.category)}</p><p>${esc(p.blurb)}</p>${tagline(p)}<div class="actions"><a class="btn alt" href="mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Notify me: "+p.name)}">Notify me</a></div></article>`:`<article class="flip"><div class="card front"><span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for features and requirements.</p><div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div><div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">Buy now</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
  +`<div class="card back" inert><h3>${esc(p.name)}</h3><h4>Features</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>${specs(p)}<div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div><div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">Buy now</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
 document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
  if(!t&&(e.target.closest("a,button")||String(getSelection())))return;
