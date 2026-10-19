@@ -4,10 +4,10 @@
 <title>Snow Seasons Tech: Standalone Business Apps</title>
 <script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(_){}</script>
 <style>
-:root{--bg:#f4f7fb;--text:#1f2937;--muted:#5b6472;--primary:#2878b5;--btn:#2878b5;--sec:#eef2f7;--glass:rgba(255,255,255,.6);--glass-b:rgba(255,255,255,.85);--hi:rgba(255,255,255,.7);--shadow:0 8px 30px rgba(31,41,55,.08);--glow:rgba(40,120,181,.35);--b1:rgba(40,120,181,.2);--b2:rgba(124,92,255,.14);--b3:rgba(0,184,217,.14);--code:#0f172a;--codet:#e2e8f0;--w:1100px;
+:root{--bg:#f4f7fb;--text:#1f2937;--muted:#5b6472;--primary:#2878b5;--btn:#2878b5;--sec:#eef2f7;--glass:rgba(255,255,255,.6);--glass-b:rgba(255,255,255,.85);--hi:rgba(255,255,255,.7);--shadow:0 8px 30px rgba(31,41,55,.08);--glow:rgba(40,120,181,.35);--b1:rgba(40,120,181,.2);--b2:rgba(124,92,255,.14);--b3:rgba(0,184,217,.14);--hero-filter:none;--hero-sub:#4b5563;--code:#0f172a;--codet:#e2e8f0;--w:1100px;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--hero-filter:brightness(.34) saturate(1.15);--hero-sub:#d3d9e1;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--hero-filter:brightness(.34) saturate(1.15);--hero-sub:#d3d9e1;color-scheme:dark}
 html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:var(--text);min-height:100vh;
@@ -29,9 +29,10 @@ box-shadow:0 4px 14px -4px var(--glow);transition:box-shadow .2s,transform .2s}
 .btn.alt{background:transparent;color:var(--primary);border-color:var(--primary);box-shadow:none}
 .btn.alt:hover{box-shadow:0 0 18px -4px var(--glow)}
 .btn-toggle{background:var(--glass);color:var(--text);border:1px solid var(--glass-b);box-shadow:none;padding:6px 12px;font-size:.8rem}
-#hero{padding:100px 0 72px;text-align:center}
+#hero{position:relative;isolation:isolate;overflow:hidden;padding:120px 0 104px;text-align:center}
+#hero::before{content:"";position:absolute;inset:0;z-index:-1;background:url(img/hero-banner.jpg) center/cover no-repeat;filter:var(--hero-filter);-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent)}
 #hero h1{font-size:3rem;line-height:1.15;margin-bottom:1rem;background:linear-gradient(120deg,var(--text) 35%,var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 28px var(--glow))}
-#hero p{max-width:640px;margin:0 auto 1.5rem;color:var(--muted)}
+#hero p{max-width:640px;margin:0 auto 1.5rem;color:var(--hero-sub)}
 section{padding:56px 0}.sub{color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;margin-top:28px}
 .card{background:var(--glass);border:1px solid var(--glass-b);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px;
@@ -49,7 +50,7 @@ footer{text-align:center;padding:40px 0;background:var(--glass);border-top:1px s
 #notice{display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--glass);color:var(--text);border:1px solid var(--glass-b);box-shadow:var(--shadow),0 0 24px -6px var(--glow);padding:12px 18px;border-radius:12px;max-width:90vw;z-index:200}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){header,.card,footer,#notice,.btn-toggle{background:var(--sec)}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.card:hover,.btn:hover{transform:none}}
-@media(max-width:600px){nav{flex-wrap:wrap}.nav-links{gap:.75rem}#hero{padding:64px 0 48px}#hero h1{font-size:2.1rem}}
+@media(max-width:600px){nav{flex-wrap:wrap}.nav-links{gap:.75rem}#hero{padding:80px 0 64px}#hero h1{font-size:2.1rem}}
 </style></head>
 <body>
 <header><nav class="container" aria-label="Main navigation">
