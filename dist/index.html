@@ -50,7 +50,7 @@ footer{text-align:center;padding:40px 0;background:var(--sec);color:var(--muted)
 <a class="btn" href="#products">Browse products</a></div></section>
 
 <section id="products"><div class="container">
-<h2>Products</h2><p class="sub">BI tools, CI/CD pipelines and micro-SaaS apps, each a self-contained package.</p>
+<h2>Products</h2><p class="sub">Dashboards, templates and automation tools, each a self-contained package.</p>
 <div class="grid" id="product-grid"></div></div></section>
 
 <section id="kit"><div class="container">
@@ -114,7 +114,6 @@ const PRODUCTS=[
   blurb:"A white-label weekly booking calendar to drop into your React app.",
   features:["Weekly slot grid with cancel","Double-booking prevention","Live booking and open-slot stats","React, TypeScript, Tailwind, shadcn/ui"],
   unit:"one-time"},
- {id:"cicd",name:"CI/CD Pipelines",category:"DevOps",blurb:"Pre-tested build, test and deploy pipeline templates.",soon:true}
 ];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
