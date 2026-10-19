@@ -31,7 +31,7 @@ box-shadow:0 4px 14px -4px var(--glow);transition:box-shadow .2s,transform .2s}
 .btn-toggle{background:var(--glass);color:var(--text);border:1px solid var(--glass-b);box-shadow:none;padding:6px 12px;font-size:.8rem}
 #hero{position:relative;isolation:isolate;overflow:hidden;padding:120px 0 104px;text-align:center}
 #hero::before{content:"";position:absolute;inset:0;z-index:-1;background:url(img/hero-banner.jpg) center/cover no-repeat;filter:var(--hero-filter);-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent)}
-#hero h1{font-size:3rem;line-height:1.15;margin-bottom:1rem;background:linear-gradient(120deg,var(--text) 35%,var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 28px var(--glow))}
+#hero h1{font-size:3rem;line-height:1.15;margin-bottom:1rem;color:var(--text);text-shadow:0 0 28px var(--glow)}
 #hero p{max-width:640px;margin:0 auto 1.5rem;color:var(--hero-sub)}
 section{padding:56px 0}.sub{color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;margin-top:28px}
@@ -155,7 +155,7 @@ $("#kit-dl").addEventListener("click",()=>{
   w.appendChild(f)}
  $("#hero").prepend(w)})();
 const tg=$("#theme-toggle"),root=document.documentElement;
-const isDark=()=>getComputedStyle(root).colorScheme==="dark";
+const isDark=()=>root.dataset.theme?root.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
 const syncToggle=()=>{const d=isDark();tg.setAttribute("aria-pressed",String(d));tg.textContent=d?"Light mode":"Dark mode"};
 tg.addEventListener("click",()=>{const next=isDark()?"light":"dark";root.dataset.theme=next;try{localStorage.setItem("theme",next)}catch(_){}syncToggle()});
 syncToggle();
