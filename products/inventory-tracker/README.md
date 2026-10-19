@@ -1,8 +1,6 @@
-# Snow Seasons — Store Inventory Tracker
+# Store Inventory Tracker
 
 A single-file inventory tracker for small sellers. Open `inventory_tracker_application.html` in a browser and start adding products. There is no account, server, or install, and your data stays on your own device.
-
-Built by Snow Seasons Tech ([snowseasonstech.store](https://snowseasonstech.store)).
 
 ## Quick start
 

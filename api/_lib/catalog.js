@@ -65,6 +65,16 @@ module.exports = {
     version: '1.0.0',
     sha256: 'fd70633d62ddc524c88d53285bbd1fa58ac6065a8320f655ef3456c02ce9c0c5',
   },
+  'inventory-tracker': {
+    name: 'Store Inventory Tracker',
+    priceEnv: 'PRICE_INVENTORY_TRACKER',
+    fileKey: 'inventory-tracker/inventory-tracker.zip',
+    filename: 'inventory-tracker.zip',
+    category: 'utilities',
+    blurb: 'A single-file inventory tracker for small sellers: stock levels, low-stock alerts and CSV import/export. Works offline, no account.',
+    version: '1.0.0',
+    sha256: '7c73c7acfa63c4ea617d58dd906b719518069dcb63a68f1cbb0fc82de83a5812',
+  },
   // Example subscription product (uncomment, create the recurring Price in Stripe test mode first):
   // 'bi-dashboards': { name: 'BI Dashboards', kind: 'subscription', priceEnv: 'PRICE_BI_MONTHLY', appUrl: 'https://app.snowseasonstech.net/bi' },
 };
