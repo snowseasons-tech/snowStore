@@ -75,6 +75,16 @@ module.exports = {
     version: '1.0.0',
     sha256: '7c73c7acfa63c4ea617d58dd906b719518069dcb63a68f1cbb0fc82de83a5812',
   },
+  'invoice-generator': {
+    name: 'Invoice Generator',
+    priceEnv: 'PRICE_INVOICE_GENERATOR',
+    fileKey: 'invoice-generator/invoice-generator.zip',
+    filename: 'invoice-generator.zip',
+    category: 'utilities',
+    blurb: 'Make professional invoices in your browser and save them as PDFs. No account, no watermark, your data stays local.',
+    version: '1.0.0',
+    sha256: '0b342147f90fb8af2d770119814886cb5e18e21a985207f708171158539a0024',
+  },
   // Example subscription product (uncomment, create the recurring Price in Stripe test mode first):
   // 'bi-dashboards': { name: 'BI Dashboards', kind: 'subscription', priceEnv: 'PRICE_BI_MONTHLY', appUrl: 'https://app.snowseasonstech.net/bi' },
 };
