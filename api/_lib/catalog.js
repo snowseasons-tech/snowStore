@@ -32,8 +32,8 @@ module.exports = {
     filename: 'bi-dashboard.html',
     category: 'utilities',
     blurb: 'A single-file operations dashboard with KPI cards, pipeline charts, an engagement wizard and CSV export. No backend needed.',
-    version: '1.1.0',
-    sha256: 'e37b6c44d7c4daa2598afb921fac76ee2505986b58d36d6cfcc44fe2f86d25d2',
+    version: '1.2.0',
+    sha256: '8c5e89a8f47ba8ee08389458f568825019a9e447ed8a0ff31161f27e072d918e',
   },
   'lead-generator': {
     name: 'Lead Generation Pipeline',

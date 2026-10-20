@@ -6,7 +6,7 @@ A single-file, dark-themed operations dashboard for managing client engagements 
 
 ## Features
 
-**Works on phones first.** On small screens the sidebar becomes a slide-in menu (☰), the opportunity table shows each service under the organization name, and Add Opportunity opens as a bottom sheet. Form fields use 16px text so iPhones don't zoom in. From tablet width up you get the full sidebar layout.
+**Works on phones first.** On small screens the sidebar becomes a slide-in menu (☰), the opportunity table shows each service under the organization name, and Add Opportunity opens as a bottom sheet. Form fields use 16px text so iPhones don't zoom in. From tablet width up you get the full sidebar, which collapses to an icon rail with the « button (the choice is remembered on that device).
 
 ### 1. Operations Overview
 
@@ -14,7 +14,12 @@ A single-file, dark-themed operations dashboard for managing client engagements 
 - **Opportunity Pipeline** — a donut chart showing the distribution of opportunities by status (Hot / Warm / Contacted).
 - **Engagements by Service** — a horizontal bar chart counting engagements across the six service lines.
 
-Both charts are powered by Chart.js and re-render automatically whenever an engagement or opportunity is added.
+- **Opportunities by Location**: a US map with a dot per opportunity, colored by status and sized by fit score.
+- **Engagements by County**: a US county map that highlights counties with engagements, with a Top counties list underneath (most counties are too small to read at national scale).
+
+All charts and maps are powered by Chart.js and re-render automatically whenever an engagement or opportunity is added.
+
+**Locations** are picked from a dropdown in both forms. To change the list, edit `LOCATIONS` near the top of the script: each entry has a longitude, a latitude and the 5-digit county FIPS code (search "<county name> county FIPS" to find one).
 
 ### 2. New Engagement (3-step wizard)
 
@@ -58,6 +63,7 @@ Each links back to the live site for details.
 - **HTML5** — single self-contained `index.html` file
 - **Tailwind CSS** (CDN, Play CDN with custom `brand` color palette)
 - **Chart.js** (CDN) for donut and bar charts
+- **chartjs-chart-geo** (CDN) for the maps, with US county and state outlines from **us-atlas** (CDN, about 250 KB)
 - **Vanilla JavaScript** — all state and rendering handled client-side
 
 No build tooling, dependencies, or server required.
@@ -68,7 +74,7 @@ No build tooling, dependencies, or server required.
 2. Open it in any modern browser (double-click, or serve it with any static server).
 3. That's it — the dashboard initializes with sample data on load.
 
-> **Internet connection required** for the Tailwind CSS and Chart.js CDNs.
+> **Internet connection required** for the Tailwind CSS, Chart.js and map CDNs. Without the map data, the map cards say so and the rest of the dashboard still works.
 
 ## How It Works
 
