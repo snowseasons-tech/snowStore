@@ -6,6 +6,8 @@ A single-file, dark-themed operations dashboard for managing client engagements 
 
 ## Features
 
+**Works on phones first.** On small screens the sidebar becomes a slide-in menu (☰), the opportunity table shows each service under the organization name, and Add Opportunity opens as a bottom sheet. Form fields use 16px text so iPhones don't zoom in. From tablet width up you get the full sidebar layout.
+
 ### 1. Operations Overview
 
 - **KPI cards**: Active Engagements, Open Opportunities, and Average Fit Score (X/100), all updated live as data changes.
