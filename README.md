@@ -15,7 +15,7 @@ Storefront for [Snow Seasons Technologies](https://snowseasonstech.store): a sta
 | Path | What it is |
 |---|---|
 | `index.html`, `privacy.html`, `terms.html`, `refund.html`, `success.html`, `cancel.html`, `page.css` | Public site pages |
-| `storefront/` | Checkout page and customer portal (`portal.html`, `portal.js`) |
+| `storefront/` | Customer portal (`portal.html`, `portal.js`, `styles.css`) at `/storefront/portal.html` |
 | `functions/` | Cloudflare Pages Functions that serve `/api/*` in production (one file per endpoint) |
 | `api/` | Original Vercel-style handlers; kept because `functions/` reuses `api/_lib/` |
 | `api/_lib/` | Shared helpers: catalog, Stripe, store (Upstash/in-memory), auth, mail (Resend), fulfilment, SigV4 presigning |

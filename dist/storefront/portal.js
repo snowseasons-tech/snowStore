@@ -69,9 +69,9 @@
     card.appendChild(el('span','product-tier',p.interval?'SUBSCRIPTION':'ONE-TIME'));
     card.appendChild(el('h3',null,p.name));
     if(p.blurb)card.appendChild(el('p',null,p.blurb));
-    var f=el('div','product-footer'),link=el('a',null,'View checkout');
+    var f=el('div','product-footer'),link=el('a',null,'Buy on the store');
     f.appendChild(el('strong',null,money(p)+(p.interval?' / '+p.interval:'')));
-    link.href='checkout.html';f.appendChild(link);card.appendChild(f);
+    link.href='/#products';f.appendChild(link);card.appendChild(f);
     return card
    }))
   }).catch(function(){grid.replaceChildren(el('p','muted','Could not load products. Please refresh.'))})
