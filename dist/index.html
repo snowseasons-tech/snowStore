@@ -47,7 +47,7 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .flip>.back{rotate:y 180deg}
 .flip.flipped>.front{rotate:y -180deg}.flip.flipped>.back{rotate:y 0deg}
 .flip>[inert]{pointer-events:none}
-.thumb{display:block;width:calc(100% + 48px);max-width:none;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:top left;margin:-24px -24px 4px;border-radius:15px 15px 0 0;border-bottom:1px solid var(--glass-b);background:var(--sec)}.tagline{font-size:.92rem;font-weight:600;color:var(--primary)}.flip .hint{font-size:.8rem;color:var(--muted)}.flip .price{margin-top:auto}.flip .actions{margin-top:0}
+.thumb{display:block;width:calc(100% + 48px);max-width:none;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:top left;margin:-24px -24px 4px;border-radius:15px 15px 0 0;border-bottom:1px solid var(--glass-b);background:var(--sec)}.steps{list-style:none;counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:22px}.steps li{counter-increment:s;position:relative;padding-left:46px;display:flex;flex-direction:column}.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--btn);color:#fff;font-weight:700;box-shadow:0 0 14px -3px var(--glow)}.steps span{color:var(--muted);font-size:.95rem}.svc-price{font-size:1.15rem;font-weight:700;margin-top:auto}.svc-price small{display:block;font-size:.85rem;font-weight:400;color:var(--muted)}.svc-price+.actions{margin-top:0}.svc-link{font-size:.9rem}.tagline{font-size:.92rem;font-weight:600;color:var(--primary)}.flip .hint{font-size:.8rem;color:var(--muted)}.flip .price{margin-top:auto}.flip .actions{margin-top:0}
 .specs{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.92rem}.specs dt{color:var(--muted)}
 .back h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
 .codewrap{margin-top:24px;overflow-x:auto;border-radius:14px;background:var(--code);border:1px solid var(--glass-b);box-shadow:var(--shadow)}
@@ -66,7 +66,7 @@ footer{text-align:center;padding:40px 0;background:var(--glass);border-top:1px s
 <body>
 <header><nav class="container" aria-label="Main navigation">
 <a class="logo" href="#hero">Snow Seasons Technology</a>
-<ul class="nav-links"><li><a href="#products">Products</a></li><li><a href="#kit">Website Kit</a></li><li><a href="#contact">Contact</a></li></ul>
+<ul class="nav-links"><li><a href="#products">Products</a></li><li><a href="#services">Services</a></li><li><a href="#kit">Website Kit</a></li><li><a href="#contact">Contact</a></li></ul>
 <button class="btn btn-toggle" id="theme-toggle" type="button" aria-pressed="false">Toggle theme</button>
 </nav></header>
 <main>
@@ -78,6 +78,11 @@ footer{text-align:center;padding:40px 0;background:var(--glass);border-top:1px s
 <section id="products"><div class="container">
 <h2>Products</h2><p class="sub">Dashboards, templates and automation tools, each a self-contained package.</p>
 <div class="grid" id="product-grid"></div></div></section>
+
+<section id="services"><div class="container">
+<h2>Done-for-you service</h2><p class="sub">Want the software but not the setup? We install it, run it and send you the reports.</p>
+<ol class="steps"><li><strong>Request a quote</strong><span>Tell us about your business and what you need.</span></li><li><strong>We set it up</strong><span>Installed, configured and tested with your data.</span></li><li><strong>You get results</strong><span>Reports on a schedule, or an app that is ready to use.</span></li></ol>
+<div class="grid" id="service-grid"></div></div></section>
 
 <section id="kit"><div class="container">
 <h2>Website Kit</h2>
@@ -168,6 +173,25 @@ const PRODUCTS=[
   img:"img/products/invoice-generator.webp",alt:"Invoice Generator preview of a sample invoice with a $1,012.81 balance due",
   unit:"one-time"},
 ];
+// Done-for-you packages. Prices are starting points ("From"); the quote confirms the final price.
+const SERVICES=[
+ {name:"Managed Lead Generation",tag:"Sales Automation",
+  blurb:"We run the Lead Generation Pipeline for you every night and send you the results.",
+  includes:["Set up on our server with your company list","Nightly runs, watched for failures","Weekly leads and contacts CSV with a short summary","Add companies to the queue any time by email"],
+  setup:199,monthly:99},
+ {name:"Managed Blog Roundups",tag:"Content Automation",
+  blurb:"We pick your sources, build the roundup every week and deliver it ready to publish.",
+  includes:["Source list set up for your niche","Weekly roundup with summaries and source links","Posted as a draft to Hugo, WordPress or Ghost, or emailed","Monthly report of what was published"],
+  setup:149,monthly:79},
+ {name:"App Setup and Training",tag:"Browser Apps",
+  blurb:"BookScan, Inventory Tracker, Invoice Generator or the BI Dashboard, installed and ready on your devices.",
+  includes:["Installed on your computers and phones","Your logo, categories and business details filled in","Your existing spreadsheet imported","30-minute walkthrough call"],
+  setup:79,per:"per app",note:"App sold separately. No monthly fee; your data stays on your devices."},
+ {name:"Website Install",tag:"Web",
+  blurb:"The Booking App or Vanilla Webpage Template installed on your site and branded for you.",
+  includes:["Installed on your site or a new static host","Your colors, logo and copy","Buy or booking buttons connected","Optional monthly updates and small changes"],
+  setup:149,monthly:25,monthlyOptional:true},
+];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function notify(m){const n=$("#notice");n.textContent=m;n.style.display="block";clearTimeout(notify.t);notify.t=setTimeout(()=>n.style.display="none",4500)}
@@ -175,7 +199,10 @@ const specs=p=>{const r=[["You get",p.delivery],["Runs on",p.runs],["Best for",p
 const thumb=p=>p.img?`<img class="thumb" src="${esc(p.img)}" alt="${esc(p.alt||"")}" width="800" height="450" loading="lazy" decoding="async">`:"";
 const tagline=p=>p.tagline?`<p class="tagline">${esc(p.tagline)}</p>`:"";
 $("#product-grid").innerHTML=PRODUCTS.map(p=>p.soon?`<article class="card soonc">${thumb(p)}<span class="tag soon">Coming soon</span><h3>${esc(p.name)}</h3><p class="sub">${esc(p.category)}</p><p>${esc(p.blurb)}</p>${tagline(p)}<div class="actions"><a class="btn alt" href="mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Notify me: "+p.name)}">Notify me</a></div></article>`:`<article class="flip"><div class="card front">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for features and requirements.</p><div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div><div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">Buy now</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
- +`<div class="card back" inert><h3>${esc(p.name)}</h3><h4>Features</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>${specs(p)}<div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div><div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">Buy now</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
+ +`<div class="card back" inert><h3>${esc(p.name)}</h3><h4>Features</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>${specs(p)}<p class="svc-link"><a href="#services">Want us to set it up and run it for you?</a></p><div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div><div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">Buy now</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
+const svcPrice=v=>`From $${v.setup} setup${v.per?" "+v.per:""}${v.monthly?` + $${v.monthly}/month${v.monthlyOptional?" (optional)":""}`:""}`;
+const svcMail=v=>`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Setup request: "+v.name)}&body=${encodeURIComponent(`Hi,\n\nI'd like a quote for ${v.name}.\n\nBusiness name:\nWebsite:\nWhich software:\nWhat I need:\nHow often I want reports:\n\nThanks`)}`;
+$("#service-grid").innerHTML=SERVICES.map(v=>`<article class="card"><span class="tag">${esc(v.tag)}</span><h3>${esc(v.name)}</h3><p>${esc(v.blurb)}</p><ul>${v.includes.map(i=>`<li>${esc(i)}</li>`).join("")}</ul><p class="svc-price">${esc(svcPrice(v))}<small>${esc(v.note||"Final price confirmed in your quote.")}</small></p><div class="actions"><a class="btn" href="${esc(svcMail(v))}">Request setup</a></div></article>`).join("");
 document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
  if(!t&&(e.target.closest("a,button")||String(getSelection())))return;
  const had=c.contains(document.activeElement),on=c.classList.toggle("flipped"),[front,back]=c.children;
