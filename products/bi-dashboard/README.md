@@ -87,6 +87,18 @@ No build tooling, dependencies, or server required.
 
 None, by design. All changes (new engagements, added opportunities) live only in the current browser session and are lost on reload. To persist data, you would need to wire the state object to `localStorage` or a backend API.
 
+## Analytics (optional)
+
+The dashboard can report usage to **Google Analytics 4**. It is off by default: nothing is loaded and nothing is sent until you add your own measurement ID.
+
+1. In Google Analytics, open **Admin → Data streams**, pick (or create) a web stream and copy its **Measurement ID** (`G-XXXXXXXXXX`).
+2. Open `index.html`, find `const GA4_ID = ''` near the top, and paste it between the quotes.
+3. Save the file and open the dashboard. Your visit should appear under **Reports → Realtime**.
+
+Each tab is reported as its own page view, starting with Operations Overview when the dashboard opens. They appear as `#overview`, `#onboarding`, `#leads` and `#competitors`, with the tab name as the page title.
+
+If you have visitors in the EU or UK, you may need a cookie consent banner and a privacy notice before you turn analytics on.
+
 ## Customization
 
 - **Branding**: colors are defined in the `tailwind.config` block in the `<head>` (`brand.500/600/700` are sky blues).

@@ -4,6 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Your Company | Engagement Dashboard</title>
+  <script>
+    // Google Analytics 4 (optional). Paste your own measurement ID to turn it on; while it is empty nothing
+    // is loaded. Each tab (starting with Operations Overview) is reported as a page view.
+    // If you have visitors in the EU or UK, you may need a consent banner and privacy notice before enabling this.
+    const GA4_ID = ''; // e.g. 'G-XXXXXXXXXX'
+
+    if (/^G-[A-Z0-9]+$/.test(GA4_ID)) {
+      const s = document.createElement('script');
+      s.async = true;
+      s.src = `https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`;
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      gtag('js', new Date());
+      // Page views are sent per tab by trackView() below, so skip the automatic one.
+      gtag('config', GA4_ID, { send_page_view: false });
+    }
+  </script>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-geo@4.3.6/build/index.umd.min.js"></script>
@@ -395,6 +413,14 @@
       document.getElementById(`nav-${tabId}`).classList.add('bg-sky-600/20', 'text-sky-400');
       document.getElementById('pageTitle').textContent = document.querySelector(`#nav-${tabId} .nav-label`).textContent.trim();
       toggleNav(false);
+      trackView(tabId);
+    }
+
+    // Report a tab to GA4 as a virtual page view (the dashboard is one page, so tabs stand in for pages).
+    function trackView(tabId) {
+      if (!window.gtag) return;
+      const title = document.querySelector(`#nav-${tabId} .nav-label`).textContent.trim();
+      gtag('event', 'page_view', { page_title: title, page_location: `${location.origin}${location.pathname}#${tabId}` });
     }
 
     // Phone drawer (the sidebar is always visible from md up)
@@ -746,6 +772,7 @@
       initCharts();
       updateDashboardData();
       initMaps();
+      trackView('overview');
     });
   </script>
 </body>
