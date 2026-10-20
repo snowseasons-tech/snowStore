@@ -36,6 +36,7 @@ Storefront for [Snow Seasons Technologies](https://snowseasonstech.store): a sta
 | `/api/portal` | POST / GET | POST `{ session_id }` emails a billing portal link; GET `?t=` opens it |
 | `/api/login`, `/api/logout`, `/api/me` | POST / POST / GET | Customer portal sign-in (JSON only, `HttpOnly; SameSite=Strict` cookie) |
 | `/api/app-download` | GET | `?product=` signed download for a signed-in, entitled account |
+| `/api/kit` | POST | `{ email }` records the subscriber and returns a signed download URL for the free Landing Page Kit |
 
 ## Setup
 
@@ -80,6 +81,18 @@ Set these in Cloudflare Pages (Settings → Variables and Secrets; use test-mode
      node scripts/upload.js path/to/file.html <fileKey>
    ```
    Paste the printed sha256 into the catalog entry.
+
+## Email signups (free Landing Page Kit)
+
+The Website Kit form on the home page posts to `/api/kit`, which saves `subscriber:<email>` in Upstash as `{ email, source, subscribedAt }` and returns a 5-minute signed URL, so the download starts straight away. Addresses are not verified. Signups are limited to 10 per IP per hour.
+
+The kit is served from the private bucket. After changing `products/free-landing-page/index.html`, upload it again:
+
+```sh
+scripts/upload.sh products/free-landing-page/index.html landing-page-kit/landing-page.html
+```
+
+To see subscribers, search for `subscriber:*` in the Upstash data browser. Any newsletter you send them must include an unsubscribe link.
 
 ## Portal accounts
 

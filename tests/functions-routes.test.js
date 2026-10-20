@@ -113,3 +113,33 @@ test('portal answers other methods with 405 and its Allow list', async () => {
   const res = onRequest();
   assert.deepStrictEqual([res.status, res.headers.get('allow')], [405, 'GET, POST']);
 });
+
+test('kit signup records the subscriber and returns a signed download URL', async () => {
+  const { onRequestPost, onRequest } = await mod('kit');
+  const up = fakeUpstash();
+  const post = (body, ip = '203.0.113.7', type = 'application/json') => onRequestPost({ request: new Request('https://x.test/api/kit', {
+    method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': type, 'CF-Connecting-IP': ip } }), env });
+  try {
+    assert.strictEqual((await post({ email: 'sam@example.com' }, undefined, 'text/plain')).status, 415);
+    assert.strictEqual((await post({ email: 'not-an-email' })).status, 400);
+    const ok = await post({ email: ' Sam@Example.com ' });
+    assert.strictEqual(ok.status, 200);
+    assert.match((await ok.json()).url, /^https:\/\/r2\.example\.com\/b\/landing-page-kit\/landing-page\.html\?.*X-Amz-Expires=300/);
+    const sub = await store.getJSON('subscriber:sam@example.com');
+    assert.deepStrictEqual([sub.source, typeof sub.subscribedAt], ['landing-page-kit', 'number']);
+    assert.strictEqual((await post({ email: 'sam@example.com' })).status, 200);
+    assert.strictEqual((await store.getJSON('subscriber:sam@example.com')).subscribedAt, sub.subscribedAt);
+    assert.deepStrictEqual([onRequest().status, onRequest().headers.get('allow')], [405, 'POST']);
+  } finally { up.restore(); }
+});
+test('kit signup is rate limited per IP', async () => {
+  const { onRequestPost } = await mod('kit');
+  const up = fakeUpstash();
+  const post = (email, ip) => onRequestPost({ request: new Request('https://x.test/api/kit', {
+    method: 'POST', body: JSON.stringify({ email }), headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': ip } }), env });
+  try {
+    for (let i = 0; i < 10; i++) assert.strictEqual((await post(`u${i}@example.com`, '192.0.2.1')).status, 200);
+    assert.strictEqual((await post('u10@example.com', '192.0.2.1')).status, 429);
+    assert.strictEqual((await post('u10@example.com', '192.0.2.2')).status, 200);
+  } finally { up.restore(); }
+});
