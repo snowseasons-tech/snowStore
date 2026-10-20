@@ -1,9 +1,3 @@
-$ mkdir -p /home/uselesse/Sandbox/gumroad-scraper && cd /home/uselesse/Sandbox/gumroad-scraper && cat > requirements.txt <<'E'
-requests>=2.31
-beautifulsoup4>=4.12
-openpyxl>=3.1
-E
-cat > gumroad_scraper.py <<'E'
 #!/usr/bin/env python3
 """Gumroad scraper: product details, ratings and pricing -> CSV / JSON / XLSX.
 
@@ -353,11 +347,45 @@ def _xl(v):
     return v
 
 
-WRITERS = {"csv": write_csv, "json": write_json, "xlsx": write_xlsx}
+def write_md(rows, path):
+    def cell(v):
+        return "" if v is None else str(v).replace("|", "\\|").replace("\n", " ")
+
+    out = [f"# Gumroad products ({len(rows)})", ""]
+    out += ["| Name | Seller | Price | Rating | Reviews | Type |", "|---|---|---|---|---|---|"]
+    for r in rows:
+        name = f"[{cell(r.get('name'))}]({r.get('url')})" if r.get("url") else cell(r.get("name"))
+        price = "PWYW" if r.get("pay_what_you_want") else cell(r.get("price_display"))
+        out.append(f"| {name} | {cell(r.get('seller_name'))} | {price} | {cell(r.get('rating_average'))} "
+                   f"| {cell(r.get('rating_count'))} | {cell(r.get('native_type'))} |")
+    out.append("")
+    for r in rows:
+        out += [f"## {r.get('name')}", ""]
+        for label, key in [("URL", "url"), ("Seller", "seller_name"), ("Price", "price_display"),
+                           ("Local price", "local_price"), ("Rating", "rating_average"),
+                           ("Reviews", "rating_count"), ("Sales", "sales_count"),
+                           ("Recurrence", "recurrence"), ("Refund policy", "refund_policy")]:
+            if r.get(key) not in (None, ""):
+                out.append(f"- **{label}:** {r[key]}")
+        dist = [r.get(f"rating_{i}") for i in range(5, 0, -1)]
+        if any(d is not None for d in dist):
+            out.append("- **Rating split (5★→1★):** " + " / ".join(f"{d}%" for d in dist))
+        if r.get("options"):
+            out.append(f"- **Options:** `{r['options']}`")
+        if r.get("description"):
+            desc = r["description"].strip()
+            out += ["", "> " + (desc[:600] + ("…" if len(desc) > 600 else "")).replace("\n", "\n> ")]
+        out.append("")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("\n".join(out))
+
+
+WRITERS = {"csv": write_csv, "json": write_json, "xlsx": write_xlsx, "md": write_md}
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--from-json", help="skip scraping: convert an existing results .json to the --format list")
     ap.add_argument("-s", "--search", action="append", help="search keyword (repeatable)")
     ap.add_argument("-u", "--url", action="append", help="product or profile URL (repeatable)")
     ap.add_argument("--urls-file", help="text file with one URL per line")
@@ -368,12 +396,19 @@ def main():
     ap.add_argument("--min-rating", type=int, choices=[1, 2, 3, 4], help="search filter: N stars and up")
     ap.add_argument("--tag", help="search filter: tag")
     ap.add_argument("--no-details", action="store_true", help="search results only: faster, fewer fields")
-    ap.add_argument("-f", "--format", default="csv,json,xlsx", help="comma list of csv,json,xlsx")
+    ap.add_argument("-f", "--format", default="csv,json,xlsx", help="comma list of csv,json,xlsx,md")
     ap.add_argument("-o", "--output", default="gumroad_products", help="output path without extension")
     ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--delay", type=float, default=0.6, help="seconds before each request")
     args = ap.parse_args()
 
+    if args.from_json:
+        rows = json.load(open(args.from_json, encoding="utf-8"))
+        out = args.output if args.output != "gumroad_products" else args.from_json.rsplit(".", 1)[0]
+        for fmt in [x.strip() for x in args.format.split(",") if x.strip()]:
+            WRITERS[fmt](rows, f"{out}.{fmt}")
+            log(f"wrote {len(rows)} rows -> {out}.{fmt}")
+        return 0
     if not (args.search or args.url or args.urls_file):
         ap.error("give at least one of --search, --url, --urls-file")
     fmts = [x.strip() for x in args.format.split(",") if x.strip()]
@@ -394,35 +429,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-E
-python3 -m venv .venv && .venv/bin/pip -q install -r requirements.txt lxml 2>&1 | tail -2
-.venv/bin/python gumroad_scraper.py -s "notion template" -u https://productivesetups.gumroad.com -n 12 --sort highest_rated -o /tmp/out 2>&1 | tail -15
-head -c 1200 /tmp/out.csv; .venv/bin/python -c "
-import openpyxl,json;ws=openpyxl.load_workbook('/tmp/out.xlsx').active;print(ws.max_row,ws.max_column);r=json.load(open('/tmp/out.json'));print(len(r));print({k:v for k,v in r[0].items() if k!='description'})"
-
-profile https://productivesetups.gumroad.com: 17 products
-search 'notion template': 19696 total results
-23 product pages to fetch
-  10/23
-  20/23
-wrote 23 rows -> /tmp/out.csv
-wrote 23 rows -> /tmp/out.json
-wrote 23 rows -> /tmp/out.xlsx
-﻿id,permalink,name,url,seller_name,seller_url,seller_verified,seller_rating_avg,seller_rating_count,seller_products_count,price,currency,price_display,pay_what_you_want,is_free,recurrence,is_membership,native_type,local_price,local_currency,rating_average,rating_count,rating_1,rating_2,rating_3,rating_4,rating_5,sales_count,quantity_remaining,refund_policy,options,description,thumbnail_url,cover_urls,scraped_at
-hpqcg,hpqcg,Headquarters Notion Productivity Template,https://productivesetups.gumroad.com/l/headquarters,Productive Setups,https://productivesetups.gumroad.com,False,4.9,852,37,79.0,AUD,79.0 AUD,False,False,,False,digital,55.26,USD,5.0,200,0,0,0,1,99,,,No refunds allowed,,"Simplify Your Life and Accomplish More with My Second Brain Notion Template - 
-the Ultimate Productivity System
-Headquarters is the Personal All-In-One Notion Template designed around the BEST Productivity Methods
-⭐⭐⭐⭐⭐ 
-5 STARS with 3500+ USERS
-
-""
-Stop feeling overwhelmed.
- Headquarters helps you organize your work and life, and stay focused — without the setup stress.""
-Read more testimonials on the side panel ➡️ ➡️ ➡️
-
-🚀 Are you struggling with
-
-Are you overwhelmed by end24 35
-23
-{'id': 'hpqcg', 'permalink': 'hpqcg', 'name': 'Headquarters Notion Productivity Template', 'url': 'https://productivesetups.gumroad.com/l/headquarters', 'seller_name': 'Productive Setups', 'seller_url': 'https://productivesetups.gumroad.com', 'seller_verified': False, 'seller_rating_avg': 4.9, 'seller_rating_count': 852, 'seller_products_count': 37, 'price': 79.0, 'currency': 'AUD', 'price_display': '79.0 AUD', 'pay_what_you_want': False, 'is_free': False, 'recurrence': None, 'is_membership': False, 'native_type': 'digital', 'local_price': 55.26, 'local_currency': 'USD', 'rating_average': 5.0, 'rating_count': 200, 'sales_count': None, 'quantity_remaining': None, 'refund_policy': 'No refunds allowed', 'options': None, 'thumbnail_url': 'https://public-files.gumroad.com/amydmj889wi1brzz5eeztpayq9ii', 'cover_urls': ['https://public-files.gumroad.com/0mun5pmnyspj4v3kvn2h8v05xzic'], 'scraped_at': '2026-10-20T09:08:04+00:00', 'rating_1': 0, 'rating_2': 0, 'rating_3': 0, 'rating_4': 1, 'rating_5': 99}
-Shell cwd was reset to /home/uselesse/Sandbox/social-media-manager
