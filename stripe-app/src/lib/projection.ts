@@ -16,6 +16,7 @@ export type SubscriptionLike = {
   currency: string;
   created: number;
   ended_at: number | null;
+  trial_end?: number | null;
   items: {data: Array<{price: PriceLike; quantity?: number | null}>};
 };
 
@@ -77,6 +78,10 @@ function subscriptionMrr(sub: SubscriptionLike): {mrr: number; skipped: number} 
 // Active and past-due subscriptions count toward MRR; trials don't until they convert.
 const isLive = (sub: SubscriptionLike) => sub.status === 'active' || sub.status === 'past_due';
 
+// Canceled before its trial ended: it never paid, so it was neither new MRR nor churned MRR.
+const canceledInTrial = (sub: SubscriptionLike) =>
+  sub.status === 'canceled' && sub.trial_end != null && sub.ended_at != null && sub.ended_at < sub.trial_end;
+
 export function summarize(subs: SubscriptionLike[], now: number): Summary {
   const live = subs.filter(isLive);
   const byCurrency = new Map<string, number>();
@@ -106,8 +111,9 @@ export function summarize(subs: SubscriptionLike[], now: number): Summary {
       if (mrr > 0) activeCount++;
       skippedItems += skipped;
     }
-    if (sub.created >= since && (isLive(sub) || sub.status === 'canceled')) newMrr += mrr;
-    if (sub.status === 'canceled' && sub.ended_at != null && sub.ended_at >= since) churnedMrr += mrr;
+    const everPaid = !canceledInTrial(sub);
+    if (everPaid && sub.created >= since && (isLive(sub) || sub.status === 'canceled')) newMrr += mrr;
+    if (everPaid && sub.status === 'canceled' && sub.ended_at != null && sub.ended_at >= since) churnedMrr += mrr;
   }
 
   const newMrrPerMonth = newMrr / WINDOW_MONTHS;
