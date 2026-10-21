@@ -7,13 +7,12 @@ module.exports = async (req, res) => {
   if (!allow(req, res, 'GET')) return;
   try {
     const stripe = stripeClient();
-    const products = [];
-    for (const [id, p] of Object.entries(CATALOG)) {
-      const priceId = process.env[p.priceEnv];
-      if (!priceId) continue;
-      const price = await stripe.prices.retrieve(priceId);
-      products.push({ id, name: p.name, blurb: p.blurb || null, amount: price.unit_amount, currency: price.currency, interval: price.recurring ? price.recurring.interval : null });
-    }
+    // Fetch all prices in parallel; products without a configured price are left out.
+    const listed = Object.entries(CATALOG).filter(([, p]) => process.env[p.priceEnv]);
+    const products = await Promise.all(listed.map(async ([id, p]) => {
+      const price = await stripe.prices.retrieve(process.env[p.priceEnv]);
+      return { id, name: p.name, blurb: p.blurb || null, amount: price.unit_amount, currency: price.currency, interval: price.recurring ? price.recurring.interval : null };
+    }));
     send(res, 200, { products }, { 'Cache-Control': 'public, max-age=60' });
   } catch (e) {
     console.error('products', e.message);

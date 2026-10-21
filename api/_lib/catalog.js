@@ -90,7 +90,7 @@ module.exports = {
     priceEnv: 'PRICE_SAAS_FINANCIAL_ENGINE',
     fileKey: 'saas-financial-engine/saas-financial-engine.xlsx',
     filename: 'saas-financial-engine.xlsx',
-    category: 'utilities',
+    category: 'billing',
     blurb: 'A 5-year SaaS financial model in one Excel workbook: MRR/ARR, unit economics, cohorts, headcount, cap table and scenarios. Works in Excel, Google Sheets and LibreOffice.',
     version: '1.0.0',
     sha256: 'a53a60fab1dab47e45990659bbcda6beb981a4aa74d0e6d76849ae389c669f73',

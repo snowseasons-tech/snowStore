@@ -80,6 +80,11 @@ Set these in Cloudflare Pages (Settings → Variables and Secrets; use test-mode
    S3_ENDPOINT=… S3_BUCKET=… S3_ACCESS_KEY_ID=… S3_SECRET_ACCESS_KEY=… \
      node scripts/upload.js path/to/file.html <fileKey>
    ```
+   Any deliverable type works (`.html`, `.zip`, `.xlsx`, `.pdf`, …); an extension missing from `TYPES` in `upload.js` is refused rather than uploaded as a generic binary.
+   Paste the printed `sha256` into the catalog entry, then confirm every download works:
+   ```sh
+   S3_ENDPOINT=… S3_BUCKET=… S3_ACCESS_KEY_ID=… S3_SECRET_ACCESS_KEY=… node scripts/verify-uploads.js
+   ```
    Paste the printed sha256 into the catalog entry.
 
 ## Email signups (free Landing Page Kit)

@@ -7,8 +7,13 @@ const fs = require('fs');
 const path = require('path');
 const { presignPutFromEnv } = require('../api/_lib/sigv4');
 
-const TYPES = { '.html': 'text/html', '.zip': 'application/zip', '.pdf': 'application/pdf', '.json': 'application/json', '.txt': 'text/plain',
-  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
+const TYPES = {
+  '.html': 'text/html', '.zip': 'application/zip', '.pdf': 'application/pdf', '.json': 'application/json',
+  '.txt': 'text/plain', '.csv': 'text/csv', '.md': 'text/markdown',
+  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+};
 
 async function main() {
   const [localPath, key] = process.argv.slice(2);
@@ -17,7 +22,9 @@ async function main() {
   if (missing.length) throw new Error(`Set ${missing.join(', ')}`);
 
   const body = fs.readFileSync(localPath);
-  const contentType = TYPES[path.extname(localPath).toLowerCase()] || 'application/octet-stream';
+  const ext = path.extname(localPath).toLowerCase();
+  const contentType = TYPES[ext];
+  if (!contentType) throw new Error(`No content type for "${ext}" files: add it to TYPES in scripts/upload.js`);
   const r = await fetch(presignPutFromEnv(key), { method: 'PUT', body, headers: { 'Content-Type': contentType } });
   if (!r.ok) throw new Error(`upload failed: ${r.status} ${await r.text()}`);
   console.error(`Uploaded ${localPath} -> ${process.env.S3_BUCKET}/${key} (${contentType})`);

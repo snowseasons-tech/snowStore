@@ -218,7 +218,8 @@ document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)re
  if(!t&&(e.target.closest("a,button")||String(getSelection())))return;
  const had=c.contains(document.activeElement),on=c.classList.toggle("flipped"),[front,back]=c.children;
  front.toggleAttribute("inert",on);back.toggleAttribute("inert",!on);if(had)(on?back:front).querySelector("[data-flip]").focus({preventScroll:true})});
-fetch("/api/products").then(r=>r.json()).then(d=>d.products.forEach(p=>{document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>el.textContent=new Intl.NumberFormat("en-US",{style:"currency",currency:p.currency.toUpperCase()}).format(p.amount/100)+(p.interval?" / "+p.interval:""))})).catch(()=>document.querySelectorAll("[data-price]").forEach(el=>el.textContent=""));
+fetch("/api/products").then(r=>r.json()).then(d=>d.products.forEach(p=>{document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>el.textContent=new Intl.NumberFormat("en-US",{style:"currency",currency:p.currency.toUpperCase()}).format(p.amount/100)+(p.interval?" / "+p.interval:""))})).catch(()=>{})
+ .finally(()=>document.querySelectorAll("[data-price]").forEach(el=>{if(el.textContent==="…")el.textContent=""})); // unpriced or failed: no stuck placeholder
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-buy]");if(!b)return;
  const busy=v=>document.querySelectorAll(`[data-buy="${CSS.escape(b.dataset.buy)}"]`).forEach(x=>x.disabled=v);busy(true);
  try{const r=await fetch("/api/checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({productId:b.dataset.buy})});const d=await r.json();

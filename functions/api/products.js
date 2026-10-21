@@ -8,13 +8,12 @@ export const onRequest = methodNotAllowed('GET');
 export async function onRequestGet({ env }) {
   try {
     const stripe = stripeClient(env);
-    const products = [];
-    for (const [id, p] of Object.entries(CATALOG)) {
-      const priceId = env[p.priceEnv];
-      if (!priceId) continue;
-      const price = await stripe.prices.retrieve(priceId);
-      products.push({ id, name: p.name, blurb: p.blurb || null, amount: price.unit_amount, currency: price.currency, interval: price.recurring ? price.recurring.interval : null });
-    }
+    // Fetch all prices in parallel; products without a configured price are left out.
+    const listed = Object.entries(CATALOG).filter(([, p]) => env[p.priceEnv]);
+    const products = await Promise.all(listed.map(async ([id, p]) => {
+      const price = await stripe.prices.retrieve(env[p.priceEnv]);
+      return { id, name: p.name, blurb: p.blurb || null, amount: price.unit_amount, currency: price.currency, interval: price.recurring ? price.recurring.interval : null };
+    }));
     return send(200, { products }, { 'Cache-Control': 'public, max-age=60' });
   } catch (e) {
     console.error('products', e.message);
