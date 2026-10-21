@@ -1,6 +1,6 @@
 {
   "name": "com.snowseasonstech.saas-projection",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "MRR and ARR projection built from live Stripe subscriptions",
   "private": true,
   "license": "UNLICENSED",
@@ -11,8 +11,7 @@
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "start": "stripe apps start",
-    "build": "stripe apps build"
+    "start": "stripe apps start"
   },
   "dependencies": {
     "@stripe/ui-extension-sdk": "9.4.0",
@@ -31,5 +30,7 @@
     "overrides": {
       "@types/react": "^17.0.2"
     }
-  }
+  },
+  "main": "index.js",
+  "author": ""
 }

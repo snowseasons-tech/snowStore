@@ -4,6 +4,7 @@ import {createHttpClient, STRIPE_API_KEY} from '@stripe/ui-extension-sdk/http_cl
 import {Banner, Box, ContextView, Divider, Inline, LineChart, Select, Spinner, TextField} from '@stripe/ui-extension-sdk/ui';
 import Stripe from 'stripe';
 
+import BrandIcon from '../brand-icon.svg';
 import {
   ltv,
   projectScenarios,
@@ -39,6 +40,9 @@ async function loadSubscriptions(): Promise<Loaded> {
 
 const HORIZONS = [12, 24, 36, 60];
 
+// Header branding: Snow Seasons blue (as in the storefront portal) behind a white one-color snowflake.
+const BRAND = {brandColor: '#155eef', brandIcon: BrandIcon};
+
 const Projection = (_props: ExtensionContextValue) => {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +75,7 @@ const Projection = (_props: ExtensionContextValue) => {
 
   if (error) {
     return (
-      <ContextView title="SaaS Projection Engine">
+      <ContextView title="SaaS Projection Engine" {...BRAND}>
         <Banner type="critical" title="Couldn't load subscriptions" description={error} />
       </ContextView>
     );
@@ -79,7 +83,7 @@ const Projection = (_props: ExtensionContextValue) => {
 
   if (!summary || !scenarios) {
     return (
-      <ContextView title="SaaS Projection Engine">
+      <ContextView title="SaaS Projection Engine" {...BRAND}>
         <Box css={{stack: 'x', alignX: 'center', paddingY: 'xlarge'}}>
           <Spinner size="large" />
         </Box>
@@ -96,7 +100,7 @@ const Projection = (_props: ExtensionContextValue) => {
   const lifetime = ltv(summary.arpa, churnRate);
 
   return (
-    <ContextView title="SaaS Projection Engine" description="MRR projection from your live subscriptions">
+    <ContextView title="SaaS Projection Engine" description="MRR projection from your live subscriptions" {...BRAND}>
       <Box css={{stack: 'y', gap: 'large'}}>
         {summary.activeCount === 0 ? (
           <Banner
