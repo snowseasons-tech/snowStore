@@ -20,7 +20,7 @@ Storefront for [Snow Seasons Technologies](https://snowseasonstech.store): a sta
 | `api/` | Original Vercel-style handlers; kept because `functions/` reuses `api/_lib/` |
 | `api/_lib/` | Shared helpers: catalog, Stripe, store (Upstash/in-memory), auth, mail (Resend), fulfilment, SigV4 presigning |
 | `pages/_headers` | Security headers for static files (copied into `dist/` by the build) |
-| `scripts/` | Admin scripts: `upload.js` (put a deliverable in the bucket), `add-user.js` (create or update a portal account) |
+| `scripts/` | Admin scripts: `upload.js` (put a deliverable in the bucket), `add-user.js` (create or update a portal account), `bloat-scan.js` (repo bloat report) |
 | `tests/` | `node:test` suite |
 | `products/` | Source for the products being sold. Not deployed (`scripts/build-pages.js` publishes only an allowlist); deliverables go to the private bucket |
 
@@ -106,6 +106,20 @@ UPSTASH_REDIS_REST_URL=… UPSTASH_REDIS_REST_TOKEN=… node scripts/add-user.js
 ```
 
 The password is read from stdin. Running it again for the same email updates the password and products, and signs out that account's existing sessions.
+
+## Bloat monitor
+
+Keeps an eye on what the repo is carrying. It is report-only: nothing in it edits, deletes or commits.
+
+```sh
+npm run bloat        # same as: node scripts/bloat-scan.js
+```
+
+`scripts/bloat-scan.js` looks at tracked files and reports oversized images and files, committed junk (`__pycache__`, build output, logs) and the `.gitignore` rules missing for it, byte-identical duplicates, dependencies nothing mentions, assets and modules nothing references, and growth since the previous run. It prints a Markdown report and writes `.bloat/latest.md`, `.bloat/latest.json` and a one-line-per-run `.bloat/history.jsonl` (all gitignored). Thresholds and exclusions live in `bloat.config.json`; add `--no-write` for a dry run or `--json` for machine-readable output.
+
+Dependencies and unreferenced files are found by searching for names, so treat them as candidates: a path built at run time, a tool wired up by a preset (such as `ts-jest` through a Jest preset) or a file used outside the repo (the images in `_assets/` are not deployed) can look unused.
+
+`.claude/agents/repo-bloat-monitor.md` is a read-only Claude Code subagent that runs the scanner and triages the findings into a short report with suggested fixes. A scheduled task runs it weekly while the Claude desktop app is open. Run it yourself with "use the repo-bloat-monitor agent".
 
 ## Deployment
 
