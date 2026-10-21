@@ -1,6 +1,6 @@
 {
   "name": "com.snowseasonstech.saas-projection",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "MRR and ARR projection built from live Stripe subscriptions",
   "private": true,
   "license": "UNLICENSED",

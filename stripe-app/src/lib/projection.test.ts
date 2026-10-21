@@ -52,6 +52,21 @@ describe('summarize', () => {
     expect(s.arpa).toBe(14900);
   });
 
+  it('does not count a subscription canceled during its trial as new or churned MRR', () => {
+    const s = summarize(
+      [
+        sub({}),
+        // Canceled 5 days ago, before its trial ended 3 days ago: never paid.
+        sub({status: 'canceled', created: NOW - 10 * DAY, trial_end: NOW - 3 * DAY, ended_at: NOW - 5 * DAY}),
+        // Trial ended 20 days ago and it paid until it was canceled 5 days ago.
+        sub({status: 'canceled', created: NOW - 30 * DAY, trial_end: NOW - 20 * DAY, ended_at: NOW - 5 * DAY}),
+      ],
+      NOW,
+    );
+    expect(s.newMrrPerMonth).toBeCloseTo(14900 / 3);
+    expect(s.churnedMrrPerMonth).toBeCloseTo(14900 / 3);
+  });
+
   it('leaves subscriptions with no monthly amount out of the count and the average', () => {
     const tiered: SubscriptionLike = sub({
       items: {data: [{price: {unit_amount: null, recurring: {interval: 'month', interval_count: 1}}, quantity: 12}]},
