@@ -9,3 +9,6 @@ managed/ops.env
 
 # Build output: Cloudflare Pages runs npm run build:pages
 dist/
+
+# Bloat monitor reports and run history (scripts/bloat-scan.js)
+.bloat/
