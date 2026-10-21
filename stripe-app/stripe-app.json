@@ -2,8 +2,29 @@
   "$schema": "https://stripe.com/stripe-app.schema.json",
   "id": "com.snowseasonstech.saas-projection",
   "name": "SaaS Projection Engine",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "icon": "icon.png",
+  "ui_extension": {
+    "views": [
+      {
+        "viewport": "stripe.dashboard.billing.overview",
+        "component": "Projection"
+      },
+      {
+        "viewport": "stripe.dashboard.subscription.list",
+        "component": "SubscriptionsProjection"
+      },
+      {
+        "viewport": "stripe.dashboard.home.overview",
+        "component": "HomeProjection"
+      },
+      {
+        "viewport": "stripe.dashboard.drawer.default",
+        "component": "DefaultProjection"
+      }
+    ]
+  },
+  "extensions": null,
   "permissions": [
     {
       "permission": "subscription_read",
@@ -14,25 +35,6 @@
       "purpose": "Reads the prices on your subscriptions to convert each one to a monthly amount."
     }
   ],
-  "ui_extension": {
-    "views": [
-      {
-        "viewport": "stripe.dashboard.billing.overview",
-        "component": "Projection"
-      },
-      {
-        "viewport": "stripe.dashboard.subscription.list",
-        "component": "Projection"
-      },
-      {
-        "viewport": "stripe.dashboard.home.overview",
-        "component": "Projection"
-      }
-    ],
-    "content_security_policy": {
-      "purpose": ""
-    }
-  },
   "distribution_type": "private",
   "stripe_api_access_type": "platform",
   "sandbox_install_compatible": true

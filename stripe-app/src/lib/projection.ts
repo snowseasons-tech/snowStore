@@ -101,7 +101,9 @@ export function summarize(subs: SubscriptionLike[], now: number): Summary {
     const {mrr, skipped} = subscriptionMrr(sub);
     if (isLive(sub)) {
       currentMrr += mrr;
-      activeCount++;
+      // A subscription with no fixed monthly amount (metered, tiered or $0) adds no MRR, so it stays out
+      // of the count and the per-account average. Its skipped items still reach the "left out" banner.
+      if (mrr > 0) activeCount++;
       skippedItems += skipped;
     }
     if (sub.created >= since && (isLive(sub) || sub.status === 'canceled')) newMrr += mrr;

@@ -52,6 +52,17 @@ describe('summarize', () => {
     expect(s.arpa).toBe(14900);
   });
 
+  it('leaves subscriptions with no monthly amount out of the count and the average', () => {
+    const tiered: SubscriptionLike = sub({
+      items: {data: [{price: {unit_amount: null, recurring: {interval: 'month', interval_count: 1}}, quantity: 12}]},
+    });
+    const s = summarize([sub({}), tiered, sub({amount: 0})], NOW);
+    expect(s.currentMrr).toBe(14900);
+    expect(s.activeCount).toBe(1);
+    expect(s.arpa).toBe(14900);
+    expect(s.skippedItems).toBe(1);
+  });
+
   it('uses the largest currency and reports the others', () => {
     const s = summarize([sub({}), sub({currency: 'eur', amount: 100})], NOW);
     expect(s.currency).toBe('usd');

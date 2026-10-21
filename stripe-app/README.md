@@ -2,7 +2,7 @@
 
 A Stripe Dashboard drawer that projects MRR and ARR from the account's live subscriptions. It is the Stripe App version of the SaaS Financial Projection Engine workbook in `products/saas-financial-engine/`.
 
-It opens on the Billing overview, Subscriptions list and Dashboard home pages and shows:
+It opens on every Dashboard page (Stripe's default drawer viewport), and has its own views for the Billing overview, Subscriptions list and Dashboard home pages. The Billing overview view only applies at `/billing`; accounts where the Dashboard redirects that to `/billing/collections` get the default view there instead. It shows:
 - Current MRR, ARR, active subscriptions and average revenue per account
 - New MRR per month and monthly MRR churn, both from the last 90 days
 - Lifetime value (revenue per account over churn)
@@ -13,7 +13,7 @@ Inputs: horizon, monthly growth of new MRR, and an optional churn override.
 ## What it reads
 Read-only permissions: `subscription_read` and `plan_read`. It never writes to the account.
 
-Not counted: trials (until they convert), discounts, taxes, metered or tiered prices, and subscriptions in other currencies than the main one. The drawer says when any of these were left out.
+Not counted: trials (until they convert), discounts, taxes, metered or tiered prices, and subscriptions in other currencies than the main one. The drawer says when any of these were left out. A subscription that adds no MRR (only metered or tiered items, or a $0 price) is also left out of the active subscription count and the average revenue per account.
 
 ## Run it
 Requires the Stripe CLI with the `apps` and `generate` plugins, Node 22+ and pnpm 10.
