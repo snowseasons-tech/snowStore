@@ -85,6 +85,16 @@ module.exports = {
     version: '1.0.0',
     sha256: '0b342147f90fb8af2d770119814886cb5e18e21a985207f708171158539a0024',
   },
+  'saas-financial-engine': {
+    name: 'SaaS Financial Projection Engine',
+    priceEnv: 'PRICE_SAAS_FINANCIAL_ENGINE',
+    fileKey: 'saas-financial-engine/saas-financial-engine.xlsx',
+    filename: 'saas-financial-engine.xlsx',
+    category: 'utilities',
+    blurb: 'A 5-year SaaS financial model in one Excel workbook: MRR/ARR, unit economics, cohorts, headcount, cap table and scenarios. Works in Excel, Google Sheets and LibreOffice.',
+    version: '1.0.0',
+    sha256: 'a53a60fab1dab47e45990659bbcda6beb981a4aa74d0e6d76849ae389c669f73',
+  },
   // Example subscription product (uncomment, create the recurring Price in Stripe test mode first):
   // 'bi-dashboards': { name: 'BI Dashboards', kind: 'subscription', priceEnv: 'PRICE_BI_MONTHLY', appUrl: 'https://app.snowseasonstech.net/bi' },
 };

@@ -7,7 +7,8 @@ const fs = require('fs');
 const path = require('path');
 const { presignPutFromEnv } = require('../api/_lib/sigv4');
 
-const TYPES = { '.html': 'text/html', '.zip': 'application/zip', '.pdf': 'application/pdf', '.json': 'application/json', '.txt': 'text/plain' };
+const TYPES = { '.html': 'text/html', '.zip': 'application/zip', '.pdf': 'application/pdf', '.json': 'application/json', '.txt': 'text/plain',
+  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
 
 async function main() {
   const [localPath, key] = process.argv.slice(2);
