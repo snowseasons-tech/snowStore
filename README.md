@@ -60,6 +60,7 @@ Set these in Cloudflare Pages (Settings → Variables and Secrets; use test-mode
 | `STRIPE_WEBHOOK_SECRET` | Signing secret of the webhook endpoint |
 | `STRIPE_AUTOMATIC_TAX` | Optional: `true` enables Stripe Tax on Checkout |
 | `PRICE_BOOKSCAN`, … | Stripe Price IDs, one per product (`priceEnv` in `api/_lib/catalog.js`) |
+| `LAUNCH_COUPON` | Optional: ID of a Stripe coupon with `percent_off` (e.g. 30). While valid, every product shows list price struck through with the discounted price, and Checkout applies the coupon (promo-code entry is hidden meanwhile, since Stripe can't combine them). Unset it or let the coupon expire to end the sale |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Order, session and rate-limit store. Required in production |
 | `S3_ENDPOINT`, `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Private bucket for deliverables (S3 or Cloudflare R2; region defaults to `auto`) |
 | `RESEND_API_KEY`, `MAIL_FROM` | Order and billing portal emails. Without them, emails are skipped and the billing portal link can't be sent |

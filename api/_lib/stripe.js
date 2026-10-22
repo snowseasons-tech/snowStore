@@ -7,4 +7,18 @@ function stripeClient(env = process.env) {
   }
   return new Stripe(key);
 }
-module.exports = { stripeClient };
+
+// Temporary storewide launch discount: LAUNCH_COUPON holds the ID of a Stripe coupon with percent_off.
+// Returns { id, percent } while the coupon is valid, otherwise null (unset, expired, or lookup failed),
+// so checkout and the displayed prices fall back to list price instead of breaking.
+async function launchDiscount(stripe, env = process.env) {
+  if (!env.LAUNCH_COUPON) return null;
+  try {
+    const c = await stripe.coupons.retrieve(env.LAUNCH_COUPON);
+    return c.valid && c.percent_off ? { id: c.id, percent: c.percent_off } : null;
+  } catch (e) {
+    console.error('launch coupon', e.message);
+    return null;
+  }
+}
+module.exports = { stripeClient, launchDiscount };

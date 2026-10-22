@@ -9,3 +9,15 @@ export function stripeClient(env) {
   }
   return new Stripe(key, { httpClient: Stripe.createFetchHttpClient() });
 }
+
+// Same as launchDiscount in api/_lib/stripe.js.
+export async function launchDiscount(stripe, env) {
+  if (!env.LAUNCH_COUPON) return null;
+  try {
+    const c = await stripe.coupons.retrieve(env.LAUNCH_COUPON);
+    return c.valid && c.percent_off ? { id: c.id, percent: c.percent_off } : null;
+  } catch (e) {
+    console.error('launch coupon', e.message);
+    return null;
+  }
+}

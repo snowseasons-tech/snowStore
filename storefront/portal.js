@@ -70,7 +70,9 @@
     card.appendChild(el('h3',null,p.name));
     if(p.blurb)card.appendChild(el('p',null,p.blurb));
     var f=el('div','product-footer'),link=el('a',null,'Buy on the store');
-    f.appendChild(el('strong',null,money(p)+(p.interval?' / '+p.interval:'')));
+    var per=p.interval?' / '+p.interval:'',now=el('strong',null,p.discount?money({amount:p.discount.amount,currency:p.currency})+per:money(p)+per);
+    if(p.discount){var was=el('s','muted',money(p));was.style.marginRight='.4em';now.prepend(was)}
+    f.appendChild(now);
     link.href='/#products';f.appendChild(link);card.appendChild(f);
     return card
    }))

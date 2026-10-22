@@ -1,5 +1,5 @@
 const CATALOG = require('./_lib/catalog');
-const { stripeClient } = require('./_lib/stripe');
+const { stripeClient, launchDiscount } = require('./_lib/stripe');
 const { send, allow, readRaw } = require('./_lib/http');
 
 module.exports = async (req, res) => {
@@ -14,14 +14,17 @@ module.exports = async (req, res) => {
     if (!price || !site) return send(res, 503, { error: 'Checkout not configured' });
 
     const isSub = product.kind === 'subscription';
-    const session = await stripeClient().checkout.sessions.create({
+    const stripe = stripeClient();
+    const launch = await launchDiscount(stripe);
+    const session = await stripe.checkout.sessions.create({
       mode: isSub ? 'subscription' : 'payment',
       line_items: [{ price, quantity: 1 }],
       metadata: { product_id: body.productId },
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/cancel`,
       ...(process.env.STRIPE_AUTOMATIC_TAX === 'true' ? { automatic_tax: { enabled: true } } : {}),
-      allow_promotion_codes: true,
+      // Stripe rejects discounts together with allow_promotion_codes, so the launch coupon replaces code entry.
+      ...(launch ? { discounts: [{ coupon: launch.id }] } : { allow_promotion_codes: true }),
       ...(isSub ? { subscription_data: { metadata: { product_id: body.productId } } } : {}),
     });
     send(res, 200, { url: session.url });

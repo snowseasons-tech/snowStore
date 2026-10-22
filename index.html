@@ -40,7 +40,7 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .card:hover{transform:translateY(-4px);border-color:var(--glow);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow),0 14px 44px -10px var(--glow)}
 .tag{align-self:flex-start;font-size:.75rem;background:var(--btn);color:#fff;border-radius:999px;padding:2px 10px;box-shadow:0 0 14px -3px var(--glow)}.tag.soon{background:var(--muted);box-shadow:none}
 .card ul{margin-left:1.2rem;color:var(--muted);font-size:.95rem}
-.price{font-size:1.6rem;font-weight:700}.price small{font-size:.85rem;color:var(--muted);font-weight:400}
+.price s{font-size:1rem;font-weight:400;color:var(--muted)}.sale{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.02em;color:#fff;background:var(--btn);border-radius:999px;padding:2px 9px;vertical-align:middle}.price{font-size:1.6rem;font-weight:700}.price small{font-size:.85rem;color:var(--muted);font-weight:400}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto}.soonc{opacity:.75}
 .flip{display:grid;perspective:1400px;cursor:pointer}
 .flip>.card{grid-area:1/1;-webkit-backface-visibility:hidden;backface-visibility:hidden;transition:rotate .6s cubic-bezier(.2,.7,.2,1),transform .25s ease,box-shadow .25s ease,border-color .25s ease}
@@ -218,7 +218,7 @@ document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)re
  if(!t&&(e.target.closest("a,button")||String(getSelection())))return;
  const had=c.contains(document.activeElement),on=c.classList.toggle("flipped"),[front,back]=c.children;
  front.toggleAttribute("inert",on);back.toggleAttribute("inert",!on);if(had)(on?back:front).querySelector("[data-flip]").focus({preventScroll:true})});
-fetch("/api/products").then(r=>r.json()).then(d=>d.products.forEach(p=>{document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>el.textContent=new Intl.NumberFormat("en-US",{style:"currency",currency:p.currency.toUpperCase()}).format(p.amount/100)+(p.interval?" / "+p.interval:""))})).catch(()=>{})
+fetch("/api/products").then(r=>r.json()).then(d=>d.products.forEach(p=>{const money=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:p.currency.toUpperCase()}).format(n/100),per=p.interval?" / "+p.interval:"";document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>{if(!p.discount){el.textContent=money(p.amount)+per;return}const was=document.createElement("s"),tag=document.createElement("span");was.textContent=money(p.amount);tag.className="sale";tag.textContent=Math.round(p.discount.percent)+"% off launch price";el.replaceChildren(was," "+money(p.discount.amount)+per+" ",tag)})})).catch(()=>{})
  .finally(()=>document.querySelectorAll("[data-price]").forEach(el=>{if(el.textContent==="…")el.textContent=""})); // unpriced or failed: no stuck placeholder
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-buy]");if(!b)return;
  const busy=v=>document.querySelectorAll(`[data-buy="${CSS.escape(b.dataset.buy)}"]`).forEach(x=>x.disabled=v);busy(true);

@@ -38,3 +38,35 @@ test('checkout function refuses a live key without ALLOW_LIVE', async () => {
   const env = { STRIPE_SECRET_KEY: 'sk_live_123', PRICE_BOOKSCAN: 'price_123', SITE_URL: 'https://site.test' };
   assert.strictEqual((await onRequestPost({ request: post('{"productId":"bookscan"}'), env })).status, 500);
 });
+test('checkout function applies a valid launch coupon instead of promo-code entry', async () => {
+  const { onRequestPost } = await load();
+  const realFetch = globalThis.fetch;
+  let sent;
+  globalThis.fetch = async (url, init) => {
+    if (String(url).endsWith('/coupons/LAUNCH30')) return new Response(JSON.stringify({ id: 'LAUNCH30', valid: true, percent_off: 30 }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    sent = String(init.body);
+    return new Response(JSON.stringify({ id: 'cs_test_1', url: 'https://checkout.stripe.test/c/1' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    const env = { STRIPE_SECRET_KEY: 'sk_test_123', PRICE_BOOKSCAN: 'price_123', SITE_URL: 'https://site.test', LAUNCH_COUPON: 'LAUNCH30' };
+    assert.strictEqual((await onRequestPost({ request: post('{"productId":"bookscan"}'), env })).status, 200);
+    assert.match(sent, /discounts\[0\]\[coupon\]=LAUNCH30/);
+    assert.doesNotMatch(sent, /allow_promotion_codes/);
+  } finally { globalThis.fetch = realFetch; }
+});
+test('checkout function falls back to promo codes when the launch coupon is expired', async () => {
+  const { onRequestPost } = await load();
+  const realFetch = globalThis.fetch;
+  let sent;
+  globalThis.fetch = async (url, init) => {
+    if (String(url).endsWith('/coupons/LAUNCH30')) return new Response(JSON.stringify({ id: 'LAUNCH30', valid: false, percent_off: 30 }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    sent = String(init.body);
+    return new Response(JSON.stringify({ id: 'cs_test_1', url: 'https://checkout.stripe.test/c/1' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    const env = { STRIPE_SECRET_KEY: 'sk_test_123', PRICE_BOOKSCAN: 'price_123', SITE_URL: 'https://site.test', LAUNCH_COUPON: 'LAUNCH30' };
+    assert.strictEqual((await onRequestPost({ request: post('{"productId":"bookscan"}'), env })).status, 200);
+    assert.doesNotMatch(sent, /discounts/);
+    assert.match(sent, /allow_promotion_codes=true/);
+  } finally { globalThis.fetch = realFetch; }
+});
