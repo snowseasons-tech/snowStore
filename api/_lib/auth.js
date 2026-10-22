@@ -89,6 +89,39 @@ async function destroySession(req, s = store) {
   if (token) await s.release(`sess:${sha256(token)}`);
 }
 
+// Set-password links (forgotten password, or an admin invite to a new account without a password).
+// Link record  pwlink:<sha256(token)> = { email, cred }. The token travels in the portal URL's #fragment, so it
+// never reaches server logs; it is used up when the password is set, and binding it to cred kills every other
+// outstanding link for the account at the same moment.
+const PASSWORD_MIN = 12;
+const RESET_TTL_SEC = 60 * 60;
+const INVITE_TTL_SEC = 7 * 24 * 60 * 60;
+
+async function createPasswordLink(email, user, ttlSec, s = store) {
+  const token = crypto.randomBytes(32).toString('base64url');
+  await s.setJSON(`pwlink:${sha256(token)}`, { email: normEmail(email), cred: credOf(user) }, ttlSec);
+  return token;
+}
+// Returns the account email, or null if the link is unknown, expired or already used.
+async function setPasswordFromLink(token, password, s = store) {
+  if (!/^[A-Za-z0-9_-]{40,60}$/.test(String(token || ''))) return null;
+  const key = `pwlink:${sha256(token)}`;
+  const link = await s.getJSON(key);
+  const user = link && (await s.getJSON(`user:${link.email}`));
+  if (!user || link.cred !== credOf(user)) return null;
+  await s.setJSON(`user:${link.email}`, { ...user, hash: await hashPassword(password) });
+  await s.release(key);
+  return link.email;
+}
+function passwordLinkMail(email, token, { invite = false } = {}, env = process.env) {
+  const url = `${env.SITE_URL}/storefront/portal#set-password=${token}`;
+  return invite
+    ? { to: email, subject: 'Your Snow Seasons Tech account',
+      text: `An account has been set up for you to download your Snow Seasons Tech products.\n\nChoose your password within 7 days here:\n${url}\n\nSnow Seasons Tech` }
+    : { to: email, subject: 'Reset your password',
+      text: `Use this link within 1 hour to choose a new password for your Snow Seasons Tech account:\n${url}\n\nIf you didn't ask for this, you can ignore this email; your password stays the same.\n\nSnow Seasons Tech` };
+}
+
 function sessionCookie(token) {
   return `${COOKIE}=${token}; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSION_TTL_SEC}`;
 }
@@ -101,4 +134,5 @@ function clientIp(req) {
 module.exports = {
   normEmail, hashPassword, verifyPassword, checkCredentials, loginLimited, recordLoginFailure,
   createSession, getSession, destroySession, sessionCookie, clearCookie, clientIp,
+  PASSWORD_MIN, RESET_TTL_SEC, INVITE_TTL_SEC, createPasswordLink, setPasswordFromLink, passwordLinkMail,
 };

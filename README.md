@@ -35,6 +35,7 @@ Storefront for [Snow Seasons Technologies](https://snowseasonstech.store): a sta
 | `/api/download` | GET | `?session_id=` signed download URL for a verified order |
 | `/api/portal` | POST / GET | POST `{ session_id }` emails a billing portal link; GET `?t=` opens it |
 | `/api/login`, `/api/logout`, `/api/me` | POST / POST / GET | Customer portal sign-in (JSON only, `HttpOnly; SameSite=Strict` cookie) |
+| `/api/password-reset`, `/api/password-set` | POST / POST | Forgotten password: emails a 1-hour set-password link; redeeming it saves the password and signs in |
 | `/api/app-download` | GET | `?product=` signed download for a signed-in, entitled account |
 | `/api/kit` | POST | `{ email }` records the subscriber and returns a signed download URL for the free Landing Page Kit |
 
@@ -59,8 +60,8 @@ Set these in Cloudflare Pages (Settings → Variables and Secrets; use test-mode
 | `ALLOW_LIVE` | Set to `1` only on the production deployment |
 | `STRIPE_WEBHOOK_SECRET` | Signing secret of the webhook endpoint |
 | `STRIPE_AUTOMATIC_TAX` | Optional: `true` enables Stripe Tax on Checkout |
-| `PRICE_BOOKSCAN`, … | Stripe Price IDs, one per product (`priceEnv` in `api/_lib/catalog.js`) |
 | `LAUNCH_COUPON` | Optional: ID of a Stripe coupon with `percent_off` (e.g. 30). While valid, every product shows list price struck through with the discounted price, and Checkout applies the coupon (promo-code entry is hidden meanwhile, since Stripe can't combine them). Unset it or let the coupon expire to end the sale |
+| `PRICE_BOOKSCAN`, … | Stripe Price IDs, one per product (`priceEnv` in `api/_lib/catalog.js`) |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Order, session and rate-limit store. Required in production |
 | `S3_ENDPOINT`, `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Private bucket for deliverables (S3 or Cloudflare R2; region defaults to `auto`) |
 | `RESEND_API_KEY`, `MAIL_FROM` | Order and billing portal emails. Without them, emails are skipped and the billing portal link can't be sent |
@@ -106,7 +107,18 @@ To see subscribers, search for `subscriber:*` in the Upstash data browser. Any n
 UPSTASH_REDIS_REST_URL=… UPSTASH_REDIS_REST_TOKEN=… node scripts/add-user.js customer@example.com bookscan
 ```
 
-The password is read from stdin. Running it again for the same email updates the password and products, and signs out that account's existing sessions.
+The password is read from stdin. Running it again for the same email updates the password and products, and signs out that account's existing sessions. The product list replaces the old one, so pass every product the customer owns.
+
+To let the customer choose their own password instead, add `--invite` (and `SITE_URL`, `RESEND_API_KEY`, `MAIL_FROM`):
+
+```sh
+UPSTASH_REDIS_REST_URL=… UPSTASH_REDIS_REST_TOKEN=… SITE_URL=https://snowseasonstech.store RESEND_API_KEY=… MAIL_FROM=… \
+  node scripts/add-user.js --invite customer@example.com bookscan
+```
+
+The customer gets a 7-day link to `/storefront/portal#set-password=…`. Without the email settings the script prints the link for you to send. A new account can't sign in until the link is used; an existing account keeps its password until then.
+
+Customers who forget their password use **Forgot password?** on the portal, which emails a 1-hour link (same reply whether or not the account exists, at most one email a minute per address). Using a link signs out the account's other sessions and invalidates any other outstanding links. Both need `RESEND_API_KEY` and `MAIL_FROM`; without them the portal says reset is unavailable.
 
 ## Bloat monitor
 

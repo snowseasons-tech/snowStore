@@ -42,6 +42,35 @@
                 </label>
                 <p id="login-msg" class="form-error" role="alert" hidden></p>
                 <button class="btn btn-primary" type="submit">Open My Workspace →</button>
+                <button class="link-button" id="forgot" type="button">Forgot password?</button>
+            </form>
+
+            <!-- Forgotten password: emails a set-password link -->
+            <form id="reset" class="login-panel" hidden>
+                <h2>Reset Password</h2>
+                <p class="muted">Enter your account email and we'll send you a link to choose a new password.</p>
+                <label>Email
+                    <input name="email" type="email" required autocomplete="username" maxlength="254">
+                </label>
+                <p id="reset-msg" class="form-error" role="alert" hidden></p>
+                <p id="reset-done" class="form-note" role="status" hidden></p>
+                <button class="btn btn-primary" type="submit">Email Me a Link</button>
+                <button class="link-button" data-back type="button">Back to sign in</button>
+            </form>
+
+            <!-- Opened from an emailed link: /storefront/portal#set-password=<token> -->
+            <form id="setpw" class="login-panel" hidden>
+                <h2>Choose a Password</h2>
+                <p class="muted">Use at least 12 characters. You'll be signed in when it's saved.</p>
+                <label>New password
+                    <input name="password" type="password" required autocomplete="new-password" minlength="12" maxlength="256">
+                </label>
+                <label>Confirm password
+                    <input name="confirm" type="password" required autocomplete="new-password" minlength="12" maxlength="256">
+                </label>
+                <p id="setpw-msg" class="form-error" role="alert" hidden></p>
+                <button class="btn btn-primary" type="submit">Save Password</button>
+                <button class="link-button" data-back type="button">Back to sign in</button>
             </form>
 
             <!-- Workspace Panel (Shown when authenticated) -->

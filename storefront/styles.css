@@ -445,9 +445,38 @@ footer {
   }
 }
 
+/* Classes like .btn set display, which would otherwise override the hidden attribute. */
+[hidden] {
+  display: none !important;
+}
+
 .form-error {
   margin-top: 1rem;
   color: #b42318;
   font-size: 0.85rem;
   font-weight: 700;
+}
+
+.form-note {
+  margin-top: 1rem;
+  color: var(--success);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.link-button {
+  display: block;
+  margin: 0.9rem auto 0;
+  padding: 0.25rem;
+  border: 0;
+  background: none;
+  color: var(--primary);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  text-decoration: underline;
 }

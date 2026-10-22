@@ -25,13 +25,24 @@
   }))
  }
 
+ var reset=document.getElementById('reset'),setpw=document.getElementById('setpw'),linkToken=null;
+ // Which panel shows when signed out: sign-in, forgotten password, or set-password from an emailed link.
+ function show(panel){[form,reset,setpw].forEach(function(f){f.hidden=f!==panel});var i=panel.querySelector('input');if(i)i.focus()}
+ function fail(id,text){var m=document.getElementById(id);m.textContent=text;m.hidden=false}
+ // POST JSON; resolves with the reply body, rejects with the server's error message.
+ function post(url,body){
+  return fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+   .then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||'Request failed');return d})})
+ }
+
  function signedIn(d){
   apps=d.apps||[];who.textContent=d.email;
-  form.hidden=true;account.hidden=false;logout.hidden=false;search.disabled=false;category.disabled=false;
+  [form,reset].forEach(function(f){f.hidden=true});setpw.hidden=!linkToken;account.hidden=!!linkToken;logout.hidden=false;search.disabled=false;category.disabled=false;
   render()
  }
  function signedOut(){
-  apps=[];form.hidden=false;account.hidden=true;logout.hidden=true;search.disabled=true;category.disabled=true;
+  apps=[];account.hidden=true;logout.hidden=true;search.disabled=true;category.disabled=true;
+  show(linkToken?setpw:form);
   search.value='';category.value='';note('Sign in to view the application catalog.')
  }
 
@@ -45,13 +56,40 @@
  form.addEventListener('submit',function(e){
   e.preventDefault();
   var btn=form.querySelector('button[type=submit]');btn.disabled=true;msg.hidden=true;
-  fetch('/api/login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({email:form.email.value,password:form.password.value})})
-  .then(function(r){return r.json().then(function(d){
-   if(!r.ok)throw new Error(d.error||'Sign-in failed');
-   form.reset();return loadMe()
-  })})
+  post('/api/login',{email:form.email.value,password:form.password.value})
+  .then(function(){form.reset();return loadMe()})
   .catch(function(err){msg.textContent=err.message||'Sign-in failed';msg.hidden=false})
+  .then(function(){btn.disabled=false})
+ });
+
+ document.getElementById('forgot').addEventListener('click',function(){
+  reset.email.value=form.email.value;document.getElementById('reset-done').hidden=true;show(reset)
+ });
+ document.querySelectorAll('[data-back]').forEach(function(b){b.addEventListener('click',function(){
+  if(linkToken){linkToken=null;history.replaceState(null,'',location.pathname+location.search)}
+  show(form)
+ })});
+
+ reset.addEventListener('submit',function(e){
+  e.preventDefault();
+  var btn=reset.querySelector('button[type=submit]'),done=document.getElementById('reset-done');
+  btn.disabled=true;document.getElementById('reset-msg').hidden=true;done.hidden=true;
+  post('/api/password-reset',{email:reset.email.value})
+  .then(function(d){done.textContent=d.message;done.hidden=false})
+  .catch(function(err){fail('reset-msg',err.message)})
+  .then(function(){btn.disabled=false})
+ });
+
+ setpw.addEventListener('submit',function(e){
+  e.preventDefault();
+  var btn=setpw.querySelector('button[type=submit]');document.getElementById('setpw-msg').hidden=true;
+  if(setpw.password.value!==setpw.confirm.value)return fail('setpw-msg','The passwords don\'t match.');
+  btn.disabled=true;
+  post('/api/password-set',{token:linkToken,password:setpw.password.value})
+  .then(function(){
+   setpw.reset();linkToken=null;history.replaceState(null,'',location.pathname+location.search);return loadMe()
+  })
+  .catch(function(err){fail('setpw-msg',err.message)})
   .then(function(){btn.disabled=false})
  });
 
@@ -78,6 +116,12 @@
    }))
   }).catch(function(){grid.replaceChildren(el('p','muted','Could not load products. Please refresh.'))})
  }
+
+ // The set-password token arrives in the #fragment, which browsers never send to the server.
+ function readLink(){var m=/^#set-password=([A-Za-z0-9_-]{40,60})$/.exec(location.hash);if(m)linkToken=m[1];return!!m}
+ readLink();
+ // A link opened in a tab that already shows the portal only changes the hash, without reloading.
+ window.addEventListener('hashchange',function(){if(readLink()){account.hidden=true;show(setpw)}});
 
  search.addEventListener('input',render);
  category.addEventListener('change',render);
