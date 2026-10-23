@@ -112,8 +112,8 @@ module.exports = {
     filename: 'social-studio.zip',
     category: 'utilities',
     blurb: 'A self-hosted social media manager for agencies: client workspaces, team roles, an AI writer, approvals, a content calendar and scheduled publishing to Facebook, Instagram and Google Business Profile.',
-    version: '0.2.0',
-    sha256: 'fe18e2e07e3489588e3894585eee7d25a90abb12121b7a4df1f4769899c5b1b2',
+    version: '0.3.0',
+    sha256: '82ea669ed59854c6dcc5c51bdaef4a3cda8c6a18cfd554fb9eab1cee5157ead0',
   },
   // Example subscription product (uncomment, create the recurring Price in Stripe test mode first):
   // 'bi-dashboards': { name: 'BI Dashboards', kind: 'subscription', priceEnv: 'PRICE_BI_MONTHLY', appUrl: 'https://app.snowseasonstech.net/bi' },
