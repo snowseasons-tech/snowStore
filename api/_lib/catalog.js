@@ -95,6 +95,16 @@ module.exports = {
     version: '1.0.0',
     sha256: 'a53a60fab1dab47e45990659bbcda6beb981a4aa74d0e6d76849ae389c669f73',
   },
+  'tech-hiring-os': {
+    name: 'Tech Hiring & Compensation Benchmark OS',
+    priceEnv: 'PRICE_TECH_HIRING_OS',
+    fileKey: 'tech-hiring-os/tech-hiring-os.zip',
+    filename: 'tech-hiring-os.zip',
+    category: 'utilities',
+    blurb: 'Role scorecards, a 142-question interview bank, global salary bands, an offer letter generator and a 30-60-90 onboarding plan. Excel, PDF and Word.',
+    version: '1.0.0',
+    sha256: '95ca02144b93a04053724dadd41d354d1ce29bae27542297fb7f771e512b841e',
+  },
   // Example subscription product (uncomment, create the recurring Price in Stripe test mode first):
   // 'bi-dashboards': { name: 'BI Dashboards', kind: 'subscription', priceEnv: 'PRICE_BI_MONTHLY', appUrl: 'https://app.snowseasonstech.net/bi' },
 };
