@@ -58,6 +58,19 @@ The web app listens on `127.0.0.1:8000` only. To serve it on the internet, put a
 - To add someone, open a client workspace, go to **Team access**, and enter their email and role. If they already have an account they're added straight away. If not, you get a **one-time invite code**: send it to them, and they enter it together with that email when they click **Create account**. Codes expire after 7 days. Adding the same email again replaces the old code.
 - Set `ALLOW_REGISTRATION=1` only if you want anyone who can reach the server to be able to sign up.
 
+## Forgotten passwords
+
+- **By email:** fill in the `SMTP_*` settings in `.env` with any mail provider (your email host, Postmark, Mailgun, Amazon SES and so on), then restart. **Forgot password?** on the sign-in screen then emails a one-time link that works for 30 minutes. The reply is the same whether or not the email has an account, so the form can't be used to find out who's registered. Repeat requests within 2 minutes don't send another email.
+- **From the server:** when email isn't set up, or the owner is locked out, run:
+
+  ```bash
+  docker compose exec web python -m app.reset_password you@example.com
+  ```
+
+  It asks for the new password twice. Add `--generate` to have it create and print a random one instead.
+
+Either way, changing a password signs that person out on every other device and cancels any unused reset links.
+
 ## Daily workflow
 
 1. **New client**: name, service area, website and tone. The AI writer uses all four.
@@ -103,6 +116,7 @@ Point `LLM_BASE_URL` at any OpenAI-compatible `/v1` endpoint and set `LLM_MODEL`
 | `META_APP_ID`, `META_APP_SECRET`, `META_GRAPH_VERSION` | Meta app for Facebook and Instagram |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google OAuth client for Business Profile |
 | `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` | Optional OpenAI-compatible AI writer |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURITY`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM` | Optional email for password reset links. `SMTP_SECURITY` is `starttls` (default), `ssl` or `none` |
 
 ## Backups and updates
 
@@ -117,11 +131,11 @@ python3 -m venv .venv
 .venv/bin/python -m pytest
 ```
 
-The tests use a temporary SQLite database and simulated Meta, Google and AI responses, so they need no accounts, Docker or internet access. They cover sign-up and invites, workspace isolation, roles, the approval and scheduling rules, the OAuth flow, the worker, and the provider calls.
+The tests use a temporary SQLite database and simulated Meta, Google and AI responses, so they need no accounts, Docker or internet access. They cover sign-up and invites, password resets (including a real SMTP delivery to a local test server), workspace isolation, roles, the approval and scheduling rules, the OAuth flow, the worker, and the provider calls.
 
 ## Known limitations
 
-- The login session is a 12-hour token kept in the browser's local storage. There's no password reset, two-factor login or login rate limiting yet, so use long passwords and keep the server behind HTTPS.
+- The login session is a 12-hour token kept in the browser's local storage. There's no two-factor login or login rate limiting yet, so use long passwords and keep the server behind HTTPS.
 - Real publishing hasn't been tested against live Meta or Google accounts by us. It depends on your app approvals, account eligibility and the providers' APIs, which change over time.
 - Images are referenced by public URL; there's no built-in image upload or media library.
 - Facebook Page tokens follow Meta's expiry rules. If publishing starts failing with a token error, reconnect the account.
@@ -131,6 +145,7 @@ The tests use a temporary SQLite database and simulated Meta, Google and AI resp
 Interactive API docs are at `/docs` on your server. Main routes:
 
 - `GET /api/config`, `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/me`
+- `POST /api/auth/forgot` (emails a reset link), `POST /api/auth/reset`
 - `GET/POST /api/clients`, `POST /api/clients/{id}/members`
 - `POST /api/clients/{id}/generate`
 - `GET/POST /api/clients/{id}/posts`, `PUT /api/clients/{id}/posts/{post_id}`
