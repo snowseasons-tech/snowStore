@@ -1,0 +1,9 @@
+{
+  "largeFileBytes": 200000,
+  "largeImageBytes": 150000,
+  "duplicateMinBytes": 1024,
+  "growthAlertPercent": 10,
+  "ignore": ["package-lock.json", "pnpm-lock.yaml", "yarn.lock"],
+  "orphanIgnore": ["products/", "managed/", "tests/", "scripts/", ".claude/", "storefront/", "pages/"],
+  "orphanSourceDirs": ["api/_lib/", "functions/_lib/", "stripe-app/src/"]
+}

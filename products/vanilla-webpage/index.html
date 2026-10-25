@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Brand | Products</title>
+    <meta name="description" content="One sentence about what you sell and who it is for.">
+    <!-- Apply a saved theme before the page paints, so there is no flash of the wrong theme. -->
+    <script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(_){}</script>
+    <style>
+        /* --- CSS VARIABLES (edit these to rebrand) --- */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #1f2937;
+            --muted-color: #5b6472;
+            --primary-color: #2563eb;      /* brand color: logo, links, buttons */
+            --primary-text: #ffffff;       /* text on primary-colored buttons */
+            --accent-color: #ea580c;       /* badges and highlights */
+            --secondary-color: #f3f5f8;    /* header, alternating sections, footer */
+            --card-color: #ffffff;
+            --border-color: #e3e7ee;
+            --shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 8px 24px -12px rgba(16, 24, 40, 0.18);
+            --radius: 14px;
+            --container-width: 1100px;
+            --transition: 0.2s ease;
+            color-scheme: light;
+        }
+
+        /* Dark mode colors (used when the visitor picks dark, or their system is dark and they haven't picked). */
+        [data-theme="dark"] {
+            --bg-color: #0f1218;
+            --text-color: #e8ebf0;
+            --muted-color: #a3abb8;
+            --primary-color: #6ea8fe;
+            --primary-text: #0b1220;
+            --accent-color: #fb923c;
+            --secondary-color: #161b23;
+            --card-color: #1a2029;
+            --border-color: #2a323f;
+            --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+            color-scheme: dark;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg-color: #0f1218;
+                --text-color: #e8ebf0;
+                --muted-color: #a3abb8;
+                --primary-color: #6ea8fe;
+                --primary-text: #0b1220;
+                --accent-color: #fb923c;
+                --secondary-color: #161b23;
+                --card-color: #1a2029;
+                --border-color: #2a323f;
+                --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+                color-scheme: dark;
+            }
+        }
+
+        /* --- RESET & BASE --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+        a { color: var(--primary-color); }
+        h1, h2, h3 { line-height: 1.2; }
+        h2 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .container { max-width: var(--container-width); margin: 0 auto; padding: 0 20px; }
+        section { padding: 80px 0; }
+        .section-alt { background: var(--secondary-color); }
+        .section-head { max-width: 640px; margin-bottom: 36px; }
+        .section-head p { color: var(--muted-color); }
+        .eyebrow {
+            display: inline-block; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--primary-color); margin-bottom: 0.6rem;
+        }
+
+        /* --- HEADER & NAV --- */
+        header {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; height: 64px; }
+        .logo {
+            display: inline-flex; align-items: center; gap: 10px;
+            font-size: 1.2rem; font-weight: 700; color: var(--text-color); text-decoration: none;
+        }
+        .logo-mark {
+            width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+            background: var(--primary-color); color: var(--primary-text); font-size: 0.95rem;
+        }
+        .nav-right { display: flex; align-items: center; gap: 1.25rem; }
+        .nav-links { display: flex; gap: 1.25rem; list-style: none; }
+        .nav-links a { color: var(--muted-color); text-decoration: none; font-weight: 500; transition: color var(--transition); }
+        .nav-links a:hover { color: var(--text-color); }
+
+        /* --- BUTTONS --- */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 11px 20px; border-radius: 10px; border: 1px solid var(--primary-color);
+            background: var(--primary-color); color: var(--primary-text);
+            font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+            transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px -6px var(--primary-color); }
+        .btn.outline { background: transparent; color: var(--primary-color); }
+        .btn.outline:hover { background: var(--secondary-color); box-shadow: none; }
+        .btn-toggle {
+            padding: 7px 12px; font-size: 0.85rem; font-weight: 500;
+            background: transparent; color: var(--text-color); border-color: var(--border-color);
+        }
+        .btn-toggle:hover { background: var(--secondary-color); box-shadow: none; }
+        .btn:focus-visible, .nav-links a:focus-visible, .logo:focus-visible, .footer-links a:focus-visible {
+            outline: 2px solid var(--primary-color); outline-offset: 3px;
+        }
+
+        /* --- HERO --- */
+        #hero {
+            padding: 96px 0 88px; text-align: center;
+            background:
+                radial-gradient(40rem 22rem at 50% -10%, rgba(37, 99, 235, 0.16), transparent 70%),
+                var(--bg-color);
+        }
+        #hero h1 { font-size: 3.1rem; max-width: 760px; margin: 0 auto 1rem; letter-spacing: -0.02em; }
+        #hero p { color: var(--muted-color); font-size: 1.15rem; max-width: 600px; margin: 0 auto 2rem; }
+        .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        #hero .hero-note { margin: 1.25rem auto 0; font-size: 0.9rem; }
+
+        /* --- PRODUCTS --- */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+        .product {
+            display: flex; flex-direction: column;
+            background: var(--card-color); border: 1px solid var(--border-color); border-radius: var(--radius);
+            box-shadow: var(--shadow); overflow: hidden;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+        .product:hover { transform: translateY(-3px); }
+        /* Product image area. Replace each .thumb <div> with <img class="thumb" src="..." alt="..."> to use a photo. */
+        .thumb { display: grid; place-items: center; aspect-ratio: 16 / 10; width: 100%; object-fit: cover; color: #fff; }
+        .thumb svg { width: 56px; height: 56px; opacity: 0.95; }
+        .thumb-1 { background: linear-gradient(135deg, #2563eb, #22d3ee); }
+        .thumb-2 { background: linear-gradient(135deg, #7c3aed, #ec4899); }
+        .thumb-3 { background: linear-gradient(135deg, #059669, #a3e635); }
+        .product-body { display: flex; flex-direction: column; gap: 8px; padding: 22px; flex: 1; }
+        .product h3 { font-size: 1.2rem; }
+        .product p { color: var(--muted-color); }
+        .badge {
+            align-self: flex-start; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px;
+            background: var(--secondary-color); color: var(--muted-color); border: 1px solid var(--border-color);
+        }
+        .badge.hot { background: var(--accent-color); color: #fff; border-color: transparent; }
+        .product-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 12px; }
+        .price { font-size: 1.5rem; font-weight: 700; }
+        .price small { font-size: 0.85rem; font-weight: 400; color: var(--muted-color); }
+
+        /* --- ABOUT --- */
+        .about { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; }
+        .about p { color: var(--muted-color); margin-bottom: 1rem; }
+        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .stat { background: var(--card-color); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; }
+        .stat strong { display: block; font-size: 1.8rem; color: var(--primary-color); line-height: 1.1; }
+        .stat span { color: var(--muted-color); font-size: 0.9rem; }
+
+        /* --- FEATURES --- */
+        .feature { background: var(--card-color); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 24px; }
+        .feature h3 { font-size: 1.1rem; margin-bottom: 0.4rem; }
+        .feature p { color: var(--muted-color); }
+        .icon {
+            width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 1rem;
+            background: var(--secondary-color); color: var(--primary-color); border: 1px solid var(--border-color);
+        }
+        .icon svg { width: 22px; height: 22px; }
+
+        /* --- CALL TO ACTION --- */
+        .cta {
+            text-align: center; border-radius: 20px; padding: 56px 24px;
+            background: linear-gradient(135deg, #1d4ed8, #2563eb 55%, #0891b2); color: #fff;
+        }
+        .cta h2 { color: #fff; }
+        .cta p { opacity: 0.9; max-width: 540px; margin: 0 auto 1.75rem; }
+        .cta .btn { background: #fff; color: #1d4ed8; border-color: #fff; }
+
+        /* --- FOOTER --- */
+        footer { border-top: 1px solid var(--border-color); padding: 32px 0; color: var(--muted-color); font-size: 0.9rem; }
+        .footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .footer-links { display: flex; gap: 1.25rem; list-style: none; }
+        .footer-links a { color: var(--muted-color); }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 800px) {
+            .about { grid-template-columns: 1fr; gap: 28px; }
+        }
+        @media (max-width: 600px) {
+            /* Nav links move to their own row under the logo and theme toggle. */
+            html { scroll-padding-top: 110px; }
+            nav { flex-wrap: wrap; height: auto; padding-top: 10px; padding-bottom: 10px; row-gap: 6px; }
+            .nav-right { display: contents; }
+            .nav-links { order: 3; width: 100%; gap: 1.1rem; font-size: 0.92rem; overflow-x: auto; }
+            section { padding: 60px 0; }
+            #hero { padding: 64px 0 56px; }
+            #hero h1 { font-size: 2.2rem; }
+            h2 { font-size: 1.6rem; }
+            .footer-inner { flex-direction: column; text-align: center; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { transition: none !important; }
+            .btn:hover, .product:hover { transform: none; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container" aria-label="Main navigation">
+            <a class="logo" href="#hero"><span class="logo-mark" aria-hidden="true">Y</span>Your Brand</a>
+            <div class="nav-right">
+                <ul class="nav-links">
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <button class="btn btn-toggle" id="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero">
+            <div class="container">
+                <span class="eyebrow">New this season</span>
+                <h1>Products that make your work simpler</h1>
+                <p>One or two sentences on what you sell, who it is for, and the result they get. Keep it short and specific.</p>
+                <div class="hero-actions">
+                    <a class="btn" href="#products">Browse products</a>
+                    <a class="btn outline" href="#contact">Get in touch</a>
+                </div>
+                <p class="hero-note">Free shipping on orders over $50. 30-day returns.</p>
+            </div>
+        </section>
+
+        <section id="products" class="section-alt">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">Products</span>
+                    <h2>Pick what fits</h2>
+                    <p>Replace these three cards with your own products. Copy a card to add more; the grid adjusts on its own.</p>
+                </div>
+                <div class="grid">
+                    <article class="product">
+                        <div class="thumb thumb-1" role="img" aria-label="Starter Kit product image">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+                        </div>
+                        <div class="product-body">
+                            <span class="badge">Best for beginners</span>
+                            <h3>Starter Kit</h3>
+                            <p>Everything a new customer needs to get going, in one box.</p>
+                            <div class="product-foot">
+                                <span class="price">$29 <small>one-time</small></span>
+                                <a class="btn" href="#contact">Buy now</a>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="product">
+                        <div class="thumb thumb-2" role="img" aria-label="Pro Toolkit product image">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7L12 3Z"/></svg>
+                        </div>
+                        <div class="product-body">
+                            <span class="badge hot">Most popular</span>
+                            <h3>Pro Toolkit</h3>
+                            <p>The full set for people who use it every day. Describe the benefit, not the specs.</p>
+                            <div class="product-foot">
+                                <span class="price">$59 <small>one-time</small></span>
+                                <a class="btn" href="#contact">Buy now</a>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="product">
+                        <div class="thumb thumb-3" role="img" aria-label="Complete Bundle product image">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/><path d="M12 8c-2-4-6-4-6-1.5S10 8 12 8Zm0 0c2-4 6-4 6-1.5S14 8 12 8Z"/></svg>
+                        </div>
+                        <div class="product-body">
+                            <span class="badge">Best value</span>
+                            <h3>Complete Bundle</h3>
+                            <p>Both kits together at a lower price, plus priority support.</p>
+                            <div class="product-foot">
+                                <span class="price">$79 <small>one-time</small></span>
+                                <a class="btn" href="#contact">Buy now</a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="about">
+            <div class="container about">
+                <div>
+                    <span class="eyebrow">About us</span>
+                    <h2>A small team that sweats the details</h2>
+                    <p>Tell your story in two or three sentences: who you are, why you started, and what you care about.</p>
+                    <p>Visitors trust a real person behind a shop. A line about where you are based or how you make things helps.</p>
+                </div>
+                <div class="stats">
+                    <div class="stat"><strong>2,400+</strong><span>happy customers</span></div>
+                    <div class="stat"><strong>4.9/5</strong><span>average rating</span></div>
+                    <div class="stat"><strong>48h</strong><span>typical shipping time</span></div>
+                    <div class="stat"><strong>30 days</strong><span>no-questions returns</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="section-alt">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">Why us</span>
+                    <h2>Reasons to choose us</h2>
+                    <p>Three short reasons a customer should buy from you. Lead with what they get.</p>
+                </div>
+                <div class="grid">
+                    <article class="feature">
+                        <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+                        <h3>Quality you can see</h3>
+                        <p>Describe the first benefit in a sentence or two.</p>
+                    </article>
+                    <article class="feature">
+                        <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+                        <h3>Fast delivery</h3>
+                        <p>Describe the second benefit in a sentence or two.</p>
+                    </article>
+                    <article class="feature">
+                        <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                        <h3>Real support</h3>
+                        <p>Describe the third benefit in a sentence or two.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <div class="container">
+                <div class="cta">
+                    <h2>Questions before you buy?</h2>
+                    <p>Repeat your main promise and give one clear next step.</p>
+                    <a class="btn" href="mailto:hello@example.com">Email us</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-inner">
+            <p>&copy; <span id="year">2026</span> Your Brand</p>
+            <ul class="footer-links">
+                <li><a href="#">Privacy</a></li>
+                <li><a href="#">Terms</a></li>
+                <li><a href="mailto:hello@example.com">hello@example.com</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle: follows the visitor's system setting until they pick, then remembers the choice.
+        const root = document.documentElement;
+        const themeToggle = document.querySelector("#theme-toggle");
+        const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+        const syncToggle = () => {
+            const dark = isDark();
+            themeToggle.setAttribute("aria-pressed", String(dark));
+            themeToggle.textContent = dark ? "Light mode" : "Dark mode";
+        };
+        themeToggle.addEventListener("click", () => {
+            root.dataset.theme = isDark() ? "light" : "dark";
+            try { localStorage.setItem("theme", root.dataset.theme); } catch (_) {}
+            syncToggle();
+        });
+        syncToggle();
+        document.querySelector("#year").textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

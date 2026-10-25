@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Snow Seasons Tech: Standalone Business Apps</title>
+<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(_){}</script>
+<style>
+:root{--bg:#f4f7fb;--text:#1f2937;--muted:#5b6472;--primary:#2878b5;--btn:#2878b5;--sec:#eef2f7;--glass:rgba(255,255,255,.6);--glass-b:rgba(255,255,255,.85);--hi:rgba(255,255,255,.7);--shadow:0 8px 30px rgba(31,41,55,.08);--glow:rgba(40,120,181,.35);--b1:rgba(40,120,181,.2);--b2:rgba(124,92,255,.14);--b3:rgba(0,184,217,.14);--hero-filter:none;--flake:rgba(40,95,215,.75);--hero-sub:#4b5563;--code:#0f172a;--codet:#e2e8f0;--w:1100px;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--hero-filter:brightness(.34) saturate(1.15);--flake:rgba(255,255,255,.85);--hero-sub:#d3d9e1;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--hero-filter:brightness(.34) saturate(1.15);--flake:rgba(255,255,255,.85);--hero-sub:#d3d9e1;color-scheme:dark}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:var(--text);min-height:100vh;
+background:radial-gradient(42rem 32rem at 8% -6%,var(--b1),transparent 70%),radial-gradient(38rem 30rem at 96% 14%,var(--b2),transparent 70%),radial-gradient(44rem 34rem at 50% 108%,var(--b3),transparent 70%),var(--bg);background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--sec);z-index:101}
+.container{max-width:var(--w);margin:0 auto;padding:0 20px}
+header,.card,footer,.codewrap,#notice,.btn-toggle{-webkit-backdrop-filter:blur(16px) saturate(160%);backdrop-filter:blur(16px) saturate(160%)}
+header{background:var(--glass);border-bottom:1px solid var(--glass-b);padding:1rem 0;position:sticky;top:env(safe-area-inset-top,0px);z-index:100;box-shadow:var(--shadow)}
+nav{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.logo{font-size:1.5rem;font-weight:700;color:var(--primary);text-decoration:none;text-shadow:0 0 18px var(--glow)}
+.nav-links{display:flex;list-style:none;gap:20px}
+.nav-links a{text-decoration:none;color:var(--text);font-weight:500;transition:color .2s,text-shadow .2s}
+.nav-links a:hover{color:var(--primary);text-shadow:0 0 12px var(--glow)}
+.btn{display:inline-block;background:var(--btn);color:#fff;padding:10px 20px;border:1px solid transparent;border-radius:10px;cursor:pointer;text-decoration:none;font-size:1rem;font-family:inherit;
+box-shadow:0 4px 14px -4px var(--glow);transition:box-shadow .2s,transform .2s}
+.btn:hover{box-shadow:0 0 0 1px var(--glow),0 6px 26px -2px var(--glow);transform:translateY(-1px)}
+.btn:focus-visible,.nav-links a:focus-visible,.logo:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
+.btn:disabled{opacity:.6;cursor:wait;transform:none}
+.btn.alt{background:transparent;color:var(--primary);border-color:var(--primary);box-shadow:none}
+.btn.alt:hover{box-shadow:0 0 18px -4px var(--glow)}
+.btn-toggle{background:var(--glass);color:var(--text);border:1px solid var(--glass-b);box-shadow:none;padding:6px 12px;font-size:.8rem}
+#hero{position:relative;isolation:isolate;overflow:hidden;padding:120px 0 104px;text-align:center}
+#hero::before{content:"";position:absolute;inset:0;z-index:-1;background:url(img/hero-banner.jpg) center/cover no-repeat;filter:var(--hero-filter);-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent)}
+#hero h1{font-size:3rem;line-height:1.15;margin-bottom:1rem;color:var(--text);text-shadow:0 0 28px var(--glow)}
+#hero p{max-width:640px;margin:0 auto 1.5rem;color:var(--hero-sub)}
+section{padding:56px 0}.sub{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;margin-top:28px}
+.card{background:var(--glass);border:1px solid var(--glass-b);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px;
+box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.card:hover{transform:translateY(-4px);border-color:var(--glow);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow),0 14px 44px -10px var(--glow)}
+.tag{align-self:flex-start;font-size:.75rem;background:var(--btn);color:#fff;border-radius:999px;padding:2px 10px;box-shadow:0 0 14px -3px var(--glow)}.tag.soon{background:var(--muted);box-shadow:none}
+.card ul{margin-left:1.2rem;color:var(--muted);font-size:.95rem}
+.price s{font-size:1rem;font-weight:400;color:var(--muted)}.sale{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.02em;color:#fff;background:var(--btn);border-radius:999px;padding:2px 9px;vertical-align:middle}.price{font-size:1.6rem;font-weight:700}.price small{font-size:.85rem;color:var(--muted);font-weight:400}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto}.soonc{opacity:.75}
+.flip{display:grid;perspective:1400px;cursor:pointer}
+.flip>.card{grid-area:1/1;-webkit-backface-visibility:hidden;backface-visibility:hidden;transition:rotate .6s cubic-bezier(.2,.7,.2,1),transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.flip>.back{rotate:y 180deg}
+.flip.flipped>.front{rotate:y -180deg}.flip.flipped>.back{rotate:y 0deg}
+.flip>[inert]{pointer-events:none}
+.thumb{display:block;width:calc(100% + 48px);max-width:none;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:top left;margin:-24px -24px 4px;border-radius:15px 15px 0 0;border-bottom:1px solid var(--glass-b);background:var(--sec)}.steps{list-style:none;counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:22px}.steps li{counter-increment:s;position:relative;padding-left:46px;display:flex;flex-direction:column}.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--btn);color:#fff;font-weight:700;box-shadow:0 0 14px -3px var(--glow)}.steps span{color:var(--muted);font-size:.95rem}.svc-price{font-size:1.15rem;font-weight:700;margin-top:auto}.svc-price small{display:block;font-size:.85rem;font-weight:400;color:var(--muted)}.svc-price+.actions{margin-top:0}
+.bundle{margin-top:22px}.bundle:hover{transform:none}.bundle h3{font-size:1.3rem}
+.bundle-grid{display:grid;grid-template-columns:1fr;gap:20px;margin-top:6px}@media(min-width:820px){.bundle-grid{grid-template-columns:3fr 2fr;align-items:start}}
+.bundle fieldset{border:0;display:grid;gap:10px;min-width:0}.bundle legend{margin-bottom:8px}
+.pick{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;align-items:start;padding:12px 14px;border:1px solid var(--glass-b);border-radius:12px;background:var(--sec);transition:border-color .2s,box-shadow .2s}
+.pick:has([data-pick]:checked){border-color:var(--primary);box-shadow:0 0 0 1px var(--glow)}
+.pick [data-pick]{width:18px;height:18px;margin-top:4px;accent-color:var(--btn);cursor:pointer}.pick>label{cursor:pointer}.pick>label strong{display:block}
+.pick .from{font-size:.88rem;color:var(--muted);text-align:right;max-width:13rem}
+.pick .opts{grid-column:2/-1;display:flex;flex-wrap:wrap;gap:8px 18px;min-width:0;font-size:.9rem;color:var(--muted)}.pick .opts label{display:flex;align-items:center;gap:6px;min-width:0;max-width:100%}.pick .opts[hidden]{display:none}
+.pick select,.pick input[type=number]{min-width:0;max-width:100%;padding:3px 8px;border:1px solid var(--b1);border-radius:8px;background:var(--bg);color:var(--text);font:inherit}.pick input[type=number]{width:4.2rem}
+.pick select:focus-visible,.pick input:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+@media(max-width:600px){.pick{grid-template-columns:auto minmax(0,1fr)}.pick .from{grid-column:2;text-align:left;max-width:none}}
+.summary{display:flex;flex-direction:column;gap:10px;padding:16px 18px;border:1px solid var(--glass-b);border-radius:12px;background:var(--sec)}
+.summary h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.summary dl{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:.95rem}.summary dd{text-align:right;font-weight:600;white-space:nowrap}
+.summary .save{color:var(--primary)}.summary .total{font-size:1.15rem;font-weight:700;border-top:1px solid var(--glass-b);padding-top:8px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.svc-link{font-size:.9rem}.tagline{font-size:.92rem;font-weight:600;color:var(--primary)}.flip .hint{font-size:.8rem;color:var(--muted)}.flip .price{margin-top:auto}.flip .actions{margin-top:0}
+.specs{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.92rem}.specs dt{color:var(--muted)}
+.back h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+.codewrap{margin-top:24px;overflow-x:auto;border-radius:14px;background:var(--code);border:1px solid var(--glass-b);box-shadow:var(--shadow)}
+pre{color:var(--codet);padding:18px 20px;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace}
+.kitgrid{display:grid;grid-template-columns:1fr;gap:20px;align-items:start}.kitgrid>*{min-width:0}
+@media(min-width:820px){.kitgrid{grid-template-columns:1fr 1fr}}
+.signup{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto}.signup label{flex-basis:100%;font-size:.9rem;font-weight:600}
+.signup input{flex:1 1 200px;min-width:0;padding:10px 14px;border:1px solid var(--b1);border-radius:10px;background:var(--sec);color:var(--text);font:inherit}
+.signup input:focus-visible{outline:2px solid var(--primary);outline-offset:2px}.fine{font-size:.85rem;color:var(--muted)}.fine a{color:inherit}.kit-done a{color:var(--primary)}
+footer{text-align:center;padding:40px 0;background:var(--glass);border-top:1px solid var(--glass-b);color:var(--muted)}
+#notice{display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--glass);color:var(--text);border:1px solid var(--glass-b);box-shadow:var(--shadow),0 0 24px -6px var(--glow);padding:12px 18px;border-radius:12px;max-width:90vw;z-index:200}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){header,.card,footer,#notice,.btn-toggle{background:var(--sec)}}
+.snow{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent)}
+.snow i{position:absolute;top:-40px;background:var(--flake);-webkit-mask:center/contain no-repeat;mask:center/contain no-repeat;animation:snowfall linear infinite;will-change:transform}
+@keyframes snowfall{to{transform:translate3d(var(--dx),760px,0) rotate(var(--rot))}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}.card:hover,.btn:hover{transform:none}.snow{display:none}}
+@media(max-width:600px){nav{flex-wrap:wrap}.nav-links{gap:.75rem}#hero{padding:80px 0 64px}#hero h1{font-size:2.1rem}}
+</style></head>
+<body>
+<header><nav class="container" aria-label="Main navigation">
+<a class="logo" href="#hero">Snow Seasons Technology</a>
+<ul class="nav-links"><li><a href="#products">Products</a></li><li><a href="#services">Services</a></li><li><a href="#kit">Website Kit</a></li><li><a href="#contact">Contact</a></li></ul>
+<button class="btn btn-toggle" id="theme-toggle" type="button" aria-pressed="false">Toggle theme</button>
+</nav></header>
+<main>
+<section id="hero"><div class="container">
+<h1>Standalone Business Apps</h1>
+<p>Simple, responsive applications, packaged and tested, ready to deploy in your chosen environment. No accounts, no lock-in.</p>
+<a class="btn" href="#products">Browse products</a></div></section>
+
+<section id="products"><div class="container">
+<h2>Products</h2><p class="sub">Dashboards, templates and automation tools, each a self-contained package.</p>
+<div class="grid" id="product-grid"></div></div></section>
+
+<section id="services"><div class="container">
+<h2>Done-for-you service</h2><p class="sub">Want the software but not the setup? We install it, run it and send you the reports.</p>
+<ol class="steps"><li><strong>Request a quote</strong><span>Tell us about your business and what you need.</span></li><li><strong>We set it up</strong><span>Installed, configured and tested with your data.</span></li><li><strong>You get results</strong><span>Reports on a schedule, or an app that is ready to use.</span></li></ol>
+<div class="grid" id="service-grid"></div>
+<div class="card bundle" id="bundle"></div></div></section>
+
+<section id="kit"><div class="container">
+<h2>Website Kit</h2>
+<p class="sub">A free, ready-to-edit landing page: one HTML file with a hero, features, FAQ and call to action, plus a light/dark toggle and CSS variables for easy theming.</p>
+<div class="kitgrid" style="margin-top:24px">
+<div class="card">
+<span class="tag">Free download</span>
+<h3>Landing Page Kit</h3>
+<ul><li>Single file, no build step or dependencies</li><li>Hero with call to action, features, how it works</li><li>Testimonial, FAQ and closing call to action</li><li>Dark mode that remembers the visitor's choice</li></ul>
+<form class="signup" id="kit-form"><label for="kit-email">Enter your email to download the kit.</label>
+<input type="email" id="kit-email" name="email" required maxlength="254" autocomplete="email" placeholder="you@example.com">
+<button class="btn" type="submit">Download the kit</button></form>
+<p class="fine" id="kit-note">We'll also send occasional news about new templates and tools. Unsubscribe any time. <a href="/privacy">Privacy</a></p>
+</div>
+<div><p class="sub" style="margin-bottom:8px">Retheme it by editing these variables at the top of the file:</p>
+<div class="codewrap"><pre><code>:root {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+  --muted-color: #666666;
+  --primary-color: #3498db;  /* brand color */
+  --secondary-color: #f4f4f4;
+  --container-width: 1100px;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --text-color: #f4f4f4;
+  --muted-color: #b0b0b0;
+  --secondary-color: #2d2d2d;
+}</code></pre></div></div>
+</div></div></section>
+
+<section id="contact"><div class="container">
+<h2>Need something custom?</h2>
+<p class="sub" style="margin-bottom:1rem">Tell us about your BI dashboard, pipeline or micro-SaaS idea.</p>
+<a class="btn" id="contact-link" href="#">Email us</a></div></section>
+</main>
+<footer><div class="container"><p><a href="/storefront/portal.html">Customer sign-in</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refund">Refunds</a></p><p>&copy; 2026 snowseasonstech.store</p></div></footer>
+<div id="notice" role="status"></div>
+<script>
+const CONTACT_EMAIL="info@snowseasonstech.net"; // placeholder: set your real address
+const PRODUCTS=[
+ {id:"bookscan",name:"BookScan Live",category:"Micro-SaaS",
+  blurb:"Scan or type an ISBN and get a live lookup with estimated used-market value and a quick profit check. Built for book resellers.",
+  features:["Barcode-scanner friendly","Live data from Open Library and Google Books","Profit check and running scan list","Single HTML file, no backend"],
+  delivery:"Single HTML file",runs:"Any modern browser",bestFor:"Book resellers sourcing at sales and thrift stores",
+  img:"img/products/bookscan.webp",alt:"BookScan Live showing a lookup for Effective Java with marketplace offers and a profit check",
+  unit:"one-time"}, // price is loaded from Stripe via /api/products
+ {id:"vanilla-webpage",name:"Vanilla Webpage Template",category:"Website Template",
+  blurb:"A lightweight single-file products page for your own site. Open it in a browser and it works.",
+  features:["Product cards with prices and Buy buttons","Light/dark theme that remembers the choice","Responsive layout, themed with CSS variables","Single HTML file, no dependencies"],
+  delivery:"Single HTML file",runs:"Any browser or static host",bestFor:"Small businesses that want a simple products page",
+  img:"img/products/vanilla-webpage.webp",alt:"The Vanilla Webpage Template's products grid with three product cards, prices and Buy buttons",
+  unit:"one-time"},
+ {id:"bi-dashboard",name:"BI Engagement Dashboard",category:"Business Intelligence",
+  blurb:"A single-file operations dashboard for tracking client engagements and your project pipeline.",
+  features:["KPI cards and pipeline charts","3-step engagement wizard","Filterable opportunity table","CSV export, no backend"],
+  delivery:"Single HTML file",runs:"Any modern browser (charts load Chart.js from a CDN)",bestFor:"Consultants and agencies tracking client work",
+  img:"img/products/bi-dashboard.webp",alt:"BI Engagement Dashboard with KPI cards, a pipeline donut chart and engagements by service",
+  unit:"one-time"},
+ {id:"lead-generator",name:"Lead Generation Pipeline",category:"Sales Automation",
+  blurb:"Turn a list of company names into websites, phone numbers and contact details, on your own machine.",
+  features:["Finds each company's official website","Collects public emails, phones and names","Respects robots.txt, resumes after failures","Python scripts, runs nightly with cron"],
+  delivery:"ZIP of Python scripts",runs:"Python 3 on Linux or macOS",bestFor:"Sales teams building prospect lists",
+  img:"img/products/lead-generator.svg",alt:"Diagram: company names become websites, then leads, then contacts, run with ./run_pipeline.sh",
+  unit:"one-time"},
+ {id:"blog-gen",name:"Blog Roundup Generator",category:"Content Automation",
+  blurb:"Build weekly blog roundups from RSS feeds and web pages, with no APIs or AI costs.",
+  features:["Pulls from RSS, listing pages or single URLs","Summaries with attribution links","Publishes drafts to Hugo, WordPress or Ghost","Node.js, runs on a schedule"],
+  delivery:"ZIP of a Node.js project",runs:"Node.js 18 or newer",bestFor:"Newsletter and blog editors",
+  img:"img/products/blog-gen.svg",alt:"Diagram: RSS feeds, listing pages and single URLs become a weekly roundup posted to Hugo, WordPress or Ghost",
+  unit:"one-time"},
+ {id:"booking-app",name:"Booking App Component",category:"Web App",
+  blurb:"A white-label weekly booking calendar to drop into your React app.",
+  features:["Weekly slot grid with cancel","Double-booking prevention","Live booking and open-slot stats","React, TypeScript, Tailwind, shadcn/ui"],
+  delivery:"ZIP with a React .tsx component",runs:"A React app with Tailwind and shadcn/ui",bestFor:"Developers adding appointments to a client site",
+  img:"img/products/booking-app.webp",alt:"Booking App weekly calendar with booked and open slots next to a new booking form",
+  unit:"one-time"},
+ {id:"inventory-tracker",name:"Store Inventory Tracker",category:"Retail",
+  blurb:"Track stock for a small shop in one file that works offline, with no account or server.",
+  features:["Low-stock and out-of-stock alerts","Search, filter and sort by SKU or category","CSV import and export","Stock value at cost and retail"],
+  delivery:"ZIP with a single HTML file",runs:"Any modern browser, fully offline",bestFor:"Small shops and market sellers",
+  img:"img/products/inventory-tracker.webp",alt:"Store Inventory Tracker with stock totals and a product table flagging low and out-of-stock items",
+  unit:"one-time"},
+ {id:"invoice-generator",name:"Invoice Generator",category:"Small Business",
+  blurb:"Make professional invoices in your browser and save them as PDFs. Built for freelancers and small sellers.",
+  tagline:"No account, no watermark, your data stays local.",
+  features:["Line items with discount, tax and shipping","Draft, Sent and Paid status with a PAID stamp","Saved invoices, JSON backup and CSV export","Prints a clean PDF from any browser"],
+  delivery:"ZIP with a single HTML file",runs:"Any modern browser, fully offline",bestFor:"Freelancers and small sellers",
+  img:"img/products/invoice-generator.webp",alt:"Invoice Generator preview of a sample invoice with a $1,012.81 balance due",
+  unit:"one-time"},
+ {id:"saas-financial-engine",name:"SaaS Financial Projection Engine",category:"Finance",
+  blurb:"A 5-year financial model for SaaS and subscription start-ups, in one Excel workbook with live formulas.",
+  features:["MRR/ARR, cash and EBITDA for 60 months","CAC, LTV, payback and cohort retention","Hiring plan and cap table with dilution","Base, upside and downside scenarios"],
+  delivery:"Excel workbook (.xlsx)",runs:"Excel, Google Sheets or LibreOffice",bestFor:"SaaS founders planning a budget or fundraise",
+  img:"img/products/saas-financial-engine.webp",alt:"Investor dashboard with KPI tiles and charts of ARR, revenue vs EBITDA, MRR and cash",
+  unit:"one-time"},
+ {id:"tech-hiring-os",name:"Tech Hiring & Compensation Benchmark OS",category:"HR & Hiring",
+  blurb:"Run structured tech hiring end to end: scorecards, interview questions, salary bands, offer letters and onboarding.",
+  features:["Weighted scorecards for Engineering, Product and Sales","142-question interview bank with rubrics (PDF)","Salary bands for 15 roles across 21 locations","Offer letter generator, Word templates and 30-60-90 onboarding"],
+  delivery:"ZIP with Excel, PDF and Word files",runs:"Excel, Google Sheets or LibreOffice, plus Word or Google Docs",bestFor:"Start-up founders and recruiters hiring tech teams",
+  img:"img/products/tech-hiring-os.webp",alt:"Hiring OS dashboard with requisition and offer KPIs, hiring budget by department and an offers-by-status chart",
+  unit:"one-time"},
+ {id:"social-studio",name:"Social Studio: Social Media Marketing Manager",category:"Marketing",
+  blurb:"Plan, write, approve and schedule posts for every client from one self-hosted dashboard, then let it publish on time.",
+  features:["Client workspaces with owner, editor, approver and viewer roles","AI writer for Google, Facebook and Instagram versions of a post","Draft, approve and schedule workflow with a content calendar","Auto-publishing to Facebook Pages, Instagram and Google Business Profile"],
+  delivery:"ZIP with the app, Docker setup, tests and a setup guide",runs:"Docker on your own server (FastAPI and MySQL). Auto-publishing needs your own approved Meta and Google developer apps",bestFor:"Agencies and teams managing social media for several clients",
+  img:"img/products/social-studio.webp",alt:"Social Studio dashboard with post, approval, scheduled and published counts and a content queue of client posts",
+  unit:"one-time"},
+];
+// Done-for-you packages. Prices are starting points ("From"); the quote confirms the final price.
+const SERVICES=[
+ {name:"Managed Lead Generation",tag:"Sales Automation",
+  blurb:"We run the Lead Generation Pipeline for you every night and send you the results.",
+  includes:["Set up on our server with your company list","Nightly runs, watched for failures","Weekly leads and contacts CSV with a short summary","Add companies to the queue any time by email"],
+  setup:199,monthly:149},
+ {name:"Managed Blog Roundups",tag:"Content Automation",
+  blurb:"We pick your sources, build the roundup every week and deliver it ready to publish.",
+  includes:["Source list set up for your niche","Weekly roundup with summaries and source links","Posted as a draft to Hugo, WordPress or Ghost, or emailed","Monthly report of what was published"],
+  setup:149,monthly:149},
+ {name:"App Setup and Training",tag:"Browser Apps",
+  blurb:"BookScan, Inventory Tracker, Invoice Generator or the BI Dashboard, installed and ready on your devices.",
+  includes:["Installed on your computers and phones","Your logo, categories and business details filled in","Your existing spreadsheet imported","30-minute walkthrough call"],
+  setup:79,per:"per app",note:"App sold separately. No monthly fee; your data stays on your devices."},
+ {name:"Website Install",tag:"Web",
+  blurb:"The Booking App or Vanilla Webpage Template installed on your site and branded for you.",
+  includes:["Installed on your site or a new static host","Your colors, logo and copy","Buy or booking buttons connected","Optional monthly updates and small changes"],
+  setup:149,monthly:39,monthlyOptional:true,note:"Template installs from $149, Booking App from $199. Final price confirmed in your quote.",
+  variants:[{label:"Vanilla Webpage Template",setup:149},{label:"Booking App",setup:199}]},
+ {name:"Social Studio Setup",tag:"Social Media",
+  blurb:"We install Social Studio on your server, put it on your domain and help you get Meta and Google publishing approved.",
+  includes:["Installed with Docker on your server or a new VPS, with HTTPS on your domain","Your brand name, first client workspaces and team invites set up","Help preparing your Meta App Review and Google Business Profile API request","45-minute walkthrough call","Optional monthly updates, backup checks and monitoring"],
+  setup:199,monthly:39,monthlyOptional:true,note:"Social Studio app sold separately. Approval times are set by Meta and Google."},
+];
+// Custom bundle card: any mix of SERVICES in one quote; BUNDLE_MIN or more take BUNDLE_OFF off the combined setup fee.
+const BUNDLE_MIN=2,BUNDLE_OFF=.10,MAX_APPS=4;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function notify(m){const n=$("#notice");n.textContent=m;n.style.display="block";clearTimeout(notify.t);notify.t=setTimeout(()=>n.style.display="none",4500)}
+const specs=p=>{const r=[["You get",p.delivery],["Runs on",p.runs],["Best for",p.bestFor]].filter(([,v])=>v).map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");return r&&`<h4>Details</h4><dl class="specs">${r}</dl>`};
+const thumb=p=>p.img?`<img class="thumb" src="${esc(p.img)}" alt="${esc(p.alt||"")}" width="800" height="450" loading="lazy" decoding="async">`:"";
+const tagline=p=>p.tagline?`<p class="tagline">${esc(p.tagline)}</p>`:"";
+$("#product-grid").innerHTML=PRODUCTS.map(p=>p.soon?`<article class="card soonc">${thumb(p)}<span class="tag soon">Coming soon</span><h3>${esc(p.name)}</h3><p class="sub">${esc(p.category)}</p><p>${esc(p.blurb)}</p>${tagline(p)}<div class="actions"><a class="btn alt" href="mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Notify me: "+p.name)}">Notify me</a></div></article>`:`<article class="flip"><div class="card front">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for features and requirements.</p><div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div><div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">Buy now</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
+ +`<div class="card back" inert><h3>${esc(p.name)}</h3><h4>Features</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>${specs(p)}<p class="svc-link"><a href="#services">Want us to set it up and run it for you?</a></p><div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div><div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">Buy now</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
+const svcPrice=v=>`From $${v.setup} setup${v.per?" "+v.per:""}${v.monthly?` + $${v.monthly}/month${v.monthlyOptional?" (optional)":""}`:""}`;
+const svcMail=v=>`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Setup request: "+v.name)}&body=${encodeURIComponent(`Hi,\n\nI'd like a quote for ${v.name}.\n\nBusiness name:\nWebsite:\nWhich software:\nWhat I need:\nHow often I want reports:\n\nThanks`)}`;
+$("#service-grid").innerHTML=SERVICES.map(v=>`<article class="card"><span class="tag">${esc(v.tag)}</span><h3>${esc(v.name)}</h3><p>${esc(v.blurb)}</p><ul>${v.includes.map(i=>`<li>${esc(i)}</li>`).join("")}</ul><p class="svc-price">${esc(svcPrice(v))}<small>${esc(v.note||"Final price confirmed in your quote.")}</small></p><div class="actions"><a class="btn" href="${esc(svcMail(v))}">Request setup</a></div></article>`).join("");
+const usd=n=>"$"+n.toLocaleString("en-US"),pct=Math.round(BUNDLE_OFF*100);
+const pickOpts=v=>[v.variants&&`<label>Install<select data-variant>${v.variants.map((o,j)=>`<option value="${j}">${esc(o.label)} (${usd(o.setup)})</option>`).join("")}</select></label>`,
+ v.per&&`<label>Apps<input type="number" data-qty min="1" max="${MAX_APPS}" value="1" inputmode="numeric"></label>`,
+ v.monthlyOptional&&`<label><input type="checkbox" data-monthly> Monthly updates (+${usd(v.monthly)}/month)</label>`].filter(Boolean).join("");
+$("#bundle").innerHTML=`<span class="tag">Custom bundle</span><h3>Build your own bundle</h3><p class="sub">Pick any mix of services for one quote. Combine ${BUNDLE_MIN} or more and save ${pct}% on setup.</p>`
+ +`<div class="bundle-grid"><fieldset><legend class="fine">Choose your services</legend>${SERVICES.map((v,i)=>{const o=pickOpts(v);return `<div class="pick"><input type="checkbox" id="pick-${i}" data-pick="${i}"><label for="pick-${i}"><strong>${esc(v.name)}</strong><span class="fine">${esc(v.tag)}</span></label><span class="from">${esc(svcPrice(v))}</span>${o?`<div class="opts" hidden>${o}</div>`:""}</div>`}).join("")}</fieldset>`
+ +`<div class="summary"></div></div><p class="sr-only" aria-live="polite" id="bundle-live"></p>`;
+const bundlePicks=()=>[...$("#bundle").querySelectorAll(".pick")].filter(p=>p.querySelector("[data-pick]").checked).map(p=>{
+ const v=SERVICES[p.querySelector("[data-pick]").dataset.pick],s=p.querySelector("[data-variant]"),q=p.querySelector("[data-qty]"),m=p.querySelector("[data-monthly]");
+ const variant=s&&v.variants[s.value],qty=q?Math.min(MAX_APPS,Math.max(1,parseInt(q.value,10)||1)):1;
+ return {v,label:v.name+(variant?` (${variant.label})`:"")+(q?`, ${qty} app${qty>1?"s":""}`:""),setup:(variant?variant.setup:v.setup)*qty,monthly:v.monthly&&(!v.monthlyOptional||m.checked)?v.monthly:0}});
+const bundleTotals=list=>{const setup=list.reduce((t,p)=>t+p.setup,0),off=list.length>=BUNDLE_MIN?Math.round(setup*BUNDLE_OFF):0;return {setup,off,total:setup-off,monthly:list.reduce((t,p)=>t+p.monthly,0)}};
+function renderBundle(){
+ $("#bundle").querySelectorAll(".pick").forEach(p=>{const o=p.querySelector(".opts");if(o)o.hidden=!p.querySelector("[data-pick]").checked});
+ const list=bundlePicks(),t=bundleTotals(list);
+ const est=list.length?`From ${usd(t.total)} setup${t.monthly?` + ${usd(t.monthly)}/month`:""}`:"";
+ $("#bundle .summary").innerHTML=`<h4>Your estimate</h4>`+(list.length
+  ?`<dl>${list.map(p=>`<dt>${esc(p.label)}</dt><dd>${usd(p.setup)}</dd>`).join("")}${t.off?`<dt class="save">Bundle discount (${pct}% off setup)</dt><dd class="save">−${usd(t.off)}</dd>`:""}<dt class="total">Setup</dt><dd class="total">From ${usd(t.total)}</dd><dt>Monthly</dt><dd>${t.monthly?`From ${usd(t.monthly)}/month`:"None"}</dd></dl>`
+   +(list.length<BUNDLE_MIN?`<p class="fine">Add one more service to save ${pct}% on setup.</p>`:"")
+   +`<p class="fine">Starting prices.${list.some(p=>p.v.per)?" Apps are sold separately.":""} Final price confirmed in your quote.</p>`
+  :`<p class="sub">Tick at least one service to see your estimate.</p>`)
+  +`<div class="actions"><button class="btn" type="button" data-bundle-request${list.length?"":" disabled"}>Request bundle quote</button></div>`;
+ $("#bundle-live").textContent=list.length?`Estimate: ${est}${t.off?`, including ${pct}% bundle discount`:""}.`:"No services selected.";
+}
+$("#bundle").addEventListener("input",e=>{const q=e.target.closest("[data-qty]");if(q&&parseInt(q.value,10)>MAX_APPS)q.value=MAX_APPS;renderBundle()});
+$("#bundle").addEventListener("change",e=>{const q=e.target.closest("[data-qty]");if(q)q.value=Math.min(MAX_APPS,Math.max(1,parseInt(q.value,10)||1));renderBundle()});
+$("#bundle").addEventListener("click",e=>{if(!e.target.closest("[data-bundle-request]"))return;const list=bundlePicks(),t=bundleTotals(list);if(!list.length)return;
+ const body=`Hi,\n\nI'd like a quote for this bundle:\n\n${list.map(p=>`- ${p.label}: ${usd(p.setup)} setup${p.monthly?` + ${usd(p.monthly)}/month`:""}`).join("\n")}\n\nEstimate: from ${usd(t.total)} setup${t.off?` (after the ${pct}% bundle discount)`:""}${t.monthly?` + ${usd(t.monthly)}/month`:""}\n\nBusiness name:\nWebsite:\nWhat I need:\n\nThanks`;
+ location.href=`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Bundle quote request")}&body=${encodeURIComponent(body)}`});
+renderBundle();
+document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
+ if(!t&&(e.target.closest("a,button")||String(getSelection())))return;
+ const had=c.contains(document.activeElement),on=c.classList.toggle("flipped"),[front,back]=c.children;
+ front.toggleAttribute("inert",on);back.toggleAttribute("inert",!on);if(had)(on?back:front).querySelector("[data-flip]").focus({preventScroll:true})});
+fetch("/api/products").then(r=>r.json()).then(d=>d.products.forEach(p=>{const money=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:p.currency.toUpperCase()}).format(n/100),per=p.interval?" / "+p.interval:"";document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>{if(!p.discount){el.textContent=money(p.amount)+per;return}const was=document.createElement("s"),tag=document.createElement("span");was.textContent=money(p.amount);tag.className="sale";tag.textContent=Math.round(p.discount.percent)+"% off launch price";el.replaceChildren(was," "+money(p.discount.amount)+per+" ",tag)})})).catch(()=>{})
+ .finally(()=>document.querySelectorAll("[data-price]").forEach(el=>{if(el.textContent==="…")el.textContent=""})); // unpriced or failed: no stuck placeholder
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-buy]");if(!b)return;
+ const busy=v=>document.querySelectorAll(`[data-buy="${CSS.escape(b.dataset.buy)}"]`).forEach(x=>x.disabled=v);busy(true);
+ try{const r=await fetch("/api/checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({productId:b.dataset.buy})});const d=await r.json();
+  if(d.url)location.href=d.url;else{notify(d.error||"Checkout failed");busy(false)}}
+ catch(_){notify("Checkout failed. Please try again.");busy(false)}});
+$("#contact-link").href="mailto:"+CONTACT_EMAIL;
+$("#kit-form").addEventListener("submit",async e=>{e.preventDefault();const f=e.currentTarget,b=f.querySelector("button"),email=f.email.value.trim();b.disabled=true;
+ try{const r=await fetch("/api/kit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});const d=await r.json();
+  if(d.url){const p=Object.assign(document.createElement("p"),{className:"kit-done"});p.append("Thanks! Your download is starting. ",Object.assign(document.createElement("a"),{href:d.url,textContent:"Didn't start? Download it here."}));
+   f.replaceWith(p);location.href=d.url}
+  else{notify(d.error||"Couldn't start the download. Please try again.");b.disabled=false}}
+ catch(_){notify("Couldn't start the download. Please try again.");b.disabled=false}});
+(()=>{if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ const w=document.createElement("div");w.className="snow";w.setAttribute("aria-hidden","true");
+ for(let i=0;i<28;i++){const f=document.createElement("i"),z=10+Math.random()*16,d=10+Math.random()*12,img=`url(img/flake-${1+Math.floor(Math.random()*6)}.png)`;
+  f.style.cssText=`left:${(Math.random()*100).toFixed(1)}%;width:${z.toFixed(1)}px;height:${z.toFixed(1)}px;opacity:${(.5+Math.random()*.5).toFixed(2)};animation-duration:${d.toFixed(1)}s;animation-delay:${(-Math.random()*d).toFixed(1)}s;--dx:${Math.round(Math.random()*90-45)}px;--rot:${Math.round(Math.random()*360-180)}deg`;
+  f.style.webkitMaskImage=f.style.maskImage=img;w.appendChild(f)}
+ $("#hero").prepend(w)})();
+const tg=$("#theme-toggle"),root=document.documentElement;
+const isDark=()=>root.dataset.theme?root.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+const syncToggle=()=>{const d=isDark();tg.setAttribute("aria-pressed",String(d));tg.textContent=d?"Light mode":"Dark mode"};
+tg.addEventListener("click",()=>{const next=isDark()?"light":"dark";root.dataset.theme=next;try{localStorage.setItem("theme",next)}catch(_){}syncToggle()});
+syncToggle();
+</script></body></html>

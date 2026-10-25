@@ -1,0 +1,6 @@
+# Cloudflare Pages config. The build command (npm run build:pages) is still set in the dashboard.
+name = "snowstore"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-09-23"
+# functions/ reuses api/_lib/, which requires Node's crypto module.
+compatibility_flags = ["nodejs_compat"]

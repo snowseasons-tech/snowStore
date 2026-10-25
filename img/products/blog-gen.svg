@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="Segoe UI, Tahoma, Geneva, Verdana, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d1b2a"/><stop offset="1" stop-color="#12324f"/></linearGradient>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#5ab0ea"/></marker>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <g fill="none" stroke="#5ab0ea" stroke-width="2" marker-end="url(#ar)">
+    <path d="M170 76C200 76 200 150 226 156"/><path d="M170 150h56"/><path d="M170 224C200 224 200 150 226 144"/>
+    <path d="M414 150h28"/>
+  </g>
+  <g font-size="14" fill="#eef2f7" text-anchor="middle" font-weight="600">
+    <rect x="32" y="52" width="136" height="48" rx="10" fill="#16314d" stroke="#2f5f8a"/><text x="100" y="81">RSS feeds</text>
+    <rect x="32" y="126" width="136" height="48" rx="10" fill="#16314d" stroke="#2f5f8a"/><text x="100" y="155">Listing pages</text>
+    <rect x="32" y="200" width="136" height="48" rx="10" fill="#16314d" stroke="#2f5f8a"/><text x="100" y="229">Single URLs</text>
+  </g>
+  <g>
+    <rect x="228" y="62" width="184" height="176" rx="12" fill="#f4f7fb"/>
+    <text x="246" y="94" font-size="15" font-weight="700" fill="#1f2937">Weekly roundup</text>
+    <rect x="246" y="108" width="148" height="6" rx="3" fill="#cbd5e1"/>
+    <rect x="246" y="130" width="10" height="10" rx="2" fill="#2878b5"/><rect x="264" y="131" width="120" height="7" rx="3" fill="#94a3b8"/>
+    <rect x="264" y="145" width="96" height="6" rx="3" fill="#cbd5e1"/>
+    <rect x="246" y="166" width="10" height="10" rx="2" fill="#2878b5"/><rect x="264" y="167" width="112" height="7" rx="3" fill="#94a3b8"/>
+    <rect x="264" y="181" width="104" height="6" rx="3" fill="#cbd5e1"/>
+    <text x="246" y="220" font-size="12" fill="#2878b5">Summaries + source links</text>
+  </g>
+  <g font-size="14" fill="#eef2f7" text-anchor="middle" font-weight="600">
+    <rect x="444" y="70" width="164" height="44" rx="10" fill="#16314d" stroke="#2f5f8a"/><text x="526" y="97">Hugo</text>
+    <rect x="444" y="128" width="164" height="44" rx="10" fill="#2878b5" stroke="#5ab0ea"/><text x="526" y="155">WordPress</text>
+    <rect x="444" y="186" width="164" height="44" rx="10" fill="#16314d" stroke="#2f5f8a"/><text x="526" y="213">Ghost</text>
+  </g>
+  <g font-size="13" fill="#a9c7e0" text-anchor="middle">
+    <text x="320" y="286">Node.js on a schedule · posts as drafts · no APIs or AI costs</text>
+  </g>
+  <g font-family="Consolas, Menlo, monospace" font-size="13">
+    <rect x="200" y="304" width="240" height="32" rx="8" fill="#0a1420" stroke="#2f5f8a"/>
+    <text x="216" y="325" fill="#5ab0ea">$</text><text x="232" y="325" fill="#eef2f7">node blogen.mjs</text>
+  </g>
+</svg>
