@@ -11,9 +11,8 @@ test('validates required fields, supported options, and safe deliverables', () =
   const catalog = {
     'test-item': {
       name: 'Test item',
-      priceEnv: 'PRICE_TEST_ITEM',
+      stripeProduct: 'prod_Test123',
       kind: 'subscription',
-      periodEnvs: { '6m': 'PRICE_TEST_ITEM_6M', '12m': 'PRICE_TEST_ITEM_12M' },
       retired: true,
       category: 'utilities',
       blurb: 'A test item',
@@ -31,9 +30,8 @@ test('reports invalid catalog fields and duplicate identifiers', () => {
   const catalog = {
     'Bad Id': {
       name: ' ',
-      priceEnv: 'not-valid',
+      stripeProduct: 'price_123',
       kind: 'monthly',
-      periodEnvs: { '2m': 'PRICE_X' },
       retired: 'yes',
       category: 'other',
       version: '1.2',
@@ -42,14 +40,14 @@ test('reports invalid catalog fields and duplicate identifiers', () => {
       filename: 'different.zip',
       sha256: 'bad',
     },
-    valid: { name: 'Another', priceEnv: 'not-valid' },
+    valid: { name: 'Another' },
   };
 
   const errors = validateCatalog(catalog);
-  for (const field of ['id', 'name', 'priceEnv', 'kind', 'periodEnvs', 'retired', 'category', 'version', 'appUrl', 'fileKey', 'filename', 'sha256']) {
+  for (const field of ['id', 'name', 'stripeProduct', 'kind', 'retired', 'category', 'version', 'appUrl', 'fileKey', 'filename', 'sha256']) {
     assert.ok(errors.some((error) => error.startsWith(`Bad Id.${field}:`)), `${field} error missing`);
   }
-  assert.ok(errors.some((error) => error.startsWith('valid.priceEnv:')));
+  assert.ok(errors.some((error) => error.startsWith('valid.stripeProduct:')), 'a live product needs a Stripe product');
 });
 
 test('rejects non-object catalogs and non-object product values', () => {
@@ -57,10 +55,10 @@ test('rejects non-object catalogs and non-object product values', () => {
   assert.ok(validateCatalog({ broken: null }).includes('broken: must be an object'));
 });
 
-test('rejects duplicate price variables and deliverable object keys', () => {
+test('rejects duplicate Stripe products and deliverable object keys', () => {
   const product = {
     name: 'Test item',
-    priceEnv: 'PRICE_TEST_ITEM',
+    stripeProduct: 'prod_Test123',
     fileKey: 'test-item/test.zip',
     filename: 'test.zip',
     sha256: 'a'.repeat(64),
@@ -69,7 +67,7 @@ test('rejects duplicate price variables and deliverable object keys', () => {
     first: product,
     second: { ...product, name: 'Another item' },
   });
-  assert.ok(errors.some((error) => error.startsWith('second.priceEnv: duplicates')));
+  assert.ok(errors.some((error) => error.startsWith('second.stripeProduct: duplicates')));
   assert.ok(errors.some((error) => error.startsWith('second.fileKey: duplicates')));
 });
 
@@ -77,7 +75,7 @@ test('reports invalid object keys without throwing', () => {
   const errors = validateCatalog({
     broken: {
       name: 'Broken item',
-      priceEnv: 'PRICE_BROKEN',
+      stripeProduct: 'prod_Broken',
       fileKey: 123,
       filename: 'file.zip',
       sha256: 'a'.repeat(64),

@@ -2,16 +2,15 @@
 const CATALOG = require('../api/_lib/catalog');
 
 const PRODUCT_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const ENV_NAME = /^[A-Z][A-Z0-9_]*$/;
+const STRIPE_PRODUCT = /^prod_[A-Za-z0-9]+$/;
 const SHA256 = /^[a-f0-9]{64}$/;
 const VERSION = /^\d+\.\d+\.\d+$/;
 const CATEGORIES = new Set(['billing', 'utilities']);
 const KINDS = new Set(['one_time', 'subscription']);
-const PERIODS = new Set(['1w', '3m', '6m', '12m']);
 
 function validateCatalog(catalog) {
   const errors = [];
-  const priceEnvs = new Set();
+  const stripeProducts = new Set();
   const fileKeys = new Set();
 
   if (!catalog || typeof catalog !== 'object' || Array.isArray(catalog)) {
@@ -29,29 +28,18 @@ function validateCatalog(catalog) {
     if (typeof product.name !== 'string' || !product.name.trim()) {
       fail('name', 'is required');
     }
-    if (typeof product.priceEnv !== 'string' || !ENV_NAME.test(product.priceEnv)) {
-      fail('priceEnv', 'must be a valid environment variable name');
-    } else if (priceEnvs.has(product.priceEnv)) {
-      fail('priceEnv', `duplicates ${product.priceEnv}`);
-    } else {
-      priceEnvs.add(product.priceEnv);
+    if (product.stripeProduct !== undefined && (typeof product.stripeProduct !== 'string' || !STRIPE_PRODUCT.test(product.stripeProduct))) {
+      fail('stripeProduct', 'must be a Stripe product ID (prod_...)');
+    } else if (product.stripeProduct !== undefined && stripeProducts.has(product.stripeProduct)) {
+      fail('stripeProduct', `duplicates ${product.stripeProduct}`);
+    } else if (product.stripeProduct !== undefined) {
+      stripeProducts.add(product.stripeProduct);
+    } else if (!product.retired) {
+      fail('stripeProduct', 'is required unless the product is retired');
     }
 
     if (product.kind !== undefined && !KINDS.has(product.kind)) {
       fail('kind', "must be 'one_time' or 'subscription'");
-    }
-    if (product.periodEnvs !== undefined) {
-      if (!product.periodEnvs || typeof product.periodEnvs !== 'object' || Array.isArray(product.periodEnvs)) {
-        fail('periodEnvs', 'must be an object');
-      } else {
-        if (product.kind !== 'subscription') fail('periodEnvs', 'only applies to subscriptions');
-        for (const [period, env] of Object.entries(product.periodEnvs)) {
-          if (!PERIODS.has(period)) fail('periodEnvs', `unknown period ${period}`);
-          else if (typeof env !== 'string' || !ENV_NAME.test(env)) fail('periodEnvs', `${period} must be a valid environment variable name`);
-          else if (priceEnvs.has(env)) fail('periodEnvs', `duplicates ${env}`);
-          else priceEnvs.add(env);
-        }
-      }
     }
     if (product.retired !== undefined && typeof product.retired !== 'boolean') {
       fail('retired', 'must be true or false');

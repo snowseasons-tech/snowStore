@@ -1,14 +1,13 @@
-// Products we sell. Prices live in Stripe: priceEnv names the env var holding the Price ID.
+// Products we sell. Prices live in Stripe: stripeProduct names the Stripe product whose active prices the site offers
+// (one-time, or recurring weekly / monthly / every 3 or 6 months / yearly; see api/_lib/prices.js).
 // kind: 'one_time' (default) or 'subscription'. fileKey = object key in the PRIVATE bucket (optional).
 // appUrl (optional) = where a subscriber opens the hosted micro-SaaS.
 // Customer portal (optional): category ('billing' | 'utilities', matches the portal filter), version, sha256 of the file.
 // blurb (optional) = one-line description shown on the portal product cards.
-// periodEnvs (optional, subscriptions) = other billing periods: { '1w' (weekly), '3m', '6m' or '12m': env var }. priceEnv stays the monthly price.
 // retired: true = no longer sold (left out of /api/products and checkout); kept so past buyers can still download.
 module.exports = {
   bookscan: {
     name: 'BookScan Live',
-    priceEnv: 'PRICE_BOOKSCAN',
     retired: true,
     fileKey: 'bookscan-live/bookscan-live.html',
     filename: 'bookscan-live.html',
@@ -20,7 +19,6 @@ module.exports = {
   },
   'vanilla-webpage': {
     name: 'Vanilla Webpage Template',
-    priceEnv: 'PRICE_VANILLA_WEBPAGE',
     retired: true,
     fileKey: 'vanilla-webpage/vanilla-webpage.html',
     filename: 'vanilla-webpage.html',
@@ -31,7 +29,6 @@ module.exports = {
   },
   'bi-dashboard': {
     name: 'BI Engagement Dashboard',
-    priceEnv: 'PRICE_BI_DASHBOARD',
     retired: true,
     fileKey: 'bi-dashboard/bi-dashboard.html',
     filename: 'bi-dashboard.html',
@@ -42,7 +39,6 @@ module.exports = {
   },
   'lead-generator': {
     name: 'Lead Generation Pipeline',
-    priceEnv: 'PRICE_LEAD_GENERATOR',
     retired: true,
     fileKey: 'lead-generator/lead-generator.zip',
     filename: 'lead-generator.zip',
@@ -53,7 +49,6 @@ module.exports = {
   },
   'blog-gen': {
     name: 'Blog Roundup Generator',
-    priceEnv: 'PRICE_BLOG_GEN',
     retired: true,
     fileKey: 'blog-gen/blog-gen.zip',
     filename: 'blog-gen.zip',
@@ -64,7 +59,6 @@ module.exports = {
   },
   'booking-app': {
     name: 'Booking App Component',
-    priceEnv: 'PRICE_BOOKING_APP',
     retired: true,
     fileKey: 'booking-app/booking-app.zip',
     filename: 'booking-app.zip',
@@ -75,7 +69,6 @@ module.exports = {
   },
   'inventory-tracker': {
     name: 'Store Inventory Tracker',
-    priceEnv: 'PRICE_INVENTORY_TRACKER',
     retired: true,
     fileKey: 'inventory-tracker/inventory-tracker.zip',
     filename: 'inventory-tracker.zip',
@@ -86,7 +79,6 @@ module.exports = {
   },
   'invoice-generator': {
     name: 'Invoice Generator',
-    priceEnv: 'PRICE_INVOICE_GENERATOR',
     retired: true,
     fileKey: 'invoice-generator/invoice-generator.zip',
     filename: 'invoice-generator.zip',
@@ -97,7 +89,6 @@ module.exports = {
   },
   'saas-financial-engine': {
     name: 'SaaS Financial Projection Engine',
-    priceEnv: 'PRICE_SAAS_FINANCIAL_ENGINE',
     retired: true,
     fileKey: 'saas-financial-engine/saas-financial-engine.xlsx',
     filename: 'saas-financial-engine.xlsx',
@@ -108,7 +99,6 @@ module.exports = {
   },
   'tech-hiring-os': {
     name: 'Tech Hiring & Compensation Benchmark OS',
-    priceEnv: 'PRICE_TECH_HIRING_OS',
     retired: true,
     fileKey: 'tech-hiring-os/tech-hiring-os.zip',
     filename: 'tech-hiring-os.zip',
@@ -119,7 +109,6 @@ module.exports = {
   },
   'social-studio': {
     name: 'Social Studio: Social Media Marketing Manager',
-    priceEnv: 'PRICE_SOCIAL_STUDIO',
     retired: true,
     fileKey: 'social-studio/social-studio.zip',
     filename: 'social-studio.zip',
@@ -128,24 +117,24 @@ module.exports = {
     version: '0.3.0',
     sha256: '82ea669ed59854c6dcc5c51bdaef4a3cda8c6a18cfd554fb9eab1cee5157ead0',
   },
-  // Services sold on the site (match the live Stripe catalog). No fileKey: nothing to download.
-  'api-integration-basic': { name: 'API Integration Development - Basic', priceEnv: 'PRICE_API_INTEGRATION_BASIC' },
-  'api-integration-standard': { name: 'API Integration Development - Standard', priceEnv: 'PRICE_API_INTEGRATION_STANDARD' },
-  'api-integration-advanced': { name: 'API Integration Development - Advanced', priceEnv: 'PRICE_API_INTEGRATION_ADVANCED' },
-  'api-integration-enterprise': { name: 'API Integration Development - Enterprise', priceEnv: 'PRICE_API_INTEGRATION_ENTERPRISE' },
-  'api-maintenance-basic': { name: 'Basic API Maintenance', kind: 'subscription', priceEnv: 'PRICE_API_MAINTENANCE_BASIC', periodEnvs: { '1w': 'PRICE_API_MAINTENANCE_BASIC_1W', '3m': 'PRICE_API_MAINTENANCE_BASIC_3M', '6m': 'PRICE_API_MAINTENANCE_BASIC_6M', '12m': 'PRICE_API_MAINTENANCE_BASIC_12M' } },
-  'api-maintenance-standard': { name: 'Standard API Maintenance', kind: 'subscription', priceEnv: 'PRICE_API_MAINTENANCE_STANDARD', periodEnvs: { '1w': 'PRICE_API_MAINTENANCE_STANDARD_1W', '3m': 'PRICE_API_MAINTENANCE_STANDARD_3M', '6m': 'PRICE_API_MAINTENANCE_STANDARD_6M', '12m': 'PRICE_API_MAINTENANCE_STANDARD_12M' } },
-  'api-management-advanced': { name: 'Advanced API Management', kind: 'subscription', priceEnv: 'PRICE_API_MANAGEMENT_ADVANCED', periodEnvs: { '1w': 'PRICE_API_MANAGEMENT_ADVANCED_1W', '3m': 'PRICE_API_MANAGEMENT_ADVANCED_3M', '6m': 'PRICE_API_MANAGEMENT_ADVANCED_6M', '12m': 'PRICE_API_MANAGEMENT_ADVANCED_12M' } },
-  'website-management-primary': { name: 'Website Management — Primary', kind: 'subscription', priceEnv: 'PRICE_WEBSITE_MANAGEMENT_PRIMARY', periodEnvs: { '1w': 'PRICE_WEBSITE_MANAGEMENT_PRIMARY_1W', '3m': 'PRICE_WEBSITE_MANAGEMENT_PRIMARY_3M', '6m': 'PRICE_WEBSITE_MANAGEMENT_PRIMARY_6M', '12m': 'PRICE_WEBSITE_MANAGEMENT_PRIMARY_12M' } },
-  'website-management-secondary': { name: 'Website Management — Secondary', kind: 'subscription', priceEnv: 'PRICE_WEBSITE_MANAGEMENT_SECONDARY', periodEnvs: { '1w': 'PRICE_WEBSITE_MANAGEMENT_SECONDARY_1W', '3m': 'PRICE_WEBSITE_MANAGEMENT_SECONDARY_3M', '6m': 'PRICE_WEBSITE_MANAGEMENT_SECONDARY_6M', '12m': 'PRICE_WEBSITE_MANAGEMENT_SECONDARY_12M' } },
-  'social-media-1': { name: 'Social Media — 1 Account', kind: 'subscription', priceEnv: 'PRICE_SOCIAL_MEDIA_1', periodEnvs: { '1w': 'PRICE_SOCIAL_MEDIA_1_1W', '3m': 'PRICE_SOCIAL_MEDIA_1_3M', '6m': 'PRICE_SOCIAL_MEDIA_1_6M', '12m': 'PRICE_SOCIAL_MEDIA_1_12M' } },
-  'social-media-2': { name: 'Social Media Management — 2 Accounts', kind: 'subscription', priceEnv: 'PRICE_SOCIAL_MEDIA_2', periodEnvs: { '1w': 'PRICE_SOCIAL_MEDIA_2_1W', '3m': 'PRICE_SOCIAL_MEDIA_2_3M', '6m': 'PRICE_SOCIAL_MEDIA_2_6M', '12m': 'PRICE_SOCIAL_MEDIA_2_12M' } },
-  'social-media-3': { name: 'Social Media Management — 3 Accounts', kind: 'subscription', priceEnv: 'PRICE_SOCIAL_MEDIA_3', periodEnvs: { '1w': 'PRICE_SOCIAL_MEDIA_3_1W', '3m': 'PRICE_SOCIAL_MEDIA_3_3M', '6m': 'PRICE_SOCIAL_MEDIA_3_6M', '12m': 'PRICE_SOCIAL_MEDIA_3_12M' } },
-  'social-media-4': { name: 'Social Media Management — 4 Accounts', kind: 'subscription', priceEnv: 'PRICE_SOCIAL_MEDIA_4', periodEnvs: { '1w': 'PRICE_SOCIAL_MEDIA_4_1W', '3m': 'PRICE_SOCIAL_MEDIA_4_3M', '6m': 'PRICE_SOCIAL_MEDIA_4_6M', '12m': 'PRICE_SOCIAL_MEDIA_4_12M' } },
-  'social-media-5': { name: 'Social Media — 5 Accounts', kind: 'subscription', priceEnv: 'PRICE_SOCIAL_MEDIA_5', periodEnvs: { '1w': 'PRICE_SOCIAL_MEDIA_5_1W', '3m': 'PRICE_SOCIAL_MEDIA_5_3M', '6m': 'PRICE_SOCIAL_MEDIA_5_6M', '12m': 'PRICE_SOCIAL_MEDIA_5_12M' } },
-  'managed-database': { name: 'Managed Database Infrastructure', kind: 'subscription', priceEnv: 'PRICE_MANAGED_DATABASE', periodEnvs: { '1w': 'PRICE_MANAGED_DATABASE_1W', '3m': 'PRICE_MANAGED_DATABASE_3M', '6m': 'PRICE_MANAGED_DATABASE_6M', '12m': 'PRICE_MANAGED_DATABASE_12M' } },
-  'operations-lead-intelligence': { name: 'Operations & Lead Intelligence', kind: 'subscription', priceEnv: 'PRICE_OPERATIONS_LEAD_INTELLIGENCE', periodEnvs: { '1w': 'PRICE_OPERATIONS_LEAD_INTELLIGENCE_1W', '3m': 'PRICE_OPERATIONS_LEAD_INTELLIGENCE_3M', '6m': 'PRICE_OPERATIONS_LEAD_INTELLIGENCE_6M', '12m': 'PRICE_OPERATIONS_LEAD_INTELLIGENCE_12M' } },
-  'mailhub-intelligence': { name: 'MailHub Marketing Intelligence', kind: 'subscription', priceEnv: 'PRICE_MAILHUB_INTELLIGENCE', periodEnvs: { '1w': 'PRICE_MAILHUB_INTELLIGENCE_1W', '3m': 'PRICE_MAILHUB_INTELLIGENCE_3M', '6m': 'PRICE_MAILHUB_INTELLIGENCE_6M', '12m': 'PRICE_MAILHUB_INTELLIGENCE_12M' } },
-  'inspections-intelligence': { name: 'Inspections Intelligence', kind: 'subscription', priceEnv: 'PRICE_INSPECTIONS_INTELLIGENCE', periodEnvs: { '1w': 'PRICE_INSPECTIONS_INTELLIGENCE_1W', '3m': 'PRICE_INSPECTIONS_INTELLIGENCE_3M', '6m': 'PRICE_INSPECTIONS_INTELLIGENCE_6M', '12m': 'PRICE_INSPECTIONS_INTELLIGENCE_12M' } },
-  'managed-package': { name: 'Managed Technology & Marketing Package', kind: 'subscription', priceEnv: 'PRICE_MANAGED_PACKAGE', periodEnvs: { '1w': 'PRICE_MANAGED_PACKAGE_1W', '3m': 'PRICE_MANAGED_PACKAGE_3M', '6m': 'PRICE_MANAGED_PACKAGE_6M', '12m': 'PRICE_MANAGED_PACKAGE_12M' } },
+  // Services sold on the site. stripeProduct is the live Stripe product; its active prices are read from Stripe.
+  'api-integration-basic': { name: 'API Integration Development - Basic', stripeProduct: 'prod_VWa43u70jMDMbP' },
+  'api-integration-standard': { name: 'API Integration Development - Standard', stripeProduct: 'prod_VWa5pmeCO0fAE2' },
+  'api-integration-advanced': { name: 'API Integration Development - Advanced', stripeProduct: 'prod_VWa7qWYhDuWbD3' },
+  'api-integration-enterprise': { name: 'API Integration Development - Enterprise', stripeProduct: 'prod_VWaA1TBa5s7DEu' },
+  'api-maintenance-basic': { name: 'Basic API Maintenance', kind: 'subscription', stripeProduct: 'prod_VWacOc9NLNnEkY' },
+  'api-maintenance-standard': { name: 'Standard API Maintenance', kind: 'subscription', stripeProduct: 'prod_VWaePY7P8UDw09' },
+  'api-management-advanced': { name: 'Advanced API Management', kind: 'subscription', stripeProduct: 'prod_VWagGWgDnwGSMs' },
+  'website-management-primary': { name: 'Website Management — Primary', kind: 'subscription', stripeProduct: 'prod_VWZtjjJBW0yfxP' },
+  'website-management-secondary': { name: 'Website Management — Secondary', kind: 'subscription', stripeProduct: 'prod_VWZuzetnqiyHtr' },
+  'social-media-1': { name: 'Social Media — 1 Account', kind: 'subscription', stripeProduct: 'prod_VWZuuW4EyvXNdn' },
+  'social-media-2': { name: 'Social Media Management — 2 Accounts', kind: 'subscription', stripeProduct: 'prod_VWhiN8cWgM4Q5w' },
+  'social-media-3': { name: 'Social Media Management — 3 Accounts', kind: 'subscription', stripeProduct: 'prod_VWhjp9cocJb1Rx' },
+  'social-media-4': { name: 'Social Media Management — 4 Accounts', kind: 'subscription', stripeProduct: 'prod_VWhlDsckzsMZ86' },
+  'social-media-5': { name: 'Social Media — 5 Accounts', kind: 'subscription', stripeProduct: 'prod_VWaXDK9wEVrxXq' },
+  'managed-database': { name: 'Managed Database Infrastructure', kind: 'subscription', stripeProduct: 'prod_VWZsLP0vMFVyQ5' },
+  'operations-lead-intelligence': { name: 'Operations & Lead Intelligence', kind: 'subscription', stripeProduct: 'prod_VWZn5NCFzs4bXV' },
+  'mailhub-intelligence': { name: 'MailHub Marketing Intelligence', kind: 'subscription', stripeProduct: 'prod_VWZoFAvBr0LCEz' },
+  'inspections-intelligence': { name: 'Inspections Intelligence', kind: 'subscription', stripeProduct: 'prod_VWZrK0O24fEuqG' },
+  'managed-package': { name: 'Managed Technology & Marketing Package', kind: 'subscription', stripeProduct: 'prod_VWazGQhLiTNtSu' },
 };

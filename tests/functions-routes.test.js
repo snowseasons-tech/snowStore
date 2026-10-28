@@ -6,7 +6,7 @@ const auth = require('../api/_lib/auth');
 
 const env = {
   UPSTASH_REDIS_REST_URL: 'https://redis.test', UPSTASH_REDIS_REST_TOKEN: 't', SITE_URL: 'https://site.test',
-  STRIPE_SECRET_KEY: 'sk_test_123', PRICE_BOOKSCAN: 'price_old', PRICE_API_INTEGRATION_BASIC: 'price_123', RESEND_API_KEY: 're_1', MAIL_FROM: 'a@site.test',
+  STRIPE_SECRET_KEY: 'sk_test_123', RESEND_API_KEY: 're_1', MAIL_FROM: 'a@site.test',
   S3_ENDPOINT: 'https://r2.example.com', S3_BUCKET: 'b', S3_ACCESS_KEY_ID: 'k', S3_SECRET_ACCESS_KEY: 's',
 };
 Object.assign(process.env, env);
@@ -68,41 +68,48 @@ test('app-download needs a session and entitlement', async () => {
   } finally { up.restore(); }
 });
 
+// Active prices as Stripe lists them (GET /v1/prices); product IDs are the live ones in api/_lib/catalog.js.
+const stripePrices = (data) => (url) => {
+  if (/coupons\/LAUNCH30$/.test(url)) return json({ id: 'LAUNCH30', valid: true, percent_off: 30, duration: 'once', duration_in_months: null });
+  assert.match(url, /api\.stripe\.com\/v1\/prices\?/);
+  return json({ object: 'list', data, has_more: false, url: '/v1/prices' });
+};
+const sp = (id, product, unit_amount, recurring = null, created = 1) => ({ id, object: 'price', product, unit_amount, currency: 'usd', recurring, created, active: true });
+
 test('products reads display prices from Stripe', async () => {
   const { onRequestGet } = await mod('products');
-  const up = fakeUpstash((url) => {
-    assert.match(url, /api\.stripe\.com\/v1\/prices\/price_123$/);
-    return json({ id: 'price_123', unit_amount: 1900, currency: 'usd', recurring: null });
-  });
+  // A price on a product the site doesn't sell is ignored.
+  const up = fakeUpstash(stripePrices([sp('price_123', 'prod_VWa43u70jMDMbP', 1900), sp('price_x', 'prod_somethingElse', 500)]));
   try {
     const res = await onRequestGet({ env });
     assert.strictEqual(res.headers.get('cache-control'), 'public, max-age=60');
     const { products } = await res.json();
-    // PRICE_BOOKSCAN is set too, but bookscan is retired, so only the live product is listed.
+    // Only products with an active price in Stripe are listed.
     assert.deepStrictEqual(products.map((p) => [p.id, p.amount, p.currency, p.interval]), [['api-integration-basic', 1900, 'usd', null]]);
   } finally { up.restore(); }
 });
 
-test('products lists configured 6- and 12-month prices', async () => {
+test('products files each active price under its billing period', async () => {
   const { onRequestGet } = await mod('products');
-  const prices = {
-    price_m: { id: 'price_m', unit_amount: 4900, currency: 'usd', recurring: { interval: 'month', interval_count: 1 } },
-    price_6: { id: 'price_6', unit_amount: 27900, currency: 'usd', recurring: { interval: 'month', interval_count: 6 } },
-  };
-  const up = fakeUpstash((url) => json(prices[url.split('/').pop()] || { id: 'price_123', unit_amount: 1900, currency: 'usd', recurring: null }));
+  const M = 'prod_VWacOc9NLNnEkY';
+  const up = fakeUpstash(stripePrices([
+    sp('price_m_old', M, 3900, { interval: 'month', interval_count: 1 }, 1),
+    sp('price_m', M, 4900, { interval: 'month', interval_count: 1 }, 2), // newest monthly wins
+    sp('price_w', M, 1500, { interval: 'week', interval_count: 1 }),
+    sp('price_3', M, 14700, { interval: 'month', interval_count: 3 }),
+    sp('price_y', M, 52900, { interval: 'year', interval_count: 1 }),
+    sp('price_2w', M, 2500, { interval: 'week', interval_count: 2 }), // not offered on the site
+  ]));
   try {
-    const res = await onRequestGet({ env: { ...env, PRICE_API_MAINTENANCE_BASIC: 'price_m', PRICE_API_MAINTENANCE_BASIC_6M: 'price_6' } });
-    const p = (await res.json()).products.find((x) => x.id === 'api-maintenance-basic');
-    assert.deepStrictEqual([p.amount, p.interval, p.periods], [4900, 'month', [{ period: '6m', amount: 27900, interval: 'month', intervalCount: 6 }]]);
+    const p = (await (await onRequestGet({ env })).json()).products.find((x) => x.id === 'api-maintenance-basic');
+    assert.deepStrictEqual([p.amount, p.interval], [4900, 'month']);
+    assert.deepStrictEqual(p.periods.map((x) => [x.period, x.amount, x.interval, x.intervalCount]), [['1w', 1500, 'week', 1], ['3m', 14700, 'month', 3], ['12m', 52900, 'year', 1]]);
   } finally { up.restore(); }
 });
 
 test('products shows the launch discount while the coupon is valid', async () => {
   const { onRequestGet } = await mod('products');
-  const up = fakeUpstash((url) => {
-    if (/coupons\/LAUNCH30$/.test(url)) return json({ id: 'LAUNCH30', valid: true, percent_off: 30, duration: 'once', duration_in_months: null });
-    return json({ id: 'price_123', unit_amount: 1900, currency: 'usd', recurring: null });
-  });
+  const up = fakeUpstash(stripePrices([sp('price_123', 'prod_VWa43u70jMDMbP', 1900)]));
   try {
     const { products } = await (await onRequestGet({ env: { ...env, LAUNCH_COUPON: 'LAUNCH30' } })).json();
     assert.deepStrictEqual([products[0].amount, products[0].discount], [1900, { percent: 30, amount: 1330, duration: 'once', months: null }]);
