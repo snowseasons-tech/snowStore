@@ -122,7 +122,7 @@ footer{text-align:center;padding:40px 0;background:var(--glass);border-top:1px s
 <footer><div class="container"><p><a href="/blog/">Blog</a> · <a href="/storefront/portal.html">Customer sign-in</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refund">Refunds</a></p><p>&copy; 2026 snowseasonstech.store</p></div></footer>
 <div id="notice" role="status"></div>
 <script>
-const CONTACT_EMAIL="info@snowseasonstech.net"; // placeholder: set your real address
+const CONTACT_EMAIL="info@snowseasonstech.net";
 // Matches the live Stripe catalog (api/_lib/catalog.js). Prices are loaded from Stripe via /api/products.
 const API_NOTE=["Advanced authentication, database synchronization, automated workflows and multi-system integrations are available at additional cost","Every project starts with a scope review before development begins","Third-party subscription fees and ongoing maintenance are billed separately"];
 const PRODUCTS=[
@@ -139,7 +139,9 @@ const PRODUCTS=[
   blurb:"For multi-system integrations, custom workflows, sensitive data handling, complex infrastructure or substantial engineering requirements.",
   features:API_NOTE,unit:"one-time project"},
  {id:"api-maintenance-basic",name:"Basic API Maintenance",category:"API Maintenance",
-  blurb:"Monthly maintenance for your API integrations.",unit:"subscription"},
+  blurb:"Monitoring and upkeep for your API integrations, with 45 minutes of troubleshooting each month.",
+  coverage:[["Availability monitoring","Every 5 minutes"],["Authentication health checks","Automated where supported"],["API error tracking","Included"],["Data synchronization monitoring","Included"],["Failed job investigation","Included"],["Retry queue monitoring","Included"],["Routine compatibility updates","Included within support allowance"],["Troubleshooting allowance","45 minutes/month"],["Monthly usage report","Included"],["Priority","Standard business support"]],
+  unit:"subscription"},
  {id:"api-maintenance-standard",name:"Standard API Maintenance",category:"API Maintenance",
   blurb:"Monthly maintenance for your API integrations, one step up from Basic.",unit:"subscription"},
  {id:"api-management-advanced",name:"Advanced API Management",category:"API Maintenance",
@@ -171,9 +173,11 @@ const thumb=p=>p.img?`<img class="thumb" src="${esc(p.img)}" alt="${esc(p.alt||"
 const tagline=p=>p.tagline?`<p class="tagline">${esc(p.tagline)}</p>`:"";
 const buyLabel=p=>p.unit==="subscription"?"Subscribe":"Buy now";
 const priceRow=p=>`<div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div>`;
-$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features?`<article class="card">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button></div></article>`
+// coverage = [label, value] rows, shown as a table on the back of the card.
+const coverage=p=>p.coverage?`<h4>Coverage</h4><dl class="specs">${p.coverage.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`:"";
+$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article class="card">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button></div></article>`
  :`<article class="flip"><div class="card front">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
- +`<div class="card back" inert><h3>${esc(p.name)}</h3><h4>Good to know</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>${specs(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
+ +`<div class="card back" inert><h3>${esc(p.name)}</h3>${p.features?`<h4>Good to know</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}${coverage(p)}${specs(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
 document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
  if(!t&&(e.target.closest("a,button")||String(getSelection())))return;
  const had=c.contains(document.activeElement),on=c.classList.toggle("flipped"),[front,back]=c.children;
