@@ -86,12 +86,12 @@ test('products reads display prices from Stripe', async () => {
 test('products shows the launch discount while the coupon is valid', async () => {
   const { onRequestGet } = await mod('products');
   const up = fakeUpstash((url) => {
-    if (/coupons\/LAUNCH30$/.test(url)) return json({ id: 'LAUNCH30', valid: true, percent_off: 30 });
+    if (/coupons\/LAUNCH30$/.test(url)) return json({ id: 'LAUNCH30', valid: true, percent_off: 30, duration: 'once', duration_in_months: null });
     return json({ id: 'price_123', unit_amount: 1900, currency: 'usd', recurring: null });
   });
   try {
     const { products } = await (await onRequestGet({ env: { ...env, LAUNCH_COUPON: 'LAUNCH30' } })).json();
-    assert.deepStrictEqual([products[0].amount, products[0].discount], [1900, { percent: 30, amount: 1330 }]);
+    assert.deepStrictEqual([products[0].amount, products[0].discount], [1900, { percent: 30, amount: 1330, duration: 'once', months: null }]);
   } finally { up.restore(); }
 });
 
