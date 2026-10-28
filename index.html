@@ -122,7 +122,7 @@ footer{text-align:center;padding:40px 0;background:var(--glass);border-top:1px s
 <footer><div class="container"><p><a href="/blog/">Blog</a> · <a href="/storefront/portal.html">Customer sign-in</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refund">Refunds</a></p><p>&copy; 2026 snowseasonstech.store</p></div></footer>
 <div id="notice" role="status"></div>
 <script>
-const CONTACT_EMAIL="info@snowseasonstech.net"; // placeholder: set your real address
+const CONTACT_EMAIL="info@snowseasonstech.net";
 // Matches the live Stripe catalog (api/_lib/catalog.js). Prices are loaded from Stripe via /api/products.
 const API_NOTE=["Advanced authentication, database synchronization, automated workflows and multi-system integrations are available at additional cost","Every project starts with a scope review before development begins","Third-party subscription fees and ongoing maintenance are billed separately"];
 const PRODUCTS=[
@@ -130,38 +130,75 @@ const PRODUCTS=[
   blurb:"Connect your business applications, databases and third-party services with secure, professionally developed API integrations.",
   features:API_NOTE,unit:"one-time project"},
  {id:"api-integration-standard",name:"API Integration Development - Standard",category:"API Integration",
-  blurb:"More advanced integrations such as OAuth authentication, PostgreSQL persistence, scheduled synchronization, pagination, logging and retry handling.",
+  blurb:"Includes more advanced integrations such as OAuth authentication, PostgreSQL persistence, scheduled synchronization, pagination, logging and retry handling.",
   features:API_NOTE,unit:"one-time project"},
  {id:"api-integration-advanced",name:"API Integration Development - Advanced",category:"API Integration",
-  blurb:"For integrations that need bidirectional synchronization, multiple endpoints, webhook processing, advanced authentication and more complex business rules.",
+  blurb:"Designed for integrations requiring bidirectional synchronization, multiple endpoints, webhook processing, advanced authentication and more complex business rules.",
   features:API_NOTE,unit:"one-time project"},
  {id:"api-integration-enterprise",name:"API Integration Development - Enterprise",category:"API Integration",
   blurb:"For multi-system integrations, custom workflows, sensitive data handling, complex infrastructure or substantial engineering requirements.",
   features:API_NOTE,unit:"one-time project"},
  {id:"api-maintenance-basic",name:"Basic API Maintenance",category:"API Maintenance",
-  blurb:"Monthly maintenance for your API integrations.",unit:"subscription"},
+  blurb:"Monitoring and upkeep for your API integrations, with 45 minutes of troubleshooting each month.",
+  coverage:[["Availability monitoring","Every 5 minutes"],["Authentication health checks","Automated where supported"],["API error tracking","Included"],["Data synchronization monitoring","Included"],["Failed job investigation","Included"],["Retry queue monitoring","Included"],["Routine compatibility updates","Included within support allowance"],["Troubleshooting allowance","45 minutes/month"],["Monthly usage report","Included"],["Priority","Standard business support"]],
+  unit:"subscription"},
  {id:"api-maintenance-standard",name:"Standard API Maintenance",category:"API Maintenance",
-  blurb:"Monthly maintenance for your API integrations, one step up from Basic.",unit:"subscription"},
+  blurb:"Monitoring and upkeep for your API integrations, with 45 minutes of troubleshooting each month.",
+  coverage:[["Availability monitoring","Every 5 minutes"],["Authentication health checks","Automated where supported"],["API error tracking","Included"],["Data synchronization monitoring","Included"],["Failed job investigation","Included"],["Retry queue monitoring","Included"],["Routine compatibility updates","Included within support allowance"],["Troubleshooting allowance","45 minutes/month"],["Monthly usage report","Included"],["Priority","Standard business support"]],
+  unit:"subscription"},
  {id:"api-management-advanced",name:"Advanced API Management",category:"API Maintenance",
-  blurb:"Our highest tier of monthly API management.",unit:"subscription"},
+  blurb:"Closer monitoring of your integrations and workflows, with a monthly technical review, 90 minutes of troubleshooting each month and elevated support.",
+  coverage:[["Automated monitoring","Every minute, where appropriate"],["Workflow health monitoring","Included"],["Webhook delivery monitoring","Included"],["Queue and retry analysis","Included"],["Data consistency checks","Defined per integration"],["Authentication monitoring","Included"],["Detailed error reporting","Included"],["Monthly technical review","Included"],["Troubleshooting allowance","90 minutes/month"],["Support priority","Elevated"]],
+  unit:"subscription"},
  {id:"website-management-primary",name:"Website Management — Primary",category:"Website Management",
-  blurb:"Monthly management of your primary website.",unit:"subscription"},
+  blurb:"Professional website management, including ongoing maintenance, content updates, performance monitoring, security maintenance, troubleshooting and technical support.",
+  featuresTitle:"Services may include",
+  features:["Website hosting and deployment management","Website content and design updates","Security monitoring and routine maintenance","Performance optimization","Bug fixes and technical troubleshooting","GitHub repository and deployment support","Website uptime and availability monitoring"],
+  unit:"subscription"},
  {id:"website-management-secondary",name:"Website Management — Secondary",category:"Website Management",
-  blurb:"Monthly management of an additional website.",unit:"subscription"},
+  blurb:"Ongoing management and maintenance of an additional client website, including content updates, security maintenance, performance monitoring, deployment support, bug fixes and technical troubleshooting.",
+  features:["Designed for businesses managing multiple websites under a single service provider","Major redesigns and custom development are billed separately"],
+  unit:"subscription"},
  {id:"social-media-1",name:"Social Media — 1 Account",category:"Social Media",
-  blurb:"Monthly management of one social media account.",unit:"subscription"},
+  blurb:"Professional management of one business social media account on Facebook, Instagram, LinkedIn or another supported platform.",
+  featuresTitle:"Services include",
+  features:["Content planning","Post creation","Scheduling and publishing","Account monitoring","Basic performance reporting"],
+  notes:["Posting frequency and content deliverables are defined by the selected service agreement","Advertising budgets and paid campaigns are billed separately"],
+  unit:"subscription"},
  {id:"social-media-5",name:"Social Media — 5 Accounts",category:"Social Media",
-  blurb:"Monthly management of up to five social media accounts.",unit:"subscription"},
+  blurb:"Centralized social media management for up to five business social media accounts.",
+  featuresTitle:"Includes",
+  features:["Coordinated content planning","Post creation","Scheduling and publishing","Brand consistency management","Account monitoring","Performance reporting"],
+  notes:["Supports approved business accounts across Facebook, Instagram, LinkedIn and other supported platforms","Posting frequency and content deliverables are defined by the service agreement","Paid advertising and third-party platform fees are excluded"],
+  unit:"subscription"},
  {id:"managed-database",name:"Managed Database Infrastructure",category:"Infrastructure",
-  blurb:"Your database infrastructure, managed for you each month.",unit:"subscription"},
+  blurb:"Professional database infrastructure management, including database administration, performance monitoring, security maintenance, backup configuration, deployment support and technical troubleshooting.",
+  features:["Supports PostgreSQL, MySQL and other agreed database technologies","Includes routine operational maintenance and infrastructure oversight","Database migrations, major architecture changes, additional hosting resources and custom development are quoted separately"],
+  unit:"subscription"},
  {id:"operations-lead-intelligence",name:"Operations & Lead Intelligence",category:"Business Intelligence",
-  blurb:"Monthly operations and lead intelligence for your business.",unit:"subscription"},
+  blurb:"Managed business intelligence and lead management to help you organize customer information, monitor operational activity and identify sales opportunities.",
+  featuresTitle:"Includes",
+  features:["Lead data organization","Database integrations","Operational dashboards","Reporting","Workflow monitoring","Automated business insights"],
+  notes:["Data collection and processing are limited to authorized sources and approved business workflows","Custom integrations, third-party data services and additional development are billed separately"],
+  unit:"subscription"},
  {id:"mailhub-intelligence",name:"MailHub Marketing Intelligence",category:"Business Intelligence",
-  blurb:"Monthly marketing intelligence from MailHub.",unit:"subscription"},
+  blurb:"Managed email marketing intelligence and campaign automation, powered by Snow Seasons Tech's MailHub platform.",
+  featuresTitle:"Includes",
+  features:["Campaign management","Contact segmentation","Marketing analytics","Email workflow automation","Audience engagement reporting","Campaign performance monitoring"],
+  notes:["Designed to support authorized marketing communications and data-driven customer engagement","Email delivery provider fees, premium integrations and additional campaign development may be billed separately"],
+  unit:"subscription"},
  {id:"inspections-intelligence",name:"Inspections Intelligence",category:"Business Intelligence",
-  blurb:"Monthly inspections intelligence for your business.",unit:"subscription"},
+  blurb:"Managed inspection intelligence and operational reporting to organize inspection records, track field activity and improve operational visibility.",
+  featuresTitle:"Includes",
+  features:["Inspection data management","Reporting dashboards","Workflow automation","Record tracking","Operational analytics","Integration support"],
+  notes:["Configured to your approved inspection workflows and business requirements","Custom development, third-party integrations and additional infrastructure are quoted separately"],
+  unit:"subscription"},
  {id:"managed-package",name:"Managed Technology & Marketing Package",category:"Managed Package",
-  blurb:"Technology and marketing managed together under one monthly plan.",unit:"subscription"},
+  blurb:"Comprehensive managed technology and digital marketing services, combined into one coordinated package.",
+  featuresTitle:"Combines",
+  features:["Website management","Social media management","Database infrastructure oversight","Marketing automation","Business intelligence","Ongoing technical support"],
+  notes:["Designed to streamline business operations, maintain digital infrastructure, strengthen online visibility and support customer engagement","Included services, account limits, support levels and deliverables are defined by the selected service agreement","Custom development and third-party fees are billed separately unless expressly included"],
+  unit:"subscription"},
 ];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -171,9 +208,13 @@ const thumb=p=>p.img?`<img class="thumb" src="${esc(p.img)}" alt="${esc(p.alt||"
 const tagline=p=>p.tagline?`<p class="tagline">${esc(p.tagline)}</p>`:"";
 const buyLabel=p=>p.unit==="subscription"?"Subscribe":"Buy now";
 const priceRow=p=>`<div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div>`;
-$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features?`<article class="card">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button></div></article>`
+// coverage = [label, value] rows, shown as a table on the back of the card.
+const coverage=p=>p.coverage?`<h4>Coverage</h4><dl class="specs">${p.coverage.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`:"";
+// notes = terms shown under the features list, e.g. what is billed separately.
+const notes=p=>p.notes?`<h4>Good to know</h4><ul>${p.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:"";
+$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article class="card">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button></div></article>`
  :`<article class="flip"><div class="card front">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
- +`<div class="card back" inert><h3>${esc(p.name)}</h3><h4>Good to know</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>${specs(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
+ +`<div class="card back" inert><h3>${esc(p.name)}</h3>${p.features?`<h4>${esc(p.featuresTitle||"Good to know")}</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}${coverage(p)}${notes(p)}${specs(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
 document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
  if(!t&&(e.target.closest("a,button")||String(getSelection())))return;
  const had=c.contains(document.activeElement),on=c.classList.toggle("flipped"),[front,back]=c.children;
