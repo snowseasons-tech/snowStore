@@ -6,7 +6,7 @@ const auth = require('../api/_lib/auth');
 
 const env = {
   UPSTASH_REDIS_REST_URL: 'https://redis.test', UPSTASH_REDIS_REST_TOKEN: 't', SITE_URL: 'https://site.test',
-  STRIPE_SECRET_KEY: 'sk_test_123', PRICE_BOOKSCAN: 'price_123', RESEND_API_KEY: 're_1', MAIL_FROM: 'a@site.test',
+  STRIPE_SECRET_KEY: 'sk_test_123', PRICE_BOOKSCAN: 'price_old', PRICE_API_INTEGRATION_BASIC: 'price_123', RESEND_API_KEY: 're_1', MAIL_FROM: 'a@site.test',
   S3_ENDPOINT: 'https://r2.example.com', S3_BUCKET: 'b', S3_ACCESS_KEY_ID: 'k', S3_SECRET_ACCESS_KEY: 's',
 };
 Object.assign(process.env, env);
@@ -78,7 +78,8 @@ test('products reads display prices from Stripe', async () => {
     const res = await onRequestGet({ env });
     assert.strictEqual(res.headers.get('cache-control'), 'public, max-age=60');
     const { products } = await res.json();
-    assert.deepStrictEqual([products[0].id, products[0].amount, products[0].currency, products[0].interval], ['bookscan', 1900, 'usd', null]);
+    // PRICE_BOOKSCAN is set too, but bookscan is retired, so only the live product is listed.
+    assert.deepStrictEqual(products.map((p) => [p.id, p.amount, p.currency, p.interval]), [['api-integration-basic', 1900, 'usd', null]]);
   } finally { up.restore(); }
 });
 

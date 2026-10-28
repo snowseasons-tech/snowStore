@@ -13,7 +13,7 @@ export async function onRequestGet({ env }) {
     const stripe = stripeClient(env);
     const launch = await launchDiscount(stripe, env);
     // Fetch all prices in parallel; products without a configured price are left out.
-    const listed = Object.entries(CATALOG).filter(([, p]) => env[p.priceEnv]);
+    const listed = Object.entries(CATALOG).filter(([, p]) => !p.retired && env[p.priceEnv]);
     const products = await Promise.all(listed.map(async ([id, p]) => {
       const price = await stripe.prices.retrieve(env[p.priceEnv]);
       return { id, name: p.name, blurb: p.blurb || null, amount: price.unit_amount, currency: price.currency, interval: price.recurring ? price.recurring.interval : null, ...discounted(price.unit_amount, launch) };
