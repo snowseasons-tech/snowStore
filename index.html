@@ -223,17 +223,20 @@ document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)re
 const chosen={};
 const perLabel=o=>!o.interval?"":o.intervalCount>1?` every ${o.intervalCount} ${o.interval}s`:` / ${o.interval}`;
 const firstSpan=o=>o.intervalCount>1?`first ${o.intervalCount} ${o.interval}s`:`first ${o.interval}`;
-const periodMonths=o=>(o.interval==="year"?12:1)*(o.intervalCount||1);
+const periodMonths=o=>({week:12/52,year:12}[o.interval]||1)*(o.intervalCount||1);
+const periodName=o=>o.period==="1m"?"Monthly":o.intervalCount===1?{week:"Weekly",month:"Monthly",year:"Yearly"}[o.interval]:`Every ${o.intervalCount} ${o.interval}s`;
 function renderPrice(el,p,o){const money=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:p.currency.toUpperCase()}).format(n/100),per=perLabel(o);
  if(!o.discount){el.textContent=money(o.amount)+per;return}const d=o.discount,off=Math.round(d.percent)+"% off",tag=document.createElement("span");tag.className="sale";
  // A "once" or "repeating" coupon only discounts the first invoice(s) of a subscription, so say so instead of showing a lower recurring price.
  if(o.interval&&(d.duration==="once"||d.duration==="repeating")){const span=d.duration==="repeating"&&d.months>1&&o.interval==="month"&&o.intervalCount===1?`first ${d.months} months`:firstSpan(o),then=document.createElement("small");then.style.display="block";then.textContent=`then ${money(o.amount)}${per}`;tag.textContent=`${off} your ${span}`;el.replaceChildren(`${money(d.amount)} ${span} `,then," ",tag);return}
  const was=document.createElement("s");was.textContent=money(o.amount);tag.textContent=off+" launch price";el.replaceChildren(was," "+money(d.amount)+per+" ",tag)}
 fetch("/api/products").then(r=>r.json()).then(d=>d.products.forEach(p=>{
- const opts=[{period:"1m",amount:p.amount,interval:p.interval,intervalCount:1,discount:p.discount},...(p.periods||[])];
+ const opts=[{period:"1m",amount:p.amount,interval:p.interval,intervalCount:1,discount:p.discount},...(p.periods||[])].sort((a,b)=>periodMonths(a)-periodMonths(b));
  const show=()=>{const o=opts.find(x=>x.period===(chosen[p.id]||"1m"))||opts[0];document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>renderPrice(el,p,o));document.querySelectorAll('select[data-period="'+p.id+'"]').forEach(s=>s.value=o.period)};
  if(opts.length>1)document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>{const sel=document.createElement("select");sel.className="period";sel.dataset.period=p.id;sel.setAttribute("aria-label","Billing period for "+p.name);
-  opts.forEach(o=>{const save=o.period==="1m"?0:Math.round(100-o.amount*100/(p.amount*periodMonths(o)));sel.add(new Option((o.period==="1m"?"Monthly":o.interval==="year"&&o.intervalCount===1?"Yearly":`Every ${o.intervalCount} ${o.interval}s`)+(save>0?` (save ${save}%)`:""),o.period))});
+  // "save X%" compares against paying monthly; it is left off periods shorter than a month.
+  opts.forEach(o=>{const save=periodMonths(o)<=1?0:Math.round(100-o.amount*100/(p.amount*periodMonths(o)));sel.add(new Option(periodName(o)+(save>0?` (save ${save}%)`:""),o.period))});
+  sel.value="1m";
   sel.addEventListener("change",()=>{chosen[p.id]=sel.value;show()});el.parentNode.insertBefore(sel,el)});
  show()})).catch(()=>{})
  .finally(()=>document.querySelectorAll("[data-price]").forEach(el=>{if(el.textContent==="…")el.textContent=""})); // unpriced or failed: no stuck placeholder

@@ -17,7 +17,7 @@ export async function onRequestGet({ env }) {
     const listed = Object.entries(CATALOG).filter(([, p]) => !p.retired && env[p.priceEnv]);
     const products = await Promise.all(listed.map(async ([id, p]) => {
       const price = await stripe.prices.retrieve(env[p.priceEnv]);
-      // Longer billing periods (3, 6 or 12 months) that have a Price ID configured.
+      // Other billing periods (weekly, 3, 6 or 12 months) that have a Price ID configured.
       const extra = Object.entries(p.periodEnvs || {}).filter(([, name]) => env[name]);
       const periods = await Promise.all(extra.map(async ([period, name]) => {
         const pr = await stripe.prices.retrieve(env[name]);

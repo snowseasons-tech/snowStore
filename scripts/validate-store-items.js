@@ -7,7 +7,7 @@ const SHA256 = /^[a-f0-9]{64}$/;
 const VERSION = /^\d+\.\d+\.\d+$/;
 const CATEGORIES = new Set(['billing', 'utilities']);
 const KINDS = new Set(['one_time', 'subscription']);
-const PERIODS = new Set(['3m', '6m', '12m']);
+const PERIODS = new Set(['1w', '3m', '6m', '12m']);
 
 function validateCatalog(catalog) {
   const errors = [];

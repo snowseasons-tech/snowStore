@@ -51,6 +51,9 @@ test('checkout function uses the chosen billing period', async () => {
     assert.match(sent, /price_six/);
     assert.match(sent, /mode=subscription/);
     assert.match(sent, /metadata\[period\]=6m/);
+    const weekly = await onRequestPost({ request: post('{"productId":"api-maintenance-basic","period":"1w"}'), env: { ...env, PRICE_API_MAINTENANCE_BASIC_1W: 'price_week' } });
+    assert.strictEqual(weekly.status, 200);
+    assert.match(sent, /price_week/);
     // No 12-month price configured, and an unknown period, are both refused.
     assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-maintenance-basic","period":"12m"}'), env })).status, 503);
     assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-maintenance-basic","period":"2m"}'), env })).status, 400);
