@@ -14,7 +14,10 @@ test('checkout function validates the request', async () => {
   const { onRequestPost } = await load();
   assert.strictEqual((await onRequestPost({ request: post('{nope'), env: {} })).status, 400);
   assert.strictEqual((await onRequestPost({ request: post('{"productId":"__proto__"}'), env: {} })).status, 400);
-  assert.strictEqual((await onRequestPost({ request: post('{"productId":"bookscan"}'), env: {} })).status, 503);
+  assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-integration-basic"}'), env: {} })).status, 503);
+  // Retired products stay in the catalog for past buyers but can no longer be bought.
+  const retired = { STRIPE_SECRET_KEY: 'sk_test_123', PRICE_BOOKSCAN: 'price_123', SITE_URL: 'https://site.test' };
+  assert.strictEqual((await onRequestPost({ request: post('{"productId":"bookscan"}'), env: retired })).status, 400);
 });
 test('checkout function creates a session through Stripe', async () => {
   const { onRequestPost } = await load();
@@ -25,8 +28,8 @@ test('checkout function creates a session through Stripe', async () => {
     return new Response(JSON.stringify({ id: 'cs_test_1', url: 'https://checkout.stripe.test/c/1' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
   try {
-    const env = { STRIPE_SECRET_KEY: 'sk_test_123', PRICE_BOOKSCAN: 'price_123', SITE_URL: 'https://site.test' };
-    const res = await onRequestPost({ request: post('{"productId":"bookscan"}'), env });
+    const env = { STRIPE_SECRET_KEY: 'sk_test_123', PRICE_API_INTEGRATION_BASIC: 'price_123', SITE_URL: 'https://site.test' };
+    const res = await onRequestPost({ request: post('{"productId":"api-integration-basic"}'), env });
     assert.strictEqual(res.status, 200);
     assert.deepStrictEqual(await res.json(), { url: 'https://checkout.stripe.test/c/1' });
     assert.match(sent.url, /checkout\/sessions$/);
@@ -35,8 +38,8 @@ test('checkout function creates a session through Stripe', async () => {
 });
 test('checkout function refuses a live key without ALLOW_LIVE', async () => {
   const { onRequestPost } = await load();
-  const env = { STRIPE_SECRET_KEY: 'sk_live_123', PRICE_BOOKSCAN: 'price_123', SITE_URL: 'https://site.test' };
-  assert.strictEqual((await onRequestPost({ request: post('{"productId":"bookscan"}'), env })).status, 500);
+  const env = { STRIPE_SECRET_KEY: 'sk_live_123', PRICE_API_INTEGRATION_BASIC: 'price_123', SITE_URL: 'https://site.test' };
+  assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-integration-basic"}'), env })).status, 500);
 });
 test('checkout function applies a valid launch coupon instead of promo-code entry', async () => {
   const { onRequestPost } = await load();
@@ -48,8 +51,8 @@ test('checkout function applies a valid launch coupon instead of promo-code entr
     return new Response(JSON.stringify({ id: 'cs_test_1', url: 'https://checkout.stripe.test/c/1' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
   try {
-    const env = { STRIPE_SECRET_KEY: 'sk_test_123', PRICE_BOOKSCAN: 'price_123', SITE_URL: 'https://site.test', LAUNCH_COUPON: 'LAUNCH30' };
-    assert.strictEqual((await onRequestPost({ request: post('{"productId":"bookscan"}'), env })).status, 200);
+    const env = { STRIPE_SECRET_KEY: 'sk_test_123', PRICE_API_INTEGRATION_BASIC: 'price_123', SITE_URL: 'https://site.test', LAUNCH_COUPON: 'LAUNCH30' };
+    assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-integration-basic"}'), env })).status, 200);
     assert.match(sent, /discounts\[0\]\[coupon\]=LAUNCH30/);
     assert.doesNotMatch(sent, /allow_promotion_codes/);
   } finally { globalThis.fetch = realFetch; }
@@ -64,8 +67,8 @@ test('checkout function falls back to promo codes when the launch coupon is expi
     return new Response(JSON.stringify({ id: 'cs_test_1', url: 'https://checkout.stripe.test/c/1' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
   try {
-    const env = { STRIPE_SECRET_KEY: 'sk_test_123', PRICE_BOOKSCAN: 'price_123', SITE_URL: 'https://site.test', LAUNCH_COUPON: 'LAUNCH30' };
-    assert.strictEqual((await onRequestPost({ request: post('{"productId":"bookscan"}'), env })).status, 200);
+    const env = { STRIPE_SECRET_KEY: 'sk_test_123', PRICE_API_INTEGRATION_BASIC: 'price_123', SITE_URL: 'https://site.test', LAUNCH_COUPON: 'LAUNCH30' };
+    assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-integration-basic"}'), env })).status, 200);
     assert.doesNotMatch(sent, /discounts/);
     assert.match(sent, /allow_promotion_codes=true/);
   } finally { globalThis.fetch = realFetch; }

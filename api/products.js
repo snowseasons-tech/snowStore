@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
     const stripe = stripeClient();
     const launch = await launchDiscount(stripe);
     // Fetch all prices in parallel; products without a configured price are left out.
-    const listed = Object.entries(CATALOG).filter(([, p]) => process.env[p.priceEnv]);
+    const listed = Object.entries(CATALOG).filter(([, p]) => !p.retired && process.env[p.priceEnv]);
     const products = await Promise.all(listed.map(async ([id, p]) => {
       const price = await stripe.prices.retrieve(process.env[p.priceEnv]);
       return { id, name: p.name, blurb: p.blurb || null, amount: price.unit_amount, currency: price.currency, interval: price.recurring ? price.recurring.interval : null, ...discounted(price.unit_amount, launch) };

@@ -13,7 +13,12 @@ test('dist contains only the public site', () => {
   const out = build({ root, out: fs.mkdtempSync(path.join(os.tmpdir(), 'dist-')) });
   const files = list(out).sort();
   for (const f of ['index.html', '404.html', 'success.html', 'cancel.html', 'privacy.html', 'refund.html', 'terms.html', 'page.css', '_headers',
-    'storefront/portal.html', 'storefront/portal.js', 'storefront/styles.css', 'img/hero-banner.jpg', 'img/flake-1.png']) assert.ok(files.includes(f), `${f} missing`);
+    'storefront/portal.html', 'storefront/portal.js', 'storefront/styles.css', 'img/hero-banner.jpg', 'img/flake-1.png',
+    'blog/index.html', 'blog/how-to-create-a-successful-stripe-store/index.html']) assert.ok(files.includes(f), `${f} missing`);
+  const article = fs.readFileSync(path.join(out, 'blog/how-to-create-a-successful-stripe-store/index.html'), 'utf8');
+  assert.match(article, /<link rel="canonical" href="https:\/\/snowseasonstech\.net\/blog\/how-to-create-a-successful-stripe-store\/">/);
+  assert.match(article, /Treat webhooks as the source of truth/);
+  assert.match(article, /Stripe store launch checklist/);
   const leaks = files.filter((f) => /^(api|functions|products|private-files|scripts|tests|node_modules|ecommerce-expert|\.)/.test(f) || /\.md$|\.env|package|vercel\.json/.test(f));
   assert.deepStrictEqual(leaks, []);
 });

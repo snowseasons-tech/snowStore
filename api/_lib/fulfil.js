@@ -67,7 +67,9 @@ async function processEvent(event, s, catalog, mailer) {
       mailed = await mailer.sendMail({
         to: email,
         subject: `Your ${product.name} purchase`,
-        text: `Thanks for your purchase of ${product.name}.\n\nGet your download or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nKeep this email: the link always gives you a fresh download.\n\nSnow Seasons Tech`,
+        text: product.fileKey
+          ? `Thanks for your purchase of ${product.name}.\n\nGet your download or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nKeep this email: the link always gives you a fresh download.\n\nSnow Seasons Tech`
+          : `Thanks for your purchase of ${product.name}.\n\nView or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nWe'll be in touch shortly to get started.\n\nSnow Seasons Tech`,
       });
     } catch (e) {
       await s.release(mailKey).catch(() => {});

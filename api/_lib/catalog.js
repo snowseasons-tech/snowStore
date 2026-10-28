@@ -3,10 +3,12 @@
 // appUrl (optional) = where a subscriber opens the hosted micro-SaaS.
 // Customer portal (optional): category ('billing' | 'utilities', matches the portal filter), version, sha256 of the file.
 // blurb (optional) = one-line description shown on the portal product cards.
+// retired: true = no longer sold (left out of /api/products and checkout); kept so past buyers can still download.
 module.exports = {
   bookscan: {
     name: 'BookScan Live',
     priceEnv: 'PRICE_BOOKSCAN',
+    retired: true,
     fileKey: 'bookscan-live/bookscan-live.html',
     filename: 'bookscan-live.html',
     category: 'utilities',
@@ -18,6 +20,7 @@ module.exports = {
   'vanilla-webpage': {
     name: 'Vanilla Webpage Template',
     priceEnv: 'PRICE_VANILLA_WEBPAGE',
+    retired: true,
     fileKey: 'vanilla-webpage/vanilla-webpage.html',
     filename: 'vanilla-webpage.html',
     category: 'utilities',
@@ -28,6 +31,7 @@ module.exports = {
   'bi-dashboard': {
     name: 'BI Engagement Dashboard',
     priceEnv: 'PRICE_BI_DASHBOARD',
+    retired: true,
     fileKey: 'bi-dashboard/bi-dashboard.html',
     filename: 'bi-dashboard.html',
     category: 'utilities',
@@ -38,6 +42,7 @@ module.exports = {
   'lead-generator': {
     name: 'Lead Generation Pipeline',
     priceEnv: 'PRICE_LEAD_GENERATOR',
+    retired: true,
     fileKey: 'lead-generator/lead-generator.zip',
     filename: 'lead-generator.zip',
     category: 'utilities',
@@ -48,6 +53,7 @@ module.exports = {
   'blog-gen': {
     name: 'Blog Roundup Generator',
     priceEnv: 'PRICE_BLOG_GEN',
+    retired: true,
     fileKey: 'blog-gen/blog-gen.zip',
     filename: 'blog-gen.zip',
     category: 'utilities',
@@ -58,6 +64,7 @@ module.exports = {
   'booking-app': {
     name: 'Booking App Component',
     priceEnv: 'PRICE_BOOKING_APP',
+    retired: true,
     fileKey: 'booking-app/booking-app.zip',
     filename: 'booking-app.zip',
     category: 'utilities',
@@ -68,6 +75,7 @@ module.exports = {
   'inventory-tracker': {
     name: 'Store Inventory Tracker',
     priceEnv: 'PRICE_INVENTORY_TRACKER',
+    retired: true,
     fileKey: 'inventory-tracker/inventory-tracker.zip',
     filename: 'inventory-tracker.zip',
     category: 'utilities',
@@ -78,6 +86,7 @@ module.exports = {
   'invoice-generator': {
     name: 'Invoice Generator',
     priceEnv: 'PRICE_INVOICE_GENERATOR',
+    retired: true,
     fileKey: 'invoice-generator/invoice-generator.zip',
     filename: 'invoice-generator.zip',
     category: 'utilities',
@@ -88,6 +97,7 @@ module.exports = {
   'saas-financial-engine': {
     name: 'SaaS Financial Projection Engine',
     priceEnv: 'PRICE_SAAS_FINANCIAL_ENGINE',
+    retired: true,
     fileKey: 'saas-financial-engine/saas-financial-engine.xlsx',
     filename: 'saas-financial-engine.xlsx',
     category: 'billing',
@@ -98,6 +108,7 @@ module.exports = {
   'tech-hiring-os': {
     name: 'Tech Hiring & Compensation Benchmark OS',
     priceEnv: 'PRICE_TECH_HIRING_OS',
+    retired: true,
     fileKey: 'tech-hiring-os/tech-hiring-os.zip',
     filename: 'tech-hiring-os.zip',
     category: 'utilities',
@@ -108,6 +119,7 @@ module.exports = {
   'social-studio': {
     name: 'Social Studio: Social Media Marketing Manager',
     priceEnv: 'PRICE_SOCIAL_STUDIO',
+    retired: true,
     fileKey: 'social-studio/social-studio.zip',
     filename: 'social-studio.zip',
     category: 'utilities',
@@ -115,6 +127,21 @@ module.exports = {
     version: '0.3.0',
     sha256: '82ea669ed59854c6dcc5c51bdaef4a3cda8c6a18cfd554fb9eab1cee5157ead0',
   },
-  // Example subscription product (uncomment, create the recurring Price in Stripe test mode first):
-  // 'bi-dashboards': { name: 'BI Dashboards', kind: 'subscription', priceEnv: 'PRICE_BI_MONTHLY', appUrl: 'https://app.snowseasonstech.net/bi' },
+  // Services sold on the site (match the live Stripe catalog). No fileKey: nothing to download.
+  'api-integration-basic': { name: 'API Integration Development - Basic', priceEnv: 'PRICE_API_INTEGRATION_BASIC' },
+  'api-integration-standard': { name: 'API Integration Development - Standard', priceEnv: 'PRICE_API_INTEGRATION_STANDARD' },
+  'api-integration-advanced': { name: 'API Integration Development - Advanced', priceEnv: 'PRICE_API_INTEGRATION_ADVANCED' },
+  'api-integration-enterprise': { name: 'API Integration Development - Enterprise', priceEnv: 'PRICE_API_INTEGRATION_ENTERPRISE' },
+  'api-maintenance-basic': { name: 'Basic API Maintenance', kind: 'subscription', priceEnv: 'PRICE_API_MAINTENANCE_BASIC' },
+  'api-maintenance-standard': { name: 'Standard API Maintenance', kind: 'subscription', priceEnv: 'PRICE_API_MAINTENANCE_STANDARD' },
+  'api-management-advanced': { name: 'Advanced API Management', kind: 'subscription', priceEnv: 'PRICE_API_MANAGEMENT_ADVANCED' },
+  'website-management-primary': { name: 'Website Management — Primary', kind: 'subscription', priceEnv: 'PRICE_WEBSITE_MANAGEMENT_PRIMARY' },
+  'website-management-secondary': { name: 'Website Management — Secondary', kind: 'subscription', priceEnv: 'PRICE_WEBSITE_MANAGEMENT_SECONDARY' },
+  'social-media-1': { name: 'Social Media — 1 Account', kind: 'subscription', priceEnv: 'PRICE_SOCIAL_MEDIA_1' },
+  'social-media-5': { name: 'Social Media — 5 Accounts', kind: 'subscription', priceEnv: 'PRICE_SOCIAL_MEDIA_5' },
+  'managed-database': { name: 'Managed Database Infrastructure', kind: 'subscription', priceEnv: 'PRICE_MANAGED_DATABASE' },
+  'operations-lead-intelligence': { name: 'Operations & Lead Intelligence', kind: 'subscription', priceEnv: 'PRICE_OPERATIONS_LEAD_INTELLIGENCE' },
+  'mailhub-intelligence': { name: 'MailHub Marketing Intelligence', kind: 'subscription', priceEnv: 'PRICE_MAILHUB_INTELLIGENCE' },
+  'inspections-intelligence': { name: 'Inspections Intelligence', kind: 'subscription', priceEnv: 'PRICE_INSPECTIONS_INTELLIGENCE' },
+  'managed-package': { name: 'Managed Technology & Marketing Package', kind: 'subscription', priceEnv: 'PRICE_MANAGED_PACKAGE' },
 };

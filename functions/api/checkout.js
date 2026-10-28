@@ -9,7 +9,7 @@ export async function onRequestPost({ request, env }) {
     let body = {};
     try { body = JSON.parse((await request.text()) || '{}'); } catch { return send(400, { error: 'Bad JSON' }); }
     const product = Object.prototype.hasOwnProperty.call(CATALOG, body.productId) ? CATALOG[body.productId] : null;
-    if (!product) return send(400, { error: 'Unknown product' });
+    if (!product || product.retired) return send(400, { error: 'Unknown product' });
     const price = env[product.priceEnv];
     const site = env.SITE_URL;
     if (!price || !site) return send(503, { error: 'Checkout not configured' });
