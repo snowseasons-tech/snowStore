@@ -156,9 +156,15 @@ const PRODUCTS=[
   features:["Website hosting and deployment management","Website content and design updates","Security monitoring and routine maintenance","Performance optimization","Bug fixes and technical troubleshooting","GitHub repository and deployment support","Website uptime and availability monitoring"],
   unit:"subscription"},
  {id:"website-management-secondary",name:"Website Management — Secondary",category:"Website Management",
-  blurb:"Monthly management of an additional website.",unit:"subscription"},
+  blurb:"Ongoing management and maintenance of an additional client website, including content updates, security maintenance, performance monitoring, deployment support, bug fixes and technical troubleshooting.",
+  features:["Designed for businesses managing multiple websites under a single service provider","Major redesigns and custom development are billed separately"],
+  unit:"subscription"},
  {id:"social-media-1",name:"Social Media — 1 Account",category:"Social Media",
-  blurb:"Monthly management of one social media account.",unit:"subscription"},
+  blurb:"Professional management of one business social media account on Facebook, Instagram, LinkedIn or another supported platform.",
+  featuresTitle:"Services include",
+  features:["Content planning","Post creation","Scheduling and publishing","Account monitoring","Basic performance reporting"],
+  notes:["Posting frequency and content deliverables are defined by the selected service agreement","Advertising budgets and paid campaigns are billed separately"],
+  unit:"subscription"},
  {id:"social-media-5",name:"Social Media — 5 Accounts",category:"Social Media",
   blurb:"Monthly management of up to five social media accounts.",unit:"subscription"},
  {id:"managed-database",name:"Managed Database Infrastructure",category:"Infrastructure",
@@ -182,9 +188,11 @@ const buyLabel=p=>p.unit==="subscription"?"Subscribe":"Buy now";
 const priceRow=p=>`<div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div>`;
 // coverage = [label, value] rows, shown as a table on the back of the card.
 const coverage=p=>p.coverage?`<h4>Coverage</h4><dl class="specs">${p.coverage.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`:"";
+// notes = terms shown under the features list, e.g. what is billed separately.
+const notes=p=>p.notes?`<h4>Good to know</h4><ul>${p.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:"";
 $("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article class="card">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button></div></article>`
  :`<article class="flip"><div class="card front">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
- +`<div class="card back" inert><h3>${esc(p.name)}</h3>${p.features?`<h4>${esc(p.featuresTitle||"Good to know")}</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}${coverage(p)}${specs(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
+ +`<div class="card back" inert><h3>${esc(p.name)}</h3>${p.features?`<h4>${esc(p.featuresTitle||"Good to know")}</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}${coverage(p)}${notes(p)}${specs(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
 document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
  if(!t&&(e.target.closest("a,button")||String(getSelection())))return;
  const had=c.contains(document.activeElement),on=c.classList.toggle("flipped"),[front,back]=c.children;
