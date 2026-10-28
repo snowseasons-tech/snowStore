@@ -3,7 +3,8 @@ const { stripeClient, launchDiscount } = require('./_lib/stripe');
 const { send, allow } = require('./_lib/http');
 
 // amount stays the list price; discount (when a launch coupon is live) carries the percent and the price after it.
-const discounted = (amount, launch) => (launch ? { discount: { percent: launch.percent, amount: Math.round(amount * (100 - launch.percent) / 100) } } : {});
+// duration/months mirror the coupon: on a subscription, 'once' discounts only the first invoice.
+const discounted = (amount, launch) => (launch ? { discount: { percent: launch.percent, amount: Math.round(amount * (100 - launch.percent) / 100), duration: launch.duration, months: launch.months } } : {});
 
 // Display prices come from Stripe, never from frontend code.
 module.exports = async (req, res) => {
