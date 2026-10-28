@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Business | Profile Performance</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    body { background: #0f172a; }
+    .num { font-variant-numeric: tabular-nums; }
+    input[type=date]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+    select, input { font-size: 16px; }
+    @media (min-width: 768px) { select, input { font-size: 14px; } }
+    details > summary { list-style: none; cursor: pointer; }
+    details > summary::-webkit-details-marker { display: none; }
+  </style>
+</head>
+<body class="min-h-full font-sans antialiased bg-slate-900 text-slate-100">
+
+  <header class="border-b border-slate-800 bg-slate-950">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="min-w-0">
+        <a href="#" class="font-bold text-lg text-sky-400">Your Business</a>
+        <p class="text-sm text-slate-400">Google Business Profile performance</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <label class="inline-flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white text-sm font-medium px-4 py-2 rounded-lg cursor-pointer transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>
+          Import CSV
+          <input id="fileInput" type="file" accept=".csv,.tsv,.txt,text/csv" multiple class="sr-only" />
+        </label>
+        <button id="exportBtn" type="button" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sm font-medium px-4 py-2 rounded-lg transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 md:px-6 py-5 space-y-5">
+
+    <!-- Data notice -->
+    <div id="notice" class="hidden flex-wrap items-center justify-between gap-3 bg-sky-950/60 border border-sky-800/60 text-sky-100 text-sm px-4 py-3 rounded-xl">
+      <p id="noticeText"></p>
+      <div class="flex gap-2 shrink-0">
+        <button id="helpBtn" type="button" class="px-3 py-1.5 rounded-lg bg-sky-800/70 hover:bg-sky-700 font-medium">How to export from Google</button>
+      </div>
+    </div>
+
+    <!-- Filters: one row above everything they control -->
+    <section class="flex flex-wrap items-end gap-3" aria-label="Filters">
+      <label class="flex flex-col gap-1 text-xs text-slate-400 min-w-[11rem] flex-1 sm:flex-none">
+        Location
+        <select id="locSelect" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100"></select>
+      </label>
+      <label class="flex flex-col gap-1 text-xs text-slate-400 min-w-[11rem] flex-1 sm:flex-none">
+        Date range
+        <select id="rangeSelect" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100">
+          <option value="7">Last 7 days</option>
+          <option value="28" selected>Last 28 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="182">Last 6 months</option>
+          <option value="365">Last 12 months</option>
+          <option value="month">Latest full month</option>
+          <option value="all">All data</option>
+          <option value="custom">Custom range…</option>
+        </select>
+      </label>
+      <div id="customRange" class="hidden items-end gap-2 flex-1 sm:flex-none">
+        <label class="flex flex-col gap-1 text-xs text-slate-400 flex-1">From
+          <input id="fromInput" type="date" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100" />
+        </label>
+        <label class="flex flex-col gap-1 text-xs text-slate-400 flex-1">To
+          <input id="toInput" type="date" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100" />
+        </label>
+      </div>
+      <p id="rangeLabel" class="w-full lg:w-auto lg:ml-auto text-xs text-slate-400 lg:text-right pb-2"></p>
+    </section>
+
+    <!-- Empty state -->
+    <section id="emptyState" class="hidden bg-slate-800/50 border border-slate-700/50 p-8 rounded-xl text-center space-y-3">
+      <h2 class="text-lg font-semibold">No data yet</h2>
+      <p class="text-slate-400 text-sm max-w-md mx-auto">Import the CSV you download from Google Business Profile, or load the sample data to look around.</p>
+      <button id="emptySampleBtn" type="button" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-sm font-medium">Load sample data</button>
+    </section>
+
+    <div id="dash" class="space-y-5">
+      <!-- KPI tiles -->
+      <section id="kpis" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4" aria-label="Key numbers"></section>
+
+      <!-- Views -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="lg:col-span-2 bg-slate-800/50 border border-slate-700/50 p-4 md:p-5 rounded-xl min-w-0">
+          <div class="flex items-start justify-between gap-3 mb-1">
+            <div>
+              <h2 class="font-semibold">Profile views over time</h2>
+              <p id="viewsSub" class="text-xs text-slate-400"></p>
+            </div>
+            <button type="button" data-table="views" class="table-toggle text-xs px-2.5 py-1 rounded-md border border-slate-700 text-slate-300 hover:bg-slate-700">Table</button>
+          </div>
+          <div id="viewsLegend" class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-300 my-2"></div>
+          <div class="chart-wrap relative h-64 md:h-72"><canvas id="viewsChart" aria-label="Profile views over time, stacked by platform and device" role="img"></canvas></div>
+          <div class="table-wrap hidden max-h-72 overflow-auto" id="viewsTable"></div>
+        </div>
+        <div class="bg-slate-800/50 border border-slate-700/50 p-4 md:p-5 rounded-xl min-w-0">
+          <h2 class="font-semibold">Where people viewed your profile</h2>
+          <p class="text-xs text-slate-400 mb-3">Platform and device, selected range</p>
+          <div class="relative h-44"><canvas id="splitChart" aria-label="Share of views by platform and device" role="img"></canvas></div>
+          <ul id="splitList" class="mt-4 space-y-2 text-sm"></ul>
+        </div>
+      </section>
+
+      <!-- Interactions -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="lg:col-span-2 bg-slate-800/50 border border-slate-700/50 p-4 md:p-5 rounded-xl min-w-0">
+          <div class="flex items-start justify-between gap-3 mb-1">
+            <div>
+              <h2 class="font-semibold">Interactions over time</h2>
+              <p id="actsSub" class="text-xs text-slate-400"></p>
+            </div>
+            <button type="button" data-table="acts" class="table-toggle text-xs px-2.5 py-1 rounded-md border border-slate-700 text-slate-300 hover:bg-slate-700">Table</button>
+          </div>
+          <div id="actsLegend" class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-300 my-2"></div>
+          <div class="chart-wrap relative h-64 md:h-72"><canvas id="actsChart" aria-label="Interactions over time, stacked by type" role="img"></canvas></div>
+          <div class="table-wrap hidden max-h-72 overflow-auto" id="actsTable"></div>
+        </div>
+        <div class="bg-slate-800/50 border border-slate-700/50 p-4 md:p-5 rounded-xl min-w-0">
+          <h2 class="font-semibold">Interactions by type</h2>
+          <p class="text-xs text-slate-400 mb-3">Selected range, with change vs previous period</p>
+          <ul id="actsList" class="space-y-3 text-sm"></ul>
+        </div>
+      </section>
+
+      <!-- Locations and search terms -->
+      <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div class="xl:col-span-2 bg-slate-800/50 border border-slate-700/50 rounded-xl min-w-0">
+          <div class="flex flex-wrap items-start justify-between gap-2 p-4 md:p-5 pb-3">
+            <div>
+              <h2 class="font-semibold">Locations</h2>
+              <p class="text-xs text-slate-400">Selected range. Click a row to filter the dashboard to that location.</p>
+            </div>
+            <button id="exportSummaryBtn" type="button" class="text-xs px-2.5 py-1 rounded-md border border-slate-700 text-slate-300 hover:bg-slate-700">Export summary</button>
+          </div>
+          <div class="overflow-x-auto"><table class="w-full text-sm num" id="locTable"></table></div>
+        </div>
+        <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl min-w-0">
+          <div class="p-4 md:p-5 pb-3">
+            <h2 class="font-semibold">Top search terms</h2>
+            <p id="termsSub" class="text-xs text-slate-400"></p>
+          </div>
+          <div class="overflow-x-auto"><table class="w-full text-sm num" id="termsTable"></table></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Data sources and help -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="bg-slate-800/50 border border-slate-700/50 p-4 md:p-5 rounded-xl min-w-0">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <h2 class="font-semibold">Your data</h2>
+          <div class="flex gap-2">
+            <button id="sampleBtn" type="button" class="text-xs px-2.5 py-1 rounded-md border border-slate-700 text-slate-300 hover:bg-slate-700">Load sample data</button>
+            <button id="clearBtn" type="button" class="text-xs px-2.5 py-1 rounded-md border border-rose-900 text-rose-300 hover:bg-rose-950">Clear all data</button>
+          </div>
+        </div>
+        <ul id="sourceList" class="space-y-2 text-sm"></ul>
+        <p class="text-xs text-slate-500 mt-3">Everything stays in this browser. Nothing is uploaded anywhere.</p>
+      </div>
+      <details id="help" class="bg-slate-800/50 border border-slate-700/50 p-4 md:p-5 rounded-xl min-w-0">
+        <summary class="font-semibold flex items-center justify-between">How to get your CSV from Google <span class="text-slate-400 text-sm">▾</span></summary>
+        <div class="text-sm text-slate-300 space-y-3 mt-3">
+          <ol class="list-decimal pl-5 space-y-1.5">
+            <li>Sign in to <span class="text-sky-300">business.google.com/locations</span> (Business Profile Manager).</li>
+            <li>Tick the profile or profiles you want, then choose <b>Download</b> and the insights/performance report. Google moves these menus around, so look for "Download" near the profile list.</li>
+            <li>Pick a date range (Google allows up to about 90 days per file) and download the CSV.</li>
+            <li>Click <b>Import CSV</b> above. Google's file has totals for the whole range, so the dashboard asks which dates it covers. Use the range you picked in Google's dialog.</li>
+          </ol>
+          <p>Import one file per month (or per quarter) to build up history. Re-importing the same location and dates replaces the old numbers, so nothing is counted twice.</p>
+          <p>Daily data works too: any CSV with a <b>Date</b> column and columns such as <i>Google Search – mobile</i>, <i>Calls</i> or <i>Website clicks</i> is read row by row. That covers exports from the Business Profile Performance API and most reporting tools.</p>
+          <p>Search terms: a CSV with a <b>Search term</b> (or keyword) column and a count column fills the Top search terms table.</p>
+        </div>
+      </details>
+    </section>
+
+    <p class="text-xs text-slate-500 pb-6">Sample data is fictional. Not affiliated with or endorsed by Google. Google Business Profile is a trademark of Google LLC.</p>
+  </main>
+
+  <!-- Period dialog for Google's totals-per-location export -->
+  <div id="periodModal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-950/70 p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="periodTitle">
+    <form id="periodForm" class="w-full sm:max-w-md bg-slate-900 border border-slate-700 rounded-t-2xl sm:rounded-2xl p-5 space-y-4">
+      <div>
+        <h2 id="periodTitle" class="font-semibold text-lg">Which dates does this file cover?</h2>
+        <p id="periodText" class="text-sm text-slate-400 mt-1"></p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="flex flex-col gap-1 text-xs text-slate-400">From
+          <input id="periodFrom" type="date" required class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100" />
+        </label>
+        <label class="flex flex-col gap-1 text-xs text-slate-400">To
+          <input id="periodTo" type="date" required class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100" />
+        </label>
+      </div>
+      <p id="periodError" class="hidden text-sm text-rose-300"></p>
+      <div class="flex justify-end gap-2">
+        <button type="button" id="periodCancel" class="px-4 py-2 rounded-lg border border-slate-700 text-sm hover:bg-slate-800">Skip file</button>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-sm font-medium">Import</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 hidden max-w-[calc(100vw-2rem)] w-max bg-slate-800 border border-slate-600 text-sm px-4 py-3 rounded-xl shadow-xl" role="status" aria-live="polite"></div>
+
+  <script>
+    // ---- Metric definitions -------------------------------------------------------------------
+    // Values are stored per location per day in this order. Google's export is matched to these
+    // by column name (see classifyHeader), so the order here doesn't depend on the file.
+    const METRICS = [
+      { k: 'vsm', label: 'Google Search – mobile', color: '#3987e5' },
+      { k: 'vsd', label: 'Google Search – desktop', color: '#d95926' },
+      { k: 'vmm', label: 'Google Maps – mobile', color: '#199e70' },
+      { k: 'vmd', label: 'Google Maps – desktop', color: '#c98500' },
+      { k: 'searches', label: 'Searches' },
+      { k: 'calls', label: 'Calls', color: '#3987e5' },
+      { k: 'website', label: 'Website clicks', color: '#d95926' },
+      { k: 'directions', label: 'Directions', color: '#199e70' },
+      { k: 'messages', label: 'Messages', color: '#c98500' },
+      { k: 'bookings', label: 'Bookings', color: '#d55181' },
+    ];
+    const MI = Object.fromEntries(METRICS.map((m, i) => [m.k, i]));
+    const VIEW_IDX = [0, 1, 2, 3];
+    const ACT_IDX = [5, 6, 7, 8, 9];
+    const KPIS = [
+      { label: 'Profile views', idx: VIEW_IDX, help: 'Search and Maps, mobile and desktop' },
+      { label: 'Searches', idx: [MI.searches], help: 'Searches that showed your profile' },
+      { label: 'Interactions', idx: ACT_IDX, help: 'Calls, website, directions, messages, bookings' },
+      { label: 'Calls', idx: [MI.calls], help: 'Taps on the call button' },
+      { label: 'Website clicks', idx: [MI.website], help: 'Clicks through to your site' },
+      { label: 'Directions', idx: [MI.directions], help: 'Direction requests' },
+      { label: 'Messages', idx: [MI.messages], help: 'Chat conversations started' },
+      { label: 'Bookings', idx: [MI.bookings], help: 'Bookings made from the profile' },
+    ];
+    const STORE_KEY = 'gbpDashboard.v1';
+    const SURFACE = '#172033';
+
+    // ---- State --------------------------------------------------------------------------------
+    // rows: { t: day number (days since 1970-01-01 UTC), l: index into locs, s: 1 if spread from a
+    // multi-day total, m: [10 numbers] }
+    const state = { locs: [], rows: [], terms: [], termsSource: '', sources: [], sample: false, has: [], charts: {} };
+
+    // ---- Small helpers ------------------------------------------------------------------------
+    const $ = id => document.getElementById(id);
+    const nf = new Intl.NumberFormat('en-US');
+    const fmt = n => nf.format(Math.round(n));
+    const pct = n => (n * 100).toFixed(Math.abs(n) >= 0.1 ? 0 : 1) + '%';
+    function escapeHTML(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    const dayOf = (y, m, d) => Math.floor(Date.UTC(y, m - 1, d) / 864e5);
+    const toISO = t => new Date(t * 864e5).toISOString().slice(0, 10);
+    const fromISO = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? dayOf(+m[1], +m[2], +m[3]) : null; };
+    const fmtDay = (t, opts = { month: 'short', day: 'numeric', year: 'numeric' }) =>
+      new Date(t * 864e5).toLocaleDateString('en-US', { ...opts, timeZone: 'UTC' });
+    const ymd = t => { const d = new Date(t * 864e5); return [d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate()]; };
+    const sumIdx = (m, idx) => idx.reduce((a, i) => a + m[i], 0);
+    const zeros = () => new Array(METRICS.length).fill(0);
+
+    let toastTimer;
+    function toast(msg, ms = 4500) {
+      const el = $('toast');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.add('hidden'), ms);
+    }
+
+    // ---- Persistence (browser only; optional) -------------------------------------------------
+    function save() {
+      try {
+        const data = {
+          locs: state.locs, sample: state.sample, has: state.has, sources: state.sources,
+          terms: state.terms, termsSource: state.termsSource,
+          rows: state.rows.map(r => [r.t, r.l, r.s, ...r.m.map(v => Math.round(v * 1000) / 1000)]),
+        };
+        localStorage.setItem(STORE_KEY, JSON.stringify(data));
+      } catch (e) {
+        toast('This browser could not save the data, so it will be gone after a reload. Export a CSV to keep it.');
+      }
+    }
+    function load() {
+      try {
+        const data = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+        if (!data || !Array.isArray(data.rows)) return false;
+        state.locs = data.locs; state.sample = !!data.sample; state.has = data.has || [];
+        state.sources = data.sources || []; state.terms = data.terms || []; state.termsSource = data.termsSource || '';
+        state.rows = data.rows.map(a => ({ t: a[0], l: a[1], s: a[2], m: a.slice(3) }));
+        return true;
+      } catch (e) { return false; }
+    }
+
+    function locIndex(name) {
+      let i = state.locs.indexOf(name);
+      if (i < 0) { state.locs.push(name); i = state.locs.length - 1; }
+      return i;
+    }
+    function resetData() {
+      Object.assign(state, { locs: [], rows: [], terms: [], termsSource: '', sources: [], sample: false, has: [] });
+    }
+
+    // ---- Sample data (fictional) --------------------------------------------------------------
+    function loadSample() {
+      resetData();
+      let seed = 20260930;
+      const rand = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+      const noisy = (x, spread = 0.25) => Math.max(0, Math.round(x * (1 + (rand() * 2 - 1) * spread)));
+      const sites = [
+        { name: 'Your Business – Downtown', base: 185, growth: 0.22 },
+        { name: 'Your Business – Riverside', base: 115, growth: 0.12 },
+        { name: 'Your Business – Northgate', base: 64, growth: 0.38 },
+      ];
+      const start = dayOf(2025, 10, 1), end = dayOf(2026, 9, 30);
+      for (const site of sites) {
+        const l = locIndex(site.name);
+        for (let t = start; t <= end; t++) {
+          const p = (t - start) / (end - start);
+          const dow = (t + 4) % 7; // 0 = Sunday
+          const weekend = dow === 0 || dow === 6;
+          const [, month] = ymd(t);
+          const season = month === 12 ? 1.25 : (month === 1 || month === 2) ? 0.85 : (month >= 6 && month <= 8) ? 1.1 : 1;
+          const views = site.base * (1 + site.growth * p) * season * (weekend ? 1.18 : 1);
+          const m = zeros();
+          m[MI.vsm] = noisy(views * 0.44);
+          m[MI.vsd] = noisy(views * (weekend ? 0.10 : 0.17));
+          m[MI.vmm] = noisy(views * (weekend ? 0.38 : 0.30));
+          m[MI.vmd] = noisy(views * 0.07, 0.4);
+          m[MI.searches] = noisy(views * 0.58);
+          m[MI.calls] = noisy(views * 0.022, 0.5);
+          m[MI.website] = noisy(views * 0.031, 0.5);
+          m[MI.directions] = noisy(views * (weekend ? 0.055 : 0.038), 0.5);
+          m[MI.messages] = noisy(views * 0.005, 0.8);
+          m[MI.bookings] = noisy(views * 0.008, 0.8);
+          state.rows.push({ t, l, s: 0, m });
+        }
+      }
+      state.terms = [
+        ['coffee shop near me', 1840], ['your business', 1215], ['breakfast near me', 960], ['cafe', 742],
+        ['brunch', 655], ['bakery near me', 510], ['espresso', 388], ['coffee open now', 341],
+        ['pastries', 226], ['gluten free bakery', 158], ['cafe with wifi', 97], ['oat milk latte', '<15'],
+      ].map(([term, n]) => ({ term, n: typeof n === 'number' ? n : 15, lt: typeof n !== 'number' }));
+      state.termsSource = 'the sample data';
+      state.has = METRICS.map(m => m.k);
+      state.sample = true;
+      state.sources = [{ name: 'Sample data (fictional)', kind: 'Daily', locs: sites.length, from: toISO(start), to: toISO(end) }];
+      save();
+    }
+
+    // ---- CSV reading --------------------------------------------------------------------------
+    function decode(buf) {
+      const b = new Uint8Array(buf);
+      if (b[0] === 0xFF && b[1] === 0xFE) return new TextDecoder('utf-16le').decode(b.subarray(2));
+      if (b[0] === 0xFE && b[1] === 0xFF) return new TextDecoder('utf-16be').decode(b.subarray(2));
+      let text = new TextDecoder('utf-8').decode(b);
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+      // UTF-16 without a byte order mark shows up as every other byte being NUL.
+      if ((text.slice(0, 200).match(/\u0000/g) || []).length > 40) text = new TextDecoder('utf-16le').decode(b);
+      return text;
+    }
+
+    function parseCSV(text) {
+      const firstLine = text.split(/\r?\n/, 1)[0] || '';
+      const counts = { ',': 0, '\t': 0, ';': 0 };
+      let q = false;
+      for (const c of firstLine) { if (c === '"') q = !q; else if (!q && c in counts) counts[c]++; }
+      const delim = Object.keys(counts).reduce((a, b) => counts[b] > counts[a] ? b : a, ',');
+      const rows = []; let row = []; let cell = ''; q = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (q) {
+          if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+          else cell += c;
+        } else if (c === '"') q = true;
+        else if (c === delim) { row.push(cell); cell = ''; }
+        else if (c === '\n' || c === '\r') {
+          if (c === '\r' && text[i + 1] === '\n') i++;
+          row.push(cell); rows.push(row); row = []; cell = '';
+        } else cell += c;
+      }
+      if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+      return rows.filter(r => r.some(c => c.trim() !== ''));
+    }
+
+    // Map a column header to a metric key or a role. Handles Google's export names
+    // ("Google Search - mobile", "Calls", "Website clicks"...) and the Performance API's metric
+    // names (BUSINESS_IMPRESSIONS_MOBILE_SEARCH, CALL_CLICKS, WEBSITE_CLICKS...).
+    function classifyHeader(raw) {
+      const h = ' ' + String(raw).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
+      const has = w => h.includes(' ' + w + ' ');
+      if (/^ (date|day|month|week|period|start|start date|from|period start|date range start|start of period) $/.test(h)) return 'date';
+      if (/^ (end|end date|to|period end|date range end|end of period) $/.test(h)) return 'end';
+      if (/ (store code|location id|place id) /.test(h)) return 'code';
+      if (/^ (business name|location name|location|business|name|profile|profile name|title) $/.test(h)) return 'name';
+      if (/^ (address|business address|street address) $/.test(h)) return 'address';
+      if (/ (search term|search terms|keyword|keywords|search keyword|query|queries|term) /.test(h)) return 'term';
+      if (has('hotel') || has('food') || has('menu') || has('orders') || has('rating') || has('labels')) return null;
+      const search = has('search'), maps = has('maps') || has('map');
+      const mobile = has('mobile'), desktop = has('desktop');
+      if ((search || maps) && (mobile || desktop)) return (maps ? 'vm' : 'vs') + (mobile ? 'm' : 'd');
+      if (has('searches') || / search (impressions|count|views) /.test(h)) return 'searches';
+      if (has('calls') || has('call') || has('phone')) return 'calls';
+      if (has('website')) return 'website';
+      if (has('directions') || has('direction')) return 'directions';
+      if (has('messages') || has('message') || has('conversations') || has('chats')) return 'messages';
+      if (has('bookings') || has('booking')) return 'bookings';
+      return null;
+    }
+
+    function parseNum(s) {
+      const v = String(s ?? '').trim();
+      if (v === '' || v === '-' || v === '—') return null;
+      const clean = v.replace(/^</, '').replace(/[\s,]/g, '');
+      return /^-?\d+(\.\d+)?$/.test(clean) ? Number(clean) : NaN;
+    }
+
+    const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+    // Returns [firstDay, lastDay] (a month string covers the whole month) or null.
+    function parseDate(s) {
+      const v = String(s || '').trim();
+      let m;
+      const monthSpan = (y, mo) => [dayOf(y, mo, 1), dayOf(y, mo + 1, 1) - 1];
+      if ((m = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/.exec(v))) { const t = dayOf(+m[1], +m[2], +m[3]); return [t, t]; }
+      if ((m = /^(\d{4})(\d{2})(\d{2})$/.exec(v))) { const t = dayOf(+m[1], +m[2], +m[3]); return [t, t]; }
+      if ((m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})/.exec(v))) {
+        let mo = +m[1], d = +m[2];
+        if (mo > 12) [mo, d] = [d, mo]; // day first
+        const t = dayOf(+m[3], mo, d); return [t, t];
+      }
+      if ((m = /^(\d{4})[-/](\d{1,2})$/.exec(v))) return monthSpan(+m[1], +m[2]);
+      if ((m = /^([a-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})$/i.exec(v))) {
+        const mo = MONTHS.indexOf(m[1].toLowerCase()) + 1; if (mo) { const t = dayOf(+m[3], mo, +m[2]); return [t, t]; }
+      }
+      if ((m = /^(\d{1,2})\s+([a-z]{3})[a-z]*\.?,?\s+(\d{4})$/i.exec(v))) {
+        const mo = MONTHS.indexOf(m[2].toLowerCase()) + 1; if (mo) { const t = dayOf(+m[3], mo, +m[1]); return [t, t]; }
+      }
+      if ((m = /^([a-z]{3})[a-z]*\.?\s+(\d{4})$/i.exec(v))) {
+        const mo = MONTHS.indexOf(m[1].toLowerCase()) + 1; if (mo) return monthSpan(+m[2], mo);
+      }
+      return null;
+    }
+
+    // Work out what kind of file this is and pull out its records.
+    function analyze(table) {
+      for (let hi = 0; hi < Math.min(6, table.length); hi++) {
+        const roles = table[hi].map(classifyHeader);
+        const col = {};
+        roles.forEach((r, i) => { if (r && !(r in col)) col[r] = i; });
+        const metricCols = METRICS.map(m => m.k).filter(k => k in col);
+        const body = table.slice(hi + 1);
+
+        if ('term' in col) {
+          let vi = roles.findIndex((r, i) => i !== col.term && r !== 'term' && body.some(row => typeof parseNum(row[i]) === 'number' && !Number.isNaN(parseNum(row[i]))));
+          if (vi < 0) continue;
+          const terms = {};
+          for (const r of body) {
+            const term = (r[col.term] || '').trim(); const n = parseNum(r[vi]);
+            if (!term || n === null || Number.isNaN(n)) continue;
+            const cur = terms[term] || { term, n: 0, lt: false };
+            cur.n += n; cur.lt = cur.lt || /^\s*</.test(r[vi]);
+            terms[term] = cur;
+          }
+          const list = Object.values(terms).sort((a, b) => b.n - a.n);
+          if (list.length) return { kind: 'terms', terms: list };
+        }
+        if (metricCols.length) {
+          const records = [];
+          for (const r of body) {
+            const vals = metricCols.map(k => parseNum(r[col[k]]));
+            if (!vals.some(v => typeof v === 'number' && !Number.isNaN(v))) continue; // description or blank row
+            let name = (r[col.name] || '').trim() || (r[col.code] || '').trim() || (r[col.address] || '').trim();
+            const m = zeros();
+            metricCols.forEach((k, j) => { m[MI[k]] = Number.isNaN(vals[j]) || vals[j] === null ? 0 : vals[j]; });
+            let span = null;
+            if ('date' in col) {
+              span = parseDate(r[col.date]);
+              if (!span) continue;
+              if ('end' in col) { const e = parseDate(r[col.end]); if (e) span = [span[0], e[1]]; }
+            }
+            records.push({ name, address: (r[col.address] || '').trim(), span, m });
+          }
+          // Drop a grand-total row when the file also lists the individual locations.
+          const totalRe = /^(total|totals|grand total|all locations|all)$/i;
+          const named = records.filter(r => !totalRe.test(r.name));
+          const out = named.length && named.length < records.length ? named : records;
+          // Two profiles with the same name: tell them apart by address.
+          const counts = {};
+          out.forEach(r => { counts[r.name] = (counts[r.name] || 0) + 1; });
+          out.forEach(r => {
+            if (!r.name) r.name = 'Main location';
+            else if (counts[r.name] > 1 && r.address && !('date' in col)) r.name += ' – ' + r.address;
+          });
+          if (!out.length) continue;
+          return { kind: 'date' in col ? 'series' : 'totals', records: out, metrics: metricCols };
+        }
+
+      }
+      return { kind: 'unknown', headers: (table[0] || []).slice(0, 8) };
+    }
+
+    // Dates written in a file name, such as "insights_2026-09-01_2026-09-30.csv".
+    function datesFromName(name) {
+      const found = [];
+      const re = /(\d{4})[-_.]?(\d{2})[-_.]?(\d{2})/g; let m;
+      while ((m = re.exec(name))) {
+        const mo = +m[2], d = +m[3];
+        if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) found.push(dayOf(+m[1], mo, d));
+      }
+      return found.length >= 2 ? [Math.min(found[0], found[1]), Math.max(found[0], found[1])] : null;
+    }
+
+    function askPeriod(fileName, nLocs) {
+      return new Promise(resolve => {
+        const guess = datesFromName(fileName);
+        let from, to;
+        if (guess) [from, to] = guess;
+        else {
+          const now = new Date();
+          const y = now.getFullYear(), mo = now.getMonth() + 1; // previous full month
+          from = dayOf(y, mo - 1, 1); to = dayOf(y, mo, 1) - 1;
+        }
+        $('periodFrom').value = toISO(from); $('periodTo').value = toISO(to);
+        $('periodText').textContent = `"${fileName}" has totals for ${nLocs} location${nLocs === 1 ? '' : 's'} but no dates. Enter the range you picked when you downloaded it from Google.`;
+        $('periodError').classList.add('hidden');
+        const modal = $('periodModal');
+        modal.classList.replace('hidden', 'flex');
+        $('periodFrom').focus();
+        const done = val => {
+          modal.classList.replace('flex', 'hidden');
+          $('periodForm').onsubmit = null; $('periodCancel').onclick = null; modal.onkeydown = null;
+          resolve(val);
+        };
+        $('periodForm').onsubmit = e => {
+          e.preventDefault();
+          const f = fromISO($('periodFrom').value), t = fromISO($('periodTo').value);
+          if (f === null || t === null || t < f) {
+            $('periodError').textContent = 'The end date must be on or after the start date.';
+            $('periodError').classList.remove('hidden');
+            return;
+          }
+          done([f, t]);
+        };
+        $('periodCancel').onclick = () => done(null);
+        modal.onkeydown = e => { if (e.key === 'Escape') done(null); };
+      });
+    }
+
+    // Replace any stored rows for the same locations and days, then add the new ones.
+    function mergeRows(newRows) {
+      const span = {};
+      for (const r of newRows) {
+        const s = span[r.l] || (span[r.l] = [r.t, r.t]);
+        if (r.t < s[0]) s[0] = r.t; if (r.t > s[1]) s[1] = r.t;
+      }
+      state.rows = state.rows.filter(r => { const s = span[r.l]; return !s || r.t < s[0] || r.t > s[1]; });
+      state.rows.push(...newRows);
+      state.rows.sort((a, b) => a.t - b.t);
+    }
+
+    async function importFiles(files) {
+      const messages = [];
+      let lastTotals = null;
+      for (const file of files) {
+        let result;
+        try { result = analyze(parseCSV(decode(await file.arrayBuffer()))); }
+        catch (e) { result = { kind: 'unknown', headers: [] }; }
+
+        if (result.kind === 'unknown') {
+          messages.push(`${file.name}: no Business Profile columns found${result.headers.length ? ` (saw ${result.headers.filter(Boolean).join(', ')})` : ''}.`);
+          continue;
+        }
+        const dropSample = () => { if (state.sample) { resetData(); messages.push('Sample data removed.'); } };
+
+        if (result.kind === 'terms') {
+          dropSample();
+          state.terms = result.terms; state.termsSource = file.name;
+          state.sources.push({ name: file.name, kind: 'Search terms', locs: 0, terms: result.terms.length });
+          messages.push(`${file.name}: ${result.terms.length} search terms.`);
+          continue;
+        }
+
+        let period = null;
+        if (result.kind === 'totals') {
+          period = await askPeriod(file.name, result.records.length);
+          if (!period) { messages.push(`${file.name}: skipped.`); continue; }
+        }
+        dropSample();
+        const rows = [];
+        let minT = Infinity, maxT = -Infinity;
+        for (const rec of result.records) {
+          const [t0, t1] = period || rec.span;
+          const days = t1 - t0 + 1, l = locIndex(rec.name);
+          for (let t = t0; t <= t1; t++) rows.push({ t, l, s: days > 1 ? 1 : 0, m: rec.m.map(v => v / days) });
+          minT = Math.min(minT, t0); maxT = Math.max(maxT, t1);
+        }
+        mergeRows(rows);
+        if (period) lastTotals = period;
+        state.has = [...new Set([...state.has, ...result.metrics])];
+        const locs = new Set(result.records.map(r => r.name)).size;
+        state.sources.push({ name: file.name, kind: result.kind === 'totals' ? 'Totals' : 'Daily', locs, from: toISO(minT), to: toISO(maxT) });
+        messages.push(`${file.name}: ${locs} location${locs === 1 ? '' : 's'}, ${fmtDay(minT)} – ${fmtDay(maxT)}.`);
+      }
+      if (!state.rows.length && !state.terms.length) state.sample = false;
+      save();
+      $('locSelect').value = 'all';
+      if (lastTotals) {
+        $('rangeSelect').value = 'custom';
+        $('customRange').classList.replace('hidden', 'flex');
+        $('fromInput').value = toISO(lastTotals[0]); $('toInput').value = toISO(lastTotals[1]);
+      }
+      render();
+      if (messages.length) toast(messages.join(' '), 7000);
+    }
+
+    // ---- Range and aggregation ----------------------------------------------------------------
+    function currentRange() {
+      const loc = $('locSelect').value;
+      const rows = loc === 'all' ? state.rows : state.rows.filter(r => r.l === +loc);
+      if (!rows.length) return null;
+      const minT = rows[0].t, maxT = rows[rows.length - 1].t;
+      const v = $('rangeSelect').value;
+      let from, to;
+      if (v === 'all') { from = minT; to = maxT; }
+      else if (v === 'custom') {
+        from = fromISO($('fromInput').value); to = fromISO($('toInput').value);
+        if (from === null) from = Math.max(minT, maxT - 27);
+        if (to === null) to = maxT;
+        if (to < from) [from, to] = [to, from];
+      } else if (v === 'month') {
+        const [y, m] = ymd(maxT + 1);
+        to = dayOf(y, m, 1) - 1; // last day of the latest month that the data fully reaches
+        from = dayOf(...ymd(to).slice(0, 2), 1);
+      } else { to = maxT; from = maxT - +v + 1; }
+      const len = to - from + 1;
+      // Whole calendar months compare with the same number of months before; other ranges with
+      // the same number of days before.
+      let prevFrom = from - len;
+      const [fy, fm, fd] = ymd(from), [ty, tm] = ymd(to);
+      if (fd === 1 && ymd(to + 1)[2] === 1) prevFrom = dayOf(fy, fm - ((ty - fy) * 12 + tm - fm + 1), 1);
+      return { loc, rows, from, to, len, prevFrom, prevTo: from - 1, minT, maxT };
+    }
+
+    // n = number of days in the range that have any data.
+    function totals(rows, from, to) {
+      const out = zeros(); const days = new Set();
+      for (const r of rows) {
+        if (r.t < from || r.t > to) continue;
+        days.add(r.t);
+        for (let i = 0; i < out.length; i++) out[i] += r.m[i];
+      }
+      return { m: out, n: days.size };
+    }
+    const COVERED = 0.9; // share of a period's days that need data before it is compared
+
+    function bucketing(range) {
+      const spreadIn = range.rows.some(r => r.s && r.t >= range.from && r.t <= range.to);
+      let unit = range.len <= 62 ? 'day' : range.len <= 200 ? 'week' : 'month';
+      if (spreadIn && unit !== 'month') unit = range.len <= 120 ? 'week' : 'month';
+      const keyOf = unit === 'day' ? t => t : unit === 'week' ? t => t - ((t + 3) % 7) : t => { const [y, m] = ymd(t); return y * 12 + m - 1; };
+      const labelOf = unit === 'day' ? k => fmtDay(k, { month: 'short', day: 'numeric' })
+        : unit === 'week' ? k => fmtDay(Math.max(k, range.from), { month: 'short', day: 'numeric' })
+        : k => new Date(Date.UTC(Math.floor(k / 12), k % 12, 1)).toLocaleDateString('en-US', { month: 'short', year: '2-digit', timeZone: 'UTC' });
+      const keys = []; const pos = new Map();
+      for (let t = range.from; t <= range.to; t++) { const k = keyOf(t); if (!pos.has(k)) { pos.set(k, keys.length); keys.push(k); } }
+      const sums = keys.map(() => zeros());
+      for (const r of range.rows) {
+        if (r.t < range.from || r.t > range.to) continue;
+        const s = sums[pos.get(keyOf(r.t))];
+        for (let i = 0; i < s.length; i++) s[i] += r.m[i];
+      }
+      return { unit, spreadIn, labels: keys.map(labelOf), sums };
+    }
+
+    // ---- Rendering ----------------------------------------------------------------------------
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+    Chart.defaults.borderColor = 'rgba(148,163,184,0.12)';
+
+    function deltaHTML(cur, prev, hasPrev) {
+      if (!hasPrev) return '<span class="text-slate-500">No earlier data</span>';
+      if (prev === 0) return cur > 0 ? '<span class="text-emerald-400">▲ New</span>' : '<span class="text-slate-500">No change</span>';
+      const d = (cur - prev) / prev;
+      if (Math.abs(d) < 0.0005) return '<span class="text-slate-400">● 0%</span>';
+      return d > 0
+        ? `<span class="text-emerald-400">▲ ${pct(d)}</span>`
+        : `<span class="text-rose-400">▼ ${pct(-d)}</span>`;
+    }
+
+    function legendHTML(idx) {
+      return idx.map(i => `<span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm" style="background:${METRICS[i].color}"></span>${METRICS[i].label}</span>`).join('');
+    }
+
+    function stackedChart(id, b, idx) {
+      if (state.charts[id]) state.charts[id].destroy();
+      const thin = b.labels.length > 45;
+      state.charts[id] = new Chart($(id), {
+        type: 'bar',
+        data: {
+          labels: b.labels,
+          datasets: idx.map(i => ({
+            label: METRICS[i].label,
+            data: b.sums.map(s => s[i]),
+            backgroundColor: METRICS[i].color,
+            borderColor: SURFACE,
+            borderWidth: { top: thin ? 1 : 2, bottom: 0, left: 0, right: 0 },
+            borderSkipped: false,
+            borderRadius: thin ? 0 : 2,
+            categoryPercentage: thin ? 1 : 0.8,
+            barPercentage: thin ? 0.92 : 0.85,
+          })),
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: c => ` ${c.dataset.label}: ${fmt(c.parsed.y)}`,
+                footer: items => `Total: ${fmt(items.reduce((a, c) => a + c.parsed.y, 0))}`,
+              },
+            },
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false }, ticks: { maxRotation: 0, autoSkipPadding: 12 } },
+            y: { stacked: true, beginAtZero: true, ticks: { precision: 0, callback: v => nf.format(v) }, border: { display: false } },
+          },
+        },
+      });
+    }
+
+    function seriesTable(b, idx) {
+      const unitLabel = { day: 'Day', week: 'Week of', month: 'Month' }[b.unit];
+      return `<table class="w-full text-xs num"><thead class="text-slate-400 sticky top-0 bg-slate-800"><tr>
+        <th class="text-left font-medium py-2 pr-3">${unitLabel}</th>${idx.map(i => `<th class="text-right font-medium py-2 px-2">${escapeHTML(METRICS[i].label)}</th>`).join('')}<th class="text-right font-medium py-2 pl-2">Total</th></tr></thead>
+        <tbody class="divide-y divide-slate-700/50">${b.labels.map((l, r) => `<tr><td class="py-1.5 pr-3 whitespace-nowrap">${escapeHTML(l)}</td>${idx.map(i => `<td class="text-right px-2">${fmt(b.sums[r][i])}</td>`).join('')}<td class="text-right pl-2 text-slate-200">${fmt(sumIdx(b.sums[r], idx))}</td></tr>`).join('')}</tbody></table>`;
+    }
+
+    function renderLocSelect() {
+      const sel = $('locSelect'); const prev = sel.value;
+      const order = state.locs.map((name, i) => ({ name, i })).filter(o => state.rows.some(r => r.l === o.i)).sort((a, b) => a.name.localeCompare(b.name));
+      sel.innerHTML = `<option value="all">All locations (${order.length})</option>` + order.map(o => `<option value="${o.i}">${escapeHTML(o.name)}</option>`).join('');
+      sel.value = order.some(o => String(o.i) === prev) ? prev : 'all';
+    }
+
+    function render() {
+      renderLocSelect();
+      renderSources();
+      renderTerms();
+      const notice = $('notice');
+      if (state.sample) {
+        $('noticeText').textContent = 'You are looking at fictional sample data. Import your own Google Business Profile CSV to replace it.';
+        notice.classList.replace('hidden', 'flex');
+      } else notice.classList.replace('flex', 'hidden');
+
+      const range = currentRange();
+      $('emptyState').classList.toggle('hidden', !!range);
+      $('dash').classList.toggle('hidden', !range);
+      if (!range) { $('rangeLabel').textContent = ''; return; }
+
+      if ($('rangeSelect').value === 'custom' && !$('fromInput').value) {
+        $('fromInput').value = toISO(range.from); $('toInput').value = toISO(range.to);
+      }
+      const cur = totals(range.rows, range.from, range.to);
+      const prev = totals(range.rows, range.prevFrom, range.prevTo);
+      const prevLen = range.prevTo - range.prevFrom + 1;
+      const hasPrev = prev.n >= prevLen * COVERED;
+      const gap = cur.n < range.len * COVERED ? ` · data covers ${cur.n} of ${range.len} days` : '';
+      $('rangeLabel').textContent = `${fmtDay(range.from)} – ${fmtDay(range.to)}${gap} · ` + (hasPrev
+        ? `compared with ${fmtDay(range.prevFrom)} – ${fmtDay(range.prevTo)}`
+        : `no comparison: ${fmtDay(range.prevFrom)} – ${fmtDay(range.prevTo)} has ${prev.n ? 'too little' : 'no'} data`);
+
+      // KPI tiles
+      $('kpis').innerHTML = KPIS.map(k => {
+        const available = k.idx.some(i => state.has.includes(METRICS[i].k));
+        const c = sumIdx(cur.m, k.idx), p = sumIdx(prev.m, k.idx);
+        return `<div class="bg-slate-800/50 border border-slate-700/50 p-4 md:p-5 rounded-xl min-w-0" title="${escapeHTML(k.help)}">
+          <p class="text-xs md:text-sm text-slate-400 truncate">${k.label}</p>
+          <p class="text-2xl md:text-3xl font-bold mt-1 ${available ? '' : 'text-slate-600'}">${available ? fmt(c) : '—'}</p>
+          <p class="text-xs mt-1.5 truncate">${available ? deltaHTML(c, p, hasPrev) + (hasPrev ? `<span class="text-slate-500"> vs ${fmt(p)}</span>` : '') : '<span class="text-slate-500">Not in your export</span>'}</p>
+        </div>`;
+      }).join('');
+
+      // Time series
+      const b = bucketing(range);
+      const per = { day: 'Daily', week: 'Weekly', month: 'Monthly' }[b.unit];
+      const spreadNote = b.spreadIn ? ' Totals imported for a date range are spread evenly over its days.' : '';
+      $('viewsSub').textContent = `${per} views by platform and device.${spreadNote}`;
+      $('actsSub').textContent = `${per} calls, website clicks, directions, messages and bookings.${spreadNote}`;
+      $('viewsLegend').innerHTML = legendHTML(VIEW_IDX);
+      $('actsLegend').innerHTML = legendHTML(ACT_IDX);
+      stackedChart('viewsChart', b, VIEW_IDX);
+      stackedChart('actsChart', b, ACT_IDX);
+      $('viewsTable').innerHTML = seriesTable(b, VIEW_IDX);
+      $('actsTable').innerHTML = seriesTable(b, ACT_IDX);
+
+      // Platform / device split
+      const viewTotal = sumIdx(cur.m, VIEW_IDX);
+      if (state.charts.split) state.charts.split.destroy();
+      state.charts.split = new Chart($('splitChart'), {
+        type: 'doughnut',
+        data: { labels: VIEW_IDX.map(i => METRICS[i].label), datasets: [{ data: VIEW_IDX.map(i => cur.m[i]), backgroundColor: VIEW_IDX.map(i => METRICS[i].color), borderColor: SURFACE, borderWidth: 2, hoverOffset: 4 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: '68%', animation: { duration: 250 },
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}: ${fmt(c.parsed)} (${viewTotal ? pct(c.parsed / viewTotal) : '0%'})` } } },
+        },
+      });
+      const searchShare = viewTotal ? (cur.m[0] + cur.m[1]) / viewTotal : 0;
+      const mobileShare = viewTotal ? (cur.m[0] + cur.m[2]) / viewTotal : 0;
+      $('splitList').innerHTML = VIEW_IDX.map(i => `<li class="flex items-center justify-between gap-3">
+          <span class="inline-flex items-center gap-2 min-w-0"><span class="w-2.5 h-2.5 rounded-sm shrink-0" style="background:${METRICS[i].color}"></span><span class="truncate">${METRICS[i].label}</span></span>
+          <span class="num text-slate-300 whitespace-nowrap">${fmt(cur.m[i])} <span class="text-slate-500">· ${viewTotal ? pct(cur.m[i] / viewTotal) : '0%'}</span></span></li>`).join('')
+        + `<li class="pt-2 border-t border-slate-700/50 text-xs text-slate-400">${pct(searchShare)} from Search, ${pct(1 - searchShare)} from Maps · ${pct(mobileShare)} on mobile</li>`;
+
+      // Interactions by type
+      const actMax = Math.max(1, ...ACT_IDX.map(i => cur.m[i]));
+      $('actsList').innerHTML = ACT_IDX.map(i => {
+        const available = state.has.includes(METRICS[i].k);
+        return `<li>
+          <div class="flex items-center justify-between gap-3 mb-1">
+            <span>${METRICS[i].label}</span>
+            <span class="num whitespace-nowrap">${available ? `${fmt(cur.m[i])} <span class="text-xs">${deltaHTML(cur.m[i], prev.m[i], hasPrev)}</span>` : '<span class="text-slate-500 text-xs">Not in your export</span>'}</span>
+          </div>
+          <div class="h-2 rounded-full bg-slate-700/40 overflow-hidden"><div class="h-full rounded-full" style="width:${(cur.m[i] / actMax * 100).toFixed(1)}%;background:${METRICS[i].color}"></div></div>
+        </li>`;
+      }).join('') + (viewTotal ? `<li class="pt-2 border-t border-slate-700/50 text-xs text-slate-400">${pct(sumIdx(cur.m, ACT_IDX) / viewTotal)} of profile views led to an interaction</li>` : '');
+
+      renderLocTable(range);
+    }
+
+    function locSummary(range) {
+      const per = new Map();
+      for (const r of state.rows) {
+        const inCur = r.t >= range.from && r.t <= range.to, inPrev = r.t >= range.prevFrom && r.t <= range.prevTo;
+        if (!inCur && !inPrev) continue;
+        let e = per.get(r.l); if (!e) per.set(r.l, e = { cur: zeros(), prev: zeros(), prevDays: new Set() });
+        const target = inCur ? e.cur : e.prev; if (inPrev) e.prevDays.add(r.t);
+        for (let i = 0; i < target.length; i++) target[i] += r.m[i];
+      }
+      const prevLen = range.prevTo - range.prevFrom + 1;
+      return [...per.entries()].map(([l, e]) => ({ l, name: state.locs[l], ...e, hasPrev: e.prevDays.size >= prevLen * COVERED }))
+        .sort((a, b) => sumIdx(b.cur, VIEW_IDX) - sumIdx(a.cur, VIEW_IDX));
+    }
+
+    function renderLocTable(range) {
+      const list = locSummary(range);
+      const sel = $('locSelect').value;
+      const cols = [['Views', VIEW_IDX], ['Searches', [MI.searches]], ['Calls', [MI.calls]], ['Website', [MI.website]], ['Directions', [MI.directions]], ['Messages', [MI.messages]], ['Bookings', [MI.bookings]], ['Interactions', ACT_IDX]];
+      const cell = (m, idx) => `<td class="text-right px-3 py-2.5">${fmt(sumIdx(m, idx))}</td>`;
+      const rate = m => { const v = sumIdx(m, VIEW_IDX); return v ? pct(sumIdx(m, ACT_IDX) / v) : '–'; };
+      const row = (e, isTotal) => `<tr ${isTotal ? 'class="bg-slate-800/60 font-semibold"' : `data-loc="${e.l}" class="cursor-pointer hover:bg-slate-700/40 ${String(e.l) === sel ? 'bg-sky-900/30' : ''}"`}>
+          <td class="text-left px-4 md:px-5 py-2.5 min-w-[12rem]">${escapeHTML(e.name)}</td>
+          ${cell(e.cur, VIEW_IDX)}
+          <td class="text-right px-3 py-2.5 text-xs whitespace-nowrap">${deltaHTML(sumIdx(e.cur, VIEW_IDX), sumIdx(e.prev, VIEW_IDX), e.hasPrev)}</td>
+          ${cols.slice(1).map(([, idx]) => cell(e.cur, idx)).join('')}
+          <td class="text-right px-4 md:px-5 py-2.5">${rate(e.cur)}</td></tr>`;
+      let total = null;
+      if (list.length > 1) {
+        total = { name: 'All locations', cur: zeros(), prev: zeros(), hasPrev: list.some(e => e.hasPrev) };
+        list.forEach(e => e.cur.forEach((v, i) => { total.cur[i] += v; total.prev[i] += e.prev[i]; }));
+      }
+      $('locTable').innerHTML = `<thead class="text-xs text-slate-400 border-y border-slate-700/50"><tr>
+          <th class="text-left font-medium px-4 md:px-5 py-2">Location</th><th class="text-right font-medium px-3 py-2">Views</th><th class="text-right font-medium px-3 py-2">Change</th>
+          ${cols.slice(1).map(([l]) => `<th class="text-right font-medium px-3 py-2">${l}</th>`).join('')}
+          <th class="text-right font-medium px-4 md:px-5 py-2 whitespace-nowrap">Interaction rate</th></tr></thead>
+        <tbody class="divide-y divide-slate-700/50">${list.map(e => row(e, false)).join('')}${total ? row(total, true) : ''}</tbody>`;
+      if (!list.length) $('locTable').innerHTML += '<tbody><tr><td class="px-5 py-4 text-slate-400">No data in this range.</td></tr></tbody>';
+    }
+
+    function renderTerms() {
+      const terms = state.terms.slice(0, 15);
+      $('termsSub').textContent = terms.length ? `From ${state.termsSource}. Google reports these for the export's own date range, so the filters above don't apply.` : 'Import a search terms CSV to see what people searched to find you.';
+      const max = Math.max(1, ...terms.map(t => t.n));
+      $('termsTable').innerHTML = terms.length ? `<thead class="text-xs text-slate-400 border-y border-slate-700/50"><tr><th class="text-left font-medium px-4 md:px-5 py-2">Search term</th><th class="text-right font-medium px-4 md:px-5 py-2">Searches</th></tr></thead>
+        <tbody class="divide-y divide-slate-700/50">${terms.map(t => `<tr><td class="px-4 md:px-5 py-2"><div class="truncate max-w-[16rem]">${escapeHTML(t.term)}</div><div class="h-1 mt-1 rounded-full bg-sky-500/70" style="width:${(t.n / max * 100).toFixed(1)}%"></div></td><td class="text-right px-4 md:px-5 py-2 whitespace-nowrap">${t.lt ? '&lt; ' : ''}${fmt(t.n)}</td></tr>`).join('')}</tbody>` : '';
+    }
+
+    function renderSources() {
+      $('sourceList').innerHTML = state.sources.length ? state.sources.map(s => `<li class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 border-b border-slate-700/40 pb-2 last:border-0">
+          <span class="min-w-0 break-all">${escapeHTML(s.name)}</span>
+          <span class="text-xs text-slate-400 whitespace-nowrap">${escapeHTML(s.kind)}${s.terms ? ` · ${s.terms} terms` : ` · ${s.locs} location${s.locs === 1 ? '' : 's'} · ${fmtDay(fromISO(s.from))} – ${fmtDay(fromISO(s.to))}`}</span></li>`).join('')
+        : '<li class="text-slate-400">Nothing imported yet.</li>';
+    }
+
+    // ---- CSV export ---------------------------------------------------------------------------
+    function downloadCSV(filename, rows) {
+      const csv = rows.map(row => row.map(value => {
+        const cell = typeof value === 'number' ? String(value) : String(value).replace(/^[\t\r ]*(?=[=+\-@])/, "'");
+        return `"${cell.replace(/"/g, '""')}"`;
+      }).join(',')).join('\r\n');
+      const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url; link.download = filename; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    const round2 = v => Math.round(v * 100) / 100;
+
+    // Daily rows for the current filters, in a format this dashboard can import again.
+    function exportDaily() {
+      const range = currentRange();
+      if (!range) return toast('There is no data to export yet.');
+      const rows = range.rows.filter(r => r.t >= range.from && r.t <= range.to)
+        .map(r => [toISO(r.t), state.locs[r.l], ...r.m.map(round2)]);
+      downloadCSV(`profile-performance_${toISO(range.from)}_${toISO(range.to)}.csv`, [['Date', 'Location', ...METRICS.map(m => m.label)], ...rows]);
+    }
+    function exportSummary() {
+      const range = currentRange();
+      if (!range) return toast('There is no data to export yet.');
+      const rows = locSummary(range).map(e => [e.name, ...e.cur.map(Math.round), Math.round(sumIdx(e.cur, VIEW_IDX)), Math.round(sumIdx(e.cur, ACT_IDX))]);
+      downloadCSV(`profile-summary_${toISO(range.from)}_${toISO(range.to)}.csv`, [['Location', ...METRICS.map(m => m.label), 'Total views', 'Total interactions'], ...rows]);
+    }
+
+    // ---- Wiring -------------------------------------------------------------------------------
+    $('fileInput').addEventListener('change', e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) importFiles(files); });
+    $('exportBtn').addEventListener('click', exportDaily);
+    $('exportSummaryBtn').addEventListener('click', exportSummary);
+    $('locSelect').addEventListener('change', render);
+    $('rangeSelect').addEventListener('change', () => {
+      const custom = $('rangeSelect').value === 'custom';
+      $('customRange').classList.toggle('hidden', !custom);
+      $('customRange').classList.toggle('flex', custom);
+      if (custom) { $('fromInput').value = ''; $('toInput').value = ''; }
+      render();
+    });
+    $('fromInput').addEventListener('change', render);
+    $('toInput').addEventListener('change', render);
+    $('locTable').addEventListener('click', e => {
+      const tr = e.target.closest('tr[data-loc]'); if (!tr) return;
+      $('locSelect').value = $('locSelect').value === tr.dataset.loc ? 'all' : tr.dataset.loc;
+      render();
+    });
+    document.querySelectorAll('.table-toggle').forEach(btn => btn.addEventListener('click', () => {
+      const card = btn.closest('div.rounded-xl');
+      const showTable = card.querySelector('.table-wrap').classList.toggle('hidden') === false;
+      card.querySelector('.chart-wrap').classList.toggle('hidden', showTable);
+      btn.textContent = showTable ? 'Chart' : 'Table';
+    }));
+    const sample = () => { loadSample(); $('locSelect').value = 'all'; render(); toast('Sample data loaded.'); };
+    $('sampleBtn').addEventListener('click', () => {
+      if (!state.sample && state.rows.length && !confirm('Replace your imported data with the sample data?')) return;
+      sample();
+    });
+    $('emptySampleBtn').addEventListener('click', sample);
+    $('clearBtn').addEventListener('click', () => {
+      if (!confirm('Remove all data from this dashboard? Imported files are not affected.')) return;
+      resetData(); save(); render();
+    });
+    $('helpBtn').addEventListener('click', () => { $('help').open = true; $('help').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+
+    // First open: sample data, so the dashboard isn't empty.
+    if (!load()) loadSample();
+    render();
+  </script>
+</body>
+</html>

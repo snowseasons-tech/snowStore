@@ -1,0 +1,2 @@
+export STRIPE_SECRET_KEY="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"
+python stripe_issuing_workflow.py

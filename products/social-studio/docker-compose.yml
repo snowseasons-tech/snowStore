@@ -1,0 +1,41 @@
+services:
+  db:
+    image: mysql:8.4
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: studio
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
+      MYSQL_DATABASE: studio
+    volumes:
+      - mysqldata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u studio -p$$MYSQL_PASSWORD --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  web:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: mysql+pymysql://studio:${MYSQL_PASSWORD}@db:3306/studio?charset=utf8mb4
+    ports: ["127.0.0.1:8000:8000"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+  worker:
+    build: .
+    command: python -m app.worker
+    env_file: .env
+    environment:
+      DATABASE_URL: mysql+pymysql://studio:${MYSQL_PASSWORD}@db:3306/studio?charset=utf8mb4
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  mysqldata:

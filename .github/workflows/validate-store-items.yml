@@ -1,0 +1,46 @@
+name: Validate store items
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-store-items.yml'
+      - 'api/_lib/catalog.js'
+      - 'products/**'
+      - 'scripts/validate-store-items.js'
+      - 'tests/validate-store-items.test.js'
+      - 'package.json'
+      - 'package-lock.json'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/validate-store-items.yml'
+      - 'api/_lib/catalog.js'
+      - 'products/**'
+      - 'scripts/validate-store-items.js'
+      - 'tests/validate-store-items.test.js'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-store-items-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run validate:store-items
+      - run: npm run lint
+      - run: npm test

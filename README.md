@@ -47,6 +47,7 @@ Requires Node 20+.
 npm install
 npm test        # runs without any services: the store falls back to memory
 npm run lint
+npm run validate:store-items
 ```
 
 ### Environment variables
@@ -74,6 +75,8 @@ Set these in Cloudflare Pages (Settings → Variables and Secrets; use test-mode
 - Do everything in test mode first.
 
 ## Adding a product
+
+The **Validate store items** GitHub Actions workflow runs when the catalog, product files, or validation code changes. It checks catalog metadata and runs the test suite without requiring Stripe or bucket credentials. Run the same catalog check locally with `npm run validate:store-items`. This is separate from checking that production bucket objects match the catalog hashes; that remains `scripts/verify-uploads.js` and requires private-bucket credentials.
 
 1. Create the product and Price in Stripe, and set its Price ID in a new `PRICE_*` env var.
 2. Add an entry to `api/_lib/catalog.js` (`name`, `priceEnv`, `kind`, and `fileKey`/`filename` for downloads).
