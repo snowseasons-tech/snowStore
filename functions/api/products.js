@@ -1,4 +1,5 @@
 import CATALOG from '../../api/_lib/catalog.js';
+import prices from '../../api/_lib/prices.js';
 import { stripeClient, launchDiscount } from '../_lib/stripe.js';
 import { send, methodNotAllowed } from '../_lib/http.js';
 
@@ -13,18 +14,15 @@ export async function onRequestGet({ env }) {
   try {
     const stripe = stripeClient(env);
     const launch = await launchDiscount(stripe, env);
-    // Fetch all prices in parallel; products without a configured price are left out.
-    const listed = Object.entries(CATALOG).filter(([, p]) => !p.retired && env[p.priceEnv]);
-    const products = await Promise.all(listed.map(async ([id, p]) => {
-      const price = await stripe.prices.retrieve(env[p.priceEnv]);
-      // Other billing periods (weekly, 3, 6 or 12 months) that have a Price ID configured.
-      const extra = Object.entries(p.periodEnvs || {}).filter(([, name]) => env[name]);
-      const periods = await Promise.all(extra.map(async ([period, name]) => {
-        const pr = await stripe.prices.retrieve(env[name]);
-        return { period, amount: pr.unit_amount, interval: pr.recurring ? pr.recurring.interval : null, intervalCount: pr.recurring ? pr.recurring.interval_count : null, ...discounted(pr.unit_amount, launch) };
-      }));
-      return { id, name: p.name, blurb: p.blurb || null, amount: price.unit_amount, currency: price.currency, interval: price.recurring ? price.recurring.interval : null, ...discounted(price.unit_amount, launch), ...(periods.length ? { periods } : {}) };
-    }));
+    // One list call for every active price in the account; products with no active base price are left out.
+    const byProduct = await prices.activePricesByProduct(stripe);
+    const card = (pr, period) => ({ period, amount: pr.unit_amount, interval: pr.recurring ? pr.recurring.interval : null, intervalCount: pr.recurring ? pr.recurring.interval_count : null, ...discounted(pr.unit_amount, launch) });
+    const products = Object.entries(CATALOG).filter(([, p]) => !p.retired && p.stripeProduct && byProduct[p.stripeProduct] && byProduct[p.stripeProduct]['1m']).map(([id, p]) => {
+      const found = byProduct[p.stripeProduct], base = found['1m'];
+      // Other billing periods (weekly, 3, 6 or 12 months) offered alongside the monthly price.
+      const periods = prices.PERIODS.filter((k) => k !== '1m' && found[k]).map((k) => card(found[k], k));
+      return { id, name: p.name, blurb: p.blurb || null, amount: base.unit_amount, currency: base.currency, interval: base.recurring ? base.recurring.interval : null, ...discounted(base.unit_amount, launch), ...(periods.length ? { periods } : {}) };
+    });
     return send(200, { products }, { 'Cache-Control': 'public, max-age=60' });
   } catch (e) {
     console.error('products', e.message);

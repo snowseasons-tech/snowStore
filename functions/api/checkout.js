@@ -1,4 +1,5 @@
 import CATALOG from '../../api/_lib/catalog.js';
+import prices from '../../api/_lib/prices.js';
 import { stripeClient, launchDiscount } from '../_lib/stripe.js';
 import { send, methodNotAllowed } from '../_lib/http.js';
 
@@ -10,22 +11,22 @@ export async function onRequestPost({ request, env }) {
     try { body = JSON.parse((await request.text()) || '{}'); } catch { return send(400, { error: 'Bad JSON' }); }
     const product = Object.prototype.hasOwnProperty.call(CATALOG, body.productId) ? CATALOG[body.productId] : null;
     if (!product || product.retired) return send(400, { error: 'Unknown product' });
-    // period: '1w', '3m', '6m' or '12m' picks another billing period; anything else is the monthly (default) price.
-    const periodEnv = body.period && body.period !== '1m'
-      ? (product.periodEnvs && Object.prototype.hasOwnProperty.call(product.periodEnvs, body.period) ? product.periodEnvs[body.period] : null)
-      : product.priceEnv;
-    if (!periodEnv) return send(400, { error: 'Unknown billing period' });
-    const price = env[periodEnv];
+    // period: '1w', '3m', '6m' or '12m' picks another billing period; default '1m' is the monthly (or one-time) price.
+    const period = body.period || '1m';
+    if (!prices.PERIODS.includes(period)) return send(400, { error: 'Unknown billing period' });
     const site = env.SITE_URL;
-    if (!price || !site) return send(503, { error: 'Checkout not configured' });
+    if (!site || !product.stripeProduct) return send(503, { error: 'Checkout not configured' });
 
-    const isSub = product.kind === 'subscription';
     const stripe = stripeClient(env);
+    const chosen = (await prices.activePricesFor(stripe, product.stripeProduct))[period];
+    if (!chosen) return send(period === '1m' ? 503 : 400, { error: period === '1m' ? 'Checkout not configured' : 'That billing period is not available' });
+    const price = chosen.id;
+    const isSub = !!chosen.recurring; // checkout mode follows the price itself
     const launch = await launchDiscount(stripe, env);
     const session = await stripe.checkout.sessions.create({
       mode: isSub ? 'subscription' : 'payment',
       line_items: [{ price, quantity: 1 }],
-      metadata: { product_id: body.productId, ...(periodEnv !== product.priceEnv ? { period: body.period } : {}) },
+      metadata: { product_id: body.productId, ...(period !== '1m' ? { period } : {}) },
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/cancel`,
       ...(env.STRIPE_AUTOMATIC_TAX === 'true' ? { automatic_tax: { enabled: true } } : {}),
