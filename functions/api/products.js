@@ -17,7 +17,13 @@ export async function onRequestGet({ env }) {
     const listed = Object.entries(CATALOG).filter(([, p]) => !p.retired && env[p.priceEnv]);
     const products = await Promise.all(listed.map(async ([id, p]) => {
       const price = await stripe.prices.retrieve(env[p.priceEnv]);
-      return { id, name: p.name, blurb: p.blurb || null, amount: price.unit_amount, currency: price.currency, interval: price.recurring ? price.recurring.interval : null, ...discounted(price.unit_amount, launch) };
+      // Longer billing periods (6 or 12 months) that have a Price ID configured.
+      const extra = Object.entries(p.periodEnvs || {}).filter(([, name]) => env[name]);
+      const periods = await Promise.all(extra.map(async ([period, name]) => {
+        const pr = await stripe.prices.retrieve(env[name]);
+        return { period, amount: pr.unit_amount, interval: pr.recurring ? pr.recurring.interval : null, intervalCount: pr.recurring ? pr.recurring.interval_count : null, ...discounted(pr.unit_amount, launch) };
+      }));
+      return { id, name: p.name, blurb: p.blurb || null, amount: price.unit_amount, currency: price.currency, interval: price.recurring ? price.recurring.interval : null, ...discounted(price.unit_amount, launch), ...(periods.length ? { periods } : {}) };
     }));
     return send(200, { products }, { 'Cache-Control': 'public, max-age=60' });
   } catch (e) {

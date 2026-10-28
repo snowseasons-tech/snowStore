@@ -48,7 +48,7 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .flip.flipped>.front{rotate:y -180deg}.flip.flipped>.back{rotate:y 0deg}
 .flip>[inert]{pointer-events:none}
 .thumb{display:block;width:calc(100% + 48px);max-width:none;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:top left;margin:-24px -24px 4px;border-radius:15px 15px 0 0;border-bottom:1px solid var(--glass-b);background:var(--sec)}.steps{list-style:none;counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:22px}.steps li{counter-increment:s;position:relative;padding-left:46px;display:flex;flex-direction:column}.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--btn);color:#fff;font-weight:700;box-shadow:0 0 14px -3px var(--glow)}.steps span{color:var(--muted);font-size:.95rem}.svc-price{font-size:1.15rem;font-weight:700;margin-top:auto}.svc-price small{display:block;font-size:.85rem;font-weight:400;color:var(--muted)}.svc-price+.actions{margin-top:0}
-.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.svc-link{font-size:.9rem}.tagline{font-size:.92rem;font-weight:600;color:var(--primary)}.flip .hint{font-size:.8rem;color:var(--muted)}.flip .price{margin-top:auto}.flip .actions{margin-top:0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.svc-link{font-size:.9rem}.tagline{font-size:.92rem;font-weight:600;color:var(--primary)}.flip .hint{font-size:.8rem;color:var(--muted)}.flip .price{margin-top:auto}.period{display:block;margin-bottom:6px;padding:4px 8px;border:1px solid var(--b1);border-radius:8px;background:var(--sec);color:var(--text);font:inherit;font-size:.9rem;font-weight:400}.flip .actions{margin-top:0}
 .specs{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.92rem}.specs dt{color:var(--muted)}
 .back h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
 .codewrap{margin-top:24px;overflow-x:auto;border-radius:14px;background:var(--code);border:1px solid var(--glass-b);box-shadow:var(--shadow)}
@@ -216,17 +216,30 @@ $("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article 
  :`<article class="flip"><div class="card front">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
  +`<div class="card back" inert><h3>${esc(p.name)}</h3>${p.features?`<h4>${esc(p.featuresTitle||"Good to know")}</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}${coverage(p)}${notes(p)}${specs(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
 document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
- if(!t&&(e.target.closest("a,button")||String(getSelection())))return;
+ if(!t&&(e.target.closest("a,button,select")||String(getSelection())))return;
  const had=c.contains(document.activeElement),on=c.classList.toggle("flipped"),[front,back]=c.children;
  front.toggleAttribute("inert",on);back.toggleAttribute("inert",!on);if(had)(on?back:front).querySelector("[data-flip]").focus({preventScroll:true})});
-fetch("/api/products").then(r=>r.json()).then(d=>d.products.forEach(p=>{const money=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:p.currency.toUpperCase()}).format(n/100),per=p.interval?" / "+p.interval:"";document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>{if(!p.discount){el.textContent=money(p.amount)+per;return}const d=p.discount,off=Math.round(d.percent)+"% off",tag=document.createElement("span");tag.className="sale";
-  // A "once" or "repeating" coupon only discounts the first invoice(s) of a subscription, so say so instead of showing a lower monthly price.
-  if(p.interval&&(d.duration==="once"||d.duration==="repeating")){const n=d.duration==="repeating"&&d.months>1?d.months:1,span=n>1?`first ${n} ${p.interval}s`:`first ${p.interval}`,then=document.createElement("small");then.style.display="block";then.textContent=`then ${money(p.amount)}${per}`;tag.textContent=`${off} your ${span}`;el.replaceChildren(`${money(d.amount)} ${span} `,then," ",tag);return}
-  const was=document.createElement("s");was.textContent=money(p.amount);tag.textContent=off+" launch price";el.replaceChildren(was," "+money(d.amount)+per+" ",tag)})})).catch(()=>{})
+// Prices come from /api/products. Plans with 6- or 12-month prices get a billing-period picker; chosen[id] is the selected period.
+const chosen={};
+const perLabel=o=>!o.interval?"":o.intervalCount>1?` every ${o.intervalCount} ${o.interval}s`:` / ${o.interval}`;
+const firstSpan=o=>o.intervalCount>1?`first ${o.intervalCount} ${o.interval}s`:`first ${o.interval}`;
+const periodMonths=o=>(o.interval==="year"?12:1)*(o.intervalCount||1);
+function renderPrice(el,p,o){const money=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:p.currency.toUpperCase()}).format(n/100),per=perLabel(o);
+ if(!o.discount){el.textContent=money(o.amount)+per;return}const d=o.discount,off=Math.round(d.percent)+"% off",tag=document.createElement("span");tag.className="sale";
+ // A "once" or "repeating" coupon only discounts the first invoice(s) of a subscription, so say so instead of showing a lower recurring price.
+ if(o.interval&&(d.duration==="once"||d.duration==="repeating")){const span=d.duration==="repeating"&&d.months>1&&o.interval==="month"&&o.intervalCount===1?`first ${d.months} months`:firstSpan(o),then=document.createElement("small");then.style.display="block";then.textContent=`then ${money(o.amount)}${per}`;tag.textContent=`${off} your ${span}`;el.replaceChildren(`${money(d.amount)} ${span} `,then," ",tag);return}
+ const was=document.createElement("s");was.textContent=money(o.amount);tag.textContent=off+" launch price";el.replaceChildren(was," "+money(d.amount)+per+" ",tag)}
+fetch("/api/products").then(r=>r.json()).then(d=>d.products.forEach(p=>{
+ const opts=[{period:"1m",amount:p.amount,interval:p.interval,intervalCount:1,discount:p.discount},...(p.periods||[])];
+ const show=()=>{const o=opts.find(x=>x.period===(chosen[p.id]||"1m"))||opts[0];document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>renderPrice(el,p,o));document.querySelectorAll('select[data-period="'+p.id+'"]').forEach(s=>s.value=o.period)};
+ if(opts.length>1)document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>{const sel=document.createElement("select");sel.className="period";sel.dataset.period=p.id;sel.setAttribute("aria-label","Billing period for "+p.name);
+  opts.forEach(o=>{const save=o.period==="1m"?0:Math.round(100-o.amount*100/(p.amount*periodMonths(o)));sel.add(new Option((o.period==="1m"?"Monthly":o.interval==="year"&&o.intervalCount===1?"Yearly":`Every ${o.intervalCount} ${o.interval}s`)+(save>0?` (save ${save}%)`:""),o.period))});
+  sel.addEventListener("change",()=>{chosen[p.id]=sel.value;show()});el.parentNode.insertBefore(sel,el)});
+ show()})).catch(()=>{})
  .finally(()=>document.querySelectorAll("[data-price]").forEach(el=>{if(el.textContent==="…")el.textContent=""})); // unpriced or failed: no stuck placeholder
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-buy]");if(!b)return;
  const busy=v=>document.querySelectorAll(`[data-buy="${CSS.escape(b.dataset.buy)}"]`).forEach(x=>x.disabled=v);busy(true);
- try{const r=await fetch("/api/checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({productId:b.dataset.buy})});const d=await r.json();
+ try{const r=await fetch("/api/checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({productId:b.dataset.buy,period:chosen[b.dataset.buy]||"1m"})});const d=await r.json();
   if(d.url)location.href=d.url;else{notify(d.error||"Checkout failed");busy(false)}}
  catch(_){notify("Checkout failed. Please try again.");busy(false)}});
 $("#contact-link").href="mailto:"+CONTACT_EMAIL;

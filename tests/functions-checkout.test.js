@@ -36,6 +36,27 @@ test('checkout function creates a session through Stripe', async () => {
     assert.match(sent.body, /price_123/);
   } finally { globalThis.fetch = realFetch; }
 });
+test('checkout function uses the chosen billing period', async () => {
+  const { onRequestPost } = await load();
+  const realFetch = globalThis.fetch;
+  let sent;
+  globalThis.fetch = async (url, init) => {
+    sent = String(init.body);
+    return new Response(JSON.stringify({ id: 'cs_test_2', url: 'https://checkout.stripe.test/c/2' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    const env = { STRIPE_SECRET_KEY: 'sk_test_123', PRICE_API_MAINTENANCE_BASIC: 'price_month', PRICE_API_MAINTENANCE_BASIC_6M: 'price_six', SITE_URL: 'https://site.test' };
+    const ok = await onRequestPost({ request: post('{"productId":"api-maintenance-basic","period":"6m"}'), env });
+    assert.strictEqual(ok.status, 200);
+    assert.match(sent, /price_six/);
+    assert.match(sent, /mode=subscription/);
+    assert.match(sent, /metadata\[period\]=6m/);
+    // No 12-month price configured, and an unknown period, are both refused.
+    assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-maintenance-basic","period":"12m"}'), env })).status, 503);
+    assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-maintenance-basic","period":"3m"}'), env })).status, 400);
+    assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-integration-basic","period":"6m"}'), env })).status, 400);
+  } finally { globalThis.fetch = realFetch; }
+});
 test('checkout function refuses a live key without ALLOW_LIVE', async () => {
   const { onRequestPost } = await load();
   const env = { STRIPE_SECRET_KEY: 'sk_live_123', PRICE_API_INTEGRATION_BASIC: 'price_123', SITE_URL: 'https://site.test' };

@@ -13,6 +13,7 @@ test('validates required fields, supported options, and safe deliverables', () =
       name: 'Test item',
       priceEnv: 'PRICE_TEST_ITEM',
       kind: 'subscription',
+      periodEnvs: { '6m': 'PRICE_TEST_ITEM_6M', '12m': 'PRICE_TEST_ITEM_12M' },
       retired: true,
       category: 'utilities',
       blurb: 'A test item',
@@ -32,6 +33,7 @@ test('reports invalid catalog fields and duplicate identifiers', () => {
       name: ' ',
       priceEnv: 'not-valid',
       kind: 'monthly',
+      periodEnvs: { '3m': 'PRICE_X' },
       retired: 'yes',
       category: 'other',
       version: '1.2',
@@ -44,7 +46,7 @@ test('reports invalid catalog fields and duplicate identifiers', () => {
   };
 
   const errors = validateCatalog(catalog);
-  for (const field of ['id', 'name', 'priceEnv', 'kind', 'retired', 'category', 'version', 'appUrl', 'fileKey', 'filename', 'sha256']) {
+  for (const field of ['id', 'name', 'priceEnv', 'kind', 'periodEnvs', 'retired', 'category', 'version', 'appUrl', 'fileKey', 'filename', 'sha256']) {
     assert.ok(errors.some((error) => error.startsWith(`Bad Id.${field}:`)), `${field} error missing`);
   }
   assert.ok(errors.some((error) => error.startsWith('valid.priceEnv:')));

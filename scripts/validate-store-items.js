@@ -7,6 +7,7 @@ const SHA256 = /^[a-f0-9]{64}$/;
 const VERSION = /^\d+\.\d+\.\d+$/;
 const CATEGORIES = new Set(['billing', 'utilities']);
 const KINDS = new Set(['one_time', 'subscription']);
+const PERIODS = new Set(['6m', '12m']);
 
 function validateCatalog(catalog) {
   const errors = [];
@@ -38,6 +39,19 @@ function validateCatalog(catalog) {
 
     if (product.kind !== undefined && !KINDS.has(product.kind)) {
       fail('kind', "must be 'one_time' or 'subscription'");
+    }
+    if (product.periodEnvs !== undefined) {
+      if (!product.periodEnvs || typeof product.periodEnvs !== 'object' || Array.isArray(product.periodEnvs)) {
+        fail('periodEnvs', 'must be an object');
+      } else {
+        if (product.kind !== 'subscription') fail('periodEnvs', 'only applies to subscriptions');
+        for (const [period, env] of Object.entries(product.periodEnvs)) {
+          if (!PERIODS.has(period)) fail('periodEnvs', `unknown period ${period}`);
+          else if (typeof env !== 'string' || !ENV_NAME.test(env)) fail('periodEnvs', `${period} must be a valid environment variable name`);
+          else if (priceEnvs.has(env)) fail('periodEnvs', `duplicates ${env}`);
+          else priceEnvs.add(env);
+        }
+      }
     }
     if (product.retired !== undefined && typeof product.retired !== 'boolean') {
       fail('retired', 'must be true or false');
