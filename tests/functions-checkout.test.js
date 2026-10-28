@@ -53,7 +53,7 @@ test('checkout function uses the chosen billing period', async () => {
     assert.match(sent, /metadata\[period\]=6m/);
     // No 12-month price configured, and an unknown period, are both refused.
     assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-maintenance-basic","period":"12m"}'), env })).status, 503);
-    assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-maintenance-basic","period":"3m"}'), env })).status, 400);
+    assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-maintenance-basic","period":"2m"}'), env })).status, 400);
     assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-integration-basic","period":"6m"}'), env })).status, 400);
   } finally { globalThis.fetch = realFetch; }
 });

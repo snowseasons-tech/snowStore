@@ -33,7 +33,7 @@ test('reports invalid catalog fields and duplicate identifiers', () => {
       name: ' ',
       priceEnv: 'not-valid',
       kind: 'monthly',
-      periodEnvs: { '3m': 'PRICE_X' },
+      periodEnvs: { '2m': 'PRICE_X' },
       retired: 'yes',
       category: 'other',
       version: '1.2',

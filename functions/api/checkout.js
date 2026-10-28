@@ -10,7 +10,7 @@ export async function onRequestPost({ request, env }) {
     try { body = JSON.parse((await request.text()) || '{}'); } catch { return send(400, { error: 'Bad JSON' }); }
     const product = Object.prototype.hasOwnProperty.call(CATALOG, body.productId) ? CATALOG[body.productId] : null;
     if (!product || product.retired) return send(400, { error: 'Unknown product' });
-    // period: '6m' or '12m' picks a longer billing period; anything else is the monthly (default) price.
+    // period: '3m', '6m' or '12m' picks a longer billing period; anything else is the monthly (default) price.
     const periodEnv = body.period && body.period !== '1m'
       ? (product.periodEnvs && Object.prototype.hasOwnProperty.call(product.periodEnvs, body.period) ? product.periodEnvs[body.period] : null)
       : product.priceEnv;
