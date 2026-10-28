@@ -83,6 +83,20 @@ test('products reads display prices from Stripe', async () => {
   } finally { up.restore(); }
 });
 
+test('products lists configured 6- and 12-month prices', async () => {
+  const { onRequestGet } = await mod('products');
+  const prices = {
+    price_m: { id: 'price_m', unit_amount: 4900, currency: 'usd', recurring: { interval: 'month', interval_count: 1 } },
+    price_6: { id: 'price_6', unit_amount: 27900, currency: 'usd', recurring: { interval: 'month', interval_count: 6 } },
+  };
+  const up = fakeUpstash((url) => json(prices[url.split('/').pop()] || { id: 'price_123', unit_amount: 1900, currency: 'usd', recurring: null }));
+  try {
+    const res = await onRequestGet({ env: { ...env, PRICE_API_MAINTENANCE_BASIC: 'price_m', PRICE_API_MAINTENANCE_BASIC_6M: 'price_6' } });
+    const p = (await res.json()).products.find((x) => x.id === 'api-maintenance-basic');
+    assert.deepStrictEqual([p.amount, p.interval, p.periods], [4900, 'month', [{ period: '6m', amount: 27900, interval: 'month', intervalCount: 6 }]]);
+  } finally { up.restore(); }
+});
+
 test('products shows the launch discount while the coupon is valid', async () => {
   const { onRequestGet } = await mod('products');
   const up = fakeUpstash((url) => {
