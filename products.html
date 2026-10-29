@@ -41,6 +41,11 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .card:hover{transform:translateY(-4px);border-color:var(--glow);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow),0 14px 44px -10px var(--glow)}
 .card h2{font-size:1.2rem;line-height:1.3}
 .card p{color:var(--muted);font-size:.95rem}
+.card.mvp{border-style:dashed}
+.tag.mvp{background:transparent;color:var(--primary);border:1px solid var(--primary);box-shadow:none}
+.card .mvp-status{margin-top:auto;font-size:.85rem;font-weight:600;color:var(--primary)}
+.mvp-status::before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:currentColor;vertical-align:1px}
+.btn.alt{background:transparent;color:var(--primary);border-color:var(--primary);box-shadow:none}
 .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px}
 .pic{width:88px;height:65px;flex:none;border-radius:12px;object-fit:cover;background:#0b1430;box-shadow:0 0 0 1px var(--glass-b),0 6px 18px -8px var(--glow)}
 .feats{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px;font-size:.88rem;color:var(--muted)}
@@ -196,6 +201,22 @@ function kitCard(){
  art.append(el("div","actions"));art.lastChild.append(link);
  return art;
 }
+// Apps in development: shown under the MVP tab (and at the end of All) with no price or checkout, only a way to ask for early access.
+const MVP=[
+ {name:"Page Builder",icon:"website-secondary",status:"Built, launching soon",blurb:"Build a products page in your browser without writing code: edit text, colors and sections with a live preview, then export a single HTML file."},
+ {name:"Auto Scheduler",icon:"auto-scheduler",status:"In development",blurb:"Automate appointments, reminders and scheduling workflows."},
+ {name:"Invoice & Biller",icon:"invoice-biller",status:"In development",blurb:"Create, send and manage invoices with automated billing."},
+ {name:"Roadside Delay Planner",icon:"inspections",status:"In research",blurb:"For trucking fleets: spot when a temporary roadside inspection site will delay a truck, then update ETAs and warn the receiver automatically."},
+];
+const EARLY_ACCESS="info@snowseasonstech.net";
+function mvpCard(m){
+ const art=el("article","card mvp");art.dataset.cat="MVP";
+ const top=cardTop(m.icon,"MVP");top.querySelector(".tag").classList.add("mvp");
+ art.append(top,el("h2",null,m.name),el("p",null,m.blurb),el("p","mvp-status",m.status));
+ const link=el("a","btn alt","Get early access");link.href=`mailto:${EARLY_ACCESS}?subject=${encodeURIComponent(`Early access: ${m.name}`)}`;
+ art.append(el("div","actions"));art.lastChild.append(link);
+ return art;
+}
 const grid=$("#grid"),status=$("#status");
 grid.append(kitCard());
 fetch("/api/products").then((r)=>{if(!r.ok)throw new Error(r.status);return r.json()}).then((d)=>{
@@ -204,6 +225,7 @@ fetch("/api/products").then((r)=>{if(!r.ok)throw new Error(r.status);return r.js
  if(list.length)status.hidden=true;else status.textContent="No products are available right now. Email us and we'll help you choose.";
 }).catch(()=>{status.textContent="Prices could not be loaded. Refresh the page, or email us for a quote."})
 .finally(()=>{
+ MVP.forEach((m)=>grid.append(mvpCard(m)));
  const bar=$("#filters"),cats=[...new Set([...grid.children].map((c)=>c.dataset.cat))];
  ["All",...cats].forEach((name,i)=>{const b=el("button","chip",name);b.type="button";b.setAttribute("aria-pressed",String(i===0));
   b.addEventListener("click",()=>{[...bar.children].forEach((x)=>x.setAttribute("aria-pressed",String(x===b)));[...grid.children].forEach((c)=>{c.hidden=name!=="All"&&c.dataset.cat!==name})});bar.append(b)});
