@@ -77,7 +77,38 @@ async function processEvent(event, s, catalog, mailer) {
     }
     await markDone(s, mailKey);
   }
+
+  // Tell the shop about the new order (ORDER_NOTIFY_EMAIL, default the public contact address). Sent once per order.
+  const notifyKey = `notify:${session.id}`;
+  if ((await claimOnce(s, notifyKey)) === 'claimed') {
+    try {
+      await mailer.sendMail({
+        to: process.env.ORDER_NOTIFY_EMAIL || DEFAULT_NOTIFY,
+        subject: `New order: ${product.name}`,
+        text: orderSummary(session, product, email),
+      });
+    } catch (e) {
+      await s.release(notifyKey).catch(() => {});
+      throw e;
+    }
+    await markDone(s, notifyKey);
+  }
   return `fulfilled:${mailed}`;
+}
+
+const DEFAULT_NOTIFY = 'info@snowseasonstech.net';
+const PERIOD_NAMES = { '1w': 'weekly', '3m': 'every 3 months', '6m': 'every 6 months', '12m': 'yearly' };
+function orderSummary(session, product, email) {
+  const money = session.amount_total == null ? 'see Stripe'
+    : `${(session.amount_total / 100).toFixed(2)} ${String(session.currency || '').toUpperCase()}`;
+  const period = session.metadata && session.metadata.period;
+  const billing = session.subscription ? `subscription, billed ${PERIOD_NAMES[period] || 'monthly'}` : 'one-time';
+  const name = (session.customer_details && session.customer_details.name) || '-';
+  return `New order on ${process.env.SITE_URL || 'the store'}\n\n`
+    + `Product: ${product.name}\nBilling: ${billing}\nPaid today: ${money}\n`
+    + `Customer: ${name} <${email || 'no email'}>\n\n`
+    + `Stripe checkout session: ${session.id}\n${session.subscription ? `Subscription: ${session.subscription}\n` : ''}`
+    + `\nOrder page: ${process.env.SITE_URL}/success?session_id=${session.id}\n`;
 }
 
 // Keeps subscription status current; ignores events older than the last one applied.

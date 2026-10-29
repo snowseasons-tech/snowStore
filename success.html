@@ -10,7 +10,7 @@
 <a class="btn" id="dl" href="#" hidden>Download your purchase</a>
 <a class="btn" id="app" href="#" hidden>Open your app</a>
 <button class="btn" id="mg" type="button" hidden>Manage subscription</button>
-<p class="muted" style="margin-top:1rem">A receipt is emailed by our payment processor. Download links are valid for 5 minutes each time you click; come back to this page (same link) to get a fresh one.</p>
+<p class="muted" style="margin-top:1rem">A receipt is emailed by our payment processor.<span id="dlnote"> Download links are valid for 5 minutes each time you click; come back to this page (same link) to get a fresh one.</span></p>
 <script>
 (function(){
  var id=new URLSearchParams(location.search).get('session_id')||'';
@@ -18,7 +18,11 @@
  if(!/^cs_(test|live)_/.test(id)){t.textContent='Missing order reference';m.textContent='Open the link from your checkout, or contact support.';return}
  function poll(){
   fetch('/api/order?session_id='+encodeURIComponent(id)).then(function(r){return r.json()}).then(function(d){
-   if(d.ready){t.textContent='Thank you! '+d.product+' is ready.';m.textContent='Your payment is verified.';if(d.download){dl.href='/api/download?session_id='+encodeURIComponent(id);dl.hidden=false}
+   if(d.ready){
+    // Services have nothing to download: confirm the order and say what happens next instead of "is ready".
+    if(d.download||d.appUrl){t.textContent='Thank you! '+d.product+' is ready.';m.textContent='Your payment is verified.'}
+    else{t.textContent='Thank you! Your '+d.product+' order is confirmed.';m.textContent='Your payment is verified. We\u2019ll email you shortly to get started. Questions? info@snowseasonstech.net';document.getElementById('dlnote').hidden=true}
+    if(d.download){dl.href='/api/download?session_id='+encodeURIComponent(id);dl.hidden=false}
    if(d.appUrl){app.href=d.appUrl;app.hidden=false}
    if(d.manage){mg.hidden=false;mg.onclick=function(){fetch('/api/portal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:id})}).then(function(r){return r.json()}).then(function(x){m.textContent=x.sent?'We emailed you a link to manage your subscription. It works for 30 minutes.':(x.error||'Could not open billing portal')})}}
    return}

@@ -40,12 +40,12 @@ test('webhook signature verifies on raw body only', () => {
 });
 
 // ---- subscriptions + email ----
-const cat = { sub1: { name: 'Sub One', kind: 'subscription', priceEnv: 'X' } };
+const cat = { sub1: { name: 'Sub One', kind: 'subscription', stripeProduct: 'prod_X' } };
 const sent = [];
 const deps = { catalog: cat, mail: { sendMail: async (m) => (sent.push(m), 'sent') } };
 const subSession = (id) => ({ id, type: 'checkout.session.completed', created: 100,
   data: { object: { id: 'cs_test_sub0000000001', mode: 'subscription', payment_status: 'paid', customer: 'cus_1', subscription: 'sub_1',
-    metadata: { product_id: 'sub1' }, customer_details: { email: 'buyer@x.co' } } } });
+    amount_total: 27900, currency: 'usd', metadata: { product_id: 'sub1', period: '6m' }, customer_details: { email: 'buyer@x.co', name: 'Pat Buyer' } } } });
 const subEvt = (id, type, status, created) => ({ id, type, created,
   data: { object: { id: 'sub_1', customer: 'cus_1', status, cancel_at_period_end: false, metadata: { product_id: 'sub1' }, items: { data: [{ current_period_end: 999 }] } } } });
 
@@ -55,8 +55,24 @@ test('subscription checkout records order+sub and emails once', async () => {
   assert.strictEqual((await store.getJSON('order:cs_test_sub0000000001')).subscriptionId, 'sub_1');
   // different event id, same order (e.g. async success later): no second email
   assert.strictEqual(await handleEvent(subSession('evt_s1b'), deps), 'fulfilled:no-email');
-  assert.strictEqual(sent.length, 1);
+  // One email to the buyer and one new-order notice to the shop, each sent once.
+  assert.strictEqual(sent.length, 2);
+  assert.strictEqual(sent[0].to, 'buyer@x.co');
   assert.match(sent[0].text, /success\?session_id=cs_test_sub0000000001/);
+  assert.strictEqual(sent[1].to, 'info@snowseasonstech.net');
+  assert.strictEqual(sent[1].subject, 'New order: Sub One');
+  assert.match(sent[1].text, /Billing: subscription, billed every 6 months/);
+  assert.match(sent[1].text, /Paid today: 279\.00 USD/);
+  assert.match(sent[1].text, /Customer: Pat Buyer <buyer@x\.co>/);
+});
+test('new-order notice goes to ORDER_NOTIFY_EMAIL when set', async () => {
+  const mails = [];
+  const e = subSession('evt_n1'); e.data.object.id = 'cs_test_notify0000001';
+  process.env.ORDER_NOTIFY_EMAIL = 'owner@shop.test';
+  try {
+    await handleEvent(e, { catalog: cat, mail: { sendMail: async (m) => (mails.push(m), 'sent') } });
+  } finally { delete process.env.ORDER_NOTIFY_EMAIL; }
+  assert.deepStrictEqual(mails.map((m) => m.to), ['buyer@x.co', 'owner@shop.test']);
 });
 test('subscription updates apply, stale ones are ignored, delete cancels', async () => {
   assert.strictEqual(await handleEvent(subEvt('evt_u1', 'customer.subscription.updated', 'past_due', 200), deps), 'subscription-updated');
