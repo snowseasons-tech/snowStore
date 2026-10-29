@@ -129,6 +129,13 @@ module.exports = {
     version: '1.0.0',
     sha256: '13d06a5c980b3878267f8eb2f8e43de22433f82c895eea881abd2f743edbcb4a',
   },
+  // Membership: unlocks the downloads of every MVP / Early Access product while the subscription is active.
+  'founders-membership': {
+    name: "Founder's Early Access Membership",
+    kind: 'subscription',
+    stripeProduct: 'prod_VWva1qZT0oarCt',
+    includes: ['gbp-analytics-dashboard', 'lead-generator'],
+  },
   // Services sold on the site. stripeProduct is the live Stripe product; its active prices are read from Stripe.
   'api-integration-basic': { name: 'API Integration Development - Basic', stripeProduct: 'prod_VWa43u70jMDMbP' },
   'api-integration-standard': { name: 'API Integration Development - Standard', stripeProduct: 'prod_VWa5pmeCO0fAE2' },
