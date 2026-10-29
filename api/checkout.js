@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
       ...(process.env.STRIPE_AUTOMATIC_TAX === 'true' ? { automatic_tax: { enabled: true }, billing_address_collection: 'required' } : {}),
       // Stripe rejects discounts together with allow_promotion_codes, so the launch coupon replaces code entry.
       ...(launch ? { discounts: [{ coupon: launch.id }] } : { allow_promotion_codes: true }),
-      ...(isSub ? { subscription_data: { metadata: { product_id: body.productId } } } : {}),
+      ...(isSub ? { subscription_data: { metadata: { product_id: body.productId, user_id: body.userId || 'pending' } } } : {}),
     });
     send(res, 200, { url: session.url });
   } catch (e) {
