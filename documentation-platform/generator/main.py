@@ -3,6 +3,7 @@ import jinja2
 import argparse
 from pathlib import Path
 from documentation_platform.generator.pdf_export import export_all_to_pdf
+from documentation_platform.generator.ai_assistant import AIDocAssistant
 
 def load_product(product_id: str):
     product_file = Path(f"documentation-platform/products/{product_id}/product.yaml")
@@ -60,11 +61,28 @@ def main():
     parser.add_argument("--output-dir", help="Directory to save generated files")
     parser.add_argument("--pdf", action="store_true", help="Also export generated documents to PDF")
     parser.add_argument("--sync", action="store_true", help="Sync generated Markdown to Docusaurus site")
+    parser.add_argument("--ai-draft", help="Generate an AI draft for a specific document type (e.g., 'faq')")
 
     args = parser.parse_args()
 
     try:
         product = load_product(args.product)
+
+        # AI Drafting Logic
+        if args.ai_draft:
+            print(f"🤖 Generating AI draft for {args.ai_draft}...")
+            assistant = AIDocAssistant()
+            draft = assistant.generate_draft(args.product, args.ai_draft)
+
+            # Save the draft to a 'drafts' folder in the product directory
+            draft_dir = Path(f"documentation-platform/products/{args.product}/drafts")
+            draft_dir.mkdir(parents=True, exist_ok=True)
+            draft_file = draft_dir / f"{args.ai_draft}_ai_draft.md"
+
+            with open(draft_file, 'w') as f:
+                f.write(draft)
+            print(f"  ✅ AI draft saved to: {draft_file}")
+            return # Exit after drafting to avoid triggering standard generation
 
         # Determine which templates to render
         if args.template:
