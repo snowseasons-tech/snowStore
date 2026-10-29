@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started | Snow Seasons Tech</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/page.css">
+<style>
+form{display:grid;gap:14px;margin-top:1.5rem}
+label{display:grid;gap:4px;font-weight:600}
+label small{font-weight:400;color:var(--muted)}
+input,textarea{width:100%;padding:9px 12px;border:1px solid #c9d2dc;border-radius:6px;background:var(--bg);color:var(--text);font:inherit}
+textarea{min-height:90px;resize:vertical}
+input:focus-visible,textarea:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+.note{background:var(--sec);border-radius:6px;padding:12px 14px}
+button.btn{border:0;cursor:pointer;justify-self:start}button.btn:disabled{opacity:.6;cursor:wait}
+#err{color:#c0392b}
+</style></head>
+<body><header><div class="container"><a class="logo" href="/">Snow Seasons Technology</a></div></header>
+<main class="container">
+<h1>Let's get started</h1>
+<p class="muted" id="intro">Tell us about your business so we can set up your service.</p>
+<p class="note"><strong>Please don't send passwords here.</strong> For each system we need, we'll send you an invite or tell you how to add us as a user, so you stay in control and can remove our access any time.</p>
+<form id="f" hidden>
+ <label>Business name<input name="business" required maxlength="200" autocomplete="organization"></label>
+ <label>Your name<input name="name" required maxlength="200" autocomplete="name"></label>
+ <label>Phone <small>Optional</small><input name="phone" maxlength="50" autocomplete="tel" inputmode="tel"></label>
+ <label>Best time to reach you <small>Optional</small><input name="contactTime" maxlength="200"></label>
+ <label>Website <small>The address of the site we'll work on, if any</small><input name="website" maxlength="500" inputmode="url" placeholder="https://"></label>
+ <label>Social media accounts <small>Platform and account name or link, one per line</small><textarea name="social" maxlength="2000"></textarea></label>
+ <label>What do you want to achieve? <small>Goals for the next few months</small><textarea name="goals" maxlength="4000"></textarea></label>
+ <label>Brand notes <small>Colors, tone of voice, a link to your logo or brand files</small><textarea name="brand" maxlength="4000"></textarea></label>
+ <label>Systems we'll need access to <small>For example: hosting provider, WordPress, Google Business Profile, database host. Names only, no passwords.</small><textarea name="access" maxlength="2000"></textarea></label>
+ <label>Anything else <small>Optional</small><textarea name="notes" maxlength="4000"></textarea></label>
+ <p id="err" role="alert"></p>
+ <button class="btn" type="submit">Send details</button>
+</form>
+<p id="done" hidden><strong>Thanks, we've got your details.</strong> We'll email you shortly with next steps and any access invites. Questions? <a href="mailto:info@snowseasonstech.net">info@snowseasonstech.net</a></p>
+<script>
+(function(){
+ var id=new URLSearchParams(location.search).get('session_id')||'',f=document.getElementById('f'),intro=document.getElementById('intro'),err=document.getElementById('err');
+ if(!/^cs_(test|live)_/.test(id)){intro.textContent='Open this page from the link in your order email, or email info@snowseasonstech.net and we’ll help you get started.';return}
+ // Show the product they bought; the form itself works even if this lookup fails.
+ fetch('/api/order?session_id='+encodeURIComponent(id)).then(function(r){return r.json()}).then(function(d){if(d.ready&&d.product)intro.textContent='Tell us about your business so we can set up your '+d.product+'.'}).catch(function(){});
+ f.hidden=false;
+ f.addEventListener('submit',function(e){e.preventDefault();var b=f.querySelector('button'),data={session_id:id};
+  new FormData(f).forEach(function(v,k){data[k]=v});b.disabled=true;err.textContent='';
+  fetch('/api/intake',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json()}).then(function(d){
+   if(d.ok){f.hidden=true;document.getElementById('done').hidden=false;scrollTo(0,0)}else{err.textContent=d.error||'Could not send your details.';b.disabled=false}
+  }).catch(function(){err.textContent='Could not send your details. Please try again.';b.disabled=false})});
+})();
+</script>
+</main>
+<footer><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund">Refunds</a><p>&copy; 2026 snowseasonstech.store</p></footer>
