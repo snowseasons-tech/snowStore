@@ -1,4 +1,5 @@
 const defaultCatalog = require('./catalog');
+const { downloadsFor } = require('./entitlements');
 const store = require('./store');
 const mail = require('./mail');
 
@@ -67,8 +68,9 @@ async function processEvent(event, s, catalog, mailer) {
       mailed = await mailer.sendMail({
         to: email,
         subject: `Your ${product.name} purchase`,
-        text: product.fileKey
-          ? `Thanks for your purchase of ${product.name}.\n\nGet your download or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nKeep this email: the link always gives you a fresh download.\n\nSnow Seasons Tech`
+        // Downloadable products and memberships get the order page; services get the getting-started form.
+        text: downloadsFor(productId, catalog).length
+          ? `Thanks for your purchase of ${product.name}.\n\nGet your download${Array.isArray(product.includes) ? 's' : ''} or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nKeep this email: the link always gives you a fresh download.\n\nSnow Seasons Tech`
           : `Thanks for your purchase of ${product.name}.\n\nView or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nTo get started, tell us about your business here:\n${process.env.SITE_URL}/start?session_id=${session.id}\n\nWe'll be in touch shortly.\n\nSnow Seasons Tech`,
       });
     } catch (e) {

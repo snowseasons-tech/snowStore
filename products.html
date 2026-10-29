@@ -5,9 +5,9 @@
 <meta name="description" content="Browse Snow Seasons Tech products: API integrations, website and social media management, managed databases, business intelligence and a free website kit.">
 <script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(_){}</script>
 <style>
-:root{--bg:#f4f7fb;--text:#1f2937;--muted:#5b6472;--primary:#2878b5;--btn:#2878b5;--sec:#eef2f7;--glass:rgba(255,255,255,.6);--glass-b:rgba(255,255,255,.85);--hi:rgba(255,255,255,.7);--shadow:0 8px 30px rgba(31,41,55,.08);--glow:rgba(40,120,181,.35);--b1:rgba(40,120,181,.2);--b2:rgba(124,92,255,.14);--b3:rgba(0,184,217,.14);color-scheme:light}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);color-scheme:dark}
+:root{--bg:#f4f7fb;--text:#1f2937;--muted:#5b6472;--primary:#2878b5;--btn:#2878b5;--sec:#eef2f7;--glass:rgba(255,255,255,.6);--glass-b:rgba(255,255,255,.85);--hi:rgba(255,255,255,.7);--shadow:0 8px 30px rgba(31,41,55,.08);--glow:rgba(40,120,181,.35);--b1:rgba(40,120,181,.2);--b2:rgba(124,92,255,.14);--b3:rgba(0,184,217,.14);--rel-beta:#1f6fb2;--rel-mvp:#9a5b00;--rel-dev:#5b6472;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--rel-beta:#7cc0f0;--rel-mvp:#f0b45a;--rel-dev:#a1a9b5;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--rel-beta:#7cc0f0;--rel-mvp:#f0b45a;--rel-dev:#a1a9b5;color-scheme:dark}
 *{margin:0;padding:0;box-sizing:border-box}
 [hidden]{display:none!important}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:var(--text);min-height:100vh;
@@ -41,6 +41,24 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .card:hover{transform:translateY(-4px);border-color:var(--glow);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow),0 14px 44px -10px var(--glow)}
 .card h2{font-size:1.2rem;line-height:1.3}
 .card p{color:var(--muted);font-size:.95rem}
+.tier{display:grid;gap:10px;margin-top:40px}
+.tier>h2{font-size:1.5rem;line-height:1.25}
+.tier-sub{max-width:680px;color:var(--muted)}
+.tier .grid{margin-top:12px}
+.early-terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px 24px;max-width:900px;margin-top:6px;font-size:.92rem;color:var(--muted)}
+.early-terms>div{display:grid;gap:4px;align-content:start}
+.early-terms dt{font-weight:600;color:var(--text)}
+.early-terms a{color:var(--primary)}
+.rel{align-self:flex-start;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.rel-beta{color:var(--rel-beta)}.rel-mvp{color:var(--rel-mvp)}.rel-dev{color:var(--rel-dev)}
+.card.member{border-color:var(--primary);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow)}
+.member-list{list-style:none;display:grid;gap:6px;font-size:.92rem;color:var(--muted)}
+.member-list li{padding-left:22px;position:relative}
+.member-list li::before{content:"";position:absolute;left:2px;top:.55em;width:10px;height:6px;border:solid var(--primary);border-width:0 0 2px 2px;transform:rotate(-45deg)}
+.card.soon{border-style:dashed}
+.card .soon-status{margin-top:auto;font-size:.85rem;font-weight:600;color:var(--primary)}
+.soon-status::before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:currentColor;vertical-align:1px}
+.btn.alt{background:transparent;color:var(--primary);border-color:var(--primary);box-shadow:none}
 .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px}
 .pic{width:88px;height:65px;flex:none;border-radius:12px;object-fit:cover;background:#0b1430;box-shadow:0 0 0 1px var(--glass-b),0 6px 18px -8px var(--glow)}
 .feats{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px;font-size:.88rem;color:var(--muted)}
@@ -85,11 +103,27 @@ footer a{color:inherit;margin:0 .5rem}
 <div class="container">
 <section class="intro">
 <h1>Products</h1>
-<p>Integration projects, monthly managed plans and a free website kit. Pick one and check out in a few clicks, or <a href="mailto:info@snowseasonstech.net">email us</a> if you're not sure which fits.</p>
+<p>Integration projects, monthly managed plans, a free website kit and early-access software. Pick one and check out in a few clicks, or <a href="mailto:info@snowseasonstech.net">email us</a> if you're not sure which fits.</p>
 </section>
 <div class="chips" id="filters" role="group" aria-label="Filter by category"></div>
 <p class="status" id="status" role="status">Loading prices…</p>
-<div class="grid" id="grid"></div>
+<section class="tier" id="production" aria-labelledby="production-title">
+<h2 id="production-title">Production software &amp; managed services</h2>
+<p class="tier-sub">Validated, supported and ready for paying customers, with defined service agreements.</p>
+<div class="grid" id="grid-production"></div>
+</section>
+<section class="tier" id="early-access" aria-labelledby="early-title">
+<h2 id="early-title">Founder's Early Access</h2>
+<p class="tier-sub">Products that work today and are still being finished. Each card is labelled with how far along it is, and lists what works now and its known limitations.</p>
+<dl class="early-terms">
+<div><dt><span class="rel rel-beta">Public Beta</span></dt><dd>A working application with documented limitations.</dd></div>
+<div><dt><span class="rel rel-mvp">MVP · Early Access</span></dt><dd>Core workflows in place; testing and features still limited.</dd></div>
+<div><dt><span class="rel rel-dev">Development</span></dt><dd>Not ready to buy yet. Ask for early access to hear when it is.</dd></div>
+<div><dt>Updates</dt><dd>Buy during early access and every update is free until the product reaches Production.</dd></div>
+<div><dt>Refunds</dt><dd>Downloadable products can be refunded within 14 days if they don't work as described and we can't fix them. Monthly plans can be cancelled any time and stop at the end of the month you've paid for. See the <a href="/refund">refund policy</a>.</dd></div>
+</dl>
+<div class="grid" id="grid-early"></div>
+</section>
 </div>
 </main>
 <footer><div class="container"><p><a href="/blog/">Blog</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refund">Refunds</a> · <a href="https://billing.stripe.com/p/login/aFaeVf4EZbyu0iwefogIo00" rel="noopener">Manage your subscription</a></p><p>&copy; 2026 snowseasonstech.store</p></div></footer>
@@ -98,9 +132,10 @@ footer a{color:inherit;margin:0 .5rem}
 // Category, order and one-line summary for each product. Prices and what is on sale come from Stripe via /api/products;
 // a product sold there but missing from this list still appears, under "Other".
 const DETAILS={
- "gbp-analytics-dashboard":{icon:"gbp-dashboard",category:"Dashboards",blurb:"Turn Google Business Profile CSV reports into interactive charts: Search and Maps visibility, calls, website clicks and directions, compared across locations. Independently developed, not affiliated with Google.",
+ "founders-membership":{membership:true,icon:"managed-tech",category:"Membership",blurb:"One monthly membership for every MVP / Early Access app: download them all while you're a member, get every update free until each app reaches Production, and get first access to new apps as they open.",includes:["GBP Analytics Dashboard", "Lead Generation Pipeline", "New early-access apps as they launch", "Free updates until each app reaches Production", "Cancel any time. You keep the files you've downloaded; new downloads and updates stop when your membership ends."]},
+ "gbp-analytics-dashboard":{release:"mvp",early:{"works": ["Imports Google Business Profile CSV reports, several files at once", "Views, searches, calls, website clicks, directions, messages and bookings, each compared with the previous period", "Filters by location and date range, and compares locations side by side", "Top search terms from a search terms CSV", "Exports daily numbers and a location summary as CSV"], "limits": ["No live connection to Google: you download Google's CSV reports and import them yourself", "Data is stored only in the browser you import it into; private windows and clearing site data remove it", "Needs an internet connection to load its charting libraries", "Monthly totals are spread evenly over their days, so part-month ranges are estimates"]},icon:"gbp-dashboard",category:"Dashboards",blurb:"Turn Google Business Profile CSV reports into interactive charts: Search and Maps visibility, calls, website clicks and directions, compared across locations. Independently developed, not affiliated with Google.",
   features:[["analytics","Charts and reports"],["csv","CSV import and export"],["locations","Compare locations"],["search-terms","Search term analysis"],["date-ranges","Custom date ranges"]]},
- "lead-generator":{icon:"lead-generator",category:"Lead Generation",blurb:"Turn a list of company names into websites, phone numbers and contact emails. Python scripts you run on your own machine or nightly on a schedule; obeys robots.txt."},
+ "lead-generator":{release:"mvp",early:{"works": ["Finds each company's official website from a list of names", "Collects phone numbers, descriptions and contact emails from the company's own pages", "Runs nightly on a schedule, with locking, timeouts, logs and retries", "Obeys robots.txt and rate limits"], "limits": ["Runs on your own machine and needs Python 3", "Uses a free, unofficial search backend that can be rate-limited or change without notice", "Can't read sites that build their pages with JavaScript", "Phone numbers are matched in US and Canadian formats only", "Names and job titles are a best-effort match", "You're responsible for following email and privacy law when you use the contacts"]},icon:"lead-generator",category:"Lead Generation",blurb:"Turn a list of company names into websites, phone numbers and contact emails. Python scripts you run on your own machine or nightly on a schedule; obeys robots.txt."},
  "api-integration-basic":{icon:"api-integrations",category:"API Integration",blurb:"Connect your business applications, databases and third-party services with secure, professionally developed integrations."},
  "api-integration-standard":{icon:"api-integrations",category:"API Integration",blurb:"Adds OAuth authentication, PostgreSQL storage, scheduled sync, pagination, logging and retry handling."},
  "api-integration-advanced":{icon:"api-integrations",category:"API Integration",blurb:"Bidirectional sync, multiple endpoints, webhook processing, advanced authentication and complex business rules."},
@@ -117,9 +152,9 @@ const DETAILS={
  "social-media-5":{icon:"social-media",category:"Social Media",blurb:"Coordinated content planning, scheduling, brand consistency and performance reporting for up to five accounts."},
  "managed-database":{icon:"managed-database",category:"Infrastructure",blurb:"Snow Seasons Tech provides ongoing database administration, infrastructure maintenance, security oversight, and technical support for business-critical database environments.",
   more:{intro:"Our managed infrastructure service helps organizations maintain reliable database operations, protect business information, and support the applications and websites that depend on structured data.",title:"Services include",items:["Administration and maintenance of supported relational database systems, including PostgreSQL and MySQL.", "Monitoring of database availability, resource utilization, storage capacity, and operational health.", "Routine database maintenance, including appropriate indexing reviews, performance analysis, and query optimization recommendations.", "Database access management, including user permissions, role-based access controls, and credential security recommendations.", "Security configuration reviews, vulnerability assessments, and applicable database software updates.", "Backup configuration, scheduled backup monitoring, and periodic restoration verification where supported by the infrastructure.", "Database connectivity troubleshooting and support for existing application integrations.", "Monitoring of database errors, connection failures, and performance degradation.", "Schema maintenance assistance and review of database structure changes.", "Infrastructure configuration assistance for Docker-based deployments and supported hosting environments.", "Basic capacity planning and recommendations for storage, compute resources, and database scaling.", "Monthly database health and infrastructure status reviews."],coverage:"One designated database environment with an agreed resource and support scope.",notes:["New database architecture, major schema migrations, extensive data cleansing, custom ETL pipelines, application development, cloud hosting charges, third-party licensing, and significant infrastructure expansion are quoted separately.", "Database security and availability are managed using reasonable technical safeguards and established maintenance practices. Continuous availability, prevention of every security incident, and zero data loss cannot be guaranteed."]}},
- "operations-lead-intelligence":{icon:"operations-leads",category:"Business Intelligence",blurb:"Lead data organization, operational dashboards, reporting and automated business insights."},
- "mailhub-intelligence":{icon:"mailhub",category:"Business Intelligence",blurb:"Campaign management, contact segmentation, marketing analytics and email workflow automation."},
- "inspections-intelligence":{icon:"inspections",category:"Business Intelligence",blurb:"Inspection data management, reporting dashboards, workflow automation and operational analytics."},
+ "operations-lead-intelligence":{release:"beta",icon:"operations-leads",category:"Business Intelligence",blurb:"Lead data organization, operational dashboards, reporting and automated business insights."},
+ "mailhub-intelligence":{release:"beta",icon:"mailhub",category:"Business Intelligence",blurb:"Campaign management, contact segmentation, marketing analytics and email workflow automation."},
+ "inspections-intelligence":{release:"beta",icon:"inspections",category:"Business Intelligence",blurb:"Inspection data management, reporting dashboards, workflow automation and operational analytics."},
  "managed-package":{icon:"managed-tech",category:"Managed Package",blurb:"Website, social media, database oversight, marketing automation, business intelligence and ongoing support in one package."}
 };
 const ORDER=Object.keys(DETAILS);
@@ -157,11 +192,15 @@ function buildCard(p){
  const d=DETAILS[p.id]||{category:"Other"},recurring=!!p.interval;
  const opts=[{period:"1m",amount:p.amount,interval:p.interval,intervalCount:1,discount:p.discount},...(p.periods||[])].sort((a,b)=>perMonths(a)-perMonths(b));
  const base=opts.find((o)=>o.period==="1m"),state={period:"1m"};
- const art=el("article","card");art.dataset.cat=d.category;
- art.append(cardTop(d.icon,d.category),el("h2",null,p.name));
+ const art=el("article",d.membership?"card member":"card");art.dataset.cat=d.category;
+ art.append(cardTop(d.icon,d.category));
+ if(d.release)art.append(relPill(d.release));
+ art.append(el("h2",null,p.name));
  if(d.blurb)art.append(el("p",null,d.blurb));
+ if(d.includes){const ul=el("ul","member-list");d.includes.forEach((t)=>ul.append(el("li",null,t)));art.append(ul)}
  if(d.more)art.append(moreBlock(d.more));
  if(d.features){const ul=el("ul","feats");d.features.forEach(([icon,label])=>{const li=el("li");li.append(pic(`/img/icons/gbp/${icon}.webp`,null,24,22),label);ul.append(li)});art.append(ul)}
+ if(d.release)art.append(earlyBlock(d.early||{},recurring));
  const amount=el("span"),price=el("div","price");
  price.append(amount," ",el("small",null,recurring?"subscription":"one-time"));
  if(opts.length>1){
@@ -188,25 +227,67 @@ function moreBlock(m){
  (m.notes||[]).forEach((t)=>box.append(el("p","terms",t)));
  return box;
 }
+// Release labels for products outside Production. A DETAILS entry without `release` is Production.
+const RELEASE={beta:"Public Beta",mvp:"MVP · Early Access",dev:"Development"};
+const relPill=(r)=>el("span",`rel rel-${r}`,RELEASE[r]);
+// Early-access terms on each card: what works now, known limitations, then the update and refund terms that apply to it.
+function earlyBlock(e,recurring){
+ const box=el("details","more");box.append(el("summary",null,"Early access details"));
+ const list=(title,items)=>{if(!items||!items.length)return;box.append(el("h3",null,title));const ul=el("ul");items.forEach((t)=>ul.append(el("li",null,t)));box.append(ul)};
+ list("Works today",e.works);
+ list("Known limitations",e.limits);
+ const term=(label,text)=>{const p=el("p");p.append(el("strong",null,label),text);box.append(p)};
+ term("Updates: ","Free until this product reaches Production.");
+ term("Refunds: ",recurring?"Cancel any time; your plan stops at the end of the month you've paid for.":"Within 14 days if it doesn't work as described and we can't fix it.");
+ return box;
+}
 function kitCard(){
  const art=el("article","card");art.dataset.cat="Free";
- art.append(cardTop("auto-blogger","Free download"),el("h2",null,"Landing Page Kit"),el("p",null,"A ready-to-edit, single-file landing page with a hero, features, FAQ and call to action, plus light and dark mode."));
+ art.append(cardTop("website-primary","Free download"),el("h2",null,"Landing Page Kit"),el("p",null,"A ready-to-edit, single-file landing page with a hero, features, FAQ and call to action, plus light and dark mode."));
  art.append(el("div","price","Free"));
  const link=el("a","btn","Get the kit");link.href="/#kit";
  art.append(el("div","actions"));art.lastChild.append(link);
  return art;
 }
-const grid=$("#grid"),status=$("#status");
-grid.append(kitCard());
+// Early-access apps not on sale yet: listed in Founder's Early Access with no price or checkout, only a way to ask for access.
+const SOON=[
+ {name:"Page Builder",release:"mvp",icon:"website-secondary",status:"Built, launching soon",blurb:"Build a products page in your browser without writing code: edit text, colors and sections with a live preview, then export a single HTML file."},
+ {name:"Auto Blogger",release:"mvp",icon:"auto-blogger",status:"Not on sale yet",blurb:"Build weekly blog roundups from RSS feeds and web pages, then publish drafts to Hugo, WordPress or Ghost."},
+ {name:"Auto Scheduler",release:"mvp",icon:"auto-scheduler",status:"Not on sale yet",blurb:"A weekly booking calendar with double-booking prevention and live stats, ready to brand as your own."},
+ {name:"Invoice & Biller",release:"mvp",icon:"invoice-biller",status:"Not on sale yet",blurb:"Create professional invoices in your browser and save them as PDFs. No account needed, and your data stays on your device."},
+ {name:"BookScan Live",release:"mvp",status:"Not on sale yet",blurb:"Scan or type an ISBN for a live lookup, an estimated used-market value and a quick profit check. Built for book resellers."},
+ {name:"Social Studio",release:"dev",icon:"social-media",status:"In development",blurb:"A self-hosted social media manager for agencies: client workspaces, team roles, approvals, a content calendar and scheduled publishing."},
+ {name:"Roadside Delay Planner",release:"dev",icon:"inspections",status:"In research",blurb:"For trucking fleets: spot when a temporary roadside inspection site will delay a truck, then update ETAs and warn the receiver automatically."},
+];
+const EARLY_ACCESS="info@snowseasonstech.net";
+function soonCard(m){
+ const art=el("article","card soon");art.dataset.cat="";
+ art.append(cardTop(m.icon,"Coming soon"),relPill(m.release),el("h2",null,m.name),el("p",null,m.blurb),el("p","soon-status",m.status));
+ const link=el("a","btn alt","Get early access");link.href=`mailto:${EARLY_ACCESS}?subject=${encodeURIComponent(`Early access: ${m.name}`)}`;
+ art.append(el("div","actions"));art.lastChild.append(link);
+ return art;
+}
+// Products with a release label go in Founder's Early Access; everything else is Production.
+const gridProd=$("#grid-production"),gridEarly=$("#grid-early"),status=$("#status");
+const sections=[$("#production"),$("#early-access")];
+gridProd.append(kitCard());
 fetch("/api/products").then((r)=>{if(!r.ok)throw new Error(r.status);return r.json()}).then((d)=>{
  const list=[...d.products].sort((a,b)=>rank(a.id)-rank(b.id));
- list.forEach((p)=>grid.append(buildCard(p)));
+ // The membership leads Founder's Early Access; labelled products follow it there; the rest are Production.
+ list.forEach((p)=>{const d=DETAILS[p.id]||{},card=buildCard(p);if(d.membership)gridEarly.prepend(card);else (d.release?gridEarly:gridProd).append(card)});
  if(list.length)status.hidden=true;else status.textContent="No products are available right now. Email us and we'll help you choose.";
 }).catch(()=>{status.textContent="Prices could not be loaded. Refresh the page, or email us for a quote."})
 .finally(()=>{
- const bar=$("#filters"),cats=[...new Set([...grid.children].map((c)=>c.dataset.cat))];
- ["All",...cats].forEach((name,i)=>{const b=el("button","chip",name);b.type="button";b.setAttribute("aria-pressed",String(i===0));
-  b.addEventListener("click",()=>{[...bar.children].forEach((x)=>x.setAttribute("aria-pressed",String(x===b)));[...grid.children].forEach((c)=>{c.hidden=name!=="All"&&c.dataset.cat!==name})});bar.append(b)});
+ SOON.forEach((m)=>gridEarly.append(soonCard(m)));
+ // Chips: All, Early Access (that section only), then each category. A section with nothing to show is hidden.
+ const cards=()=>[...gridProd.children,...gridEarly.children];
+ const bar=$("#filters"),cats=[...new Set(cards().map((c)=>c.dataset.cat).filter(Boolean))];
+ const show=(name)=>{
+  cards().forEach((c)=>{c.hidden=name==="Early Access"?c.parentElement!==gridEarly:name!=="All"&&c.dataset.cat!==name});
+  sections.forEach((s)=>{s.hidden=![...s.querySelectorAll(".card")].some((c)=>!c.hidden)});
+ };
+ ["All","Early Access",...cats].forEach((name,i)=>{const b=el("button","chip",name);b.type="button";b.setAttribute("aria-pressed",String(i===0));
+  b.addEventListener("click",()=>{[...bar.children].forEach((x)=>x.setAttribute("aria-pressed",String(x===b)));show(name)});bar.append(b)});
 });
 const tg=$("#theme-toggle"),root=document.documentElement;
 const isDark=()=>root.dataset.theme?root.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;

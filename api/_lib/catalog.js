@@ -5,6 +5,8 @@
 // Customer portal (optional): category ('billing' | 'utilities', matches the portal filter), version, sha256 of the file.
 // blurb (optional) = one-line description shown on the portal product cards.
 // retired: true = no longer sold (left out of /api/products and checkout); kept so past buyers can still download.
+// includes (optional) = a membership: a subscription with no file of its own that unlocks the downloads of these
+// products while it is active (see api/_lib/entitlements.js).
 module.exports = {
   bookscan: {
     name: 'BookScan Live',
@@ -126,6 +128,13 @@ module.exports = {
     blurb: 'Turn Google Business Profile CSV reports into interactive charts: Search and Maps visibility, calls, website clicks and direction requests, compared across locations. Not affiliated with Google.',
     version: '1.0.0',
     sha256: '13d06a5c980b3878267f8eb2f8e43de22433f82c895eea881abd2f743edbcb4a',
+  },
+  // Membership: unlocks the downloads of every MVP / Early Access product while the subscription is active.
+  'founders-membership': {
+    name: "Founder's Early Access Membership",
+    kind: 'subscription',
+    stripeProduct: 'prod_VWva1qZT0oarCt',
+    includes: ['gbp-analytics-dashboard', 'lead-generator'],
   },
   // Services sold on the site. stripeProduct is the live Stripe product; its active prices are read from Stripe.
   'api-integration-basic': { name: 'API Integration Development - Basic', stripeProduct: 'prod_VWa43u70jMDMbP' },

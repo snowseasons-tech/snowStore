@@ -4,10 +4,10 @@
 <title>Snow Seasons Tech: Technology &amp; Marketing Services</title>
 <script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(_){}</script>
 <style>
-:root{--bg:#f4f7fb;--text:#1f2937;--muted:#5b6472;--primary:#2878b5;--btn:#2878b5;--sec:#eef2f7;--glass:rgba(255,255,255,.6);--glass-b:rgba(255,255,255,.85);--hi:rgba(255,255,255,.7);--shadow:0 8px 30px rgba(31,41,55,.08);--glow:rgba(40,120,181,.35);--b1:rgba(40,120,181,.2);--b2:rgba(124,92,255,.14);--b3:rgba(0,184,217,.14);--hero-filter:none;--flake:rgba(40,95,215,.75);--hero-sub:#4b5563;--code:#0f172a;--codet:#e2e8f0;--w:1100px;
+:root{--bg:#f4f7fb;--text:#1f2937;--muted:#5b6472;--primary:#2878b5;--btn:#2878b5;--sec:#eef2f7;--glass:rgba(255,255,255,.6);--glass-b:rgba(255,255,255,.85);--hi:rgba(255,255,255,.7);--shadow:0 8px 30px rgba(31,41,55,.08);--glow:rgba(40,120,181,.35);--b1:rgba(40,120,181,.2);--b2:rgba(124,92,255,.14);--b3:rgba(0,184,217,.14);--rel-beta:#1f6fb2;--hero-filter:none;--flake:rgba(40,95,215,.75);--hero-sub:#4b5563;--code:#0f172a;--codet:#e2e8f0;--w:1100px;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--hero-filter:brightness(.34) saturate(1.15);--flake:rgba(255,255,255,.85);--hero-sub:#d3d9e1;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--hero-filter:brightness(.34) saturate(1.15);--flake:rgba(255,255,255,.85);--hero-sub:#d3d9e1;color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--rel-beta:#7cc0f0;--hero-filter:brightness(.34) saturate(1.15);--flake:rgba(255,255,255,.85);--hero-sub:#d3d9e1;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--rel-beta:#7cc0f0;--hero-filter:brightness(.34) saturate(1.15);--flake:rgba(255,255,255,.85);--hero-sub:#d3d9e1;color-scheme:dark}
 html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:var(--text);min-height:100vh;
@@ -38,6 +38,7 @@ section{padding:56px 0}.sub{color:var(--muted)}
 .card{background:var(--glass);border:1px solid var(--glass-b);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px;
 box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
 .card:hover{transform:translateY(-4px);border-color:var(--glow);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow),0 14px 44px -10px var(--glow)}
+.rel{align-self:flex-start;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:6px;border:1px solid currentColor;color:var(--rel-beta);text-decoration:none}.rel:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px}.pic{width:88px;height:65px;flex:none;border-radius:12px;object-fit:cover;background:#0b1430;box-shadow:0 0 0 1px var(--glass-b),0 6px 18px -8px var(--glow)}
 .tag{align-self:flex-start;font-size:.75rem;background:var(--btn);color:#fff;border-radius:999px;padding:2px 10px;box-shadow:0 0 14px -3px var(--glow)}.tag.soon{background:var(--muted);box-shadow:none}
 .card ul{margin-left:1.2rem;color:var(--muted);font-size:.95rem}
@@ -202,19 +203,19 @@ const PRODUCTS=[
   coverage:[["Service coverage","One designated database environment with an agreed resource and support scope."]],
   notes:["New database architecture, major schema migrations, extensive data cleansing, custom ETL pipelines, application development, cloud hosting charges, third-party licensing, and significant infrastructure expansion are quoted separately.", "Database security and availability are managed using reasonable technical safeguards and established maintenance practices. Continuous availability, prevention of every security incident, and zero data loss cannot be guaranteed."],
   unit:"subscription"},
- {id:"operations-lead-intelligence",icon:"operations-leads",name:"Operations & Lead Intelligence",category:"Business Intelligence",
+ {id:"operations-lead-intelligence",release:"beta",icon:"operations-leads",name:"Operations & Lead Intelligence",category:"Business Intelligence",
   blurb:"Managed business intelligence and lead management to help you organize customer information, monitor operational activity and identify sales opportunities.",
   featuresTitle:"Includes",
   features:["Lead data organization","Database integrations","Operational dashboards","Reporting","Workflow monitoring","Automated business insights"],
   notes:["Data collection and processing are limited to authorized sources and approved business workflows","Custom integrations, third-party data services and additional development are billed separately"],
   unit:"subscription"},
- {id:"mailhub-intelligence",icon:"mailhub",name:"MailHub Marketing Intelligence",category:"Business Intelligence",
+ {id:"mailhub-intelligence",release:"beta",icon:"mailhub",name:"MailHub Marketing Intelligence",category:"Business Intelligence",
   blurb:"Managed email marketing intelligence and campaign automation, powered by Snow Seasons Tech's MailHub platform.",
   featuresTitle:"Includes",
   features:["Campaign management","Contact segmentation","Marketing analytics","Email workflow automation","Audience engagement reporting","Campaign performance monitoring"],
   notes:["Designed to support authorized marketing communications and data-driven customer engagement","Email delivery provider fees, premium integrations and additional campaign development may be billed separately"],
   unit:"subscription"},
- {id:"inspections-intelligence",icon:"inspections",name:"Inspections Intelligence",category:"Business Intelligence",
+ {id:"inspections-intelligence",release:"beta",icon:"inspections",name:"Inspections Intelligence",category:"Business Intelligence",
   blurb:"Managed inspection intelligence and operational reporting to organize inspection records, track field activity and improve operational visibility.",
   featuresTitle:"Includes",
   features:["Inspection data management","Reporting dashboards","Workflow automation","Record tracking","Operational analytics","Integration support"],
@@ -232,6 +233,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 function notify(m){const n=$("#notice");n.textContent=m;n.style.display="block";clearTimeout(notify.t);notify.t=setTimeout(()=>n.style.display="none",4500)}
 const specs=p=>{const r=[["You get",p.delivery],["Runs on",p.runs],["Best for",p.bestFor]].filter(([,v])=>v).map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");return r&&`<h4>Details</h4><dl class="specs">${r}</dl>`};
 // icon names a file in /img/icons/. It sits beside the service name, so it is decorative (alt="").
+// release marks a service still in Public Beta (the products page lists the release terms).
+const rel=p=>p.release==="beta"?`<a class="rel" href="/products#early-access">Public Beta</a>`:"";
 const pic=p=>p.icon?`<img class="pic" src="/img/icons/${esc(p.icon)}.webp" alt="" width="88" height="65" loading="lazy" decoding="async">`:"";
 const thumb=p=>p.img?`<img class="thumb" src="${esc(p.img)}" alt="${esc(p.alt||"")}" width="800" height="450" loading="lazy" decoding="async">`:"";
 const tagline=p=>p.tagline?`<p class="tagline">${esc(p.tagline)}</p>`:"";
@@ -241,8 +244,8 @@ const priceRow=p=>`<div class="price"><span data-price="${esc(p.id)}">…</span>
 const coverage=p=>p.coverage?`<h4>Coverage</h4><dl class="specs">${p.coverage.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`:"";
 // notes = terms shown under the features list, e.g. what is billed separately.
 const notes=p=>p.notes?`<h4>Good to know</h4><ul>${p.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:"";
-$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article class="card">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button></div></article>`
- :`<article class="flip"><div class="card front">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
+$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article class="card">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div>${rel(p)}<h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button></div></article>`
+ :`<article class="flip"><div class="card front">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div>${rel(p)}<h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
  +`<div class="card back" inert><h3>${esc(p.name)}</h3>${p.features?`<h4>${esc(p.featuresTitle||"Good to know")}</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}${coverage(p)}${notes(p)}${specs(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
 document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
  if(!t&&(e.target.closest("a,button,select")||String(getSelection())))return;
