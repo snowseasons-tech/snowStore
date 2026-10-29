@@ -91,6 +91,12 @@ The **Validate store items** GitHub Actions workflow runs when the catalog, prod
    ```
    Paste the printed sha256 into the catalog entry.
 
+### Memberships
+
+A membership is a subscription that unlocks other products' downloads while it is active. Give its catalog entry `kind: 'subscription'`, a `stripeProduct`, and `includes` with the ids of the downloadable products it covers (no `fileKey` of its own). After checkout, the order page shows a download button for each included product. `/api/download?session_id=…&product=…` serves one of them only while the subscription is active, and each included product has its own 10-download allowance. `npm run validate:store-items` checks that every included id exists and has a file.
+
+On `/products`, products with a `release` in `DETAILS` (`beta`, `mvp` or `dev`) are listed under Founder's Early Access with their label and early-access terms. A `DETAILS` entry with `membership: true` leads that section.
+
 ## Email signups (free Landing Page Kit)
 
 The Website Kit form on the home page posts to `/api/kit`, which saves `subscriber:<email>` in Upstash as `{ email, source, subscribedAt }` and returns a 5-minute signed URL, so the download starts straight away. Addresses are not verified. Signups are limited to 10 per IP per hour.

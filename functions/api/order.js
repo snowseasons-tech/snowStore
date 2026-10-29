@@ -1,5 +1,6 @@
 import CATALOG from '../../api/_lib/catalog.js';
 import store from '../../api/_lib/store.js';
+import entitlements from '../../api/_lib/entitlements.js';
 import { send, methodNotAllowed } from '../_lib/http.js';
 import { useEnv, storeConfigured } from '../_lib/env.js';
 
@@ -16,7 +17,9 @@ export async function onRequestGet({ request, env }) {
     if (!order) return send(200, { ready: false });
     const p = Object.prototype.hasOwnProperty.call(CATALOG, order.productId) ? CATALOG[order.productId] : null;
     if (!p) return send(410, { error: 'This product is no longer available. Contact support.' });
-    return send(200, { ready: true, product: p.name, download: !!p.fileKey, appUrl: p.appUrl || null, manage: !!order.customer && !!order.subscriptionId });
+    // downloads lists what the page offers: one item for a downloadable product, one per included product for a membership.
+    const downloads = entitlements.downloadsFor(order.productId, CATALOG).map(({ id: product, name }) => ({ product, name }));
+    return send(200, { ready: true, product: p.name, download: downloads.length > 0, downloads, membership: entitlements.isMembership(p), appUrl: p.appUrl || null, manage: !!order.customer && !!order.subscriptionId });
   } catch (e) {
     console.error('order', e.message);
     return send(500, { error: 'Lookup failed' });

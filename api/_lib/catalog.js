@@ -5,6 +5,8 @@
 // Customer portal (optional): category ('billing' | 'utilities', matches the portal filter), version, sha256 of the file.
 // blurb (optional) = one-line description shown on the portal product cards.
 // retired: true = no longer sold (left out of /api/products and checkout); kept so past buyers can still download.
+// includes (optional) = a membership: a subscription with no file of its own that unlocks the downloads of these
+// products while it is active (see api/_lib/entitlements.js).
 module.exports = {
   bookscan: {
     name: 'BookScan Live',

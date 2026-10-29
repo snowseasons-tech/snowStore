@@ -61,6 +61,21 @@ function validateCatalog(catalog) {
       }
     }
 
+    // A membership (includes) unlocks other products' downloads while its subscription is active.
+    if (product.includes !== undefined) {
+      if (!Array.isArray(product.includes) || !product.includes.length) {
+        fail('includes', 'must be a non-empty list of product ids');
+      } else {
+        for (const inc of product.includes) {
+          if (typeof inc !== 'string' || !Object.prototype.hasOwnProperty.call(catalog, inc)) fail('includes', `${inc} is not in the catalog`);
+          else if (!catalog[inc] || !catalog[inc].fileKey) fail('includes', `${inc} has no download`);
+          else if (catalog[inc].includes !== undefined) fail('includes', `${inc} is itself a membership`);
+        }
+      }
+      if (product.kind !== 'subscription') fail('kind', "must be 'subscription' for a membership");
+      if (product.fileKey !== undefined) fail('fileKey', 'a membership has no file of its own');
+    }
+
     if (product.fileKey === undefined) {
       for (const field of ['filename', 'sha256']) {
         if (product[field] !== undefined) fail(field, `requires fileKey`);
