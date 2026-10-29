@@ -45,6 +45,20 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .pic{width:88px;height:65px;flex:none;border-radius:12px;object-fit:cover;background:#0b1430;box-shadow:0 0 0 1px var(--glass-b),0 6px 18px -8px var(--glow)}
 .feats{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px;font-size:.88rem;color:var(--muted)}
 .feats li{display:flex;align-items:center;gap:8px}
+.more{border-top:1px solid var(--glass-b);padding-top:8px;font-size:.92rem;color:var(--muted)}
+.more summary{cursor:pointer;color:var(--primary);font-weight:600;list-style-position:inside}
+.more summary:focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:4px}
+.more[open] summary{margin-bottom:8px}
+.more>*+*{margin-top:8px}
+.more h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text)}
+.more ul{padding-left:1.1rem;display:grid;gap:4px}
+.more strong{color:var(--text)}
+.more .terms{font-size:.85rem}
+/* An opened card takes the whole row, so its neighbours keep their size instead of stretching to match. */
+.card:has(.more[open]){grid-column:1/-1}
+.card:has(.more[open]):hover{transform:none}
+.more[open] ul{display:block;columns:2 280px;column-gap:28px}
+.more[open] li{break-inside:avoid;margin-bottom:4px}
 .feats img{width:24px;height:22px;flex:none}
 .tag{align-self:flex-start;font-size:.75rem;background:var(--btn);color:#fff;border-radius:999px;padding:2px 10px;box-shadow:0 0 14px -3px var(--glow)}
 .price{font-size:1.5rem;font-weight:700;margin-top:auto}
@@ -100,7 +114,8 @@ const DETAILS={
  "social-media-3":{icon:"social-media",category:"Social Media",blurb:"Coordinated content strategy, content calendars, automated scheduling and engagement analytics for up to three accounts."},
  "social-media-4":{icon:"social-media",category:"Social Media",blurb:"Multi-platform content planning and coordinated calendars for up to four accounts, with monthly reporting."},
  "social-media-5":{icon:"social-media",category:"Social Media",blurb:"Coordinated content planning, scheduling, brand consistency and performance reporting for up to five accounts."},
- "managed-database":{icon:"managed-database",category:"Infrastructure",blurb:"Administration, monitoring, backups, access management and security reviews for one business-critical database."},
+ "managed-database":{icon:"managed-database",category:"Infrastructure",blurb:"Snow Seasons Tech provides ongoing database administration, infrastructure maintenance, security oversight, and technical support for business-critical database environments.",
+  more:{intro:"Our managed infrastructure service helps organizations maintain reliable database operations, protect business information, and support the applications and websites that depend on structured data.",title:"Services include",items:["Administration and maintenance of supported relational database systems, including PostgreSQL and MySQL.", "Monitoring of database availability, resource utilization, storage capacity, and operational health.", "Routine database maintenance, including appropriate indexing reviews, performance analysis, and query optimization recommendations.", "Database access management, including user permissions, role-based access controls, and credential security recommendations.", "Security configuration reviews, vulnerability assessments, and applicable database software updates.", "Backup configuration, scheduled backup monitoring, and periodic restoration verification where supported by the infrastructure.", "Database connectivity troubleshooting and support for existing application integrations.", "Monitoring of database errors, connection failures, and performance degradation.", "Schema maintenance assistance and review of database structure changes.", "Infrastructure configuration assistance for Docker-based deployments and supported hosting environments.", "Basic capacity planning and recommendations for storage, compute resources, and database scaling.", "Monthly database health and infrastructure status reviews."],coverage:"One designated database environment with an agreed resource and support scope.",notes:["New database architecture, major schema migrations, extensive data cleansing, custom ETL pipelines, application development, cloud hosting charges, third-party licensing, and significant infrastructure expansion are quoted separately.", "Database security and availability are managed using reasonable technical safeguards and established maintenance practices. Continuous availability, prevention of every security incident, and zero data loss cannot be guaranteed."]}},
  "operations-lead-intelligence":{icon:"operations-leads",category:"Business Intelligence",blurb:"Lead data organization, operational dashboards, reporting and automated business insights."},
  "mailhub-intelligence":{icon:"mailhub",category:"Business Intelligence",blurb:"Campaign management, contact segmentation, marketing analytics and email workflow automation."},
  "inspections-intelligence":{icon:"inspections",category:"Business Intelligence",blurb:"Inspection data management, reporting dashboards, workflow automation and operational analytics."},
@@ -144,6 +159,7 @@ function buildCard(p){
  const art=el("article","card");art.dataset.cat=d.category;
  art.append(cardTop(d.icon,d.category),el("h2",null,p.name));
  if(d.blurb)art.append(el("p",null,d.blurb));
+ if(d.more)art.append(moreBlock(d.more));
  if(d.features){const ul=el("ul","feats");d.features.forEach(([icon,label])=>{const li=el("li");li.append(pic(`/img/icons/gbp/${icon}.webp`,null,24,22),label);ul.append(li)});art.append(ul)}
  const amount=el("span"),price=el("div","price");
  price.append(amount," ",el("small",null,recurring?"subscription":"one-time"));
@@ -161,6 +177,15 @@ function buildCard(p){
  buy.addEventListener("click",()=>checkout(p.id,state.period,buy));
  art.append(el("div","actions"));art.lastChild.append(buy);
  return art;
+}
+// Full service description, folded so long copy doesn't stretch the grid row: intro, list, coverage, then terms.
+function moreBlock(m){
+ const box=el("details","more");box.append(el("summary",null,"What's included"));
+ if(m.intro)box.append(el("p",null,m.intro));
+ if(m.items){box.append(el("h3",null,m.title||"Includes"));const ul=el("ul");m.items.forEach((t)=>ul.append(el("li",null,t)));box.append(ul)}
+ if(m.coverage){const p=el("p");p.append(el("strong",null,"Service coverage: "),m.coverage);box.append(p)}
+ (m.notes||[]).forEach((t)=>box.append(el("p","terms",t)));
+ return box;
 }
 function kitCard(){
  const art=el("article","card");art.dataset.cat="Free";
