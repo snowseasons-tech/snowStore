@@ -1,10 +1,15 @@
 services:
-  portal-api:
+  portal_api:
     build: .
     ports:
       - "8081:8000"
     environment:
       - PYTHONUNBUFFERED=1
+      - API_TEST_MODE=false
+      - ALLOW_LIVE=1
+      - DATABASE_URL=postgresql://user:pass@prod-db-host:5432/snowstore
+      - STRIPE_API_KEY=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
+      - STRIPE_WEBHOOK_SECRET=whsec_placeholder_replace_me
     volumes:
       - .:/app
     restart: always
