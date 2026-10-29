@@ -18,5 +18,8 @@ dist/
 # Pricing audit reports (scripts/pricing-audit.js)
 .pricing-audit/
 
+# Scratch files from local Qwen tools
+.qwen/
+
 # Paid product files are delivered from the bucket, never committed (this repo is public)
 products/saas-financial-engine/SaaS_Financial_Engine.xlsx
