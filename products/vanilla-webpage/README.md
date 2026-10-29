@@ -1,8 +1,48 @@
 # Vanilla Webpage Template
 
-A lightweight, dependency-free products page for your own site. Everything (HTML, CSS and JavaScript) lives in one self-contained `index.html` file. No frameworks, no build step, no CDNs. Open it in a browser and it works.
+A lightweight, dependency-free products page for your own site, plus a browser-based builder that makes one without touching code. Each is a single self-contained HTML file. No frameworks, no build step, no CDNs, no account. Open it in a browser and it works.
 
-Built by Snow Seasons Tech ([snowseasonstech.net](https://snowseasonstech.net)).
+Built by Snow Seasons Tech ([snowseasonstech.store](https://snowseasonstech.store)).
+
+## Files
+
+| File | What it is |
+| --- | --- |
+| `builder.html` | The page builder. Fill in a form, see the page update live, then export a finished `index.html`. |
+| `index.html` | The template itself, for people who'd rather edit the code by hand. |
+
+## The builder
+
+Open `builder.html` in any modern browser. The editor is on the left and a live preview of your page is on the right. Click anything in the preview (a heading, a price, a button) to jump straight to its field.
+
+What you can change:
+
+- **Brand:** name, logo letter, brand and badge colors for light and dark mode, font, card corner radius and page width. Button text color is picked automatically so it stays readable, and the builder warns you if your brand color would be hard to read as text.
+- **Sections:** hide any of Hero, Products, About, Features and Contact, and change their order. The top menu and the alternating section backgrounds follow along.
+- **Content:** every heading, paragraph, button and link. Products, About numbers, Features and footer links can be added, removed and reordered.
+- **Product images:** paste an image address or upload a photo. Uploads are shrunk to at most 1200px and saved inside the page, so the exported file needs nothing else. Without an image, a card shows a colored panel with an icon (six colors, twelve icons).
+- **Page details:** the browser tab title and the search engine description.
+
+Toolbar:
+
+| Button | What it does |
+| --- | --- |
+| Undo / Redo | Steps back and forward through your changes (also Ctrl+Z and Ctrl+Shift+Z when you're not typing in a field) |
+| Desktop / Tablet / Phone | Previews the page at that width |
+| Dark preview | Shows the page in dark mode. The page's own light/dark button works in the preview too. |
+| Open project / Save project | Saves everything to a `page-project.json` file and opens it again later, on any computer |
+| Open in new tab | Opens the finished page in its own tab, exactly as it will be exported |
+| Export HTML | Downloads the finished page as `index.html` |
+
+Your work is also saved in the browser as you go, so closing the tab loses nothing. That copy lives only in this browser on this computer. Private windows and clearing site data remove it, and pages with several large photos can be too big for browser storage (the builder tells you when that happens). Use **Save project** to keep a copy you control.
+
+Links can be web addresses (`https://...`), email links (`mailto:you@example.com`), phone links (`tel:...`), sections of the page (`#contact`) or relative paths (`about.html`). Anything else is replaced with `#` in the exported page.
+
+The exported `index.html` has the same structure, theme toggle and accessibility features as the template described below, so everything in the rest of this README applies to it too. Two small differences: the colored product panels use the classes `thumb-g0` to `thumb-g5`, and the hero glow and call-to-action banner are tinted from your brand color with CSS `color-mix()`. Browsers too old for `color-mix()` show a plain background there instead.
+
+**Start over from the template**, at the bottom of the editor, resets everything to the starting page. Save your project first if you want to keep it.
+
+The rest of this README describes the template's code, for editing `index.html` (or an exported page) by hand.
 
 ## Features
 

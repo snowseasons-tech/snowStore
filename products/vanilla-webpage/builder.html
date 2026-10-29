@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vanilla Page Builder</title>
+<style>
+    /* Builder interface. The page you build has its own styles: see BASE_CSS in the script. */
+    :root {
+        --b-bg: #f6f7f9; --b-panel: #ffffff; --b-text: #1f2937; --b-muted: #5b6472; --b-line: #e3e7ee;
+        --b-accent: #2563eb; --b-accent-text: #ffffff; --b-field: #ffffff; --b-stage: #e7eaf0; --b-danger: #b91c1c;
+        color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --b-bg: #0f1218; --b-panel: #161b23; --b-text: #e8ebf0; --b-muted: #a3abb8; --b-line: #2a323f;
+            --b-accent: #6ea8fe; --b-accent-text: #0b1220; --b-field: #0f1218; --b-stage: #0b0e13; --b-danger: #f87171;
+            color-scheme: dark;
+        }
+    }
+    * { box-sizing: border-box; margin: 0; }
+    html, body { height: 100%; }
+    body {
+        display: flex; flex-direction: column;
+        font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: var(--b-bg); color: var(--b-text);
+    }
+    [hidden] { display: none !important; }
+    button, .btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        font: inherit; padding: 6px 11px; border: 1px solid var(--b-line); border-radius: 8px;
+        background: var(--b-panel); color: var(--b-text); cursor: pointer; white-space: nowrap;
+    }
+    button:hover, .btn:hover { border-color: var(--b-muted); }
+    button:disabled { opacity: 0.45; cursor: default; border-color: var(--b-line); }
+    button.primary { background: var(--b-accent); color: var(--b-accent-text); border-color: transparent; font-weight: 600; }
+    button[aria-pressed="true"] { background: var(--b-accent); color: var(--b-accent-text); border-color: var(--b-accent); }
+    :focus-visible { outline: 2px solid var(--b-accent); outline-offset: 2px; }
+
+    .bar {
+        display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap;
+        padding: 8px 12px; border-bottom: 1px solid var(--b-line); background: var(--b-panel);
+    }
+    .app { font-size: 15px; }
+    .tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .tools.end { margin-left: auto; }
+    .seg { display: inline-flex; }
+    .seg button { border-radius: 0; }
+    .seg button:first-child { border-radius: 8px 0 0 8px; }
+    .seg button:last-child { border-radius: 0 8px 8px 0; }
+    .seg button + button { margin-left: -1px; }
+    .status { color: var(--b-muted); font-size: 12px; }
+    .status.warn, .hint.warn { color: var(--b-danger); }
+    .view-btns { display: none; }
+
+    .work { flex: 1; display: flex; min-height: 0; }
+    .panel { width: 390px; flex: none; overflow-y: auto; padding: 12px; border-right: 1px solid var(--b-line); background: var(--b-panel); }
+    .stage { flex: 1; min-width: 0; display: flex; justify-content: center; padding: 16px; background: var(--b-stage); }
+    .frame-wrap { width: 100%; height: 100%; }
+    .frame-wrap[data-device="tablet"] { width: 820px; max-width: 100%; }
+    .frame-wrap[data-device="phone"] { width: 390px; max-width: 100%; }
+    iframe {
+        width: 100%; height: 100%; border: 1px solid var(--b-line); border-radius: 10px; background: #fff;
+        box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.35);
+    }
+
+    .intro { color: var(--b-muted); font-size: 13px; margin: 2px 2px 12px; }
+    details { border: 1px solid var(--b-line); border-radius: 10px; margin-bottom: 10px; }
+    summary { padding: 10px 12px; font-weight: 600; cursor: pointer; }
+    summary .hint { font-weight: 400; }
+    .g { display: grid; gap: 10px; padding: 2px 12px 12px; }
+    .f { display: grid; gap: 4px; min-width: 0; }
+    .f > span { font-size: 12px; font-weight: 600; color: var(--b-muted); }
+    .hint, .f small { font-size: 12px; color: var(--b-muted); }
+    input[type="text"], input[type="number"], textarea, select {
+        width: 100%; font: inherit; padding: 7px 9px; border: 1px solid var(--b-line); border-radius: 8px;
+        background: var(--b-field); color: var(--b-text);
+    }
+    textarea { resize: vertical; }
+    input[type="color"] { width: 100%; height: 34px; padding: 2px; border: 1px solid var(--b-line); border-radius: 8px; background: var(--b-field); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: end; }
+    .chk { display: flex; gap: 8px; align-items: center; min-height: 34px; }
+    .list { display: grid; gap: 8px; }
+    .item { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--b-line); border-radius: 8px; }
+    .item-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .item-tools { display: inline-flex; gap: 4px; }
+    .item-tools button { padding: 2px 8px; }
+    .srow { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .img-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .img-row input[type="text"] { flex: 1 1 150px; width: auto; }
+    .mini { width: 48px; height: 30px; object-fit: cover; border-radius: 4px; border: 1px solid var(--b-line); }
+    .sm { padding: 4px 8px; font-size: 12px; }
+    .add { justify-self: start; }
+    .danger { color: var(--b-danger); }
+    .flash { box-shadow: 0 0 0 3px #f59e0b; }
+
+    @media (max-width: 900px) {
+        .view-btns { display: inline-flex; }
+        .devices, #newtab { display: none; }
+        .tools.end { margin-left: 0; }
+        body[data-view="edit"] .stage, body[data-view="preview"] .panel { display: none; }
+        .panel { width: 100%; border-right: 0; }
+        .stage { padding: 0; }
+        iframe { border: 0; border-radius: 0; box-shadow: none; }
+    }
+    @media (max-width: 600px) {
+        /* One row of tools that scrolls sideways, so the editor keeps most of the screen. */
+        .bar { flex-wrap: nowrap; overflow-x: auto; gap: 6px; padding: 6px 8px; }
+        .app, .status:empty { display: none; }
+        .tools { display: contents; }
+        .tools > * { order: 3; flex: none; }
+        .tools > .view-btns { order: 1; }
+        .tools > #export { order: 2; }
+        button, .bar .btn { padding: 6px 9px; }
+    }
+</style>
+</head>
+<body data-view="edit">
+<header class="bar">
+    <strong class="app">Vanilla Page Builder</strong>
+    <div class="tools">
+        <div class="seg view-btns" role="group" aria-label="Show">
+            <button type="button" data-view-btn="edit" aria-pressed="true">Edit</button>
+            <button type="button" data-view-btn="preview" aria-pressed="false">Preview</button>
+        </div>
+        <button type="button" id="undo" title="Undo (Ctrl+Z)" disabled>Undo</button>
+        <button type="button" id="redo" title="Redo (Ctrl+Shift+Z)" disabled>Redo</button>
+        <div class="seg devices" role="group" aria-label="Preview size">
+            <button type="button" data-device="desktop" aria-pressed="true">Desktop</button>
+            <button type="button" data-device="tablet" aria-pressed="false">Tablet</button>
+            <button type="button" data-device="phone" aria-pressed="false">Phone</button>
+        </div>
+        <button type="button" id="dark" aria-pressed="false">Dark preview</button>
+    </div>
+    <div class="tools end">
+        <span class="status" id="status" role="status"></span>
+        <button type="button" id="open">Open project</button>
+        <input type="file" id="open-file" accept=".json,application/json" hidden>
+        <button type="button" id="save">Save project</button>
+        <button type="button" id="newtab">Open in new tab</button>
+        <button type="button" id="export" class="primary">Export HTML</button>
+    </div>
+</header>
+<div class="work">
+    <aside class="panel" id="panel" aria-label="Page settings"></aside>
+    <section class="stage" aria-label="Preview">
+        <div class="frame-wrap" id="frame-wrap" data-device="desktop"><iframe id="frame" title="Page preview"></iframe></div>
+    </section>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------------------------
+// Options shown in the editor
+// ---------------------------------------------------------------------------------------------
+const SECTIONS = { hero: "Hero", products: "Products", about: "About", features: "Features", contact: "Contact" };
+const FONTS = {
+    system: ["Classic sans (Segoe UI)", '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif'],
+    modern: ["System UI", 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'],
+    serif: ["Serif (Georgia)", 'Georgia, Cambria, "Times New Roman", serif'],
+    rounded: ["Rounded", 'ui-rounded, "SF Pro Rounded", Nunito, system-ui, sans-serif'],
+    mono: ["Monospace", "ui-monospace, Menlo, Consolas, monospace"],
+};
+// Colored panels shown on product cards that have no image.
+const GRADS = [["Blue", "#2563eb", "#22d3ee"], ["Purple", "#7c3aed", "#ec4899"], ["Green", "#059669", "#a3e635"],
+    ["Orange", "#ea580c", "#facc15"], ["Slate", "#334155", "#64748b"], ["Rose", "#e11d48", "#fb7185"]];
+const ICONS = {
+    box: ["Box", '<path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>'],
+    star: ["Star", '<path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7L12 3Z"/>'],
+    gift: ["Gift", '<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/><path d="M12 8c-2-4-6-4-6-1.5S10 8 12 8Zm0 0c2-4 6-4 6-1.5S14 8 12 8Z"/>'],
+    check: ["Check mark", '<path d="M20 6 9 17l-5-5"/>'],
+    clock: ["Clock", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'],
+    chat: ["Speech bubble", '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'],
+    shield: ["Shield", '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/>'],
+    truck: ["Truck", '<path d="M3 6h11v10H3z"/><path d="M14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>'],
+    heart: ["Heart", '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>'],
+    bolt: ["Lightning", '<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/>'],
+    leaf: ["Leaf", '<path d="M5 19c0-8 6-14 15-14 0 9-6 15-14 15"/><path d="m5 19 9-9"/>'],
+    tag: ["Price tag", '<path d="M3 12V3h9l9 9-9 9-9-9Z"/><circle cx="7.5" cy="7.5" r="1.5"/>'],
+};
+
+// The starting page: the same content as the Vanilla Webpage Template (index.html).
+const DEFAULT = {
+    page: { title: "Your Brand | Products", description: "One sentence about what you sell and who it is for." },
+    brand: { name: "Your Brand", mark: "Y", font: "system", primary: "#2563eb", primaryDark: "#6ea8fe", accent: "#ea580c", accentDark: "#fb923c", radius: 14, width: 1100, themeToggle: true },
+    order: ["hero", "products", "about", "features", "contact"],
+    hidden: { hero: false, products: false, about: false, features: false, contact: false },
+    hero: {
+        eyebrow: "New this season", headline: "Products that make your work simpler",
+        text: "One or two sentences on what you sell, who it is for, and the result they get. Keep it short and specific.",
+        primaryLabel: "Browse products", primaryHref: "#products", secondaryLabel: "Get in touch", secondaryHref: "#contact",
+        note: "Free shipping on orders over $50. 30-day returns.",
+    },
+    products: {
+        nav: "Products", eyebrow: "Products", heading: "Pick what fits",
+        text: "Replace these three cards with your own products. Add more and the grid adjusts on its own.",
+        items: [
+            { badge: "Best for beginners", hot: false, name: "Starter Kit", text: "Everything a new customer needs to get going, in one box.", price: "$29", priceNote: "one-time", button: "Buy now", href: "#contact", image: "", gradient: 0, icon: "box" },
+            { badge: "Most popular", hot: true, name: "Pro Toolkit", text: "The full set for people who use it every day. Describe the benefit, not the specs.", price: "$59", priceNote: "one-time", button: "Buy now", href: "#contact", image: "", gradient: 1, icon: "star" },
+            { badge: "Best value", hot: false, name: "Complete Bundle", text: "Both kits together at a lower price, plus priority support.", price: "$79", priceNote: "one-time", button: "Buy now", href: "#contact", image: "", gradient: 2, icon: "gift" },
+        ],
+    },
+    about: {
+        nav: "About", eyebrow: "About us", heading: "A small team that sweats the details",
+        text: "Tell your story in two or three sentences: who you are, why you started, and what you care about.\n\nVisitors trust a real person behind a shop. A line about where you are based or how you make things helps.",
+        stats: [
+            { value: "2,400+", label: "happy customers" }, { value: "4.9/5", label: "average rating" },
+            { value: "48h", label: "typical shipping time" }, { value: "30 days", label: "no-questions returns" },
+        ],
+    },
+    features: {
+        nav: "Features", eyebrow: "Why us", heading: "Reasons to choose us",
+        text: "Three short reasons a customer should buy from you. Lead with what they get.",
+        items: [
+            { icon: "check", title: "Quality you can see", text: "Describe the first benefit in a sentence or two." },
+            { icon: "clock", title: "Fast delivery", text: "Describe the second benefit in a sentence or two." },
+            { icon: "chat", title: "Real support", text: "Describe the third benefit in a sentence or two." },
+        ],
+    },
+    contact: {
+        nav: "Contact", heading: "Questions before you buy?", text: "Repeat your main promise and give one clear next step.",
+        button: "Email us", href: "mailto:hello@example.com",
+    },
+    footer: {
+        name: "Your Brand",
+        links: [{ label: "Privacy", href: "#" }, { label: "Terms", href: "#" }, { label: "hello@example.com", href: "mailto:hello@example.com" }],
+    },
+};
+// What "Add" puts in each list.
+const NEW = {
+    "products.items": { badge: "", hot: false, name: "New product", text: "Describe what it is and who it is for.", price: "$0", priceNote: "one-time", button: "Buy now", href: "#contact", image: "", gradient: 3, icon: "tag" },
+    "about.stats": { value: "100%", label: "describe the number" },
+    "features.items": { icon: "shield", title: "Another reason", text: "Describe the benefit in a sentence or two." },
+    "footer.links": { label: "Link", href: "#" },
+};
+const STORAGE_KEY = "vanilla-page-builder:v1";
+
+// ---------------------------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------------------------
+const $ = (s) => document.querySelector(s);
+const clone = (v) => JSON.parse(JSON.stringify(v));
+const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+const esc = (v) => (v == null ? "" : String(v)).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const get = (o, path) => path.split(".").reduce((a, k) => (a == null ? a : a[k]), o);
+const set = (o, path, v) => { const keys = path.split("."), last = keys.pop(); keys.reduce((a, k) => a[k], o)[last] = v; };
+const clamp = (v, min, max, d) => { if (v === "" || v == null) return d; v = Number(v); return Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : d; };
+const color = (v, d) => (/^#[0-9a-f]{6}$/i.test(v) ? v : d);
+const luminance = (hex) => {
+    const n = parseInt(hex.slice(1), 16);
+    const [r, g, b] = [n >> 16 & 255, n >> 8 & 255, n & 255].map((c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrast = (a, b) => { const [x, y] = [luminance(a), luminance(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+// Text color that stays readable on the given background: white on dark colors, near-black on light ones.
+const onColor = (hex) => (luminance(hex) > 0.19 ? "#0b1220" : "#ffffff");
+// Links may be web addresses, mailto:/tel:, #sections or relative paths. Other schemes (javascript: and so on) become "#".
+const safeUrl = (u) => {
+    u = String(u == null ? "" : u).trim();
+    if (!u) return "#";
+    return /^[a-z][a-z0-9+.-]*:/i.test(u) && !/^(https?|mailto|tel):/i.test(u) ? "#" : u;
+};
+const safeImg = (u) => {
+    u = String(u == null ? "" : u).trim();
+    if (/^data:image\/(png|jpe?g|gif|webp);base64,[a-z0-9+/=]+$/i.test(u)) return u;
+    return u && !/^[a-z][a-z0-9+.-]*:/i.test(u) || /^https?:/i.test(u) ? u : "";
+};
+const icon = (name, width) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${(has(ICONS, name) ? ICONS[name] : ICONS.box)[1]}</svg>`;
+
+// Rebuilds a saved or opened project on top of DEFAULT, keeping only known fields of the right type.
+function shape(def, val) {
+    if (Array.isArray(def)) {
+        if (!Array.isArray(val)) return clone(def);
+        const tpl = def[0];
+        return val.slice(0, 60).map((v) => (tpl && typeof tpl === "object" ? shape(tpl, v) : typeof v === typeof tpl ? v : tpl));
+    }
+    if (def && typeof def === "object") {
+        const src = val && typeof val === "object" && !Array.isArray(val) ? val : {}, out = {};
+        for (const k of Object.keys(def)) out[k] = has(src, k) ? shape(def[k], src[k]) : clone(def[k]);
+        return out;
+    }
+    return typeof val === typeof def ? val : def;
+}
+function normalize(val) {
+    const s = shape(DEFAULT, val), known = Object.keys(SECTIONS);
+    s.order = [...new Set(s.order.filter((id) => known.includes(id)))];
+    known.forEach((id) => { if (!s.order.includes(id)) s.order.push(id); });
+    return s;
+}
+
+// ---------------------------------------------------------------------------------------------
+// The page being built. renderPage() returns the complete standalone HTML file.
+// ---------------------------------------------------------------------------------------------
+const BASE_CSS = `
+        /* --- RESET & BASE --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+        body { font-family: var(--font); line-height: 1.6; background: var(--bg-color); color: var(--text-color); }
+        a { color: var(--primary-color); }
+        h1, h2, h3 { line-height: 1.2; }
+        h2 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .container { max-width: var(--container-width); margin: 0 auto; padding: 0 20px; }
+        section { padding: 80px 0; }
+        .section-alt { background: var(--secondary-color); }
+        .section-head { max-width: 640px; margin-bottom: 36px; }
+        .section-head p { color: var(--muted-color); }
+        .eyebrow {
+            display: inline-block; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--primary-color); margin-bottom: 0.6rem;
+        }
+
+        /* --- HEADER & NAV --- */
+        header { position: sticky; top: 0; z-index: 100; background: var(--bg-color); border-bottom: 1px solid var(--border-color); }
+        nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; height: 64px; }
+        .logo { display: inline-flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 700; color: var(--text-color); text-decoration: none; }
+        .logo-mark {
+            width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+            background: var(--primary-color); color: var(--primary-text); font-size: 0.95rem;
+        }
+        .nav-right { display: flex; align-items: center; gap: 1.25rem; }
+        .nav-links { display: flex; gap: 1.25rem; list-style: none; }
+        .nav-links a { color: var(--muted-color); text-decoration: none; font-weight: 500; transition: color var(--transition); }
+        .nav-links a:hover { color: var(--text-color); }
+
+        /* --- BUTTONS --- */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 11px 20px; border-radius: 10px; border: 1px solid var(--primary-color);
+            background: var(--primary-color); color: var(--primary-text);
+            font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+            transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px -6px var(--primary-color); }
+        .btn.outline { background: transparent; color: var(--primary-color); }
+        .btn.outline:hover { background: var(--secondary-color); box-shadow: none; }
+        .btn-toggle { padding: 7px 12px; font-size: 0.85rem; font-weight: 500; background: transparent; color: var(--text-color); border-color: var(--border-color); }
+        .btn-toggle:hover { background: var(--secondary-color); box-shadow: none; }
+        .btn:focus-visible, .nav-links a:focus-visible, .logo:focus-visible, .footer-links a:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 3px; }
+
+        /* --- HERO --- */
+        #hero { padding: 96px 0 88px; text-align: center; background: var(--bg-color); }
+        #hero { background: radial-gradient(40rem 22rem at 50% -10%, color-mix(in srgb, var(--brand) 16%, transparent), transparent 70%), var(--bg-color); }
+        #hero h1 { font-size: 3.1rem; max-width: 760px; margin: 0 auto 1rem; letter-spacing: -0.02em; }
+        #hero p { color: var(--muted-color); font-size: 1.15rem; max-width: 600px; margin: 0 auto 2rem; }
+        .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        #hero .hero-note { margin: 1.25rem auto 0; font-size: 0.9rem; }
+
+        /* --- PRODUCTS --- */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+        .product {
+            display: flex; flex-direction: column;
+            background: var(--card-color); border: 1px solid var(--border-color); border-radius: var(--radius);
+            box-shadow: var(--shadow); overflow: hidden; transition: transform var(--transition), box-shadow var(--transition);
+        }
+        .product:hover { transform: translateY(-3px); }
+        .thumb { display: grid; place-items: center; aspect-ratio: 16 / 10; width: 100%; object-fit: cover; color: #fff; }
+        .thumb svg { width: 56px; height: 56px; opacity: 0.95; }
+${GRADS.map((g, i) => `        .thumb-g${i} { background: linear-gradient(135deg, ${g[1]}, ${g[2]}); }`).join("\n")}
+        .product-body { display: flex; flex-direction: column; gap: 8px; padding: 22px; flex: 1; }
+        .product h3 { font-size: 1.2rem; }
+        .product p { color: var(--muted-color); }
+        .badge {
+            align-self: flex-start; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px;
+            background: var(--secondary-color); color: var(--muted-color); border: 1px solid var(--border-color);
+        }
+        .badge.hot { background: var(--accent-color); color: var(--accent-text); border-color: transparent; }
+        .product-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 12px; }
+        .price { font-size: 1.5rem; font-weight: 700; }
+        .price small { font-size: 0.85rem; font-weight: 400; color: var(--muted-color); }
+
+        /* --- ABOUT --- */
+        .about { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; }
+        .about.solo { grid-template-columns: 1fr; max-width: 760px; }
+        .about p { color: var(--muted-color); margin-bottom: 1rem; }
+        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .stat { background: var(--card-color); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; }
+        .stat strong { display: block; font-size: 1.8rem; color: var(--primary-color); line-height: 1.1; }
+        .stat span { color: var(--muted-color); font-size: 0.9rem; }
+
+        /* --- FEATURES --- */
+        .feature { background: var(--card-color); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 24px; }
+        .feature h3 { font-size: 1.1rem; margin-bottom: 0.4rem; }
+        .feature p { color: var(--muted-color); }
+        .icon {
+            width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 1rem;
+            background: var(--secondary-color); color: var(--primary-color); border: 1px solid var(--border-color);
+        }
+        .icon svg { width: 22px; height: 22px; }
+
+        /* --- CALL TO ACTION --- */
+        .cta { text-align: center; border-radius: 20px; padding: 56px 24px; color: var(--brand-text); background: var(--brand); }
+        .cta { background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 78%, #000), var(--brand) 55%, color-mix(in srgb, var(--brand) 70%, #0891b2)); }
+        .cta h2 { color: inherit; }
+        .cta p { opacity: 0.9; max-width: 540px; margin: 0 auto 1.75rem; }
+        .cta .btn { background: var(--brand-text); color: var(--brand); border-color: var(--brand-text); }
+
+        /* --- FOOTER --- */
+        footer { border-top: 1px solid var(--border-color); padding: 32px 0; color: var(--muted-color); font-size: 0.9rem; }
+        .footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .footer-links { display: flex; gap: 1.25rem; list-style: none; flex-wrap: wrap; }
+        .footer-links a { color: var(--muted-color); }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 800px) { .about { grid-template-columns: 1fr; gap: 28px; } }
+        @media (max-width: 600px) {
+            /* Nav links move to their own row under the logo and theme toggle. */
+            html { scroll-padding-top: 110px; }
+            nav { flex-wrap: wrap; height: auto; padding-top: 10px; padding-bottom: 10px; row-gap: 6px; }
+            .nav-right { display: contents; }
+            .nav-links { order: 3; width: 100%; gap: 1.1rem; font-size: 0.92rem; overflow-x: auto; }
+            section { padding: 60px 0; }
+            #hero { padding: 64px 0 56px; }
+            #hero h1 { font-size: 2.2rem; }
+            h2 { font-size: 1.6rem; }
+            .footer-inner { flex-direction: column; text-align: center; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { transition: none !important; }
+            .btn:hover, .product:hover { transform: none; }
+        }
+`;
+// Only in the builder preview: shows what can be clicked to edit.
+const EDIT_CSS = `html { scroll-behavior: auto; } [data-edit] { cursor: pointer; } [data-edit]:hover { outline: 2px dashed #f59e0b; outline-offset: 3px; }`;
+
+function rootCss(s) {
+    const b = s.brand, d = DEFAULT.brand;
+    const primary = color(b.primary, d.primary), primaryDark = color(b.primaryDark, d.primaryDark);
+    const accent = color(b.accent, d.accent), accentDark = color(b.accentDark, d.accentDark);
+    const font = (has(FONTS, b.font) ? FONTS[b.font] : FONTS.system)[1];
+    const dark = (pad) => [
+        "--bg-color: #0f1218;", "--text-color: #e8ebf0;", "--muted-color: #a3abb8;",
+        `--primary-color: ${primaryDark};`, `--primary-text: ${onColor(primaryDark)};`,
+        `--accent-color: ${accentDark};`, `--accent-text: ${onColor(accentDark)};`,
+        "--secondary-color: #161b23;", "--card-color: #1a2029;", "--border-color: #2a323f;",
+        "--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -12px rgba(0, 0, 0, 0.6);", "color-scheme: dark;",
+    ].map((l) => pad + l).join("\n");
+    return `
+        /* --- CSS VARIABLES (edit these to rebrand) --- */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #1f2937;
+            --muted-color: #5b6472;
+            --primary-color: ${primary};      /* links, buttons, logo mark */
+            --primary-text: ${onColor(primary)};       /* text on primary-colored buttons */
+            --accent-color: ${accent};       /* highlighted badge */
+            --accent-text: ${onColor(accent)};
+            --brand: ${primary};              /* hero glow and call-to-action banner, same in both themes */
+            --brand-text: ${onColor(primary)};
+            --secondary-color: #f3f5f8;
+            --card-color: #ffffff;
+            --border-color: #e3e7ee;
+            --shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 8px 24px -12px rgba(16, 24, 40, 0.18);
+            --radius: ${clamp(b.radius, 0, 32, d.radius)}px;
+            --container-width: ${clamp(b.width, 720, 1440, d.width)}px;
+            --transition: 0.2s ease;
+            --font: ${font};
+            color-scheme: light;
+        }
+        /* Dark mode colors (used when the visitor picks dark, or their system is dark and they haven't picked). */
+        [data-theme="dark"] {
+${dark("            ")}
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+${dark("                ")}
+            }
+        }
+`;
+}
+
+function renderBody(s, edit) {
+    const E = (path) => (edit ? ` data-edit="${path}"` : "");
+    const visible = s.order.filter((id) => !s.hidden[id]);
+    const text = (path, tag, cls) => { const v = get(s, path); return v ? `<${tag}${cls ? ` class="${cls}"` : ""}${E(path)}>${esc(v)}</${tag}>` : ""; };
+    const link = (cls, label, href, path) => (label ? `<a class="${cls}" href="${esc(safeUrl(href))}"${E(path)}>${esc(label)}</a>` : "");
+    const head = (id) => {
+        const inner = [text(`${id}.eyebrow`, "span", "eyebrow"), text(`${id}.heading`, "h2"), text(`${id}.text`, "p")].filter(Boolean);
+        return inner.length ? `<div class="section-head">\n                    ${inner.join("\n                    ")}\n                </div>\n` : "";
+    };
+    const I = (n) => "\n" + " ".repeat(n);
+
+    const sections = {
+        hero: () => {
+            const h = s.hero, actions = [link("btn", h.primaryLabel, h.primaryHref, "hero.primaryLabel"), link("btn outline", h.secondaryLabel, h.secondaryHref, "hero.secondaryLabel")].filter(Boolean);
+            return [text("hero.eyebrow", "span", "eyebrow"), text("hero.headline", "h1"), text("hero.text", "p"),
+                actions.length ? `<div class="hero-actions">${I(20)}${actions.join(I(20))}${I(16)}</div>` : "", text("hero.note", "p", "hero-note")].filter(Boolean).join(I(16));
+        },
+        products: () => {
+            const cards = s.products.items.map((it, i) => {
+                const p = `products.items.${i}`, img = safeImg(it.image), g = clamp(it.gradient, 0, GRADS.length - 1, 0);
+                const thumb = img
+                    ? `<img class="thumb" src="${esc(img)}" alt="${esc(it.name)}" loading="lazy"${E(p + ".image")}>`
+                    : `<div class="thumb thumb-g${g}" role="img" aria-label="${esc(it.name)} product image"${E(p + ".image")}>${icon(it.icon, 1.6)}</div>`;
+                const price = it.price || it.priceNote ? `<span class="price"${E(p + ".price")}>${esc(it.price)}${it.priceNote ? ` <small>${esc(it.priceNote)}</small>` : ""}</span>` : "";
+                const foot = [price, link("btn", it.button, it.href, p + ".button")].filter(Boolean);
+                return `<article class="product">${I(24)}${thumb}${I(24)}<div class="product-body">${I(28)}`
+                    + [it.badge ? `<span class="badge${it.hot ? " hot" : ""}"${E(p + ".badge")}>${esc(it.badge)}</span>` : "", text(p + ".name", "h3"), text(p + ".text", "p"),
+                        foot.length ? `<div class="product-foot">${I(32)}${foot.join(I(32))}${I(28)}</div>` : ""].filter(Boolean).join(I(28))
+                    + `${I(24)}</div>${I(20)}</article>`;
+            });
+            return head("products") + (cards.length ? `                <div class="grid">${I(20)}${cards.join(I(20))}${I(16)}</div>` : "");
+        },
+        about: () => {
+            const a = s.about, paras = String(a.text || "").split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
+            const stats = a.stats.map((st, i) => `<div class="stat"${E(`about.stats.${i}.value`)}><strong>${esc(st.value)}</strong><span>${esc(st.label)}</span></div>`);
+            return { cls: `about${stats.length ? "" : " solo"}`, html: `<div>${I(20)}` + [text("about.eyebrow", "span", "eyebrow"), text("about.heading", "h2"),
+                ...paras.map((t) => `<p${E("about.text")}>${esc(t)}</p>`)].filter(Boolean).join(I(20)) + `${I(16)}</div>`
+                + (stats.length ? `${I(16)}<div class="stats">${I(20)}${stats.join(I(20))}${I(16)}</div>` : "") };
+        },
+        features: () => {
+            const items = s.features.items.map((f, i) => {
+                const p = `features.items.${i}`;
+                return `<article class="feature">${I(24)}<div class="icon" aria-hidden="true"${E(p + ".icon")}>${icon(f.icon, 2)}</div>${I(24)}`
+                    + [text(p + ".title", "h3"), text(p + ".text", "p")].filter(Boolean).join(I(24)) + `${I(20)}</article>`;
+            });
+            return head("features") + (items.length ? `                <div class="grid">${I(20)}${items.join(I(20))}${I(16)}</div>` : "");
+        },
+        contact: () => {
+            const c = s.contact;
+            return `<div class="cta">${I(20)}` + [text("contact.heading", "h2"), text("contact.text", "p"), link("btn", c.button, c.href, "contact.button")].filter(Boolean).join(I(20)) + `${I(16)}</div>`;
+        },
+    };
+
+    const main = visible.map((id, n) => {
+        const alt = n % 2 === 1 ? ' class="section-alt"' : "", out = sections[id]();
+        const cls = typeof out === "object" ? out.cls : "", html = typeof out === "object" ? out.html : out;
+        const body = id === "products" || id === "features" ? html.replace(/^ {16}/, "") : html;
+        return `        <section id="${id}"${alt}>\n            <div class="container${cls ? " " + cls : ""}">\n                ${body}\n            </div>\n        </section>`;
+    }).join("\n\n");
+
+    const b = s.brand;
+    const navLinks = visible.filter((id) => id !== "hero" && s[id].nav).map((id) => `<li><a href="#${id}"${E(id + ".nav")}>${esc(s[id].nav)}</a></li>`);
+    const footLinks = s.footer.links.map((l, i) => (l.label ? `<li><a href="${esc(safeUrl(l.href))}"${E(`footer.links.${i}.label`)}>${esc(l.label)}</a></li>` : "")).filter(Boolean);
+    return `    <header>
+        <nav class="container" aria-label="Main navigation">
+            <a class="logo" href="#"${E("brand.name")}>${b.mark ? `<span class="logo-mark" aria-hidden="true">${esc(b.mark)}</span>` : ""}${esc(b.name)}</a>
+            <div class="nav-right">${navLinks.length ? `
+                <ul class="nav-links">
+                    ${navLinks.join("\n                    ")}
+                </ul>` : ""}${b.themeToggle ? `
+                <button class="btn btn-toggle" id="theme-toggle" type="button" aria-pressed="false">Dark mode</button>` : ""}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+${main}
+    </main>
+
+    <footer>
+        <div class="container footer-inner">
+            <p${E("footer.name")}>&copy; <span id="year">${new Date().getFullYear()}</span> ${esc(s.footer.name)}</p>${footLinks.length ? `
+            <ul class="footer-links">
+                ${footLinks.join("\n                ")}
+            </ul>` : ""}
+        </div>
+    </footer>`;
+}
+
+function renderPage(s, edit) {
+    const toggle = s.brand.themeToggle;
+    const headScript = !edit && toggle ? `
+    <!-- Apply a saved theme before the page paints, so there is no flash of the wrong theme. -->
+    <script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(_){}<\/script>` : "";
+    const script = edit ? "" : `
+
+    <script>${toggle ? `
+        // Theme toggle: follows the visitor's system setting until they pick, then remembers the choice.
+        const root = document.documentElement;
+        const themeToggle = document.querySelector("#theme-toggle");
+        const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+        const syncToggle = () => {
+            const dark = isDark();
+            themeToggle.setAttribute("aria-pressed", String(dark));
+            themeToggle.textContent = dark ? "Light mode" : "Dark mode";
+        };
+        themeToggle.addEventListener("click", () => {
+            root.dataset.theme = isDark() ? "light" : "dark";
+            try { localStorage.setItem("theme", root.dataset.theme); } catch (_) {}
+            syncToggle();
+        });
+        syncToggle();` : ""}
+        document.querySelector("#year").textContent = new Date().getFullYear();
+    <\/script>`;
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${esc(s.page.title)}</title>
+    <meta name="description" content="${esc(s.page.description)}">${headScript}
+    <style id="vars">${rootCss(s)}    </style>
+    <style>${BASE_CSS}${edit ? EDIT_CSS : ""}    </style>
+</head>
+<body>
+${renderBody(s, edit)}${script}
+</body>
+</html>
+`;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Editor panel
+// ---------------------------------------------------------------------------------------------
+const panel = $("#panel"), frame = $("#frame");
+const openGroups = new Set(["page"]);
+let state = load() || clone(DEFAULT);
+
+const F = {
+    text: (path, label, o = {}) => `<label class="f"><span>${label}</span><input type="text" data-path="${path}" value="${esc(get(state, path))}"${o.ph ? ` placeholder="${esc(o.ph)}"` : ""}${o.max ? ` maxlength="${o.max}"` : ""}>${o.hint ? `<small>${o.hint}</small>` : ""}</label>`,
+    area: (path, label, o = {}) => `<label class="f"><span>${label}</span><textarea data-path="${path}" rows="${o.rows || 3}">${esc(get(state, path))}</textarea>${o.hint ? `<small>${o.hint}</small>` : ""}</label>`,
+    color: (path, label) => `<label class="f"><span>${label}</span><input type="color" data-path="${path}" value="${esc(color(get(state, path), get(DEFAULT, path)))}"></label>`,
+    num: (path, label, min, max, step) => `<label class="f"><span>${label}</span><input type="number" data-path="${path}" value="${esc(get(state, path))}" min="${min}" max="${max}" step="${step}"></label>`,
+    check: (path, label) => `<label class="chk"><input type="checkbox" data-path="${path}"${get(state, path) ? " checked" : ""}> ${label}</label>`,
+    select: (path, label, options, num) => `<label class="f"><span>${label}</span><select data-path="${path}"${num ? " data-num" : ""}>${options.map(([v, t]) => `<option value="${esc(v)}"${String(get(state, path)) === String(v) ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></label>`,
+    image: (path) => {
+        const v = String(get(state, path) || ""), embedded = v.startsWith("data:"), shown = safeImg(v);
+        return `<div class="f"><span>Image</span><div class="img-row">${shown ? `<img class="mini" src="${esc(shown)}" alt="">` : ""}`
+            + `<input type="text" data-path="${path}" aria-label="Image address" value="${embedded ? "" : esc(v)}" placeholder="${embedded ? "Uploaded image (saved inside the page)" : "Image address, or upload one"}">`
+            + `<label class="btn sm">Upload<input type="file" accept="image/png,image/jpeg,image/gif,image/webp" data-upload="${path}" hidden></label>`
+            + (v ? `<button type="button" class="sm" data-act="clear" data-path="${path}">Remove</button>` : "")
+            + `</div><small>Without an image, the card shows a colored panel with an icon.</small></div>`;
+    },
+};
+const row = (...fields) => `<div class="row">${fields.join("")}</div>`;
+const tools = (list, i, n) => `<span class="item-tools">`
+    + `<button type="button" data-act="up" data-list="${list}" data-i="${i}" aria-label="Move up"${i === 0 ? " disabled" : ""}>↑</button>`
+    + `<button type="button" data-act="down" data-list="${list}" data-i="${i}" aria-label="Move down"${i === n - 1 ? " disabled" : ""}>↓</button>`
+    + (list === "order" ? "" : `<button type="button" data-act="del" data-list="${list}" data-i="${i}" aria-label="Remove" class="danger">✕</button>`)
+    + `</span>`;
+const list = (path, title, body, addLabel) => {
+    const items = get(state, path);
+    return `<div class="list">${items.map((it, i) => `<div class="item"><div class="item-head"><strong>${title} ${i + 1}</strong>${tools(path, i, items.length)}</div>${body(`${path}.${i}`)}</div>`).join("")}`
+        + `<button type="button" class="add" data-act="add" data-list="${path}">${addLabel}</button></div>`;
+};
+const group = (id, title, body) => `<details data-group="${id}"${openGroups.has(id) ? " open" : ""}><summary>${title}${state.hidden[id] ? ' <span class="hint">(hidden)</span>' : ""}</summary><div class="g">${body}</div></details>`;
+const sectionHead = (id) => F.text(`${id}.nav`, "Menu label", { hint: "Shown in the top menu. Leave empty to leave it out." }) + F.text(`${id}.eyebrow`, "Small heading") + F.text(`${id}.heading`, "Heading") + F.area(`${id}.text`, "Intro", { rows: 2 });
+const LINK_HINT = "A web address, mailto:you@example.com, or a section such as #contact.";
+
+function buildEditor() {
+    const top = panel.scrollTop;
+    panel.innerHTML = `<p class="intro">Edit on the left, or click anything in the preview to jump to its field. Your work saves in this browser as you go. Export HTML when you're done.</p>`
+        + group("page", "Brand and page",
+            F.text("brand.name", "Brand name", { max: 80 })
+            + row(F.text("brand.mark", "Logo letter", { max: 2, hint: "Empty hides the square." }), F.select("brand.font", "Font", Object.entries(FONTS).map(([k, v]) => [k, v[0]])))
+            + row(F.color("brand.primary", "Brand color"), F.color("brand.primaryDark", "Brand color, dark mode"))
+            + `<p class="hint warn" id="contrast" hidden></p>`
+            + row(F.color("brand.accent", "Highlight badge"), F.color("brand.accentDark", "Highlight badge, dark mode"))
+            + row(F.num("brand.radius", "Card corners (px)", 0, 32, 1), F.num("brand.width", "Page width (px)", 720, 1440, 20))
+            + F.check("brand.themeToggle", "Show the light/dark mode button")
+            + F.text("page.title", "Browser tab title") + F.area("page.description", "Search engine description", { rows: 2 }))
+        + group("sections", "Sections",
+            `<p class="hint">Untick to hide a section. Arrows change the order.</p>`
+            + state.order.map((id, i) => `<div class="srow"><label class="chk"><input type="checkbox" data-vis="${id}"${state.hidden[id] ? "" : " checked"}> ${SECTIONS[id]}</label>${tools("order", i, state.order.length)}</div>`).join(""))
+        + group("hero", "Hero",
+            F.text("hero.eyebrow", "Small heading") + F.area("hero.headline", "Headline", { rows: 2 }) + F.area("hero.text", "Intro")
+            + row(F.text("hero.primaryLabel", "Main button"), F.text("hero.primaryHref", "Main button link"))
+            + row(F.text("hero.secondaryLabel", "Second button"), F.text("hero.secondaryHref", "Second button link"))
+            + `<p class="hint">${LINK_HINT} Leave a button's text empty to hide it.</p>`
+            + F.text("hero.note", "Small print"))
+        + group("products", "Products", sectionHead("products") + list("products.items", "Product", (p) =>
+            F.text(p + ".name", "Name") + F.area(p + ".text", "Description", { rows: 2 })
+            + row(F.text(p + ".price", "Price"), F.text(p + ".priceNote", "Price note", { ph: "one-time, / month" }))
+            + row(F.text(p + ".badge", "Badge", { ph: "Optional" }), F.check(p + ".hot", "Highlight the badge"))
+            + row(F.text(p + ".button", "Button text"), F.text(p + ".href", "Button link", { ph: "https://" }))
+            + F.image(p + ".image")
+            + row(F.select(p + ".gradient", "Panel color", GRADS.map((g, j) => [j, g[0]]), true), F.select(p + ".icon", "Panel icon", Object.entries(ICONS).map(([k, v]) => [k, v[0]]))),
+            "Add product") + `<p class="hint">Button links: ${LINK_HINT} Point them at your checkout, such as a Stripe Payment Link.</p>`)
+        + group("about", "About",
+            F.text("about.nav", "Menu label", { hint: "Shown in the top menu. Leave empty to leave it out." }) + F.text("about.eyebrow", "Small heading") + F.text("about.heading", "Heading")
+            + F.area("about.text", "Story", { rows: 5, hint: "Leave a blank line between paragraphs." })
+            + list("about.stats", "Number", (p) => row(F.text(p + ".value", "Number"), F.text(p + ".label", "Label")), "Add number"))
+        + group("features", "Features", sectionHead("features") + list("features.items", "Reason", (p) =>
+            F.select(p + ".icon", "Icon", Object.entries(ICONS).map(([k, v]) => [k, v[0]])) + F.text(p + ".title", "Title") + F.area(p + ".text", "Text", { rows: 2 }),
+            "Add reason"))
+        + group("contact", "Contact",
+            F.text("contact.nav", "Menu label", { hint: "Shown in the top menu. Leave empty to leave it out." }) + F.text("contact.heading", "Heading") + F.area("contact.text", "Text", { rows: 2 })
+            + row(F.text("contact.button", "Button text"), F.text("contact.href", "Button link"))
+            + `<p class="hint">${LINK_HINT}</p>`)
+        + group("footer", "Footer",
+            F.text("footer.name", "Copyright name")
+            + list("footer.links", "Link", (p) => row(F.text(p + ".label", "Text"), F.text(p + ".href", "Link")), "Add link"))
+        + `<button type="button" class="danger" data-act="reset">Start over from the template</button>`;
+    panel.scrollTop = top;
+    syncContrast();
+}
+
+// Links, small headings and outline buttons use the brand color as text, so warn when it is hard to read on the page background.
+function syncContrast() {
+    const el = $("#contrast"), b = state.brand, d = DEFAULT.brand, low = [];
+    if (contrast(color(b.primary, d.primary), "#ffffff") < 3) low.push("on the light background");
+    if (contrast(color(b.primaryDark, d.primaryDark), "#0f1218") < 3) low.push("in dark mode");
+    el.hidden = !low.length;
+    el.textContent = low.length ? `Text in your brand color will be hard to read ${low.join(" and ")}. Try a ${low.length === 2 ? "different" : low[0] === "in dark mode" ? "lighter" : "darker"} shade.` : "";
+}
+
+panel.addEventListener("toggle", (e) => {
+    const g = e.target.dataset && e.target.dataset.group;
+    if (g) e.target.open ? openGroups.add(g) : openGroups.delete(g);
+}, true);
+
+panel.addEventListener("input", (e) => {
+    const t = e.target;
+    if (t.dataset.vis) { state.hidden[t.dataset.vis] = !t.checked; changed(true); return; }
+    if (!t.dataset.path) return;
+    const v = t.type === "checkbox" ? t.checked : t.type === "number" ? (t.value === "" ? "" : Number(t.value)) : t.hasAttribute("data-num") ? Number(t.value) : t.value;
+    set(state, t.dataset.path, v);
+    if (t.dataset.path.startsWith("brand.primary")) syncContrast();
+    changed(false);
+});
+
+panel.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-act]");
+    if (!b) return;
+    const act = b.dataset.act;
+    if (act === "reset") {
+        if (!confirm("Start over from the template? This replaces your current page. Use Save project first if you want to keep it.")) return;
+        state = clone(DEFAULT);
+        changed(true);
+        setStatus("Started over from the template");
+        return;
+    }
+    if (act === "clear") { set(state, b.dataset.path, ""); changed(true); return; }
+    const items = get(state, b.dataset.list), i = Number(b.dataset.i);
+    if (act === "add") items.push(clone(NEW[b.dataset.list]));
+    else if (act === "del") items.splice(i, 1);
+    else if (act === "up" && i > 0) [items[i - 1], items[i]] = [items[i], items[i - 1]];
+    else if (act === "down" && i < items.length - 1) [items[i + 1], items[i]] = [items[i], items[i + 1]];
+    changed(true);
+    if (act === "add") {
+        const last = panel.querySelectorAll(`[data-path^="${b.dataset.list}.${items.length - 1}."]`)[0];
+        if (last) { last.scrollIntoView({ block: "center" }); last.focus({ preventScroll: true }); }
+    }
+});
+
+// Uploaded images are shrunk to at most 1200px and stored inside the page, so the exported file needs nothing else.
+panel.addEventListener("change", async (e) => {
+    const input = e.target;
+    if (!input.dataset.upload || !input.files[0]) return;
+    try {
+        set(state, input.dataset.upload, await readImage(input.files[0]));
+        changed(true);
+    } catch (_) {
+        setStatus("That file couldn't be read as an image.", true);
+    }
+});
+function readImage(file) {
+    return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file), img = new Image();
+        img.onload = () => {
+            const scale = Math.min(1, 1200 / Math.max(img.naturalWidth, img.naturalHeight));
+            const c = document.createElement("canvas");
+            c.width = Math.max(1, Math.round(img.naturalWidth * scale));
+            c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+            const ctx = c.getContext("2d"), png = file.type === "image/png";
+            if (!png) { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, c.width, c.height); }
+            ctx.drawImage(img, 0, 0, c.width, c.height);
+            URL.revokeObjectURL(url);
+            resolve(c.toDataURL(png ? "image/png" : "image/jpeg", 0.85));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("not an image")); };
+        img.src = url;
+    });
+}
+
+function focusField(path) {
+    const el = panel.querySelector(`[data-path="${CSS.escape(path)}"]`);
+    if (!el) return;
+    setView("edit");
+    for (let d = el.closest("details"); d; d = d.parentElement.closest("details")) d.open = true;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    el.focus({ preventScroll: true });
+    el.classList.add("flash");
+    setTimeout(() => el.classList.remove("flash"), 1200);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Preview, history and saving
+// ---------------------------------------------------------------------------------------------
+let dark = matchMedia("(prefers-color-scheme: dark)").matches, previewTimer, historyTimer, saveTimer;
+
+// The preview document is created once; later edits swap its variables and body so the scroll position is kept.
+frame.addEventListener("load", () => {
+    const doc = frame.contentDocument;
+    doc.addEventListener("click", (e) => {
+        if (e.target.closest("a")) e.preventDefault();
+        if (e.target.closest("#theme-toggle")) { setDark(!dark); return; }
+        const t = e.target.closest("[data-edit]");
+        if (t) focusField(t.dataset.edit);
+    });
+    applyPreview();
+});
+function applyPreview() {
+    const doc = frame.contentDocument;
+    if (!doc || !doc.getElementById("vars")) return;
+    doc.getElementById("vars").textContent = rootCss(state);
+    doc.body.innerHTML = renderBody(state, true);
+    doc.title = state.page.title;
+    doc.documentElement.dataset.theme = dark ? "dark" : "light";
+    const t = doc.getElementById("theme-toggle");
+    if (t) { t.textContent = dark ? "Light mode" : "Dark mode"; t.setAttribute("aria-pressed", String(dark)); }
+}
+
+let past = [], future = [], last = JSON.stringify(state);
+function commit() {
+    clearTimeout(historyTimer);
+    const now = JSON.stringify(state);
+    if (now === last) return;
+    past.push(last);
+    if (past.length > 100) past.shift();
+    future = [];
+    last = now;
+    syncUndo();
+}
+function undo() { commit(); if (!past.length) return; future.push(last); last = past.pop(); state = JSON.parse(last); refresh(); }
+function redo() { commit(); if (!future.length) return; past.push(last); last = future.pop(); state = JSON.parse(last); refresh(); }
+function syncUndo() { $("#undo").disabled = !past.length; $("#redo").disabled = !future.length; }
+function refresh() { buildEditor(); applyPreview(); save(); syncUndo(); }
+
+// structural = lists, order or visibility changed, so the editor is rebuilt and the change is its own undo step.
+function changed(structural) {
+    if (structural) buildEditor();
+    clearTimeout(previewTimer);
+    previewTimer = setTimeout(applyPreview, structural ? 0 : 120);
+    clearTimeout(historyTimer);
+    if (structural) commit(); else historyTimer = setTimeout(commit, 500);
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 600);
+}
+
+function load() {
+    try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? normalize(JSON.parse(raw)) : null; } catch (_) { return null; }
+}
+function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); setStatus("Saved in this browser"); }
+    catch (_) { setStatus("Couldn't save in this browser (storage is full or blocked). Use Save project.", true); }
+}
+function setStatus(msg, warn) { const el = $("#status"); el.textContent = msg; el.classList.toggle("warn", !!warn); }
+
+function download(name, text, type) {
+    const url = URL.createObjectURL(new Blob([text], { type }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: name });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Toolbar
+// ---------------------------------------------------------------------------------------------
+function setDark(on) { dark = on; $("#dark").setAttribute("aria-pressed", String(on)); applyPreview(); }
+function setView(view) {
+    document.body.dataset.view = view;
+    document.querySelectorAll("[data-view-btn]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.viewBtn === view)));
+}
+$("#dark").addEventListener("click", () => setDark(!dark));
+document.querySelectorAll("[data-view-btn]").forEach((b) => b.addEventListener("click", () => setView(b.dataset.viewBtn)));
+document.querySelectorAll("[data-device]").forEach((b) => b.addEventListener("click", () => {
+    $("#frame-wrap").dataset.device = b.dataset.device;
+    document.querySelectorAll("[data-device]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+}));
+$("#undo").addEventListener("click", undo);
+$("#redo").addEventListener("click", redo);
+document.addEventListener("keydown", (e) => {
+    if (!(e.ctrlKey || e.metaKey) || e.target.matches("input[type=text], input[type=number], textarea")) return;
+    const k = e.key.toLowerCase();
+    if (k === "z" && !e.shiftKey) { e.preventDefault(); undo(); }
+    else if ((k === "z" && e.shiftKey) || k === "y") { e.preventDefault(); redo(); }
+});
+$("#export").addEventListener("click", () => { commit(); download("index.html", renderPage(state, false), "text/html"); setStatus("Exported index.html"); });
+$("#save").addEventListener("click", () => { commit(); download("page-project.json", JSON.stringify(state, null, 2), "application/json"); setStatus("Saved page-project.json"); });
+$("#newtab").addEventListener("click", () => {
+    const url = URL.createObjectURL(new Blob([renderPage(state, false)], { type: "text/html" }));
+    window.open(url, "_blank", "noopener");
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+});
+$("#open").addEventListener("click", () => $("#open-file").click());
+$("#open-file").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+        state = normalize(JSON.parse(await file.text()));
+        changed(true);
+        setStatus(`Opened ${file.name}`);
+    } catch (_) {
+        setStatus("That file isn't a project saved by this builder.", true);
+    }
+});
+
+buildEditor();
+syncUndo();
+setDark(dark);
+frame.srcdoc = renderPage(state, true);
+</script>
+</body>
+</html>
