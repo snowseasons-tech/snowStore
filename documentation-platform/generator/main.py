@@ -24,12 +24,42 @@ def render_document(product, template_name: str):
 
     return template.render(product=product)
 
+def sync_to_docusaurus(product_id: str, build_dir: Path):
+    """
+    Copies generated markdown files into the Docusaurus docs folder
+    organized by product.
+    """
+    docusaurus_docs_dir = Path("documentation-platform/docs-site/docs")
+    product_docs_dir = docusaurus_docs_dir / product_id
+    product_docs_dir.mkdir(parents=True, exist_ok=True)
+
+    md_files = list(build_dir.glob("*.md"))
+    print(f"Syncing {len(md_files)} files to Docusaurus...")
+
+    for md_file in md_files:
+        # Docusaurus likes specific frontmatter. We'll prepend it if missing.
+        with open(md_file, 'r') as f:
+            content = f.read()
+
+        # Basic frontmatter based on filename
+        title = md_file.stem.replace('_', ' ').title()
+        frontmatter = f"---\ntitle: {title}\n--- \n\n"
+
+        if not content.startswith("---"):
+            content = frontmatter + content
+
+        dest_file = product_docs_dir / md_file.name
+        with open(dest_file, 'w') as f:
+            f.write(content)
+        print(f"  ✅ Synced: {dest_file.name}")
+
 def main():
     parser = argparse.ArgumentParser(description="Snow Seasons Tech Doc Generator")
     parser.add_argument("--product", required=True, help="Product ID to generate docs for")
     parser.add_argument("--template", help="Specific template name (without extension). If omitted, generates all listed in product.yaml")
     parser.add_argument("--output-dir", help="Directory to save generated files")
     parser.add_argument("--pdf", action="store_true", help="Also export generated documents to PDF")
+    parser.add_argument("--sync", action="store_true", help="Sync generated Markdown to Docusaurus site")
 
     args = parser.parse_args()
 
@@ -68,6 +98,9 @@ def main():
 
         if args.pdf:
             export_all_to_pdf(output_base)
+
+        if args.sync:
+            sync_to_docusaurus(args.product, output_base)
 
     except Exception as e:
         print(f"Critical Error: {e}")
