@@ -1,4 +1,4 @@
-# Snow Seasons Tech · Booking App
+# Booking App
 
 A single-page, booking-only scheduling tool built as a white-label demo. It renders a weekly calendar of appointment slots and lets you create, view, and cancel bookings — all in client-side React state, with no backend.
 
@@ -10,7 +10,7 @@ A single-page, booking-only scheduling tool built as a white-label demo. It rend
 - **New booking form** — client name, email, service, day, and time. The **Confirm booking** button stays disabled until all fields are filled and the chosen slot is free.
 - **Double-booking prevention** — the `taken()` helper checks slot availability; occupied time slots are disabled and marked "(taken)" in the time dropdown.
 - **Live stats cards** — *Bookings this week*, *Confirmed*, and *Open slots* (35 total slots minus bookings), recalculated on every change.
-- **White-label branding** — header carries a "Your Brand Here" badge; the "Snow Seasons Tech · Booking" title and gradient styling are easy to re-skin.
+- **White-label branding** — header carries a "Your Brand Here" badge; the "Your Brand · Booking" title and gradient styling are easy to re-skin.
 
 ## Tech Stack
 

@@ -48,7 +48,7 @@ test('checkout function validates the request', async () => {
   assert.strictEqual((await onRequestPost({ request: post('{"productId":"__proto__"}'), env: {} })).status, 400);
   assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-integration-basic"}'), env: {} })).status, 503);
   // Retired products stay in the catalog for past buyers but can no longer be bought.
-  assert.strictEqual((await onRequestPost({ request: post('{"productId":"bookscan"}'), env: ENV })).status, 400);
+  assert.strictEqual((await onRequestPost({ request: post('{"productId":"vanilla-webpage"}'), env: ENV })).status, 400);
 });
 test('checkout function creates a session through Stripe', async () => {
   const { onRequestPost } = await load();
@@ -99,5 +99,18 @@ test('checkout function falls back to promo codes when the launch coupon is expi
     assert.strictEqual((await onRequestPost({ request: post('{"productId":"api-integration-basic"}'), env: { ...ENV, LAUNCH_COUPON: 'LAUNCH30' } })).status, 200);
     assert.doesNotMatch(s.calls.session, /discounts/);
     assert.match(s.calls.session, /allow_promotion_codes=true/);
+  } finally { s.restore(); }
+});
+test('automatic tax collects the full billing address so Stripe can locate the customer', async () => {
+  const { onRequestPost } = await load();
+  const s = fakeStripe();
+  try {
+    let res = await onRequestPost({ request: post('{"productId":"api-integration-basic"}'), env: { ...ENV, STRIPE_AUTOMATIC_TAX: 'true' } });
+    assert.strictEqual(res.status, 200);
+    assert.match(s.calls.session, /automatic_tax\[enabled\]=true/);
+    assert.match(s.calls.session, /billing_address_collection=required/);
+    res = await onRequestPost({ request: post('{"productId":"api-integration-basic"}'), env: ENV });
+    assert.strictEqual(res.status, 200);
+    assert.doesNotMatch(s.calls.session, /automatic_tax|billing_address_collection/);
   } finally { s.restore(); }
 });
