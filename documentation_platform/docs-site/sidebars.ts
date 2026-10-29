@@ -17,7 +17,50 @@ const sidebars: Record<string, SideBarItem[]> = {
             'cdot-stations/release-notes',
           ],
         },
-        // Other products will be added dynamically by the pipeline
+        {
+          type: 'category',
+          label: 'AutoBlogger',
+          items: [
+            'auto-blogger/product-overview',
+            'auto-blogger/getting-started',
+            'auto-blogger/user-manual',
+            'auto-blogger/faq',
+            'auto-blogger/release-notes',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'AutoScheduler',
+          items: [
+            'auto-scheduler/product-overview',
+            'auto-scheduler/getting-started',
+            'auto-scheduler/user-manual',
+            'auto-scheduler/faq',
+            'auto-scheduler/release-notes',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Lead Intelligence',
+          items: [
+            'lead-intelligence/product-overview',
+            'lead-intelligence/getting-started',
+            'lead-intelligence/user-manual',
+            'lead-intelligence/faq',
+            'lead-intelligence/release-notes',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'MailHub',
+          items: [
+            'mailhub/product-overview',
+            'mailhub/getting-started',
+            'mailhub/user-manual',
+            'mailhub/faq',
+            'mailhub/release-notes',
+          ],
+        },
       ],
     },
   ],
