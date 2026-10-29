@@ -39,7 +39,7 @@ module.exports = {
   },
   'lead-generator': {
     name: 'Lead Generation Pipeline',
-    retired: true,
+    stripeProduct: 'prod_VWuxBRkzXVcKY6',
     fileKey: 'lead-generator/lead-generator.zip',
     filename: 'lead-generator.zip',
     category: 'utilities',
