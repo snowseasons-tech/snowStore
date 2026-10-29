@@ -1,0 +1,39 @@
+product:
+  id: auto-scheduler
+  name: AutoScheduler
+  company: Snow Seasons Tech
+  category: SaaS
+  status: early_access
+  version: 0.1.0
+
+  description: >
+    An intelligent scheduling assistant that optimizes
+    appointment booking and calendar management
+    for service-based businesses.
+
+  features:
+    - Dynamic Time-Slot Optimization
+    - Automated Reminders
+    - Multi-calendar Sync
+    - Client Self-Booking Portal
+    - Conflict Detection
+
+  documentation:
+    generate:
+      - product_overview
+      - getting_started
+      - user_manual
+      - faq
+      - release_notes
+
+  billing:
+    provider: stripe
+    pricing_source: stripe
+    product_id: null
+
+  access:
+    authentication_required: true
+    entitlement: autoscheduler_access
+
+  support:
+    level: standard

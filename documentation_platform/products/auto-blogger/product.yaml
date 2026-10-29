@@ -1,0 +1,39 @@
+product:
+  id: auto-blogger
+  name: AutoBlogger
+  company: Snow Seasons Tech
+  category: SaaS
+  status: early_access
+  version: 0.1.0
+
+  description: >
+    An AI-powered content engine that generates
+    SEO-optimized blog posts and schedules them
+    across multiple platforms.
+
+  features:
+    - AI Content Generation
+    - SEO Keyword Optimization
+    - Multi-platform Scheduling
+    - Content Calendar Management
+    - Performance Analytics
+
+  documentation:
+    generate:
+      - product_overview
+      - getting_started
+      - user_manual
+      - faq
+      - release_notes
+
+  billing:
+    provider: stripe
+    pricing_source: stripe
+    product_id: null
+
+  access:
+    authentication_required: true
+    entitlement: autoblogger_access
+
+  support:
+    level: standard

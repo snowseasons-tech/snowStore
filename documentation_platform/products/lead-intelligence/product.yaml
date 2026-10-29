@@ -1,0 +1,39 @@
+product:
+  id: lead-intelligence
+  name: Lead Intelligence
+  company: Snow Seasons Tech
+  category: SaaS
+  status: early_access
+  version: 0.1.0
+
+  description: >
+    An advanced lead scoring and enrichment platform
+    that helps sales teams identify and prioritize
+    high-value prospects.
+
+  features:
+    - Automated Lead Scoring
+    - B2B Data Enrichment
+    - Prospect Intent Tracking
+    - CRM Sync (Salesforce/HubSpot)
+    - Predictive Analytics Dashboard
+
+  documentation:
+    generate:
+      - product_overview
+      - getting_started
+      - user_manual
+      - faq
+      - release_notes
+
+  billing:
+    provider: stripe
+    pricing_source: stripe
+    product_id: null
+
+  access:
+    authentication_required: true
+    entitlement: lead_intelligence_access
+
+  support:
+    level: standard

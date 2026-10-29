@@ -1,0 +1,38 @@
+product:
+  id: mailhub
+  name: MailHub
+  company: Snow Seasons Tech
+  category: SaaS
+  status: early_access
+  version: 0.1.0
+
+  description: >
+    A professional email management and routing system
+    designed for high-volume business communications.
+
+  features:
+    - Unified Inbox
+    - Smart Routing Rules
+    - Team Collaboration Folders
+    - Integration with external CRM
+    - Advanced Spam Filtering
+
+  documentation:
+    generate:
+      - product_overview
+      - getting_started
+      - user_manual
+      - faq
+      - release_notes
+
+  billing:
+    provider: stripe
+    pricing_source: stripe
+    product_id: null
+
+  access:
+    authentication_required: true
+    entitlement: mailhub_access
+
+  support:
+    level: standard
