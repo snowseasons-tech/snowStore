@@ -8,6 +8,9 @@
   "scripts": {
     "test": "node --test tests/*.test.js",
     "bloat": "node scripts/bloat-scan.js",
+    "pricing:audit": "node scripts/pricing-audit.js",
+    "pricing:check": "node scripts/pricing-audit.js --no-agents",
+    "pricing:agents": "node scripts/pricing-audit.js --setup",
     "lint": "node --check api/checkout.js && node --check api/download.js && node --check api/order.js && node --check api/products.js && node --check api/portal.js && node --check api/login.js && node --check api/logout.js && node --check api/me.js && node --check api/app-download.js && node --check api/_lib/auth.js && node --check api/_lib/mail.js && node --check api/_lib/fulfil.js && for f in functions/api/*.js functions/_lib/*.js; do node --check \"$f\" || exit 1; done",
     "build:pages": "node scripts/build-pages.js",
     "validate:store-items": "node scripts/validate-store-items.js"
