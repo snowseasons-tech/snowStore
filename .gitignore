@@ -13,5 +13,8 @@ dist/
 # Bloat monitor reports and run history (scripts/bloat-scan.js)
 .bloat/
 
+# Pricing audit reports (scripts/pricing-audit.js)
+.pricing-audit/
+
 # Paid product files are delivered from the bucket, never committed (this repo is public)
 products/saas-financial-engine/SaaS_Financial_Engine.xlsx

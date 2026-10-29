@@ -136,6 +136,31 @@ Dependencies and unreferenced files are found by searching for names, so treat t
 
 `.claude/agents/repo-bloat-monitor.md` is a read-only Claude Code subagent that runs the scanner and triages the findings into a short report with suggested fixes. A scheduled task runs it weekly while the Claude desktop app is open. Run it yourself with "use the repo-bloat-monitor agent".
 
+## Pricing audit
+
+Checks that the store's pricing structure isn't missing anything, then has three local Qwen agents review it. Read-only: it fetches the public `/api/products` prices from the live site and reads the repo.
+
+```sh
+npm run pricing:check   # rule checks only: a few seconds, no AI, exits 1 on an error (fine for CI)
+npm run pricing:audit   # rule checks plus the three Qwen agents (several minutes on CPU)
+```
+
+**Rule checks** (`scripts/pricing-audit.js`) compare the catalog, the live Stripe prices, the `/products` page (`DETAILS` in `products.html`), the homepage cards (`PRODUCTS` in `index.html`) and the icon files. They flag, among other things: catalog products that aren't on sale (no active one-time or monthly price), a catalog `kind` that disagrees with the Stripe price, products missing from the products page, homepage cards for products that can't be bought, missing icons, tiers that don't cost more than the tier below or skip a number, billing periods offered on some plans in a family but not others, prepay options that save nothing, the same description on products with different prices, and the launch coupon's effect.
+
+**Agents** are Ollama Modelfiles in `agents/pricing/`, built on `qwen3.5:35b-A3B`. Each gets the same facts plus the rule findings (so it doesn't repeat them) and returns structured findings:
+
+| Agent | Looks for |
+|---|---|
+| `coverage` | Gaps in the offering: missing tiers, billing options, prerequisites you can't buy, information a buyer needs to choose |
+| `ladder` | Whether price levels make sense: tier steps, price per unit, prepay savings, one-time vs subscription, coupon effects |
+| `copy` | Whether descriptions match prices: identical copy at different prices, text that contradicts billing, hidden prerequisites |
+
+The agents call Ollama at `http://127.0.0.1:11434` (or `OLLAMA_HOST`, or `--ollama`) with each Modelfile's `FROM`, `PARAMETER` and `SYSTEM`, so nothing has to be registered first. Run `npm run pricing:agents` once if you also want to chat with them (`ollama run snow-pricing-coverage`). If Ollama isn't running, the agents are skipped and the rule checks still run.
+
+Agent findings are suggestions from a local model: a finding that names a product the store doesn't have is marked **Unverified**, and the report says to check everything against Stripe and the site before acting.
+
+Options: `--agent coverage` runs one agent, `--think` turns on the model's reasoning (slower, sometimes sharper), `--url` audits another deployment, `--products file.json` audits a saved `/api/products` response, `--json` prints the report as JSON, `--no-write` skips saving. Reports are saved to `.pricing-audit/latest.md` and `latest.json` (gitignored).
+
 ## Deployment
 
 Deployed on Cloudflare Pages, connected to this repo's `main` branch.
