@@ -2,10 +2,13 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.responses import FileResponse
 from pathlib import Path
 from typing import List
-from .services.entitlements import EntitlementService, ProductEntitlement
+from .services.database import DatabaseService
+from .services.entitlements import EntitlementService
+from .routes import webhooks
 
 app = FastAPI(title="Snow Seasons Tech Documentation API")
-entitlement_service = EntitlementService()
+db_service = DatabaseService()
+entitlement_service = EntitlementService(db_service)
 
 # Mock Auth Dependency
 async def get_current_user(token: str = "mock_token"):
@@ -22,7 +25,7 @@ async def list_product_docs(
     """
     entitlement = await entitlement_service.check_access(user_id, product_id)
 
-    if not entitlement or not entitlement.has_access:
+    if not entitlement or not entitlement.get("has_access"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"No active subscription for {product_id}"
@@ -37,7 +40,7 @@ async def list_product_docs(
 
     return {
         "product": product_id,
-        "access_level": entitlement.subscription_tier,
+        "access_level": entitlement.get("subscription_tier"),
         "documents": files
     }
 
@@ -52,7 +55,7 @@ async def download_doc(
     """
     entitlement = await entitlement_service.check_access(user_id, product_id)
 
-    if not entitlement or not entitlement.has_access:
+    if not entitlement or not entitlement.get("has_access"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied"
@@ -63,3 +66,5 @@ async def download_doc(
         raise HTTPException(status_code=404, detail="File not found")
 
     return FileResponse(path=file_path, filename=filename)
+
+app.include_router(webhooks.router, prefix="/webhooks", tags=["Webhooks"])
