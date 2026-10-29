@@ -79,6 +79,7 @@ footer a{color:inherit;margin:0 .5rem}
 // Category, order and one-line summary for each product. Prices and what is on sale come from Stripe via /api/products;
 // a product sold there but missing from this list still appears, under "Other".
 const DETAILS={
+ "gbp-analytics-dashboard":{category:"Dashboards",blurb:"Turn Google Business Profile CSV reports into interactive charts: Search and Maps visibility, calls, website clicks and directions, compared across locations. Independently developed, not affiliated with Google."},
  "api-integration-basic":{category:"API Integration",blurb:"Connect your business applications, databases and third-party services with secure, professionally developed integrations."},
  "api-integration-standard":{category:"API Integration",blurb:"Adds OAuth authentication, PostgreSQL storage, scheduled sync, pagination, logging and retry handling."},
  "api-integration-advanced":{category:"API Integration",blurb:"Bidirectional sync, multiple endpoints, webhook processing, advanced authentication and complex business rules."},
@@ -135,7 +136,7 @@ function buildCard(p){
  art.append(el("span","tag",d.category),el("h2",null,p.name));
  if(d.blurb)art.append(el("p",null,d.blurb));
  const amount=el("span"),price=el("div","price");
- price.append(amount," ",el("small",null,recurring?"subscription":"one-time project"));
+ price.append(amount," ",el("small",null,recurring?"subscription":"one-time"));
  if(opts.length>1){
   const sel=el("select","period");sel.setAttribute("aria-label","Billing period for "+p.name);
   // "save X%" compares against paying monthly; it is left off periods shorter than a month.
