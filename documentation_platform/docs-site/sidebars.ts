@@ -10,11 +10,11 @@ const sidebars: Record<string, SideBarItem[]> = {
           type: 'category',
           label: 'CDOT Stations',
           items: [
-            'cdot-stations/product_overview',
-            'cdot-stations/getting_started',
-            'cdot-stations/user_manual',
+            'cdot-stations/product-overview',
+            'cdot-stations/getting-started',
+            'cdot-stations/user-manual',
             'cdot-stations/faq',
-            'cdot-stations/release_notes',
+            'cdot-stations/release-notes',
           ],
         },
         // Other products will be added dynamically by the pipeline
