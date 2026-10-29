@@ -48,7 +48,7 @@ export default function App() {
       <header className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-sky-300 to-cyan-300 bg-clip-text text-transparent">Snow Seasons Tech</span>
+            <span className="bg-gradient-to-r from-sky-300 to-cyan-300 bg-clip-text text-transparent">Your Brand</span>
             <span className="text-slate-300"> · Booking</span>
           </h1>
           <p className="text-sm text-slate-400">Booking-only tool — white-label demo</p>

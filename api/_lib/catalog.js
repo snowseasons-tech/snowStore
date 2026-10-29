@@ -10,7 +10,7 @@
 module.exports = {
   bookscan: {
     name: 'BookScan Live',
-    retired: true,
+    stripeProduct: 'prod_VWvuAv0KIRcIeq',
     fileKey: 'bookscan-live/bookscan-live.html',
     filename: 'bookscan-live.html',
     category: 'utilities',
@@ -28,6 +28,17 @@ module.exports = {
     blurb: 'A lightweight single-file products page with light/dark theme, responsive layout and no dependencies. Open it in a browser and it works.',
     version: '1.1.0',
     sha256: '2b33fef11b4c4d9546a5be5cec68dbe160ec3d5a2c12881574179fe25e902ca7',
+  },
+  // Page Builder ships the builder plus the template; vanilla-webpage above stays retired so its past buyers keep their file.
+  'page-builder': {
+    name: 'Page Builder',
+    stripeProduct: 'prod_VWvp2k6Km0zHCf',
+    fileKey: 'page-builder/page-builder.zip',
+    filename: 'page-builder.zip',
+    category: 'utilities',
+    blurb: 'Build a products page in your browser without writing code, then export a single HTML file. Includes the Vanilla Webpage Template.',
+    version: '1.0.0',
+    sha256: 'd2e55be7aa9fc42c5a20f8fcdff3482e2974e395288f5a31632d1404c69a9c82',
   },
   'bi-dashboard': {
     name: 'BI Engagement Dashboard',
@@ -50,8 +61,8 @@ module.exports = {
     sha256: 'af5645308b4682f9506d4453adfbcb44dfc826cf9f26f76e5e711534e259aae3',
   },
   'blog-gen': {
-    name: 'Blog Roundup Generator',
-    retired: true,
+    name: 'Auto Blogger',
+    stripeProduct: 'prod_VWvs2UB5zzpadc',
     fileKey: 'blog-gen/blog-gen.zip',
     filename: 'blog-gen.zip',
     category: 'utilities',
@@ -60,14 +71,14 @@ module.exports = {
     sha256: '6123220c5212a2bac4c6130cada0dfa1baddf711fb133d245a78e0305e4e9f29',
   },
   'booking-app': {
-    name: 'Booking App Component',
-    retired: true,
+    name: 'Auto Scheduler',
+    stripeProduct: 'prod_VWvr03UiKKKzOV',
     fileKey: 'booking-app/booking-app.zip',
     filename: 'booking-app.zip',
     category: 'utilities',
     blurb: 'A white-label weekly booking calendar for React with double-booking prevention and live stats. Built with TypeScript, Tailwind and shadcn/ui.',
-    version: '1.0.1',
-    sha256: '0cb37769324e187d0e2d307ea006768150b229d8e07052b0671832663bb1cad7',
+    version: '1.0.2',
+    sha256: 'd9bbbb3d1b6a34f9f3424caa9771ad60a9d2d4636b4d9590460897966be6c73d',
   },
   'inventory-tracker': {
     name: 'Store Inventory Tracker',
@@ -80,8 +91,8 @@ module.exports = {
     sha256: '7c73c7acfa63c4ea617d58dd906b719518069dcb63a68f1cbb0fc82de83a5812',
   },
   'invoice-generator': {
-    name: 'Invoice Generator',
-    retired: true,
+    name: 'Invoice & Biller',
+    stripeProduct: 'prod_VWvtth4P0PijFY',
     fileKey: 'invoice-generator/invoice-generator.zip',
     filename: 'invoice-generator.zip',
     category: 'utilities',
@@ -91,7 +102,7 @@ module.exports = {
   },
   'saas-financial-engine': {
     name: 'SaaS Financial Projection Engine',
-    retired: true,
+    stripeProduct: 'prod_VWvzD2VFXydATp',
     fileKey: 'saas-financial-engine/saas-financial-engine.xlsx',
     filename: 'saas-financial-engine.xlsx',
     category: 'billing',
@@ -134,7 +145,7 @@ module.exports = {
     name: "Founder's Early Access Membership",
     kind: 'subscription',
     stripeProduct: 'prod_VWva1qZT0oarCt',
-    includes: ['gbp-analytics-dashboard', 'lead-generator'],
+    includes: ['gbp-analytics-dashboard', 'lead-generator', 'page-builder', 'booking-app', 'blog-gen', 'invoice-generator', 'bookscan', 'saas-financial-engine'],
   },
   // Services sold on the site. stripeProduct is the live Stripe product; its active prices are read from Stripe.
   'api-integration-basic': { name: 'API Integration Development - Basic', stripeProduct: 'prod_VWa43u70jMDMbP' },
