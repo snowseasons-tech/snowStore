@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 from documentation_platform.generator.pdf_export import export_all_to_pdf
 from documentation_platform.generator.ai_assistant import AIDocAssistant
+from documentation_platform.generator.doc_critic import DocCritic
 
 def load_product(product_id: str):
     product_file = Path(f"documentation-platform/products/{product_id}/product.yaml")
@@ -62,22 +63,51 @@ def main():
     parser.add_argument("--pdf", action="store_true", help="Also export generated documents to PDF")
     parser.add_argument("--sync", action="store_true", help="Sync generated Markdown to Docusaurus site")
     parser.add_argument("--ai-draft", help="Generate an AI draft for a specific document type (e.g., 'faq')")
+    parser.add_argument("--validate", action="store_true", help="Run the AI draft through the Critic validation loop")
 
     args = parser.parse_args()
 
     try:
         product = load_product(args.product)
 
-        # AI Drafting Logic
+        # AI Drafting & Validation Loop
         if args.ai_draft:
             print(f"🤖 Generating AI draft for {args.ai_draft}...")
             assistant = AIDocAssistant()
             draft = assistant.generate_draft(args.product, args.ai_draft)
 
-            # Save the draft to a 'drafts' folder in the product directory
+            # Optional Validation Pass
+            if args.validate:
+                print(f"🧐 Running Critic Validation Loop...")
+                critic = DocCritic()
+
+                # Gather ground truth for the critic
+                from documentation_platform.generator.source_analyzer import SourceAnalyzer
+                analyzer = SourceAnalyzer(args.product)
+                truth = analyzer.get_full_context()
+                truth_str = f"Product Registry: {product}\nTechnical Notes: {truth['technical_notes']}\nAPI Spec: {truth['openapi']}"
+
+                findings, approved = critic.validate_draft(draft, truth_str)
+
+                if not approved:
+                    print(f"  ❌ Draft Rejected by Critic!")
+                    for f in findings:
+                        print(f"    - [{f.severity}] {f.section}: {f.issue} (Suggest: {f.suggestion})")
+                    print(f"\nDraft is marked as UNAPPROVED. Please review manually.")
+                else:
+                    print(f"  ✅ Draft Approved by Critic!")
+            else:
+                print(f"  ⚠️  Draft generated without validation.")
+
+            # Save the draft regardless of approval, but note it in the filename if rejected
             draft_dir = Path(f"documentation-platform/products/{args.product}/drafts")
             draft_dir.mkdir(parents=True, exist_ok=True)
-            draft_file = draft_dir / f"{args.ai_draft}_ai_draft.md"
+
+            prefix = "review_required_"
+            if args.validate and 'approved' in locals() and approved:
+                prefix = "approved_"
+
+            draft_file = draft_dir / f"{prefix}{args.ai_draft}_ai_draft.md"
 
             with open(draft_file, 'w') as f:
                 f.write(draft)
