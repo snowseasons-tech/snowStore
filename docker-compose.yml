@@ -1,21 +1,10 @@
-version: '3.8'
-
 services:
   portal-api:
     build: .
     ports:
-      - "8000:8000"
+      - "8081:8000"
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
       - .:/app
     restart: always
-
-  # Optional: llama.cpp server for AI drafting in production
-  # llama-cpp:
-  #   image: ghcr.io/ggerganov/llama.cpp:full
-  #   ports:
-  #     - "8080:8080"
-  #   volumes:
-  #     - ./models:/models
-  #   command: "-m /models/model.gguf --host 0.0.0.0 --port 8080"
