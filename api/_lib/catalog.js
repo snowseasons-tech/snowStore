@@ -165,6 +165,6 @@ module.exports = {
   'managed-database': { name: 'Managed Database Infrastructure', kind: 'subscription', stripeProduct: 'prod_VWZsLP0vMFVyQ5' },
   'operations-lead-intelligence': { name: 'Operations & Lead Intelligence', kind: 'subscription', stripeProduct: 'prod_VWZn5NCFzs4bXV' },
   'mailhub-intelligence': { name: 'MailHub Marketing Intelligence', kind: 'subscription', stripeProduct: 'prod_VWZoFAvBr0LCEz' },
-  'inspections-intelligence': { name: 'Inspections Intelligence', kind: 'subscription', stripeProduct: 'prod_VWZrK0O24fEuqG' },
+  'inspections-intelligence': { name: 'dotTracker', kind: 'subscription', stripeProduct: 'prod_VWZrK0O24fEuqG' },
   'managed-package': { name: 'Managed Technology & Marketing Package', kind: 'subscription', stripeProduct: 'prod_VWazGQhLiTNtSu' },
 };
