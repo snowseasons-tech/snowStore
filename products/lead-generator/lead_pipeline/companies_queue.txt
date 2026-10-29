@@ -5,7 +5,3 @@
 #
 # Acme Plumbing
 # Summit Dental Boulder CO
-denver broncos
-denver nuggets
-colorado rockies
-

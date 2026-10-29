@@ -2,6 +2,8 @@
 .env.*
 node_modules/
 .wrangler/
+__pycache__/
+*.pyc
 
 # Done-for-you runner: client data and secrets never go in git
 managed/clients/
