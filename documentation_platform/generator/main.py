@@ -16,13 +16,15 @@ def load_product(product_id: str):
         return data['product']
 
 def render_document(product, template_name: str):
-    template_path = Path(f"documentation_platform/templates/{template_name}.md.j2")
+    # Normalize template name: replace underscores with hyphens to match filenames
+    normalized_name = template_name.replace('_', '-')
+    template_path = Path(f"documentation_platform/templates/{normalized_name}.md.j2")
     if not template_path.exists():
-        raise FileNotFoundError(f"Template not found: {template_name}")
+        raise FileNotFoundError(f"Template not found: {normalized_name}.md.j2")
 
     # Setup Jinja2 environment
     env = jinja2.Environment(loader=jinja2.FileSystemLoader("documentation_platform/templates"))
-    template = env.get_template(f"{template_name}.md.j2")
+    template = env.get_template(f"{normalized_name}.md.j2")
 
     return template.render(product=product)
 
