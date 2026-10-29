@@ -2,12 +2,12 @@ import yaml
 import jinja2
 import argparse
 from pathlib import Path
-from documentation_platform.generator.pdf_export import export_all_to_pdf
-from documentation_platform.generator.ai_assistant import AIDocAssistant
-from documentation_platform.generator.doc_critic import DocCritic
+from .pdf_export import export_all_to_pdf
+from .ai_assistant import AIDocAssistant
+from .doc_critic import DocCritic
 
 def load_product(product_id: str):
-    product_file = Path(f"documentation-platform/products/{product_id}/product.yaml")
+    product_file = Path(f"documentation_platform/products/{product_id}/product.yaml")
     if not product_file.exists():
         raise FileNotFoundError(f"Product definition not found for: {product_id}")
 
@@ -16,12 +16,12 @@ def load_product(product_id: str):
         return data['product']
 
 def render_document(product, template_name: str):
-    template_path = Path(f"documentation-platform/templates/{template_name}.md.j2")
+    template_path = Path(f"documentation_platform/templates/{template_name}.md.j2")
     if not template_path.exists():
         raise FileNotFoundError(f"Template not found: {template_name}")
 
     # Setup Jinja2 environment
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader("documentation-platform/templates"))
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader("documentation_platform/templates"))
     template = env.get_template(f"{template_name}.md.j2")
 
     return template.render(product=product)
@@ -31,7 +31,7 @@ def sync_to_docusaurus(product_id: str, build_dir: Path):
     Copies generated markdown files into the Docusaurus docs folder
     organized by product.
     """
-    docusaurus_docs_dir = Path("documentation-platform/docs-site/docs")
+    docusaurus_docs_dir = Path("documentation_platform/docs-site/docs")
     product_docs_dir = docusaurus_docs_dir / product_id
     product_docs_dir.mkdir(parents=True, exist_ok=True)
 
@@ -100,7 +100,7 @@ def main():
                 print(f"  ⚠️  Draft generated without validation.")
 
             # Save the draft regardless of approval, but note it in the filename if rejected
-            draft_dir = Path(f"documentation-platform/products/{args.product}/drafts")
+            draft_dir = Path(f"documentation_platform/products/{args.product}/drafts")
             draft_dir.mkdir(parents=True, exist_ok=True)
 
             prefix = "review_required_"

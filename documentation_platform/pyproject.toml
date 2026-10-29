@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "documentation-platform"
+name = "documentation_platform"
 version = "0.1.0"
 description = "Documentation engine and portal API for Snow Seasons Tech"
 authors = ["Snow Seasons Tech"]

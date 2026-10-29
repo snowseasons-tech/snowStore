@@ -9,7 +9,7 @@ class SourceAnalyzer:
     """
     def __init__(self, product_id: str):
         self.product_id = product_id
-        self.product_path = Path(f"documentation-platform/products/{product_id}")
+        self.product_path = Path(f"documentation_platform/products/{product_id}")
 
     def analyze_openapi_spec(self, spec_path: Path) -> str:
         """

@@ -41,22 +41,22 @@ pip install -r requirements.txt # or use poetry install
 
 **1. Generate all documents for a product:**
 ```bash
-python3 documentation-platform/generator/main.py --product cdot-stations
+python3 documentation_platform/generator/main.py --product cdot-stations
 ```
 
 **2. Generate and export to PDF:**
 ```bash
-python3 documentation-platform/generator/main.py --product cdot-stations --pdf
+python3 documentation_platform/generator/main.py --product cdot-stations --pdf
 ```
 
 **3. Sync to the Docusaurus website:**
 ```bash
-python3 documentation-platform/generator/main.py --product cdot-stations --sync
+python3 documentation_platform/generator/main.py --product cdot-stations --sync
 ```
 
 **4. Run the Portal API:**
 ```bash
-uvicorn documentation-platform.portal-api.main:app --reload
+uvicorn documentation_platform.portal-api.main:app --reload
 ```
 
 ## 🗺 Roadmap

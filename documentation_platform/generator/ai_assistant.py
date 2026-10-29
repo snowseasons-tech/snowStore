@@ -3,8 +3,8 @@ import requests
 import yaml
 from pathlib import Path
 from typing import List, Optional, Dict, Any
-from documentation_platform.generator.source_analyzer import SourceAnalyzer
-from documentation_platform.generator.personas import PersonaRegistry
+from .source_analyzer import SourceAnalyzer
+from .personas import PersonaRegistry
 
 @dataclass
 class AIContext:
@@ -26,7 +26,7 @@ class AIDocAssistant:
         Aggregates structured product data and unstructured technical truth.
         """
         # 1. Product Registry Data
-        product_file = Path(f"documentation-platform/products/{product_id}/product.yaml")
+        product_file = Path(f"documentation_platform/products/{product_id}/product.yaml")
         with open(product_file, 'r') as f:
             product_data = yaml.safe_load(f)['product']
 
