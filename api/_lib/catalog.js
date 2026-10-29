@@ -117,6 +117,16 @@ module.exports = {
     version: '0.3.0',
     sha256: '82ea669ed59854c6dcc5c51bdaef4a3cda8c6a18cfd554fb9eab1cee5157ead0',
   },
+  'gbp-analytics-dashboard': {
+    name: 'GBP Analytics Dashboard',
+    stripeProduct: 'prod_VWsoI3mBrl03a2',
+    fileKey: 'gbp-dashboard/gbp-dashboard.html',
+    filename: 'gbp-dashboard.html',
+    category: 'utilities',
+    blurb: 'Turn Google Business Profile CSV reports into interactive charts: Search and Maps visibility, calls, website clicks and direction requests, compared across locations. Not affiliated with Google.',
+    version: '1.0.0',
+    sha256: '13d06a5c980b3878267f8eb2f8e43de22433f82c895eea881abd2f743edbcb4a',
+  },
   // Services sold on the site. stripeProduct is the live Stripe product; its active prices are read from Stripe.
   'api-integration-basic': { name: 'API Integration Development - Basic', stripeProduct: 'prod_VWa43u70jMDMbP' },
   'api-integration-standard': { name: 'API Integration Development - Standard', stripeProduct: 'prod_VWa5pmeCO0fAE2' },

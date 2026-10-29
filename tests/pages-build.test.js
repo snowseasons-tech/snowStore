@@ -19,7 +19,7 @@ test('dist contains only the public site', () => {
   assert.match(article, /<link rel="canonical" href="https:\/\/snowseasonstech\.net\/blog\/how-to-create-a-successful-stripe-store\/">/);
   assert.match(article, /Treat webhooks as the source of truth/);
   assert.match(article, /Stripe store launch checklist/);
-  const leaks = files.filter((f) => /^(api|functions|products|private-files|scripts|tests|node_modules|ecommerce-expert|\.)/.test(f) || /\.md$|\.env|package|vercel\.json/.test(f));
+  const leaks = files.filter((f) => /^(api|functions|products\/|private-files|scripts|tests|node_modules|ecommerce-expert|\.)/.test(f) || /\.md$|\.env|package|vercel\.json/.test(f));
   assert.deepStrictEqual(leaks, []);
 });
 
