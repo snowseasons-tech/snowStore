@@ -28,7 +28,9 @@ module.exports = async (req, res) => {
       metadata: { product_id: body.productId, ...(period !== '1m' ? { period } : {}) },
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/cancel`,
-      ...(process.env.STRIPE_AUTOMATIC_TAX === 'true' ? { automatic_tax: { enabled: true } } : {}),
+      // Stripe Tax needs a location it recognizes. Checkout asks only for country and postal code by default, which
+      // can fail with customer_tax_location_invalid, so collect the full billing address (also saved for renewals).
+      ...(process.env.STRIPE_AUTOMATIC_TAX === 'true' ? { automatic_tax: { enabled: true }, billing_address_collection: 'required' } : {}),
       // Stripe rejects discounts together with allow_promotion_codes, so the launch coupon replaces code entry.
       ...(launch ? { discounts: [{ coupon: launch.id }] } : { allow_promotion_codes: true }),
       ...(isSub ? { subscription_data: { metadata: { product_id: body.productId } } } : {}),
