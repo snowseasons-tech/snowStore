@@ -41,6 +41,11 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .card:hover{transform:translateY(-4px);border-color:var(--glow);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow),0 14px 44px -10px var(--glow)}
 .card h2{font-size:1.2rem;line-height:1.3}
 .card p{color:var(--muted);font-size:.95rem}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px}
+.pic{width:88px;height:65px;flex:none;border-radius:12px;object-fit:cover;background:#0b1430;box-shadow:0 0 0 1px var(--glass-b),0 6px 18px -8px var(--glow)}
+.feats{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px;font-size:.88rem;color:var(--muted)}
+.feats li{display:flex;align-items:center;gap:8px}
+.feats img{width:24px;height:22px;flex:none}
 .tag{align-self:flex-start;font-size:.75rem;background:var(--btn);color:#fff;border-radius:999px;padding:2px 10px;box-shadow:0 0 14px -3px var(--glow)}
 .price{font-size:1.5rem;font-weight:700;margin-top:auto}
 .price small{font-size:.85rem;color:var(--muted);font-weight:400}
@@ -79,28 +84,32 @@ footer a{color:inherit;margin:0 .5rem}
 // Category, order and one-line summary for each product. Prices and what is on sale come from Stripe via /api/products;
 // a product sold there but missing from this list still appears, under "Other".
 const DETAILS={
- "gbp-analytics-dashboard":{category:"Dashboards",blurb:"Turn Google Business Profile CSV reports into interactive charts: Search and Maps visibility, calls, website clicks and directions, compared across locations. Independently developed, not affiliated with Google."},
- "api-integration-basic":{category:"API Integration",blurb:"Connect your business applications, databases and third-party services with secure, professionally developed integrations."},
- "api-integration-standard":{category:"API Integration",blurb:"Adds OAuth authentication, PostgreSQL storage, scheduled sync, pagination, logging and retry handling."},
- "api-integration-advanced":{category:"API Integration",blurb:"Bidirectional sync, multiple endpoints, webhook processing, advanced authentication and complex business rules."},
- "api-integration-enterprise":{category:"API Integration",blurb:"Multi-system integrations, custom workflows, sensitive data handling and substantial engineering requirements."},
- "api-maintenance-basic":{category:"API Maintenance",blurb:"Monitoring and upkeep for your API integrations, with 45 minutes of troubleshooting each month."},
- "api-maintenance-standard":{category:"API Maintenance",blurb:"Monitoring and upkeep for your API integrations, with 45 minutes of troubleshooting each month."},
- "api-management-advanced":{category:"API Maintenance",blurb:"Closer monitoring, a monthly technical review, 90 minutes of troubleshooting each month and elevated support."},
- "website-management-primary":{category:"Website Management",blurb:"Maintenance, security updates, content changes, performance and SEO upkeep for your main business website."},
- "website-management-secondary":{category:"Website Management",blurb:"Maintenance and technical management for an additional site, such as a microsite or extra brand. Requires Primary."},
- "social-media-1":{category:"Social Media",blurb:"Planned content, scheduled publishing and monthly performance summaries for one business account."},
- "social-media-2":{category:"Social Media",blurb:"Content planning, branded posts, scheduling and monthly reporting for up to two accounts."},
- "social-media-3":{category:"Social Media",blurb:"Coordinated content strategy, content calendars, automated scheduling and engagement analytics for up to three accounts."},
- "social-media-4":{category:"Social Media",blurb:"Multi-platform content planning and coordinated calendars for up to four accounts, with monthly reporting."},
- "social-media-5":{category:"Social Media",blurb:"Coordinated content planning, scheduling, brand consistency and performance reporting for up to five accounts."},
- "managed-database":{category:"Infrastructure",blurb:"Administration, monitoring, backups, access management and security reviews for one business-critical database."},
- "operations-lead-intelligence":{category:"Business Intelligence",blurb:"Lead data organization, operational dashboards, reporting and automated business insights."},
- "mailhub-intelligence":{category:"Business Intelligence",blurb:"Campaign management, contact segmentation, marketing analytics and email workflow automation."},
- "inspections-intelligence":{category:"Business Intelligence",blurb:"Inspection data management, reporting dashboards, workflow automation and operational analytics."},
- "managed-package":{category:"Managed Package",blurb:"Website, social media, database oversight, marketing automation, business intelligence and ongoing support in one package."}
+ "gbp-analytics-dashboard":{icon:"gbp-dashboard",category:"Dashboards",blurb:"Turn Google Business Profile CSV reports into interactive charts: Search and Maps visibility, calls, website clicks and directions, compared across locations. Independently developed, not affiliated with Google.",
+  features:[["analytics","Charts and reports"],["csv","CSV import and export"],["locations","Compare locations"],["search-terms","Search term analysis"],["date-ranges","Custom date ranges"]]},
+ "api-integration-basic":{icon:"api-integrations",category:"API Integration",blurb:"Connect your business applications, databases and third-party services with secure, professionally developed integrations."},
+ "api-integration-standard":{icon:"api-integrations",category:"API Integration",blurb:"Adds OAuth authentication, PostgreSQL storage, scheduled sync, pagination, logging and retry handling."},
+ "api-integration-advanced":{icon:"api-integrations",category:"API Integration",blurb:"Bidirectional sync, multiple endpoints, webhook processing, advanced authentication and complex business rules."},
+ "api-integration-enterprise":{icon:"api-integrations",category:"API Integration",blurb:"Multi-system integrations, custom workflows, sensitive data handling and substantial engineering requirements."},
+ "api-maintenance-basic":{icon:"api-integrations",category:"API Maintenance",blurb:"Monitoring and upkeep for your API integrations, with 45 minutes of troubleshooting each month."},
+ "api-maintenance-standard":{icon:"api-integrations",category:"API Maintenance",blurb:"Monitoring and upkeep for your API integrations, with 45 minutes of troubleshooting each month."},
+ "api-management-advanced":{icon:"api-integrations",category:"API Maintenance",blurb:"Closer monitoring, a monthly technical review, 90 minutes of troubleshooting each month and elevated support."},
+ "website-management-primary":{icon:"website-primary",category:"Website Management",blurb:"Maintenance, security updates, content changes, performance and SEO upkeep for your main business website."},
+ "website-management-secondary":{icon:"website-secondary",category:"Website Management",blurb:"Maintenance and technical management for an additional site, such as a microsite or extra brand. Requires Primary."},
+ "social-media-1":{icon:"social-media",category:"Social Media",blurb:"Planned content, scheduled publishing and monthly performance summaries for one business account."},
+ "social-media-2":{icon:"social-media",category:"Social Media",blurb:"Content planning, branded posts, scheduling and monthly reporting for up to two accounts."},
+ "social-media-3":{icon:"social-media",category:"Social Media",blurb:"Coordinated content strategy, content calendars, automated scheduling and engagement analytics for up to three accounts."},
+ "social-media-4":{icon:"social-media",category:"Social Media",blurb:"Multi-platform content planning and coordinated calendars for up to four accounts, with monthly reporting."},
+ "social-media-5":{icon:"social-media",category:"Social Media",blurb:"Coordinated content planning, scheduling, brand consistency and performance reporting for up to five accounts."},
+ "managed-database":{icon:"managed-database",category:"Infrastructure",blurb:"Administration, monitoring, backups, access management and security reviews for one business-critical database."},
+ "operations-lead-intelligence":{icon:"operations-leads",category:"Business Intelligence",blurb:"Lead data organization, operational dashboards, reporting and automated business insights."},
+ "mailhub-intelligence":{icon:"mailhub",category:"Business Intelligence",blurb:"Campaign management, contact segmentation, marketing analytics and email workflow automation."},
+ "inspections-intelligence":{icon:"inspections",category:"Business Intelligence",blurb:"Inspection data management, reporting dashboards, workflow automation and operational analytics."},
+ "managed-package":{icon:"managed-tech",category:"Managed Package",blurb:"Website, social media, database oversight, marketing automation, business intelligence and ongoing support in one package."}
 };
 const ORDER=Object.keys(DETAILS);
+// icon names a file in /img/icons/; features name files in /img/icons/gbp/. Icons sit beside the product name, so they're decorative (alt="").
+const pic=(src,cls,w,h)=>Object.assign(el("img",cls),{src,alt:"",width:w,height:h,loading:"lazy",decoding:"async"});
+function cardTop(icon,tag){const top=el("div","card-top");if(icon)top.append(pic(`/img/icons/${icon}.webp`,"pic",88,65));top.append(el("span","tag",tag));return top}
 const rank=id=>{const i=ORDER.indexOf(id);return i<0?ORDER.length:i};
 const $=s=>document.querySelector(s);
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n};
@@ -133,8 +142,9 @@ function buildCard(p){
  const opts=[{period:"1m",amount:p.amount,interval:p.interval,intervalCount:1,discount:p.discount},...(p.periods||[])].sort((a,b)=>perMonths(a)-perMonths(b));
  const base=opts.find((o)=>o.period==="1m"),state={period:"1m"};
  const art=el("article","card");art.dataset.cat=d.category;
- art.append(el("span","tag",d.category),el("h2",null,p.name));
+ art.append(cardTop(d.icon,d.category),el("h2",null,p.name));
  if(d.blurb)art.append(el("p",null,d.blurb));
+ if(d.features){const ul=el("ul","feats");d.features.forEach(([icon,label])=>{const li=el("li");li.append(pic(`/img/icons/gbp/${icon}.webp`,null,24,22),label);ul.append(li)});art.append(ul)}
  const amount=el("span"),price=el("div","price");
  price.append(amount," ",el("small",null,recurring?"subscription":"one-time"));
  if(opts.length>1){
@@ -154,7 +164,7 @@ function buildCard(p){
 }
 function kitCard(){
  const art=el("article","card");art.dataset.cat="Free";
- art.append(el("span","tag","Free download"),el("h2",null,"Landing Page Kit"),el("p",null,"A ready-to-edit, single-file landing page with a hero, features, FAQ and call to action, plus light and dark mode."));
+ art.append(cardTop("auto-blogger","Free download"),el("h2",null,"Landing Page Kit"),el("p",null,"A ready-to-edit, single-file landing page with a hero, features, FAQ and call to action, plus light and dark mode."));
  art.append(el("div","price","Free"));
  const link=el("a","btn","Get the kit");link.href="/#kit";
  art.append(el("div","actions"));art.lastChild.append(link);

@@ -38,6 +38,7 @@ section{padding:56px 0}.sub{color:var(--muted)}
 .card{background:var(--glass);border:1px solid var(--glass-b);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px;
 box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
 .card:hover{transform:translateY(-4px);border-color:var(--glow);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow),0 14px 44px -10px var(--glow)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px}.pic{width:88px;height:65px;flex:none;border-radius:12px;object-fit:cover;background:#0b1430;box-shadow:0 0 0 1px var(--glass-b),0 6px 18px -8px var(--glow)}
 .tag{align-self:flex-start;font-size:.75rem;background:var(--btn);color:#fff;border-radius:999px;padding:2px 10px;box-shadow:0 0 14px -3px var(--glow)}.tag.soon{background:var(--muted);box-shadow:none}
 .card ul{margin-left:1.2rem;color:var(--muted);font-size:.95rem}
 .price s{font-size:1rem;font-weight:400;color:var(--muted)}.sale{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.02em;color:#fff;background:var(--btn);border-radius:999px;padding:2px 9px;vertical-align:middle}.price{font-size:1.6rem;font-weight:700}.price small{font-size:.85rem;color:var(--muted);font-weight:400}
@@ -128,97 +129,97 @@ const CONTACT_EMAIL="info@snowseasonstech.net";
 // Matches the live Stripe catalog (api/_lib/catalog.js). Prices are loaded from Stripe via /api/products.
 const API_NOTE=["Advanced authentication, database synchronization, automated workflows and multi-system integrations are available at additional cost","Every project starts with a scope review before development begins","Third-party subscription fees and ongoing maintenance are billed separately"];
 const PRODUCTS=[
- {id:"api-integration-basic",name:"API Integration Development - Basic",category:"API Integration",
+ {id:"api-integration-basic",icon:"api-integrations",name:"API Integration Development - Basic",category:"API Integration",
   blurb:"Connect your business applications, databases and third-party services with secure, professionally developed API integrations.",
   features:API_NOTE,unit:"one-time project"},
- {id:"api-integration-standard",name:"API Integration Development - Standard",category:"API Integration",
+ {id:"api-integration-standard",icon:"api-integrations",name:"API Integration Development - Standard",category:"API Integration",
   blurb:"Includes more advanced integrations such as OAuth authentication, PostgreSQL persistence, scheduled synchronization, pagination, logging and retry handling.",
   features:API_NOTE,unit:"one-time project"},
- {id:"api-integration-advanced",name:"API Integration Development - Advanced",category:"API Integration",
+ {id:"api-integration-advanced",icon:"api-integrations",name:"API Integration Development - Advanced",category:"API Integration",
   blurb:"Designed for integrations requiring bidirectional synchronization, multiple endpoints, webhook processing, advanced authentication and more complex business rules.",
   features:API_NOTE,unit:"one-time project"},
- {id:"api-integration-enterprise",name:"API Integration Development - Enterprise",category:"API Integration",
+ {id:"api-integration-enterprise",icon:"api-integrations",name:"API Integration Development - Enterprise",category:"API Integration",
   blurb:"For multi-system integrations, custom workflows, sensitive data handling, complex infrastructure or substantial engineering requirements.",
   features:API_NOTE,unit:"one-time project"},
- {id:"api-maintenance-basic",name:"Basic API Maintenance",category:"API Maintenance",
+ {id:"api-maintenance-basic",icon:"api-integrations",name:"Basic API Maintenance",category:"API Maintenance",
   blurb:"Monitoring and upkeep for your API integrations, with 45 minutes of troubleshooting each month.",
   coverage:[["Availability monitoring","Every 5 minutes"],["Authentication health checks","Automated where supported"],["API error tracking","Included"],["Data synchronization monitoring","Included"],["Failed job investigation","Included"],["Retry queue monitoring","Included"],["Routine compatibility updates","Included within support allowance"],["Troubleshooting allowance","45 minutes/month"],["Monthly usage report","Included"],["Priority","Standard business support"]],
   unit:"subscription"},
- {id:"api-maintenance-standard",name:"Standard API Maintenance",category:"API Maintenance",
+ {id:"api-maintenance-standard",icon:"api-integrations",name:"Standard API Maintenance",category:"API Maintenance",
   blurb:"Monitoring and upkeep for your API integrations, with 45 minutes of troubleshooting each month.",
   coverage:[["Availability monitoring","Every 5 minutes"],["Authentication health checks","Automated where supported"],["API error tracking","Included"],["Data synchronization monitoring","Included"],["Failed job investigation","Included"],["Retry queue monitoring","Included"],["Routine compatibility updates","Included within support allowance"],["Troubleshooting allowance","45 minutes/month"],["Monthly usage report","Included"],["Priority","Standard business support"]],
   unit:"subscription"},
- {id:"api-management-advanced",name:"Advanced API Management",category:"API Maintenance",
+ {id:"api-management-advanced",icon:"api-integrations",name:"Advanced API Management",category:"API Maintenance",
   blurb:"Closer monitoring of your integrations and workflows, with a monthly technical review, 90 minutes of troubleshooting each month and elevated support.",
   coverage:[["Automated monitoring","Every minute, where appropriate"],["Workflow health monitoring","Included"],["Webhook delivery monitoring","Included"],["Queue and retry analysis","Included"],["Data consistency checks","Defined per integration"],["Authentication monitoring","Included"],["Detailed error reporting","Included"],["Monthly technical review","Included"],["Troubleshooting allowance","90 minutes/month"],["Support priority","Elevated"]],
   unit:"subscription"},
- {id:"website-management-primary",name:"Website Management — Primary",category:"Website Management",
+ {id:"website-management-primary",icon:"website-primary",name:"Website Management — Primary",category:"Website Management",
   blurb:"Comprehensive website management, maintenance and technical support for your company's primary business website, kept secure, reliable, optimized and professionally maintained.",
   featuresTitle:"Services include",
   features:["Website monitoring and routine maintenance for uptime, stability and functionality", "Security maintenance, vulnerability reviews, and software, plugin and dependency updates", "Content updates to existing text, images, service descriptions, business information and contact details", "Performance optimization: image optimization, page-loading improvements and mobile responsiveness reviews", "SEO maintenance: metadata, page structure and basic technical SEO improvements", "Hosting configuration, domain and DNS assistance, and SSL certificate monitoring", "Backup coordination, version control and recovery assistance where the hosting supports it", "Contact form checks, lead capture monitoring and troubleshooting of existing integrations", "Routine technical troubleshooting and resolution of website issues", "Monthly website health reviews and improvement recommendations"],
   notes:["Covers one designated primary business website", "New website development, major redesigns, extensive content creation, paid advertising, third-party subscription fees and substantial feature development are quoted separately", "Ongoing management and maintenance, not unlimited development"],
   unit:"subscription"},
- {id:"website-management-secondary",name:"Website Management — Secondary",category:"Website Management",
+ {id:"website-management-secondary",icon:"website-secondary",name:"Website Management — Secondary",category:"Website Management",
   blurb:"Professional maintenance and technical management for an additional business website alongside your managed primary website: secondary sites, specialized service pages, additional brands, marketing sites or supporting online properties.",
   featuresTitle:"Services include",
   features:["Routine website health monitoring and functionality checks", "Security updates, maintenance and technical troubleshooting", "Updates to existing content: business information, service descriptions, images and contact information", "Basic performance optimization and mobile compatibility reviews", "SSL certificate monitoring and domain configuration assistance", "Maintenance of existing contact forms, inquiry forms and lead capture", "Basic technical SEO maintenance, including metadata and search indexing checks", "Backup coordination and recovery assistance where supported", "Maintenance of existing integrations and analytics configurations", "Compatibility reviews after software or hosting changes"],
   notes:["Covers one designated secondary website", "Requires an active Website Management — Primary subscription", "Major development, redesigns, custom applications, new integrations and extensive content changes are billed separately"],
   unit:"subscription"},
- {id:"social-media-1",name:"Social Media — 1 Account",category:"Social Media",
+ {id:"social-media-1",icon:"social-media",name:"Social Media — 1 Account",category:"Social Media",
   blurb:"Professional social media management for one authorized business account, keeping a consistent online presence through planned content, scheduled publishing and performance monitoring.",
   featuresTitle:"Services include",
   features:["Up to 8 posts per month, created and scheduled from your information and approved content", "Management of one business account, such as Facebook, Instagram or LinkedIn", "A monthly content publishing schedule", "AI-assisted drafting of captions, promotions, service highlights, educational content and announcements", "Formatting of your images and graphics for the platform", "Scheduled publishing through supported, authorized account connections", "Hashtag and keyword recommendations", "Monitoring for failed or unsuccessful posts", "Monthly performance summaries", "Schedule adjustments based on your priorities and observed performance", "Your review and approval of scheduled content when required"],
   notes:["Covers one business account on one supported platform", "Paid advertising and ad budgets, professional photography, video production, direct message management, customer service responses and advanced community engagement are not included unless separately contracted", "Results such as audience growth, engagement, leads or sales are not guaranteed"],
   unit:"subscription"},
- {id:"social-media-2",name:"Social Media Management — 2 Accounts",category:"Social Media",
+ {id:"social-media-2",icon:"social-media",name:"Social Media Management — 2 Accounts",category:"Social Media",
   blurb:"Professional social media management for up to two authorized business accounts across Facebook, Instagram, LinkedIn or other supported platforms.",
   featuresTitle:"Services include",
   features:["16 posts per month","Content planning","Branded post creation","Scheduling and publishing","Account monitoring","Content coordination","Monthly performance reporting"],
   notes:["Designed for businesses seeking consistent brand messaging and an active presence across multiple social media platforms"],
   unit:"subscription"},
- {id:"social-media-3",name:"Social Media Management — 3 Accounts",category:"Social Media",
+ {id:"social-media-3",icon:"social-media",name:"Social Media Management — 3 Accounts",category:"Social Media",
   blurb:"Comprehensive social media management for up to three authorized business accounts, including Facebook, Instagram, LinkedIn or other supported platforms.",
   featuresTitle:"Includes",
   features:["24 posts per month","Coordinated content strategy","Branded post creation","Content calendars","Automated scheduling and publishing","Account monitoring","Engagement analytics","Monthly performance reporting"],
   notes:["Centralized management to maintain consistent branding, improve online visibility and streamline marketing operations across multiple platforms"],
   unit:"subscription"},
- {id:"social-media-4",name:"Social Media Management — 4 Accounts",category:"Social Media",
+ {id:"social-media-4",icon:"social-media",name:"Social Media Management — 4 Accounts",category:"Social Media",
   blurb:"Advanced social media management for up to four authorized business accounts across Facebook, Instagram, LinkedIn and other supported platforms.",
   featuresTitle:"Includes",
   features:["32 posts per month","Multi-platform content planning","Branded post creation","Coordinated content calendars","Automated scheduling and publishing","Account monitoring","Performance analytics","Monthly reporting"],
   notes:["Designed for businesses requiring centralized management of multiple social channels, consistent brand messaging and coordinated digital marketing"],
   unit:"subscription"},
- {id:"social-media-5",name:"Social Media — 5 Accounts",category:"Social Media",
+ {id:"social-media-5",icon:"social-media",name:"Social Media — 5 Accounts",category:"Social Media",
   blurb:"Centralized social media management for up to five business social media accounts.",
   featuresTitle:"Includes",
   features:["Coordinated content planning","Post creation","Scheduling and publishing","Brand consistency management","Account monitoring","Performance reporting"],
   notes:["Supports approved business accounts across Facebook, Instagram, LinkedIn and other supported platforms","Posting frequency and content deliverables are defined by the service agreement","Paid advertising and third-party platform fees are excluded"],
   unit:"subscription"},
- {id:"managed-database",name:"Managed Database Infrastructure",category:"Infrastructure",
+ {id:"managed-database",icon:"managed-database",name:"Managed Database Infrastructure",category:"Infrastructure",
   blurb:"Ongoing database administration, infrastructure maintenance, security oversight and technical support for business-critical database environments.",
   featuresTitle:"Services include",
   features:["Administration and maintenance of PostgreSQL, MySQL and other supported relational databases", "Monitoring of availability, resource use, storage capacity and operational health", "Routine maintenance: indexing reviews, performance analysis and query optimization recommendations", "Access management: user permissions, role-based access and credential security recommendations", "Security configuration reviews, vulnerability assessments and database software updates", "Backup configuration and monitoring, with periodic restore checks where supported", "Connectivity troubleshooting and support for existing application integrations", "Monitoring of errors, connection failures and performance degradation", "Schema maintenance assistance and review of structure changes", "Configuration assistance for Docker-based deployments and supported hosting", "Basic capacity planning for storage, compute and scaling", "Monthly database health and infrastructure reviews"],
   notes:["Covers one designated database environment with an agreed resource and support scope", "New database architecture, major schema migrations, extensive data cleansing, custom ETL pipelines, application development, cloud hosting charges, third-party licensing and significant infrastructure expansion are quoted separately", "Managed with reasonable safeguards and established practices; continuous availability, prevention of every security incident and zero data loss cannot be guaranteed"],
   unit:"subscription"},
- {id:"operations-lead-intelligence",name:"Operations & Lead Intelligence",category:"Business Intelligence",
+ {id:"operations-lead-intelligence",icon:"operations-leads",name:"Operations & Lead Intelligence",category:"Business Intelligence",
   blurb:"Managed business intelligence and lead management to help you organize customer information, monitor operational activity and identify sales opportunities.",
   featuresTitle:"Includes",
   features:["Lead data organization","Database integrations","Operational dashboards","Reporting","Workflow monitoring","Automated business insights"],
   notes:["Data collection and processing are limited to authorized sources and approved business workflows","Custom integrations, third-party data services and additional development are billed separately"],
   unit:"subscription"},
- {id:"mailhub-intelligence",name:"MailHub Marketing Intelligence",category:"Business Intelligence",
+ {id:"mailhub-intelligence",icon:"mailhub",name:"MailHub Marketing Intelligence",category:"Business Intelligence",
   blurb:"Managed email marketing intelligence and campaign automation, powered by Snow Seasons Tech's MailHub platform.",
   featuresTitle:"Includes",
   features:["Campaign management","Contact segmentation","Marketing analytics","Email workflow automation","Audience engagement reporting","Campaign performance monitoring"],
   notes:["Designed to support authorized marketing communications and data-driven customer engagement","Email delivery provider fees, premium integrations and additional campaign development may be billed separately"],
   unit:"subscription"},
- {id:"inspections-intelligence",name:"Inspections Intelligence",category:"Business Intelligence",
+ {id:"inspections-intelligence",icon:"inspections",name:"Inspections Intelligence",category:"Business Intelligence",
   blurb:"Managed inspection intelligence and operational reporting to organize inspection records, track field activity and improve operational visibility.",
   featuresTitle:"Includes",
   features:["Inspection data management","Reporting dashboards","Workflow automation","Record tracking","Operational analytics","Integration support"],
   notes:["Configured to your approved inspection workflows and business requirements","Custom development, third-party integrations and additional infrastructure are quoted separately"],
   unit:"subscription"},
- {id:"managed-package",name:"Managed Technology & Marketing Package",category:"Managed Package",
+ {id:"managed-package",icon:"managed-tech",name:"Managed Technology & Marketing Package",category:"Managed Package",
   blurb:"Comprehensive managed technology and digital marketing services, combined into one coordinated package.",
   featuresTitle:"Combines",
   features:["Website management","Social media management","Database infrastructure oversight","Marketing automation","Business intelligence","Ongoing technical support"],
@@ -229,6 +230,8 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function notify(m){const n=$("#notice");n.textContent=m;n.style.display="block";clearTimeout(notify.t);notify.t=setTimeout(()=>n.style.display="none",4500)}
 const specs=p=>{const r=[["You get",p.delivery],["Runs on",p.runs],["Best for",p.bestFor]].filter(([,v])=>v).map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");return r&&`<h4>Details</h4><dl class="specs">${r}</dl>`};
+// icon names a file in /img/icons/. It sits beside the service name, so it is decorative (alt="").
+const pic=p=>p.icon?`<img class="pic" src="/img/icons/${esc(p.icon)}.webp" alt="" width="88" height="65" loading="lazy" decoding="async">`:"";
 const thumb=p=>p.img?`<img class="thumb" src="${esc(p.img)}" alt="${esc(p.alt||"")}" width="800" height="450" loading="lazy" decoding="async">`:"";
 const tagline=p=>p.tagline?`<p class="tagline">${esc(p.tagline)}</p>`:"";
 const buyLabel=p=>p.unit==="subscription"?"Subscribe":"Buy now";
@@ -237,8 +240,8 @@ const priceRow=p=>`<div class="price"><span data-price="${esc(p.id)}">…</span>
 const coverage=p=>p.coverage?`<h4>Coverage</h4><dl class="specs">${p.coverage.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`:"";
 // notes = terms shown under the features list, e.g. what is billed separately.
 const notes=p=>p.notes?`<h4>Good to know</h4><ul>${p.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:"";
-$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article class="card">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button></div></article>`
- :`<article class="flip"><div class="card front">${thumb(p)}<span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
+$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article class="card">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button></div></article>`
+ :`<article class="flip"><div class="card front">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
  +`<div class="card back" inert><h3>${esc(p.name)}</h3>${p.features?`<h4>${esc(p.featuresTitle||"Good to know")}</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}${coverage(p)}${notes(p)}${specs(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
 document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
  if(!t&&(e.target.closest("a,button,select")||String(getSelection())))return;
