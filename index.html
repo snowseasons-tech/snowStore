@@ -67,12 +67,12 @@ footer{text-align:center;padding:40px 0;background:var(--glass);border-top:1px s
 .snow i{position:absolute;top:-40px;background:var(--flake);-webkit-mask:center/contain no-repeat;mask:center/contain no-repeat;animation:snowfall linear infinite;will-change:transform}
 @keyframes snowfall{to{transform:translate3d(var(--dx),760px,0) rotate(var(--rot))}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.card:hover,.btn:hover{transform:none}.snow{display:none}}
-@media(max-width:600px){nav{flex-wrap:wrap}.nav-links{gap:.75rem}#hero{padding:80px 0 64px}#hero h1{font-size:2.1rem}}
+@media(max-width:600px){nav{flex-wrap:wrap}.nav-links{gap:.25rem .75rem;flex-wrap:wrap}.nav-links a{white-space:nowrap}#hero{padding:80px 0 64px}#hero h1{font-size:2.1rem}}
 </style></head>
 <body>
 <header><nav class="container" aria-label="Main navigation">
 <a class="logo" href="#hero">Snow Seasons Technology</a>
-<ul class="nav-links"><li><a href="#products">Services</a></li><li><a href="#kit">Website Kit</a></li><li><a href="/blog/">Blog</a></li><li><a href="#contact">Contact</a></li></ul>
+<ul class="nav-links"><li><a href="/products">Products</a></li><li><a href="#products">Services</a></li><li><a href="#kit">Website Kit</a></li><li><a href="/blog/">Blog</a></li><li><a href="#contact">Contact</a></li></ul>
 <button class="btn btn-toggle" id="theme-toggle" type="button" aria-pressed="false">Toggle theme</button>
 </nav></header>
 <main>

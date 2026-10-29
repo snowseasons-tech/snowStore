@@ -18,8 +18,8 @@ header{background:var(--glass);border-bottom:1px solid var(--glass-b);padding:1r
 nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
 .logo{font-size:1.5rem;font-weight:700;color:var(--primary);text-decoration:none;text-shadow:0 0 18px var(--glow)}
 .nav-links{display:flex;list-style:none;gap:20px;flex-wrap:wrap}
-.nav-links a{text-decoration:none;color:var(--text);font-weight:500;transition:color .2s,text-shadow .2s}
-.nav-links a:hover{color:var(--primary);text-shadow:0 0 12px var(--glow)}
+.nav-links a{white-space:nowrap;text-decoration:none;color:var(--text);font-weight:500;transition:color .2s,text-shadow .2s}
+.nav-links a:hover,.nav-links a[aria-current]{color:var(--primary);text-shadow:0 0 12px var(--glow)}
 a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
 .btn{display:inline-block;background:var(--btn);color:#fff;padding:10px 20px;border:1px solid transparent;border-radius:10px;cursor:pointer;text-decoration:none;font-size:1rem;font-family:inherit;
 box-shadow:0 4px 14px -4px var(--glow);transition:box-shadow .2s,transform .2s}
@@ -54,12 +54,12 @@ footer a{color:inherit;margin:0 .5rem}
 #notice{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--glass);color:var(--text);border:1px solid var(--glass-b);box-shadow:var(--shadow),0 0 24px -6px var(--glow);padding:12px 18px;border-radius:12px;max-width:90vw;z-index:200}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){header,.card,footer,#notice,.btn-toggle{background:var(--sec)}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.card:hover,.btn:hover{transform:none}}
-@media(max-width:600px){main{padding:44px 0 56px}.intro h1{font-size:2.1rem}.nav-links{gap:.75rem}}
+@media(max-width:600px){main{padding:44px 0 56px}.intro h1{font-size:2.1rem}.nav-links{gap:.25rem .75rem}}
 </style></head>
 <body>
 <header><nav class="container" aria-label="Main navigation">
 <a class="logo" href="/">Snow Seasons Technology</a>
-<ul class="nav-links"><li><a href="/#products">Services</a></li><li><a href="/#kit">Website Kit</a></li><li><a href="/blog/">Blog</a></li><li><a href="/#contact">Contact</a></li></ul>
+<ul class="nav-links"><li><a href="/products" aria-current="page">Products</a></li><li><a href="/#products">Services</a></li><li><a href="/#kit">Website Kit</a></li><li><a href="/blog/">Blog</a></li><li><a href="/#contact">Contact</a></li></ul>
 <button class="btn btn-toggle" id="theme-toggle" type="button" aria-pressed="false">Toggle theme</button>
 </nav></header>
 <main>
