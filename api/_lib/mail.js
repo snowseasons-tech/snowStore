@@ -10,4 +10,6 @@ async function sendMail({ to, subject, text }, env = process.env, fetchImpl = fe
   if (!r.ok) throw new Error(`mail ${r.status}`);
   return 'sent';
 }
-module.exports = { sendMail };
+// Where shop notices (new orders, getting-started forms) go: ORDER_NOTIFY_EMAIL, else the public contact address.
+const notifyAddress = (env = process.env) => env.ORDER_NOTIFY_EMAIL || 'info@snowseasonstech.net';
+module.exports = { sendMail, notifyAddress };

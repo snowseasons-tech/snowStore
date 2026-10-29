@@ -177,3 +177,28 @@ test('kit signup is rate limited per IP', async () => {
     assert.strictEqual((await post('u10@example.com', '192.0.2.2')).status, 200);
   } finally { up.restore(); }
 });
+
+test('intake saves getting-started details for a real order and emails the shop', async () => {
+  const { onRequestPost } = await mod('intake');
+  const mails = [];
+  const up = fakeUpstash((url, init) => {
+    assert.match(url, /api\.resend\.com\/emails$/);
+    mails.push(JSON.parse(init.body));
+    return json({ id: 'em_1' });
+  });
+  const post = (body) => ({ env, request: new Request('https://x.test/api/intake', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }) });
+  try {
+    await store.setJSON('order:cs_test_intake000000001', { productId: 'social-media-1', email: 'pat@example.com' });
+    assert.strictEqual((await onRequestPost(post({ session_id: 'nope', business: 'B', name: 'N' }))).status, 400);
+    assert.strictEqual((await onRequestPost(post({ session_id: 'cs_test_intake000000001', name: 'N' }))).status, 400); // business required
+    assert.strictEqual((await onRequestPost(post({ session_id: 'cs_test_unknown00000001', business: 'B', name: 'N' }))).status, 404);
+    const ok = await onRequestPost(post({ session_id: 'cs_test_intake000000001', business: 'Pat Bakery', name: 'Pat', social: 'instagram.com/patbakery', extra: 'ignored' }));
+    assert.strictEqual(ok.status, 200);
+    const saved = await store.getJSON('intake:cs_test_intake000000001');
+    assert.deepStrictEqual([saved.business, saved.social, saved.email, saved.extra], ['Pat Bakery', 'instagram.com/patbakery', 'pat@example.com', undefined]);
+    assert.strictEqual(mails.length, 1);
+    assert.deepStrictEqual(mails[0].to, ['info@snowseasonstech.net']);
+    assert.strictEqual(mails[0].subject, 'Getting started: Pat Bakery (Social Media — 1 Account)');
+    assert.match(mails[0].text, /Social media accounts:\ninstagram\.com\/patbakery/);
+  } finally { up.restore(); }
+});

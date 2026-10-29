@@ -69,7 +69,7 @@ async function processEvent(event, s, catalog, mailer) {
         subject: `Your ${product.name} purchase`,
         text: product.fileKey
           ? `Thanks for your purchase of ${product.name}.\n\nGet your download or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nKeep this email: the link always gives you a fresh download.\n\nSnow Seasons Tech`
-          : `Thanks for your purchase of ${product.name}.\n\nView or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nWe'll be in touch shortly to get started.\n\nSnow Seasons Tech`,
+          : `Thanks for your purchase of ${product.name}.\n\nView or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nTo get started, tell us about your business here:\n${process.env.SITE_URL}/start?session_id=${session.id}\n\nWe'll be in touch shortly.\n\nSnow Seasons Tech`,
       });
     } catch (e) {
       await s.release(mailKey).catch(() => {});
@@ -78,12 +78,12 @@ async function processEvent(event, s, catalog, mailer) {
     await markDone(s, mailKey);
   }
 
-  // Tell the shop about the new order (ORDER_NOTIFY_EMAIL, default the public contact address). Sent once per order.
+  // Tell the shop about the new order (see mail.notifyAddress). Sent once per order.
   const notifyKey = `notify:${session.id}`;
   if ((await claimOnce(s, notifyKey)) === 'claimed') {
     try {
       await mailer.sendMail({
-        to: process.env.ORDER_NOTIFY_EMAIL || DEFAULT_NOTIFY,
+        to: mail.notifyAddress(),
         subject: `New order: ${product.name}`,
         text: orderSummary(session, product, email),
       });
@@ -96,7 +96,6 @@ async function processEvent(event, s, catalog, mailer) {
   return `fulfilled:${mailed}`;
 }
 
-const DEFAULT_NOTIFY = 'info@snowseasonstech.net';
 const PERIOD_NAMES = { '1w': 'weekly', '3m': 'every 3 months', '6m': 'every 6 months', '12m': 'yearly' };
 function orderSummary(session, product, email) {
   const money = session.amount_total == null ? 'see Stripe'
@@ -108,7 +107,8 @@ function orderSummary(session, product, email) {
     + `Product: ${product.name}\nBilling: ${billing}\nPaid today: ${money}\n`
     + `Customer: ${name} <${email || 'no email'}>\n\n`
     + `Stripe checkout session: ${session.id}\n${session.subscription ? `Subscription: ${session.subscription}\n` : ''}`
-    + `\nOrder page: ${process.env.SITE_URL}/success?session_id=${session.id}\n`;
+    + `\nOrder page: ${process.env.SITE_URL}/success?session_id=${session.id}\n`
+    + (product.fileKey ? '' : `The customer has been asked to fill in the getting-started form; you'll get a separate email when they do.\n`);
 }
 
 // Keeps subscription status current; ignores events older than the last one applied.
