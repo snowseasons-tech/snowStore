@@ -20,7 +20,7 @@ A Python-based engine that renders Markdown templates.
 - **PDF Export:** Integrated Pandoc support for professional PDF generation.
 - **Site Sync:** Direct integration with Docusaurus for public documentation.
 
-### 3. Customer Portal API (`/portal-api`)
+### 3. Customer Portal API (`/portal_api`)
 A FastAPI backend that ensures customers only access documentation for products they have purchased.
 - **Entitlement Check:** Verifies product access before listing or serving files.
 - **Secure Delivery:** Serves build artifacts directly from the secure build directory.
@@ -56,7 +56,7 @@ python3 documentation_platform/generator/main.py --product cdot-stations --sync
 
 **4. Run the Portal API:**
 ```bash
-uvicorn documentation_platform.portal-api.main:app --reload
+uvicorn documentation_platform.portal_api.main:app --reload
 ```
 
 ## 🗺 Roadmap

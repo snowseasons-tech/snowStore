@@ -1,0 +1,59 @@
+name: Publish Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'products/**'
+      - 'templates/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies
+        run: |
+          pip install PyYAML jinja2 pydantic fpdf2 markdown
+
+      - name: Generate Documentation
+        run: |
+          # Loop through all products in the registry and generate their docs
+          # This is a simplified shell script to call the generator for each product
+          for d in products/*/ ; do
+            product_id=$(basename "$d")
+            echo "Generating docs for $product_id"
+            python3 -m generator.main --product "$product_id" --format markdown --out build
+          done
+
+      - name: Sync to Docusaurus
+        run: |
+          # Move generated markdown files to the Docusaurus docs directory
+          # We map build/<product_id>/<doc>.md -> docs-site/docs/<product_id>/<doc>.md
+          mkdir -p docs-site/docs
+          cp -r build/*/ docs-site/docs/
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Docusaurus Site
+        run: |
+          cd docs-site
+          npm install
+          npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs-site/build

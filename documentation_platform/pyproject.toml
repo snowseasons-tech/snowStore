@@ -1,17 +1,14 @@
-[tool.poetry]
-name = "documentation_platform"
+[project]
+name = "snow-seasons-docs"
 version = "0.1.0"
-description = "Documentation engine and portal API for Snow Seasons Tech"
-authors = ["Snow Seasons Tech"]
-
-[tool.poetry.dependencies]
-python = "^3.10"
-pyyaml = "^6.0"
-jinja2 = "^3.1"
-fastapi = "^0.100.0"
-uvicorn = "^0.23.0"
-python-multipart = "^0.0.6"
+description = "Documentation Engine for Snow Seasons Tech"
+dependencies = [
+    "PyYAML>=6.0",
+    "jinja2>=3.1",
+    "pydantic>=2.0",
+    "markdown>=3.0",
+]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"

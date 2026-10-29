@@ -244,7 +244,7 @@ documentation_platform/
 │   ├── docx_export.py
 │   └── validation.py
 │
-├── portal-api/
+├── portal_api/
 │   ├── routes/
 │   ├── auth/
 │   └── entitlements/
