@@ -61,8 +61,11 @@ async def publish(post,conn):
             return result['name']
     raise RuntimeError('Unknown platform')
 
+def redirect_origin():
+    # Hosted servers share one OAuth address, because Meta and Google need every redirect address listed in advance.
+    return (os.getenv('OAUTH_REDIRECT_URL') or os.environ['PUBLIC_URL']).rstrip('/')
 def auth_url(provider,state):
-    origin=os.environ['PUBLIC_URL'].rstrip('/')
+    origin=redirect_origin()
     redirect=f'{origin}/api/oauth/{provider}/callback'
     if provider=='google':
         if not os.getenv('GOOGLE_CLIENT_ID'): raise HTTPException(503,'Google OAuth not configured')
@@ -73,7 +76,7 @@ def auth_url(provider,state):
     raise HTTPException(400,'Unknown provider')
 
 async def exchange(provider,code):
-    origin=os.environ['PUBLIC_URL'].rstrip('/')
+    origin=redirect_origin()
     async with httpx.AsyncClient(timeout=TIMEOUT) as http:
         if provider=='google':
             r=await http.post('https://oauth2.googleapis.com/token',data={'code':code,'client_id':os.environ['GOOGLE_CLIENT_ID'],'client_secret':os.environ['GOOGLE_CLIENT_SECRET'],'redirect_uri':f'{origin}/api/oauth/google/callback','grant_type':'authorization_code'})

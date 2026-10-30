@@ -9,7 +9,7 @@ from fastapi import BackgroundTasks,FastAPI,Depends,HTTPException,Response
 from fastapi.responses import FileResponse,RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel,EmailStr,Field,HttpUrl
-from sqlalchemy import select
+from sqlalchemy import func,select
 from sqlalchemy.orm import Session as DBSession
 from .db import init_db,Session,User,Client,Membership,Connection,Post,OAuthState,Invite,now
 from .security import db_session,current_user,hasher,issue,encrypt,require_member,session_generation
@@ -19,10 +19,15 @@ logger=logging.getLogger(__name__)
 
 APP_NAME=os.getenv('APP_NAME','').strip() or 'Social Studio'
 INVITE_DAYS=7
+def account_limit():
+    # Plan size: connected accounts allowed across the whole server. 0 means no limit.
+    limit=int(os.getenv('MAX_ACCOUNTS') or 0)
+    if limit<0: raise ValueError('MAX_ACCOUNTS cannot be negative')
+    return limit
 @asynccontextmanager
 async def lifespan(_app):
-    init_db();yield
-app=FastAPI(title=APP_NAME,version='0.3.0',lifespan=lifespan)
+    account_limit();init_db();yield
+app=FastAPI(title=APP_NAME,version='0.5.0',lifespan=lifespan)
 BASE=Path(__file__).resolve().parent.parent
 app.mount('/static',StaticFiles(directory=BASE/'static'),name='static')
 @app.get('/',include_in_schema=False)
@@ -84,7 +89,11 @@ def config(db:DBSession=Depends(db_session)):
 def register(data:RegisterIn,db:DBSession=Depends(db_session)):
     email=str(data.email).lower()
     invite=None
-    if data.invite_code:
+    setup=os.getenv('SETUP_CODE','')
+    if setup and db.scalar(select(User.id).limit(1)) is None:
+        # A hosted server is handed over by emailing this code, so the first visitor can't claim it.
+        if not secrets.compare_digest((data.invite_code or '').encode(),setup.encode()): raise HTTPException(403,'Use the setup link from your welcome email')
+    elif data.invite_code:
         invite=db.scalar(select(Invite).where(Invite.code_hash==code_hash(data.invite_code)))
         if not invite or invite.expires_at<now() or invite.email!=email: raise HTTPException(403,'Invalid or expired invite code for this email')
     elif not registration_open(db): raise HTTPException(403,'Registration is closed. Ask a workspace owner for an invite code.')
@@ -127,6 +136,9 @@ def reset_password(data:ResetIn,db:DBSession=Depends(db_session)):
     return {'token':issue(u.id,generation)}
 @app.get('/api/me')
 def me(user:User=Depends(current_user)):return {'id':user.id,'email':user.email}
+@app.get('/api/plan')
+def plan(user:User=Depends(current_user),db:DBSession=Depends(db_session)):
+    return {'limit':account_limit() or None,'used':db.scalar(select(func.count()).select_from(Connection))}
 @app.post('/api/clients')
 def create_client(data:ClientIn,user:User=Depends(current_user),db:DBSession=Depends(db_session)):
     try: ZoneInfo(data.timezone)
@@ -244,7 +256,8 @@ def oauth_start(provider:str,data:OAuthStartIn,user:User=Depends(current_user),d
     # Returns the provider URL for the browser to open, so the login token never goes into a URL.
     require_member(db,user.id,data.client_id,['owner'])
     if provider not in ('meta','google'): raise HTTPException(404,'Provider not found')
-    url=auth_url(provider,state:=secrets.token_urlsafe(32))
+    prefix=os.getenv('SUBSCRIBER_ID','')
+    url=auth_url(provider,state:=(f'{prefix}~' if prefix else '')+secrets.token_urlsafe(32))
     db.add(OAuthState(state=state,client_id=data.client_id,user_id=user.id,provider=provider,expires_at=now()+timedelta(minutes=10)));db.commit()
     return {'url':url}
 @app.get('/api/oauth/{provider}/callback')
@@ -256,10 +269,12 @@ async def oauth_callback(provider:str,state:str,code:str,db:DBSession=Depends(db
     try:
         access,refresh,expires=await exchange(provider,code)
         accounts=await discover_accounts(provider,access)
+        limit=account_limit();used=db.scalar(select(func.count()).select_from(Connection));skipped=0
         for a in accounts:
             existing=db.scalar(select(Connection).where(Connection.client_id==client_id,Connection.platform==a['platform'],Connection.external_id==a['id']))
             if existing: conn=existing
-            else: conn=Connection(client_id=client_id,platform=a['platform'],external_id=a['id'],display_name=a['name'],token_enc='');db.add(conn)
+            elif limit and used>=limit: skipped+=1;continue
+            else: conn=Connection(client_id=client_id,platform=a['platform'],external_id=a['id'],display_name=a['name'],token_enc='');db.add(conn);used+=1
             conn.display_name=a['name'];conn.parent_id=a.get('parent_id','')
             # Google refresh requires implementation before token expiry; see README.
             conn.token_enc=encrypt(a['token'])
@@ -269,4 +284,4 @@ async def oauth_callback(provider:str,state:str,code:str,db:DBSession=Depends(db
     except Exception:
         db.rollback()
         raise HTTPException(502,'Provider authentication completed but account discovery failed; inspect server logs')
-    return RedirectResponse('/?connected='+provider)
+    return RedirectResponse('/?connected='+provider+(f'&skipped={skipped}' if skipped else ''))

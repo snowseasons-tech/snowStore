@@ -23,7 +23,7 @@ os.environ.update(
     META_APP_ID='meta-app-id',
     META_APP_SECRET='meta-app-secret',
 )
-for name in ('LLM_MODEL', 'ALLOW_REGISTRATION', 'APP_NAME', 'SMTP_HOST', 'SMTP_FROM', 'SMTP_USERNAME'):
+for name in ('LLM_MODEL', 'ALLOW_REGISTRATION', 'APP_NAME', 'SMTP_HOST', 'SMTP_FROM', 'SMTP_USERNAME', 'MAX_ACCOUNTS', 'SETUP_CODE', 'SUBSCRIBER_ID', 'OAUTH_REDIRECT_URL'):
     os.environ.pop(name, None)
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
