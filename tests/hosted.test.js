@@ -141,6 +141,9 @@ test('subscriber.sh runs MailHub with its own image, domain and limit', () => {
     assert.strictEqual(run('limit', 'mabc123', '900').status, 0);
     assert.match(fs.readFileSync(file, 'utf8'), /^MAX_MONTHLY_SENDS=900$/m);
     assert.strictEqual(run('stop', 'mabc123').status, 0);
+    assert.match(fs.readFileSync(file, 'utf8'), /^SUSPENDED=1$/m);
+    assert.strictEqual(run('start', 'mabc123').status, 0);
+    assert.match(fs.readFileSync(file, 'utf8'), /^SUSPENDED=0$/m);
     const calls = fs.readFileSync(log, 'utf8');
     assert.ok(calls.includes('-p mh-mabc123') && calls.includes('mailhub-compose.yml'));
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }

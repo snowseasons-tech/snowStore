@@ -43,6 +43,7 @@ def pytest_sessionfinish(session, exitstatus):
 def fresh_db():
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
+    main.failed_logins.clear()
     yield
 
 

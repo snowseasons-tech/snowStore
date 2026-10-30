@@ -3,10 +3,10 @@ import json
 import os
 from datetime import timedelta
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 
-from .db import Contact, ContactTag, ListMember, Segment, SendCounter, Settings, Suppression, now
+from .db import Campaign, Contact, ContactTag, ListMember, Recipient, Segment, SendCounter, Settings, Suppression, now
 from .security import decrypt
 
 
@@ -51,6 +51,8 @@ def not_ready(row):
         problems.append('Verify your sending domain')
     if not row.from_email or row.from_email.rpartition('@')[2] != row.domain:
         problems.append('Use a From address on your verified domain')
+    if not webhook_secret(row):
+        problems.append('Add your Resend webhook secret, or bounces and complaints will not be suppressed')
     if not row.postal_address.strip():
         problems.append('Add your postal address; anti-spam law requires it in every email')
     return problems
@@ -71,6 +73,12 @@ def remaining(db):
     return None if not limit else max(limit - used_this_month(db), 0)
 
 
+def committed(db):
+    """Emails already promised to campaigns that haven't finished."""
+    active = select(Campaign.id).where(Campaign.status.in_(('queued', 'sending', 'paused')))
+    return db.scalar(select(func.count()).select_from(Recipient).where(Recipient.campaign_id.in_(active), Recipient.status == 'pending')) or 0
+
+
 def count_sends(db, n):
     """Add to this month's count under a row lock. Pass a negative number to give back a send that never went out."""
     key = month_key()
@@ -80,7 +88,8 @@ def count_sends(db, n):
                 db.add(SendCounter(month=key, used=0))
         except IntegrityError:
             pass
-    db.execute(update(SendCounter).where(SendCounter.month == key).values(used=SendCounter.used + n))
+    # A send handed back just after the month rolled over must not push the new month below zero.
+    db.execute(update(SendCounter).where(SendCounter.month == key, SendCounter.used + n >= 0).values(used=SendCounter.used + n))
 
 
 def audience(db, campaign):
@@ -116,3 +125,4 @@ def pause(campaign, reason):
 
 
 STUCK_AFTER = timedelta(minutes=10)
+GUARD_PREFIX = 'Paused to protect your sending reputation:'

@@ -1,9 +1,11 @@
 import base64,csv,hashlib,hmac,html,io,json,logging,os,re,secrets,time
+from collections import defaultdict
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
 from email_validator import EmailNotValidError,validate_email
 from fastapi import BackgroundTasks,Depends,FastAPI,File,Form,HTTPException,Query,Request,Response,UploadFile
-from fastapi.responses import FileResponse,HTMLResponse,RedirectResponse
+from fastapi.responses import FileResponse,HTMLResponse,JSONResponse,RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel,EmailStr,Field
 from sqlalchemy import delete,func,select,update
@@ -17,11 +19,21 @@ logger=logging.getLogger(__name__)
 
 APP_NAME=os.getenv('APP_NAME','').strip() or 'MailHub'
 MAX_IMPORT_BYTES=20*1024*1024
+LOGIN_TRIES=10
+LOGIN_WINDOW=900
+failed_logins=defaultdict(list)
 PIXEL=base64.b64decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')
 @asynccontextmanager
 async def lifespan(_app):
     sending.monthly_limit();sending.rate();init_db();yield
 app=FastAPI(title=APP_NAME,version='0.1.0',lifespan=lifespan)
+@app.middleware('http')
+async def suspended(request,call_next):
+    # A stopped subscription keeps unsubscribe links and bounce handling alive, and nothing else.
+    path=request.url.path
+    if os.getenv('SUSPENDED')=='1' and path.startswith('/api/') and path!='/api/webhooks/resend':
+        return JSONResponse({'detail':'This subscription has ended. Renew it to get back in.'},403)
+    return await call_next(request)
 BASE=Path(__file__).resolve().parent.parent
 app.mount('/static',StaticFiles(directory=BASE/'static'),name='static')
 @app.get('/',include_in_schema=False)
@@ -57,6 +69,8 @@ class CampaignIn(BaseModel):
     body_html:str=Field(min_length=1,max_length=1000000)
     list_id:str|None=None
     segment_id:str|None=None
+class SendIn(BaseModel):
+    send_at:datetime|None=None
 class TestIn(BaseModel):
     email:EmailStr
 class SettingsIn(BaseModel):
@@ -85,11 +99,11 @@ def need(db,model,key,label):
     if not obj: raise HTTPException(404,f'{label} not found')
     return obj
 def contact_view(db,c):
-    return {'id':c.id,'email':c.email,'first_name':c.first_name,'last_name':c.last_name,'tags':list(db.scalars(select(ContactTag.tag).where(ContactTag.contact_id==c.id)).all()),'suppressed':db.get(Suppression,c.email) is not None}
+    return {'id':c.id,'email':c.email,'first_name':c.first_name,'last_name':c.last_name,'tags':list(db.scalars(select(ContactTag.tag).where(ContactTag.contact_id==c.id)).all()),'suppressed':db.get(Suppression,c.email) is not None,'consent_source':c.consent_source}
 def campaign_view(c):
-    return {'id':c.id,'name':c.name,'subject':c.subject,'body_html':c.body_html,'list_id':c.list_id,'segment_id':c.segment_id,'status':c.status,'last_error':c.last_error,'created_at':c.created_at,'queued_at':c.queued_at,'finished_at':c.finished_at}
+    return {'id':c.id,'name':c.name,'subject':c.subject,'body_html':c.body_html,'list_id':c.list_id,'segment_id':c.segment_id,'status':c.status,'last_error':c.last_error,'created_at':c.created_at,'queued_at':c.queued_at,'send_at':c.send_at,'finished_at':c.finished_at}
 def settings_view(s):
-    return {'from_name':s.from_name,'from_email':s.from_email,'reply_to':s.reply_to,'postal_address':s.postal_address,'has_resend_key':bool(sending.resend_key(s)),'key_from_server':bool(os.getenv('RESEND_API_KEY')),'has_webhook_secret':bool(sending.webhook_secret(s)),'domain':s.domain,'domain_status':s.domain_status,'domain_records':json.loads(s.domain_records),'webhook_url':os.environ['PUBLIC_URL'].rstrip('/')+'/api/webhooks/resend','not_ready':sending.not_ready(s)}
+    return {'from_name':s.from_name,'from_email':s.from_email,'reply_to':s.reply_to,'postal_address':s.postal_address,'has_resend_key':bool(sending.resend_key(s)),'key_from_server':bool(os.getenv('RESEND_API_KEY')),'has_webhook_secret':bool(sending.webhook_secret(s)),'domain':s.domain,'domain_status':s.domain_status,'domain_records':json.loads(s.domain_records),'webhook_last_at':s.webhook_last_at,'webhook_url':os.environ['PUBLIC_URL'].rstrip('/')+'/api/webhooks/resend','not_ready':sending.not_ready(s)}
 def validate_target(db,data):
     if not data.list_id and not data.segment_id: raise HTTPException(422,'Choose a list or a segment')
     if data.list_id: need(db,ContactList,data.list_id,'List')
@@ -120,8 +134,13 @@ def register(data:RegisterIn,db:DBSession=Depends(db_session)):
     return {'token':issue(u.id)}
 @app.post('/api/auth/login')
 def login(data:Credentials,db:DBSession=Depends(db_session)):
-    u=db.scalar(select(User).where(User.email==str(data.email).lower()))
-    if not u or not hasher.verify(data.password,u.password_hash): raise HTTPException(401,'Invalid credentials')
+    email=str(data.email).lower()
+    recent=failed_logins[email]=[t for t in failed_logins[email] if t>time.time()-LOGIN_WINDOW]
+    if len(recent)>=LOGIN_TRIES: raise HTTPException(429,'Too many tries. Wait 15 minutes or reset your password.')
+    u=db.scalar(select(User).where(User.email==email))
+    if not u or not hasher.verify(data.password,u.password_hash):
+        recent.append(time.time());raise HTTPException(401,'Invalid credentials')
+    failed_logins.pop(email,None)
     return {'token':issue(u.id,session_generation(db,u.id))}
 @app.post('/api/auth/forgot')
 def forgot(data:ForgotIn,background:BackgroundTasks,db:DBSession=Depends(db_session)):
@@ -219,7 +238,7 @@ async def import_csv(list_id:str,file:UploadFile=File(),consent:bool=Form(False)
         chunk=emails[i:i+500]
         existing.update({c.email:c for c in db.scalars(select(Contact).where(Contact.email.in_(chunk))).all()})
         blocked.update(db.scalars(select(Suppression.email).where(Suppression.email.in_(chunk))).all())
-    added=updated=0
+    added=updated=0;source=f'CSV {file.filename or ""}, confirmed by {user.email} on {now():%Y-%m-%d}'[:300]
     for email,info in rows.items():
         c=existing.get(email)
         if c:
@@ -227,7 +246,7 @@ async def import_csv(list_id:str,file:UploadFile=File(),consent:bool=Form(False)
             c.first_name=info['first_name'] or c.first_name;c.last_name=info['last_name'] or c.last_name
         else:
             added+=1
-            c=Contact(email=email,first_name=info['first_name'],last_name=info['last_name']);db.add(c);db.flush()
+            c=Contact(email=email,first_name=info['first_name'],last_name=info['last_name'],consent_source=source);db.add(c);db.flush()
         set_tags(db,c.id,info['tags']);join_list(db,list_id,c.id)
     db.commit()
     return {'added':added,'updated':updated,'invalid':invalid,'suppressed':len(blocked)}
@@ -243,7 +262,7 @@ def add_contact(data:ContactIn,user:User=Depends(current_user),db:DBSession=Depe
     email=str(data.email).lower()
     if data.list_id: need(db,ContactList,data.list_id,'List')
     if db.scalar(select(Contact).where(Contact.email==email)): raise HTTPException(409,'This contact already exists')
-    c=Contact(email=email,first_name=data.first_name,last_name=data.last_name);db.add(c);db.flush()
+    c=Contact(email=email,first_name=data.first_name,last_name=data.last_name,consent_source=f'Added by {user.email} on {now():%Y-%m-%d}'[:300]);db.add(c);db.flush()
     set_tags(db,c.id,clean_tags(data.tags))
     if data.list_id: join_list(db,data.list_id,c.id)
     db.commit();return contact_view(db,c)
@@ -309,22 +328,28 @@ def test_send(campaign_id:str,data:TestIn,user:User=Depends(current_user),db:DBS
     except ResendError as e: raise provider_error(e)
     sending.count_sends(db,1);db.commit();return {'ok':True}
 @app.post('/api/campaigns/{campaign_id}/send')
-def send_campaign(campaign_id:str,user:User=Depends(current_user),db:DBSession=Depends(db_session)):
+def send_campaign(campaign_id:str,data:SendIn|None=None,user:User=Depends(current_user),db:DBSession=Depends(db_session)):
     c=editable(db,campaign_id);s=sending.settings(db)
     if problems:=sending.not_ready(s): raise HTTPException(409,'; '.join(problems))
     people=sending.audience(db,c)
     if not people: raise HTTPException(409,'This campaign has no one to send to')
+    send_at=data.send_at if data else None
+    if send_at and send_at.tzinfo is None: raise HTTPException(422,'Datetime must include timezone')
+    if send_at and send_at<=now(): raise HTTPException(422,'Schedule in the future')
     left=sending.remaining(db)
+    if left is not None: left=max(left-sending.committed(db),0)
     if left is not None and len(people)>left: raise HTTPException(409,f'This campaign reaches {len(people)} people but only {left} sends are left this month')
     for url in links_in(c.body_html): db.add(CampaignLink(campaign_id=c.id,url=url))
     db.add_all(Recipient(campaign_id=c.id,email=p.email,first_name=p.first_name,last_name=p.last_name) for p in people)
-    c.status='queued';c.queued_at=now();c.last_error='';db.commit()
+    c.status='queued';c.queued_at=now();c.send_at=send_at;c.last_error='';db.commit()
     return {**campaign_view(c),'recipients':len(people)}
 @app.post('/api/campaigns/{campaign_id}/resume')
 def resume_campaign(campaign_id:str,user:User=Depends(current_user),db:DBSession=Depends(db_session)):
     c=need(db,Campaign,campaign_id,'Campaign')
     if c.status!='paused': raise HTTPException(409,'Only paused campaigns can resume')
-    c.status='queued';c.last_error='';c.guard_off=1;db.commit();return campaign_view(c)
+    if sending.remaining(db)==0: raise HTTPException(409,'This month\'s send limit is used up')
+    if c.last_error.startswith(sending.GUARD_PREFIX): c.guard_off=1
+    c.status='queued';c.last_error='';db.commit();return campaign_view(c)
 @app.post('/api/campaigns/{campaign_id}/cancel')
 def cancel_campaign(campaign_id:str,user:User=Depends(current_user),db:DBSession=Depends(db_session)):
     c=need(db,Campaign,campaign_id,'Campaign')
@@ -344,7 +369,7 @@ def stats(campaign_id:str,user:User=Depends(current_user),db:DBSession=Depends(d
     links=db.scalars(select(CampaignLink).where(CampaignLink.campaign_id==c.id).order_by(CampaignLink.clicks.desc())).all()
     return {'status':c.status,'recipients':sum(statuses.values()),'sent':sent,'pending':statuses.get('pending',0)+statuses.get('sending',0),'failed':statuses.get('failed',0),'skipped':statuses.get('skipped',0),'canceled':statuses.get('canceled',0),
             'opened':opened,'opens_total':total(Recipient.open_count),'open_rate':rate(opened),'clicked':clicked,'clicks_total':total(Recipient.click_count),'click_rate':rate(clicked),
-            'unsubscribed':count(Recipient.unsubscribed_at.is_not(None)),'bounced':count(Recipient.bounced_at.is_not(None)),'complained':count(Recipient.complained_at.is_not(None)),
+            'delivered':count(Recipient.delivered_at.is_not(None)),'unsubscribed':count(Recipient.unsubscribed_at.is_not(None)),'bounced':count(Recipient.bounced_at.is_not(None)),'complained':count(Recipient.complained_at.is_not(None)),
             'links':[{'url':l.url,'clicks':l.clicks} for l in links]}
 
 # --- Public links in emails -----------------------------------------------------------------
@@ -379,6 +404,7 @@ def unsubscribe_page(token:str,db:DBSession=Depends(db_session)):
 @app.post('/u/{token}',include_in_schema=False)
 def unsubscribe(token:str,db:DBSession=Depends(db_session)):
     # Also the target of mail apps' one-click List-Unsubscribe-Post, so it needs no confirmation or sign-in.
+    if token=='test': return page('This was a test','Test emails have no real unsubscribe. Nothing was changed.')
     r=db.scalar(select(Recipient).where(Recipient.token==token))
     if not r: raise HTTPException(404,'Link not found')
     sending.suppress(db,r.email,'unsubscribed',r.campaign_id)
@@ -398,15 +424,20 @@ def signature_ok(secret,headers,body):
     return any(hmac.compare_digest(part.partition(',')[2],want) for part in given.split())
 @app.post('/api/webhooks/resend',include_in_schema=False)
 async def resend_webhook(request:Request,db:DBSession=Depends(db_session)):
-    secret=sending.webhook_secret(sending.settings(db))
+    s=sending.settings(db);secret=sending.webhook_secret(s)
     body=await request.body()
     if not secret: raise HTTPException(503,'Webhook secret is not set')
     if not signature_ok(secret,request.headers,body): raise HTTPException(401,'Bad signature')
-    event=json.loads(body);kind=event.get('type');data=event.get('data') or {}
-    if kind=='email.bounced' and str((data.get('bounce') or {}).get('type','')).lower()!='permanent': return {'ok':True}
-    if kind not in ('email.bounced','email.complained'): return {'ok':True}
+    try: event=json.loads(body);kind=event.get('type');data=event.get('data') or {}
+    except (ValueError,AttributeError): raise HTTPException(400,'Bad event')
+    s.webhook_last_at=now();db.commit()
     r=db.scalar(select(Recipient).where(Recipient.provider_id==data.get('email_id'))) if data.get('email_id') else None
-    reason='bounced' if kind=='email.bounced' else 'complained'
-    for email in data.get('to') or ([r.email] if r else []): sending.suppress(db,email,reason,r.campaign_id if r else None)
-    if r: setattr(r,'bounced_at' if reason=='bounced' else 'complained_at',now())
+    if kind=='email.delivered' and r and not r.delivered_at: r.delivered_at=now()
+    # Only a permanent bounce suppresses; a full mailbox or a slow server may work next time.
+    hard=kind=='email.bounced' and str((data.get('bounce') or {}).get('type','')).lower()=='permanent'
+    if hard or kind=='email.complained':
+        reason='bounced' if hard else 'complained'
+        to=data.get('to') or ([r.email] if r else [])
+        for email in [to] if isinstance(to,str) else to: sending.suppress(db,email,reason,r.campaign_id if r else None)
+        if r and not getattr(r,reason+'_at'): setattr(r,reason+'_at',now())
     db.commit();return {'ok':True}

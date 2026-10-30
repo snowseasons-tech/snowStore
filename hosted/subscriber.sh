@@ -76,8 +76,23 @@ case "$cmd" in
     sed -i "s/^$limit_key=.*/$limit_key=$arg/" "$dir/.env"
     dc up -d
     ;;
-  stop)  need_dir; dc stop ;;
-  start) need_dir; dc start ;;
+  stop)
+    need_dir
+    if [[ "${product:-social}" == mailhub ]]; then
+      # Sent email keeps working links: the web app stays up, closed to everything but unsubscribes and bounces.
+      grep -q '^SUSPENDED=' "$dir/.env" || echo "SUSPENDED=0" >> "$dir/.env"
+      sed -i 's/^SUSPENDED=.*/SUSPENDED=1/' "$dir/.env"
+      dc stop worker
+      dc up -d db web
+    else dc stop; fi
+    ;;
+  start)
+    need_dir
+    if [[ "${product:-social}" == mailhub ]]; then
+      sed -i 's/^SUSPENDED=.*/SUSPENDED=0/' "$dir/.env"
+      dc up -d
+    else dc start; fi
+    ;;
   delete)
     need_dir
     [[ "$arg" == --yes ]] || { echo "delete needs --yes; this removes all of the subscriber's data" >&2; exit 2; }

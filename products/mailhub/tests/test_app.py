@@ -401,3 +401,104 @@ def test_too_many_bounces_pauses_the_campaign_until_resumed(client, owner, ready
     client.post(f'/api/campaigns/{cid}/resume', headers=owner)
     drain()
     assert stats(client, owner, cid)['status'] == 'sent'
+
+
+# --- Edge cases ---------------------------------------------------------------------------
+
+def test_login_locks_after_repeated_failures(client, owner):
+    bad = {'email': 'owner@example.com', 'password': 'wrong-password-here'}
+    for _ in range(10):
+        assert client.post('/api/auth/login', json=bad).status_code == 401
+    assert client.post('/api/auth/login', json=bad).status_code == 429
+    assert client.post('/api/auth/login', json=bad | {'password': PASSWORD}).status_code == 429
+
+
+def test_suspended_server_keeps_only_public_links(client, owner, ready, outbox, monkeypatch):
+    sent_campaign(client, owner, ['a@x.example.com'])
+    drain()
+    token = recipient('a@x.example.com').token
+    monkeypatch.setenv('SUSPENDED', '1')
+    assert client.get('/api/campaigns', headers=owner).status_code == 403
+    assert client.post('/api/auth/login', json={'email': 'owner@example.com', 'password': PASSWORD}).status_code == 403
+    assert client.post(f'/u/{token}').status_code == 200
+    assert hook(client, {'type': 'email.delivered', 'data': {}}).status_code == 200
+
+
+def test_send_limit_counts_campaigns_already_waiting(client, owner, ready, outbox, monkeypatch):
+    monkeypatch.setenv('MAX_MONTHLY_SENDS', '3')
+    sent_campaign(client, owner, ['a@x.example.com', 'b@x.example.com'])
+    lid = make_list(client, owner, 'Second')
+    upload(client, owner, lid, 'email\nc@x.example.com\nd@x.example.com\n')
+    cid = make_campaign(client, owner, list_id=lid)
+    r = client.post(f'/api/campaigns/{cid}/send', headers=owner)
+    assert r.status_code == 409 and 'only 1 sends' in r.json()['detail']
+
+
+def test_resume_is_refused_while_the_limit_is_used_up(client, owner, ready, outbox, monkeypatch):
+    monkeypatch.setenv('MAX_MONTHLY_SENDS', '1')
+    cid = make_campaign(client, owner, list_id=make_list(client, owner))
+    client.post(f'/api/campaigns/{cid}/test', headers=owner, json={'email': 't@x.example.com'})
+    with Session() as db:
+        db.get(Campaign, cid).status = 'paused'
+        db.commit()
+    assert client.post(f'/api/campaigns/{cid}/resume', headers=owner).status_code == 409
+
+
+def test_handing_back_a_send_never_goes_below_zero(ready):
+    from app import sending
+    with Session() as db:
+        sending.count_sends(db, 0)
+        sending.count_sends(db, -1)
+        db.commit()
+        assert sending.used_this_month(db) == 0
+
+
+def test_scheduled_campaign_waits_for_its_time(client, owner, ready, outbox):
+    from datetime import timedelta
+    from app.db import now
+    lid = make_list(client, owner)
+    upload(client, owner, lid, 'email\na@x.example.com\n')
+    cid = make_campaign(client, owner, list_id=lid)
+    url = f'/api/campaigns/{cid}/send'
+    assert client.post(url, headers=owner, json={'send_at': (now() - timedelta(hours=1)).isoformat()}).status_code == 422
+    assert client.post(url, headers=owner, json={'send_at': (now() + timedelta(hours=1)).isoformat()}).status_code == 200
+    drain()
+    assert outbox == []
+    with Session() as db:
+        db.get(Campaign, cid).send_at = now() - timedelta(seconds=1)
+        db.commit()
+    drain()
+    assert len(outbox) == 1
+
+
+def test_consent_source_is_recorded(client, owner):
+    upload(client, owner, make_list(client, owner), 'email\na@x.example.com\n')
+    source = client.get('/api/contacts', headers=owner).json()['contacts'][0]['consent_source']
+    assert 'c.csv' in source and 'owner@example.com' in source
+
+
+def test_sending_needs_the_webhook_secret(client, owner, ready):
+    with Session() as db:
+        db.get(Settings, 1).webhook_secret_enc = ''
+        db.commit()
+    assert 'webhook' in ' '.join(client.get('/api/settings', headers=owner).json()['not_ready'])
+
+
+def test_webhook_delivery_duplicates_and_odd_payloads(client, owner, ready, outbox):
+    cid = sent_campaign(client, owner, ['a@x.example.com'])
+    drain()
+    event = {'type': 'email.delivered', 'data': {'email_id': recipient('a@x.example.com').provider_id}}
+    hook(client, event)
+    hook(client, event)
+    assert stats(client, owner, cid)['delivered'] == 1
+    assert client.get('/api/settings', headers=owner).json()['webhook_last_at']
+    bounce = {'type': 'email.bounced', 'data': {'to': 'A@x.example.com', 'bounce': {'type': 'Permanent'}}}
+    assert hook(client, bounce).status_code == 200
+    assert hook(client, bounce).status_code == 200
+    with Session() as db:
+        assert db.get(Suppression, 'a@x.example.com').reason == 'bounced'
+    assert hook(client, ['not', 'an', 'object']).status_code == 400
+
+
+def test_one_click_on_a_test_email_changes_nothing(client):
+    assert client.post('/u/test').status_code == 200

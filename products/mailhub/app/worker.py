@@ -32,11 +32,11 @@ def check_guard(db,c):
     bounced=db.scalar(select(func.count()).select_from(Recipient).where(Recipient.campaign_id==c.id,Recipient.bounced_at.is_not(None))) or 0
     complained=db.scalar(select(func.count()).select_from(Recipient).where(Recipient.campaign_id==c.id,Recipient.complained_at.is_not(None))) or 0
     if bounced/sent>GUARD_BOUNCE or complained/sent>GUARD_COMPLAINT:
-        sending.pause(c,f'Paused to protect your sending reputation: {bounced} bounces and {complained} complaints from {sent} emails. Clean this list before resuming.')
+        sending.pause(c,sending.GUARD_PREFIX+f' {bounced} bounces and {complained} complaints from {sent} emails. Clean this list before resuming.')
 
 def claim(db):
     """Take the next batch of one campaign. Returns (campaign id, recipient ids)."""
-    c=db.scalar(select(Campaign).where(Campaign.status.in_(('queued','sending'))).order_by(Campaign.queued_at).with_for_update(skip_locked=True).limit(1))
+    c=db.scalar(select(Campaign).where(Campaign.status.in_(('queued','sending')),(Campaign.send_at.is_(None))|(Campaign.send_at<=now())).order_by(Campaign.queued_at).with_for_update(skip_locked=True).limit(1))
     if not c: return None,[]
     c.status='sending'
     check_guard(db,c)

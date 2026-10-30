@@ -58,12 +58,14 @@ class Settings(Base):
     domain_id: Mapped[str]=mapped_column(String(100),default='')
     domain_status: Mapped[str]=mapped_column(String(40),default='')
     domain_records: Mapped[str]=mapped_column(Text,default='[]')
+    webhook_last_at: Mapped[datetime|None]=mapped_column(UTCDateTime(),nullable=True)
 class Contact(Base):
     __tablename__='contacts'
     id: Mapped[str]=mapped_column(String(36),primary_key=True,default=uid)
     email: Mapped[str]=mapped_column(String(320),unique=True,index=True)
     first_name: Mapped[str]=mapped_column(String(200),default='')
     last_name: Mapped[str]=mapped_column(String(200),default='')
+    consent_source: Mapped[str]=mapped_column(String(300),default='')  # who vouched for this address, and how
     created_at: Mapped[datetime]=mapped_column(UTCDateTime(),default=now)
 class ContactTag(Base):
     __tablename__='contact_tags'
@@ -104,6 +106,7 @@ class Campaign(Base):
     guard_off: Mapped[int]=mapped_column(Integer,default=0)
     created_at: Mapped[datetime]=mapped_column(UTCDateTime(),default=now)
     queued_at: Mapped[datetime|None]=mapped_column(UTCDateTime(),nullable=True)
+    send_at: Mapped[datetime|None]=mapped_column(UTCDateTime(),nullable=True,index=True)
     finished_at: Mapped[datetime|None]=mapped_column(UTCDateTime(),nullable=True)
 class CampaignLink(Base):
     # Clicks redirect only to URLs stored here, so the tracker can't be used as an open redirect.
@@ -132,6 +135,7 @@ class Recipient(Base):
     clicked_at: Mapped[datetime|None]=mapped_column(UTCDateTime(),nullable=True)
     click_count: Mapped[int]=mapped_column(Integer,default=0)
     unsubscribed_at: Mapped[datetime|None]=mapped_column(UTCDateTime(),nullable=True)
+    delivered_at: Mapped[datetime|None]=mapped_column(UTCDateTime(),nullable=True)
     bounced_at: Mapped[datetime|None]=mapped_column(UTCDateTime(),nullable=True)
     complained_at: Mapped[datetime|None]=mapped_column(UTCDateTime(),nullable=True)
 class SendCounter(Base):

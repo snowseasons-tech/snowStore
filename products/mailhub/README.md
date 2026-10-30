@@ -9,7 +9,7 @@ Runs with Docker: a FastAPI web app, a sending worker and MySQL. One server belo
 - **Sign-in**: the first account claims the server. Hosted servers need the setup link from the welcome email.
 - **Lists and CSV import**: columns `email`, `first_name`, `last_name`, `tags` (separated by `;` or `|`). You must confirm the people agreed to hear from you.
 - **Segments**: everyone with any, or all, of the chosen tags. A campaign targets a list, a segment, or a segment within a list.
-- **Campaigns**: draft, test, send, then pause, resume or cancel. Use `{{first_name|there}}`, `{{last_name}}` and `{{email}}` in the subject and body.
+- **Campaigns**: draft, preview, test, send now or schedule, then resume or cancel. Use `{{first_name|there}}`, `{{last_name}}` and `{{email}}` in the subject and body.
 - **Stats per campaign**: sent, unique and total opens and clicks, clicks per link, unsubscribes, bounces and complaints.
 
 ## Anti-spam, built in
@@ -27,7 +27,7 @@ You're still responsible for the law where you and your readers are: CAN-SPAM, C
 
 Each customer brings their own Resend account by default, so sending is billed to them, and one customer's reputation can't hurt another's. Check Resend's current pricing.
 
-`MAX_MONTHLY_SENDS` caps emails per server per calendar month (UTC), including tests. A campaign bigger than what's left is refused. If the limit runs out mid-send, the campaign pauses. Sends that fail are handed back. `SEND_RATE_PER_SECOND` sets the pace and should stay at or under your Resend account's rate limit.
+`MAX_MONTHLY_SENDS` caps emails per server per calendar month (UTC), including tests. A campaign bigger than what's left, counting campaigns still waiting to send, is refused. If the limit runs out mid-send, the campaign pauses. Sends that fail are handed back. `SEND_RATE_PER_SECOND` sets the pace and should stay at or under your Resend account's rate limit.
 
 ## Quick start
 
@@ -57,7 +57,7 @@ In **Settings**:
 2. Add your domain, then copy the DNS records it shows to your DNS host. A subdomain such as `mail.yourbusiness.com` keeps marketing separate from your everyday mail.
 3. Choose **Check DNS** until it shows verified.
 4. Fill in your From name, a From address on that domain, and your postal address.
-5. In Resend, add a webhook for the URL shown, with `email.bounced` and `email.complained`, and paste its signing secret. Without this, bounces and complaints aren't suppressed.
+5. In Resend, add a webhook for the URL shown, with `email.delivered`, `email.bounced` and `email.complained`, and paste its signing secret. Sending stays off until the secret is saved. Settings shows when the last event arrived.
 
 Keep Resend's own open and click tracking off for this domain, since MailHub does its own.
 
@@ -73,6 +73,7 @@ Opens use a hidden image. Mail apps that block images undercount them, and Apple
 | `SEND_RATE_PER_SECOND` | Sending pace |
 | `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET` | Optional. Use these instead of the Settings page |
 | `RESEND_BASE_URL` | Points at a fake Resend for local testing |
+| `SUSPENDED` | 1 closes the app and API but keeps unsubscribe links, tracking and the webhook working. Hosted servers use this when a subscription ends |
 | `SETUP_CODE` | Hosted servers: required to create the first account |
 | `ALLOW_REGISTRATION` | 1 lets anyone who can reach the server sign up |
 | `SMTP_*` | Password reset email. Otherwise: `docker compose exec web python -m app.reset_password you@example.com` |
@@ -88,4 +89,4 @@ The tests use SQLite and a stand-in for Resend, and send nothing.
 
 ## Known limits
 
-No scheduling, templates or visual editor, signup forms, double opt-in, automations, team roles, or migrations (tables are created at startup; adopt Alembic before changing them on live servers). Login has no rate limit.
+No templates or visual editor, signup forms, double opt-in, automations, team roles, or migrations (tables are created at startup; adopt Alembic before changing them on live servers). Each contact stores who vouched for it and how, not the person's own proof of consent.

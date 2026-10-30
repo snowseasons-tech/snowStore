@@ -77,4 +77,4 @@ Set `MAILHUB_DOMAIN` and `MAILHUB_IMAGE` in `hosted/ops.env`, and add a wildcard
 hosted/subscriber.sh create <id> 10000 mailhub
 ```
 
-`limit`, `stop`, `start` and `delete` work as above and find the product themselves. Each server's unsubscribe and tracking links depend on its address, so keep a stopped MailHub's data until past campaigns no longer matter: while it's stopped, unsubscribe links in sent email don't work. See `products/mailhub/README.md`.
+`limit`, `stop`, `start` and `delete` work as above and find the product themselves. Each server's unsubscribe and tracking links depend on its address, so a stopped MailHub isn't fully stopped: its worker stops and the app closes, but `db` and `web` keep running so unsubscribe links and bounce handling still work. It costs about the same memory as a live server, minus the worker. Deleting one after the 30 days ends those links, so keep it or accept that before you delete. See `products/mailhub/README.md`.
