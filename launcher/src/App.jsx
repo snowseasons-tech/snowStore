@@ -16,7 +16,7 @@ const STATUS_STYLE = {
   building: 'text-wait border-wait border-dashed',
 };
 
-function Row({ app, pinned, onPin, onOpen }) {
+function Row({ app, pinned, health, onPin, onOpen }) {
   const body = (
     <>
       <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-lg border border-line font-display text-sm font-extrabold text-ice">{initials(app.name)}</span>
@@ -24,6 +24,7 @@ function Row({ app, pinned, onPin, onOpen }) {
         <span className="block font-semibold">{app.name}</span>
         <span className="block text-sm text-soft">{app.note}</span>
       </span>
+      {health !== undefined && <span className={`shrink-0 text-xs font-semibold ${health ? 'text-live' : 'text-wait'}`}>{health ? 'Up' : 'Down'}</span>}
       <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-semibold ${STATUS_STYLE[app.status]}`}>{STATUS[app.status]}</span>
     </>
   );
@@ -44,12 +45,18 @@ export default function App() {
   const [group, setGroup] = useState('');
   const [pinned, setPinned] = useState(() => load('launcher-pinned'));
   const [recent, setRecent] = useState(() => load('launcher-recent'));
+  const [health, setHealth] = useState({});
   const input = useRef(null);
 
   const found = useMemo(() => findApps(APPS, query, group, pinned), [query, group, pinned]);
   const searching = query.trim() !== '' || group !== '';
   const recentApps = recent.map((id) => APPS.find((a) => a.id === id)).filter(Boolean);
   const top = firstOpenable(found);
+
+  // Only the hosted site has this endpoint. Elsewhere the page just shows no health labels.
+  useEffect(() => {
+    fetch('/api/health').then((r) => r.json()).then((d) => setHealth(d.up || {})).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -79,7 +86,7 @@ export default function App() {
 
   const rows = (list) => (
     <ul className="m-0 list-none rounded-xl border border-line bg-panel p-1">
-      {list.map((app) => <Row key={app.id} app={app} pinned={pinned.includes(app.id)} onPin={togglePin} onOpen={opened} />)}
+      {list.map((app) => <Row key={app.id} app={app} pinned={pinned.includes(app.id)} health={health[app.id]} onPin={togglePin} onOpen={opened} />)}
     </ul>
   );
 
