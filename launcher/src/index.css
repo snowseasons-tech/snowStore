@@ -1,4 +1,4 @@
-/* Layout: a search bar first, then compact rows grouped by business. Colors follow the portal's night blue and ice. */
+/* Layout: a search bar first, then compact rows grouped by business. Always dark, in the portal's night blue and ice. */
 @import 'tailwindcss';
 
 @theme {
@@ -16,16 +16,10 @@
 }
 
 :root {
-  --page: #f2f6fb; --panel: #ffffff; --ink: #0d1a2d; --soft: #4d5f77; --line: #d6e0ec;
-  --ice: #0f6cbd; --on-ice: #ffffff; --live: #17794b; --wait: #9a5b00;
-  color-scheme: light;
+  --page: #070c17; --panel: #0f1b2e; --ink: #f3f8ff; --soft: #a3b4ca; --line: #223450;
+  --ice: #7cc4ff; --on-ice: #06121f; --live: #6fdba6; --wait: #f4bd6a;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) {
-  --page: #070c17; --panel: #0f1b2e; --ink: #f3f8ff; --soft: #a3b4ca; --line: #223450;
-  --ice: #7cc4ff; --on-ice: #06121f; --live: #6fdba6; --wait: #f4bd6a; color-scheme: dark } }
-:root[data-theme='dark'] {
-  --page: #070c17; --panel: #0f1b2e; --ink: #f3f8ff; --soft: #a3b4ca; --line: #223450;
-  --ice: #7cc4ff; --on-ice: #06121f; --live: #6fdba6; --wait: #f4bd6a; color-scheme: dark }
 
 body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font-body); }
 a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--ice); outline-offset: 2px; }
