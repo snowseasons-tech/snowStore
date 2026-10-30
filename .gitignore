@@ -9,6 +9,10 @@ __pycache__/
 managed/clients/
 managed/ops.env
 
+# Hosted Social Studio: subscriber secrets and data never go in git
+hosted/subscribers/
+hosted/ops.env
+
 # Build output: Cloudflare Pages runs npm run build:pages
 dist/
 

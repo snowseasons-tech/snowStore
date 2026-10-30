@@ -86,7 +86,7 @@ function rules(f) {
   if (f.liveError) add('error', 'prices-unavailable', [], `Couldn't load live prices, so price checks were skipped: ${f.liveError}`);
   else {
     for (const [id, p] of Object.entries(catalog)) {
-      if (p.retired) continue;
+      if (p.retired || p.draft) continue;
       if (!p.stripeProduct) add('error', 'no-stripe-product', [id], `${p.name} isn't retired but has no Stripe product, so it can't be sold.`);
       else if (!sold.has(id)) add('error', 'not-on-sale', [id], `${p.name} has no active one-time or monthly price in Stripe, so the site leaves it out and checkout refuses it.`);
     }
