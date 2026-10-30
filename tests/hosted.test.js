@@ -15,6 +15,22 @@ test('new paying subscribers get a server and other plans do not', async () => {
     [{ type: 'create', id: subscriberId('sub_1'), limit: 3, email: 'a@example.com', subscription: 'sub_1' }]);
 });
 
+test('a bundle gets one server per product from one subscription', async () => {
+  const { decide, apply, sendWelcomes, subscriberId } = await sync();
+  const catalog = { bundle: { socialAccounts: 3, mailhubSends: 10000 } };
+  const actions = decide([sub('sub_1', 'active', 'bundle')], {}, catalog, 0);
+  const social = subscriberId('sub_1'), mail = subscriberId('sub_1', 'm');
+  assert.deepStrictEqual(actions.map((a) => [a.id, a.limit, a.product]), [[social, 3, undefined], [mail, 10000, 'mailhub']]);
+  const state = {}, calls = [];
+  for (const a of actions) apply(a, state, 0, (...args) => { calls.push(args); return 'SETUP_LINK=https://x/\n'; });
+  assert.deepStrictEqual(calls[1], ['create', mail, '10000', 'mailhub']);
+  assert.strictEqual(calls[0].length, 3);
+  assert.deepStrictEqual(decide([sub('sub_1', 'canceled', 'bundle')], state, catalog, 0), [{ type: 'stop', id: social }, { type: 'stop', id: mail }]);
+  const subjects = [];
+  await sendWelcomes(state, async (to, subject) => subjects.push(subject));
+  assert.deepStrictEqual(subjects, ['Your Social Studio is ready', 'Your MailHub is ready']);
+});
+
 test('a canceled subscription stops the server, and a past due one does not', async () => {
   const { decide, subscriberId } = await sync();
   const id = subscriberId('sub_1'), state = { [id]: { running: true, limit: 3 } };
@@ -98,6 +114,35 @@ test('subscriber.sh creates, limits and deletes a server', () => {
     assert.ok(!fs.existsSync(path.join(data, 'sabc123')));
     assert.ok(fs.readFileSync(log, 'utf8').includes('-p ss-sabc123'));
     assert.notStrictEqual(run('create', '../bad', '3').status, 0);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('subscriber.sh runs MailHub with its own image, domain and limit', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hosted-'));
+  try {
+    const bin = path.join(dir, 'bin'), log = path.join(dir, 'docker.log'), data = path.join(dir, 'data'), ops = path.join(dir, 'ops.env');
+    fs.mkdirSync(bin);
+    fs.writeFileSync(path.join(bin, 'docker'), `#!/bin/sh\necho "$@" >> ${log}\n`, { mode: 0o755 });
+    fs.writeFileSync(ops, 'HOSTED_DOMAIN=social.example.com\nIMAGE=studio:1\nRESEND_API_KEY=ops-key\nMETA_APP_SECRET=meta\n');
+    const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, HOSTED_DATA: data, HOSTED_OPS: ops, CADDY_RELOAD: 'true' };
+    const run = (...args) => spawnSync('hosted/subscriber.sh', args, { env, encoding: 'utf8' });
+    assert.notStrictEqual(run('create', 'mabc123', '500', 'mailhub').status, 0);
+    assert.ok(!fs.existsSync(path.join(data, 'mabc123')));
+    fs.appendFileSync(ops, 'MAILHUB_DOMAIN=mail.example.com\nMAILHUB_IMAGE=mailhub:1\n');
+    const created = run('create', 'mabc123', '500', 'mailhub');
+    assert.strictEqual(created.status, 0, created.stderr);
+    const file = path.join(data, 'mabc123/.env'), envFile = fs.readFileSync(file, 'utf8');
+    assert.ok(created.stdout.includes('SETUP_LINK=https://mabc123.mail.example.com/?setup='));
+    assert.match(envFile, /^IMAGE=mailhub:1$/m);
+    assert.match(envFile, /^MAX_MONTHLY_SENDS=500$/m);
+    assert.match(envFile, /^RESEND_API_KEY=$/m);
+    assert.doesNotMatch(envFile, /meta|ops-key|MAX_ACCOUNTS/);
+    assert.match(fs.readFileSync(path.join(data, 'mabc123/Caddyfile'), 'utf8'), /^mabc123\.mail\.example\.com/);
+    assert.strictEqual(run('limit', 'mabc123', '900').status, 0);
+    assert.match(fs.readFileSync(file, 'utf8'), /^MAX_MONTHLY_SENDS=900$/m);
+    assert.strictEqual(run('stop', 'mabc123').status, 0);
+    const calls = fs.readFileSync(log, 'utf8');
+    assert.ok(calls.includes('-p mh-mabc123') && calls.includes('mailhub-compose.yml'));
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 

@@ -1,0 +1,40 @@
+# One private MailHub. hosted/subscriber.sh runs this once per MailHub subscriber.
+services:
+  db:
+    image: mysql:8.4
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: mailhub
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
+      MYSQL_DATABASE: mailhub
+    volumes:
+      - mysqldata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u mailhub -p$$MYSQL_PASSWORD --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  web:
+    image: ${IMAGE:?Set IMAGE}
+    env_file: ${SUBSCRIBER_ENV:?Set SUBSCRIBER_ENV}
+    environment:
+      DATABASE_URL: mysql+pymysql://mailhub:${MYSQL_PASSWORD}@db:3306/mailhub?charset=utf8mb4
+    ports: ["127.0.0.1:${PORT:?Set PORT}:8000"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+  worker:
+    image: ${IMAGE}
+    command: python -m app.worker
+    env_file: ${SUBSCRIBER_ENV}
+    environment:
+      DATABASE_URL: mysql+pymysql://mailhub:${MYSQL_PASSWORD}@db:3306/mailhub?charset=utf8mb4
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  mysqldata:
