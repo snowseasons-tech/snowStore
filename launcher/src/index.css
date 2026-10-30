@@ -1,0 +1,26 @@
+/* Layout: a search bar first, then compact rows grouped by business. Always dark, in the portal's night blue and ice. */
+@import 'tailwindcss';
+
+@theme {
+  --color-page: var(--page);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-soft: var(--soft);
+  --color-line: var(--line);
+  --color-ice: var(--ice);
+  --color-on-ice: var(--on-ice);
+  --color-live: var(--live);
+  --color-wait: var(--wait);
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', 'Segoe UI', system-ui, sans-serif;
+}
+
+:root {
+  --page: #070c17; --panel: #0f1b2e; --ink: #f3f8ff; --soft: #a3b4ca; --line: #223450;
+  --ice: #7cc4ff; --on-ice: #06121f; --live: #6fdba6; --wait: #f4bd6a;
+  color-scheme: dark;
+}
+
+body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font-body); }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--ice); outline-offset: 2px; }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }

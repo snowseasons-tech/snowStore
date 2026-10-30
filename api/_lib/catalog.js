@@ -7,6 +7,10 @@
 // retired: true = no longer sold (left out of /api/products and checkout); kept so past buyers can still download.
 // includes (optional) = a membership: a subscription with no file of its own that unlocks the downloads of these
 // products while it is active (see api/_lib/entitlements.js).
+// draft: true = a bundle not on sale yet: it has no stripeProduct, so it stays out of /api/products and checkout.
+// proposedMonthly = a draft's price in cents, used only by scripts/create-bundles.js. pending = software a bundle promises
+// that customers can't use yet; a bundle with pending parts can't be created in Stripe.
+// socialAccounts (optional) = this plan gets a hosted Social Studio server with this account limit (see hosted/README.md).
 module.exports = {
   bookscan: {
     name: 'BookScan Live',
@@ -146,6 +150,68 @@ module.exports = {
     kind: 'subscription',
     stripeProduct: 'prod_VWva1qZT0oarCt',
     includes: ['gbp-analytics-dashboard', 'lead-generator', 'page-builder', 'booking-app', 'blog-gen', 'invoice-generator', 'bookscan', 'saas-financial-engine'],
+  },
+  // Bundles: self-serve software access, drafts until every part exists and the price is approved. See scripts/create-bundles.js.
+  'business-launch': {
+    name: 'Business Launch',
+    kind: 'subscription',
+    draft: true,
+    proposedMonthly: 14900,
+    audience: 'Startups and small businesses',
+    blurb: "Website tools, online booking and invoicing for a new business.",
+    includes: ['booking-app', 'invoice-generator'],
+    pending: ['Website management software'],
+  },
+  'marketing-automation': {
+    name: 'Marketing Automation',
+    kind: 'subscription',
+    socialAccounts: 3,
+    draft: true,
+    proposedMonthly: 19900,
+    audience: 'Marketing teams and creators',
+    blurb: "Automated blogging, social media tools for three accounts and MailHub email marketing.",
+    includes: ['blog-gen'],
+    pending: ['Social media software for 3 accounts', 'MailHub software'],
+  },
+  'lead-generation-pro': {
+    name: 'Lead Generation Pro',
+    kind: 'subscription',
+    draft: true,
+    proposedMonthly: 24900,
+    audience: 'Service businesses',
+    blurb: "Find leads, organize them and connect them to your CRM.",
+    includes: ['lead-generator'],
+    pending: ['Operations & Lead Intelligence software', 'CRM integration'],
+  },
+  'business-operations': {
+    name: 'Business Operations',
+    kind: 'subscription',
+    draft: true,
+    proposedMonthly: 29900,
+    audience: 'Growing businesses',
+    blurb: "Online booking, invoicing and a database for a growing business.",
+    includes: ['booking-app', 'invoice-generator'],
+    pending: ['Hosted database software'],
+  },
+  'ai-business-intelligence': {
+    name: 'AI Business Intelligence',
+    kind: 'subscription',
+    draft: true,
+    proposedMonthly: 34900,
+    audience: 'Data-driven businesses',
+    blurb: "Operations, lead and marketing insights with AI reporting in one plan.",
+    pending: ['Operations & Lead Intelligence software', 'MailHub Intelligence software', 'AI reporting'],
+  },
+  'complete-business-suite': {
+    name: 'Complete Business Suite',
+    kind: 'subscription',
+    socialAccounts: 5,
+    draft: true,
+    proposedMonthly: 59900,
+    audience: 'Businesses seeking an integrated platform',
+    blurb: "Website tools, social media for five accounts, lead intelligence, MailHub, invoicing and a database.",
+    includes: ['invoice-generator'],
+    pending: ['Website management software', 'Social media software for 5 accounts', 'Operations & Lead Intelligence software', 'MailHub software', 'Hosted database software'],
   },
   // Services sold on the site. stripeProduct is the live Stripe product; its active prices are read from Stripe.
   'api-integration-basic': { name: 'API Integration Development - Basic', stripeProduct: 'prod_VWa43u70jMDMbP' },

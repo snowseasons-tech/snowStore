@@ -34,8 +34,8 @@ function validateCatalog(catalog) {
       fail('stripeProduct', `duplicates ${product.stripeProduct}`);
     } else if (product.stripeProduct !== undefined) {
       stripeProducts.add(product.stripeProduct);
-    } else if (!product.retired) {
-      fail('stripeProduct', 'is required unless the product is retired');
+    } else if (!product.retired && !product.draft) {
+      fail('stripeProduct', 'is required unless the product is retired or a draft');
     }
 
     if (product.kind !== undefined && !KINDS.has(product.kind)) {
@@ -59,6 +59,20 @@ function validateCatalog(catalog) {
       } catch {
         fail('appUrl', 'must be a valid HTTPS URL');
       }
+    }
+
+    if (product.draft !== undefined) {
+      if (product.draft !== true) fail('draft', 'must be true when provided');
+      if (product.stripeProduct !== undefined) fail('draft', 'remove draft once the bundle has a stripeProduct');
+      if (!Number.isInteger(product.proposedMonthly) || product.proposedMonthly <= 0) fail('proposedMonthly', 'must be a price in cents');
+      if (product.kind !== 'subscription') fail('kind', "must be 'subscription' for a draft bundle");
+    }
+    if (product.pending !== undefined && (!Array.isArray(product.pending) || !product.pending.length || product.pending.some((p) => typeof p !== 'string' || !p.trim()))) {
+      fail('pending', 'must be a non-empty list of names');
+    }
+
+    if (product.socialAccounts !== undefined && (!Number.isInteger(product.socialAccounts) || product.socialAccounts <= 0)) {
+      fail('socialAccounts', 'must be a positive whole number');
     }
 
     // A membership (includes) unlocks other products' downloads while its subscription is active.

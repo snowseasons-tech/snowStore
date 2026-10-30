@@ -246,6 +246,77 @@ def test_oauth_callback_stores_encrypted_tokens_and_state_is_single_use(client, 
     assert client.get(f'/api/oauth/meta/callback?state={state}&code=auth-code', follow_redirects=False).status_code == 400
 
 
+def connect(client, owner, cid, monkeypatch, accounts):
+    state = parse_qs(urlparse(client.post('/api/oauth/meta/start', headers=owner, json={'client_id': cid}).json()['url']).query)['state'][0]
+
+    async def fake_exchange(provider, code):
+        return 'user-token', '', 3600
+
+    async def fake_discover(provider, access):
+        return [{'platform': 'facebook', 'id': a, 'name': a, 'token': 'secret'} for a in accounts]
+
+    monkeypatch.setattr(main, 'exchange', fake_exchange)
+    monkeypatch.setattr(main, 'discover_accounts', fake_discover)
+    return client.get(f'/api/oauth/meta/callback?state={state}&code=auth-code', follow_redirects=False).headers['location']
+
+
+def test_account_limit_stops_at_plan_size_and_counts_every_workspace(client, monkeypatch):
+    monkeypatch.setenv('MAX_ACCOUNTS', '3')
+    owner = register(client, 'owner@example.com')
+    first, second = make_client(client, owner), make_client(client, owner, 'Second Co')
+    assert client.get('/api/plan', headers=owner).json() == {'limit': 3, 'used': 0}
+    assert connect(client, owner, first, monkeypatch, ['a', 'b']) == '/?connected=meta'
+    assert connect(client, owner, second, monkeypatch, ['c', 'd', 'e']) == '/?connected=meta&skipped=2'
+    assert client.get('/api/plan', headers=owner).json() == {'limit': 3, 'used': 3}
+    assert [c['external_id'] for c in client.get(f'/api/clients/{second}/connections', headers=owner).json()] == ['c']
+
+
+def test_reconnecting_at_the_limit_keeps_working_and_disconnecting_frees_a_place(client, monkeypatch):
+    monkeypatch.setenv('MAX_ACCOUNTS', '1')
+    owner = register(client, 'owner@example.com')
+    cid = make_client(client, owner)
+    assert connect(client, owner, cid, monkeypatch, ['a']) == '/?connected=meta'
+    assert connect(client, owner, cid, monkeypatch, ['a', 'b']) == '/?connected=meta&skipped=1'
+    conn = client.get(f'/api/clients/{cid}/connections', headers=owner).json()[0]
+    assert client.delete(f"/api/clients/{cid}/connections/{conn['id']}", headers=owner).status_code == 200
+    assert connect(client, owner, cid, monkeypatch, ['b']) == '/?connected=meta'
+
+
+def test_no_limit_by_default_and_plan_needs_login(client, monkeypatch):
+    owner = register(client, 'owner@example.com')
+    cid = make_client(client, owner)
+    assert connect(client, owner, cid, monkeypatch, ['a', 'b', 'c', 'd']) == '/?connected=meta'
+    assert client.get('/api/plan', headers=owner).json() == {'limit': None, 'used': 4}
+    assert client.get('/api/plan').status_code == 401
+
+
+@pytest.mark.parametrize('value', ['three', '-1'])
+def test_bad_account_limit_stops_startup(monkeypatch, value):
+    monkeypatch.setenv('MAX_ACCOUNTS', value)
+    with pytest.raises(ValueError):
+        main.account_limit()
+
+
+def test_setup_code_protects_the_first_account_only(client, monkeypatch):
+    monkeypatch.setenv('SETUP_CODE', 'welcome-code')
+    body = {'email': 'owner@example.com', 'password': 'correct-horse-battery'}
+    assert client.post('/api/auth/register', json=body).status_code == 403
+    assert client.post('/api/auth/register', json={**body, 'invite_code': 'wrong'}).status_code == 403
+    assert client.post('/api/auth/register', json={**body, 'invite_code': 'welcome-code'}).status_code == 200
+    late = {'email': 'second@example.com', 'password': 'correct-horse-battery', 'invite_code': 'welcome-code'}
+    assert client.post('/api/auth/register', json=late).status_code == 403
+
+
+def test_hosted_server_uses_the_shared_oauth_address(client, monkeypatch):
+    monkeypatch.setenv('SUBSCRIBER_ID', 'abc123')
+    monkeypatch.setenv('OAUTH_REDIRECT_URL', 'https://oauth.example.com/')
+    owner = register(client, 'owner@example.com')
+    cid = make_client(client, owner)
+    q = parse_qs(urlparse(client.post('/api/oauth/meta/start', headers=owner, json={'client_id': cid}).json()['url']).query)
+    assert q['redirect_uri'] == ['https://oauth.example.com/api/oauth/meta/callback']
+    assert q['state'][0].startswith('abc123~')
+
+
 # --- AI generation -----------------------------------------------------------------------------
 
 def test_generate_falls_back_to_templates_without_a_model(client):
