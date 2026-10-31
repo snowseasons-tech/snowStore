@@ -70,8 +70,28 @@ when it plausibly matches (`jane@`, `jdoe@`, `jane.doe@`). Expect some misses an
 | `SEARCH_REGION` | `us-en` | Search region |
 | `SEARCH_RECHECK_DAYS` | `30` | Don't re-search a name sooner than this |
 | `DATA_DIR` | `./data` | Where CSVs live |
+| `MARIADB_URL` | unset | Turns on the MariaDB sync step |
 
 Extra domains to ignore as "not the company's own site": one per line in `blocked_domains.txt`.
+
+## MariaDB analytics copy (optional)
+
+The CSVs stay the source of truth, so keep editing them in a spreadsheet. `sync_mariadb.py` copies
+`leads`, `contacts`, `search_results` and `search_log` one way into MariaDB (tables in `schema.sql`).
+Running it again changes nothing. Edits and removals in a CSV follow on the next sync, and edits made
+in the database are overwritten. A missing or empty CSV is skipped and its table is left as it was.
+Extra columns land in the `extra` JSON column. Dates or numbers it can't parse become NULL.
+
+```bash
+export MARIADB_PASSWORD=choose-one MARIADB_ROOT_PASSWORD=choose-another
+docker compose -f docker-compose.mariadb.yml up -d
+export MARIADB_URL="mysql://leads:$MARIADB_PASSWORD@127.0.0.1:3307/leads"
+./sync_mariadb.py
+```
+
+With `MARIADB_URL` set, `run_pipeline.sh` syncs at the end of each run. To run the database tests,
+set `MARIADB_TEST_URL` to a scratch database (they empty these tables) and run
+`python -m unittest test_sync_mariadb`.
 
 ## Limitations worth knowing
 
