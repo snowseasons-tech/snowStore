@@ -301,7 +301,7 @@ for (const topic of cfg.topics) {
   if (!items.length) { log('nothing new for', topic.name); continue; }
   const commentary = globalCommentary
     ?? (topic.commentaryFile ? await fs.readFile(topic.commentaryFile, 'utf8') : topic.commentary) ?? '';
-  const aiDraft = AI ? await generateDraft(topic, items, { url: process.env.OLLAMA_URL || cfg.ollama?.url, model: process.env.BLOGEN_MODEL || cfg.ollama?.model, timeoutMs: cfg.ollama?.timeoutMs, log }) : null;
+  const aiDraft = AI ? await generateDraft(topic, items, { url: process.env.OLLAMA_URL || cfg.ollama?.url, model: process.env.BLOGEN_MODEL || cfg.ollama?.model, timeoutMs: cfg.ollama?.timeoutMs, temperature: cfg.ollama?.temperature, log }) : null;
   const md = renderPost(topic, items, commentary, template, aiDraft);
   const base = `${new Date().toISOString().slice(0, 10)}-${slug(topic.name)}`;
   if (DRY) { console.log(md); continue; }
