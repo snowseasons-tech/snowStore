@@ -1,6 +1,6 @@
 const CATALOG = require('./_lib/catalog');
 const auth = require('./_lib/auth');
-const { logAccess } = require('./_lib/access-log');
+const { logAccess, logVersion } = require('./_lib/access-log');
 const { presignFromEnv } = require('./_lib/sigv4');
 const { send, allow } = require('./_lib/http');
 
@@ -19,6 +19,7 @@ module.exports = async (req, res) => {
     if (!p.fileKey) return send(res, 404, { error: 'Nothing to download for this application' });
     const location = presignFromEnv(p.fileKey, p.filename, process.env, URL_TTL_SEC);
     await logAccess(id);
+    await logVersion(user.email, id, p.version);
     send(res, 302, '', { Location: location });
   } catch (e) {
     console.error('app-download', e.message);
