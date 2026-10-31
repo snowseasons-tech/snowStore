@@ -5,6 +5,7 @@
 #   1. company_web_search.py   search new companies from the queue file
 #   2. build_leads.py          promote results to leads, pick domain/phone/etc.
 #   3. scrape_contacts.py      pull emails + names from lead websites
+#   4. summarize_leads.py      one-line lead summaries from local Ollama (optional)
 #
 # Queue model: put new company names in companies_queue.txt (one per line,
 # '#' for comments). After a clean search they move to companies_done.txt, so
@@ -13,7 +14,7 @@
 # Usage:
 #   ./run_pipeline.sh                  run everything
 #   ./run_pipeline.sh --dry-run        show what would run, change nothing
-#   ./run_pipeline.sh --skip scrape    skip a step (search | build | scrape)
+#   ./run_pipeline.sh --skip scrape    skip a step (search | build | scrape | summarize)
 #
 # Cron (nightly 2:15am; the script logs to logs/, cron mails only on failure):
 #   MAILTO=you@example.com
@@ -35,6 +36,7 @@ MAX_RESULTS="${MAX_RESULTS:-10}"     # results per search query
 SEARCH_DELAY="${SEARCH_DELAY:-2}"    # base seconds between searches
 SCRAPE_LIMIT="${SCRAPE_LIMIT:-50}"   # max websites scraped per night
 SCRAPE_DELAY="${SCRAPE_DELAY:-1.5}"  # seconds between requests to one site
+SUMMARY_LIMIT="${SUMMARY_LIMIT:-25}" # max leads summarized per night
 STEP_TIMEOUT="${STEP_TIMEOUT:-3h}"   # kill any single step after this long
 KEEP_LOG_DAYS="${KEEP_LOG_DAYS:-30}"
 export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"   # cron's PATH is minimal
@@ -52,7 +54,7 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         -n|--dry-run) DRY=1 ;;
         --skip)       SKIP+="${2:-} "; shift ;;
-        -h|--help)    sed -n '2,23p' "${BASH_SOURCE[0]}"; exit 0 ;;
+        -h|--help)    sed -n '2,24p' "${BASH_SOURCE[0]}"; exit 0 ;;
         *)            echo "Unknown option: $1" >&2; exit 2 ;;
     esac
     shift
@@ -124,6 +126,7 @@ log "=== lead pipeline start (python: $PY) ==="
 search_step
 run_step build  "$PY" -u build_leads.py
 run_step scrape "$PY" -u scrape_contacts.py --limit "$SCRAPE_LIMIT" --delay "$SCRAPE_DELAY"
+run_step summarize "$PY" -u summarize_leads.py --limit "$SUMMARY_LIMIT"
 
 (( DRY )) || find "$LOG_DIR" -name 'pipeline_*.log' -mtime +"$KEEP_LOG_DAYS" -delete 2>/dev/null
 

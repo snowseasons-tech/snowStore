@@ -21,6 +21,7 @@ LEAD_FIELDS = [
     "company", "domain", "website", "phone", "title", "description",
     "domain_confidence", "source_url", "status", "created_at",
     "scraped_at", "scrape_status", "scrape_attempts",
+    "ai_summary", "ai_summarized_at",
 ]
 CONTACT_FIELDS = [
     "company", "domain", "email", "email_type", "same_domain",
