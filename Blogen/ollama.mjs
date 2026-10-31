@@ -29,6 +29,17 @@ export function cleanDraft(text, maxChars = 6000) {
     .slice(0, maxChars);
 }
 
+// Temperature can't stop a model explaining things, so sentences that speculate or give causes
+// are dropped unless the sources use the same wording.
+const UNSUPPORTED = /\b(suggests?|indicates?|likely|probably|perhaps|may be|might|because|due to|attributed to|as a result|thanks to|driven by|taking advantage of|in order to|the need to)\b/i;
+export function dropUnsupported(draft, items) {
+  const source = items.flatMap((it) => it.summary).join(' ').toLowerCase();
+  return draft.split('\n').map((line) => (line.match(/[^.!?]+[.!?]*\s*/g) || []).filter((s) => {
+    const hit = s.match(UNSUPPORTED);
+    return !hit || source.includes(hit[0].toLowerCase());
+  }).join('').trim()).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 export async function generateDraft(topic, items, { url = 'http://127.0.0.1:11434', model = 'blog-expert', timeoutMs = 300000, temperature = 0.1, log = () => {}, fetchImpl = fetch } = {}) {
   try {
     const res = await fetchImpl(`${url.replace(/\/$/, '')}/api/generate`, {
@@ -38,7 +49,7 @@ export async function generateDraft(topic, items, { url = 'http://127.0.0.1:1143
       signal: AbortSignal.timeout(timeoutMs),
     });
     if (!res.ok) { log(`Ollama returned ${res.status}, keeping the extractive post`); return null; }
-    const draft = cleanDraft((await res.json()).response);
+    const draft = dropUnsupported(cleanDraft((await res.json()).response), items);
     if (draft.length < 80) { log('Ollama draft was empty or too short, keeping the extractive post'); return null; }
     return draft;
   } catch (e) {

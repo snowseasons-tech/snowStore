@@ -12,6 +12,20 @@ test('a good answer becomes the draft, cleaned of thinking', async () => {
   assert.strictEqual(await generateDraft(topic, items, { fetchImpl: ok(`<think>plan</think>${long}`) }), long);
 });
 
+test('drafts ask for a low temperature', async () => {
+  const { generateDraft } = await load();
+  let sent;
+  await generateDraft(topic, items, { fetchImpl: async (u, o) => { sent = JSON.parse(o.body); return ok(long)(); } });
+  assert.strictEqual(sent.options.temperature, 0.1);
+});
+
+test('unsupported causes are removed, sourced ones stay', async () => {
+  const { dropUnsupported } = await load();
+  const draft = 'Demand rose. This suggests people like cool weather.\n\nPrices fell due to oil.';
+  assert.strictEqual(dropUnsupported(draft, items), 'Demand rose.');
+  assert.match(dropUnsupported(draft, [{ summary: ['Prices fell due to oil.'] }]), /due to oil/);
+});
+
 test('model output loses HTML, links, images and template tags', async () => {
   const { cleanDraft } = await load();
   const out = cleanDraft('Hi <script>alert(1)</script> [site](https://evil.example) ![x](https://evil.example/a.png) https://evil.example {{sources}}');

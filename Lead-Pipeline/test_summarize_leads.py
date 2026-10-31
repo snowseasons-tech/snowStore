@@ -68,6 +68,7 @@ class SummarizeTest(unittest.TestCase):
         self.assertEqual(leads["Kept"]["ai_summary"], "My own words")
         self.assertEqual(leads["Bare"]["ai_summary"], "")
         self.assertEqual(len(Fake.prompts), 1)
+        self.assertEqual(Fake.prompts[0]["options"]["temperature"], 0.1)
 
     def test_contact_details_never_reach_the_model(self):
         self.run_step()

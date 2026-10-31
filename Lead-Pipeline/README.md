@@ -83,6 +83,7 @@ Extra domains to ignore as "not the company's own site": one per line in `blocke
 | `OLLAMA_URL` | `http://127.0.0.1:11434` | Ollama server |
 | `LEAD_SUMMARY_MODEL` | `qwen2.5:latest` | Model. `:cloud` models are refused unless `OLLAMA_ALLOW_CLOUD=1`, so lead data stays on this machine |
 | `OLLAMA_TIMEOUT` | `180` | Seconds per lead |
+| `OLLAMA_TEMPERATURE` | `0.1` | Lower stays closer to the facts |
 
 Turn the step off with `--skip summarize`.
 
