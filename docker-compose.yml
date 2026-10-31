@@ -8,8 +8,8 @@ services:
       - API_TEST_MODE=false
       - ALLOW_LIVE=1
       - DATABASE_URL=postgresql://user:pass@prod-db-host:5432/snowstore
-      - STRIPE_API_KEY=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
-      - STRIPE_WEBHOOK_SECRET=whsec_placeholder_replace_me
+      - STRIPE_API_KEY=${STRIPE_API_KEY:?Set STRIPE_API_KEY in .env}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:?Set STRIPE_WEBHOOK_SECRET in .env}
     volumes:
       - .:/app
     restart: always
