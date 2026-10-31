@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Checks that every app builds. Plain HTML and spreadsheet products have nothing to build.
+# Builds every app: installs its dependencies, loads its code and runs its tests.
+# Plain HTML and spreadsheet products have nothing to build.
 #   scripts/build-apps.sh            all apps
 #   scripts/build-apps.sh launcher   only the apps whose path contains "launcher"
 # Exits non-zero if any app fails, after trying them all. It builds only; it never deploys.
@@ -14,23 +15,34 @@ step() {  # step PATH KIND
   if "build_$2" "$1"; then echo "ok $1"; else echo "FAILED $1"; failed+=("$1"); fi
 }
 build_vite() { (cd "$1" && npm ci --silent && npm run build --silent); }
+# Node and Python apps run in a throwaway copy, so nothing lands in the folders that get zipped for sale.
 build_node() {
-  local f
-  for f in "$1"/*.mjs; do node --check "$f" || return 1; done
+  local tmp rc
+  tmp="$(mktemp -d)"; cp -r "$1/." "$tmp"
+  ( cd "$tmp" && npm install --silent --omit=optional --ignore-scripts \
+    && echo '{"topics":[],"outDir":"out"}' > build-check.json \
+    && node blogen.mjs --config build-check.json --dry ); rc=$?
+  rm -rf "$tmp"; return "$rc"
 }
-# Compiles into memory so no __pycache__ lands in the folders that get zipped for sale.
+# Installs the app's real requirements, imports its scripts, then runs its tests if it has any.
 build_python() {
-  python3 - "$1" <<'PY'
-import pathlib, sys
-ok = True
-for f in pathlib.Path(sys.argv[1]).rglob("*.py"):
-    try:
-        compile(f.read_text(encoding="utf-8"), str(f), "exec")
-    except SyntaxError as e:
-        print(e)
-        ok = False
-sys.exit(0 if ok else 1)
-PY
+  local tmp rc
+  tmp="$(mktemp -d)"; cp -r "$1/." "$tmp"
+  ( set -e
+    root="$(dirname "$(find "$tmp" -name requirements.txt | sort | head -1)")"
+    python3 -m venv "$tmp/.venv"
+    "$tmp/.venv/bin/pip" install -q -r "$root/requirements.txt"
+    cd "$root"
+    if [[ -d tests ]]; then
+      "$tmp/.venv/bin/pip" install -q -r requirements-dev.txt
+      "$tmp/.venv/bin/python" -m pytest -q -p no:cacheprovider
+    else
+      for f in *.py; do
+        case "$f" in test_*) ;; *) "$tmp/.venv/bin/python" -c "import ${f%.py}" ;; esac
+      done
+      if ls test_*.py >/dev/null 2>&1; then "$tmp/.venv/bin/python" -m unittest discover -q; fi
+    fi ); rc=$?
+  rm -rf "$tmp"; return "$rc"
 }
 
 step launcher vite
