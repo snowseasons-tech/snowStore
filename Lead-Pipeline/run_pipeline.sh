@@ -5,6 +5,7 @@
 #   1. company_web_search.py   search new companies from the queue file
 #   2. build_leads.py          promote results to leads, pick domain/phone/etc.
 #   3. scrape_contacts.py      pull emails + names from lead websites
+#   4. sync_mariadb.py         copy the CSVs to MariaDB (only if MARIADB_URL is set)
 #
 # Queue model: put new company names in companies_queue.txt (one per line,
 # '#' for comments). After a clean search they move to companies_done.txt, so
@@ -13,7 +14,7 @@
 # Usage:
 #   ./run_pipeline.sh                  run everything
 #   ./run_pipeline.sh --dry-run        show what would run, change nothing
-#   ./run_pipeline.sh --skip scrape    skip a step (search | build | scrape)
+#   ./run_pipeline.sh --skip scrape    skip a step (search | build | scrape | sync)
 #
 # Cron (nightly 2:15am; the script logs to logs/, cron mails only on failure):
 #   MAILTO=you@example.com
@@ -52,7 +53,7 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         -n|--dry-run) DRY=1 ;;
         --skip)       SKIP+="${2:-} "; shift ;;
-        -h|--help)    sed -n '2,23p' "${BASH_SOURCE[0]}"; exit 0 ;;
+        -h|--help)    sed -n '2,24p' "${BASH_SOURCE[0]}"; exit 0 ;;
         *)            echo "Unknown option: $1" >&2; exit 2 ;;
     esac
     shift
@@ -124,6 +125,7 @@ log "=== lead pipeline start (python: $PY) ==="
 search_step
 run_step build  "$PY" -u build_leads.py
 run_step scrape "$PY" -u scrape_contacts.py --limit "$SCRAPE_LIMIT" --delay "$SCRAPE_DELAY"
+[[ -n "${MARIADB_URL:-}" ]] && run_step sync "$PY" -u sync_mariadb.py
 
 (( DRY )) || find "$LOG_DIR" -name 'pipeline_*.log' -mtime +"$KEEP_LOG_DAYS" -delete 2>/dev/null
 
