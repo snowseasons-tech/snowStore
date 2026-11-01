@@ -62,3 +62,19 @@ hosted/subscriber.sh delete <id> --yes
 ```
 
 Back up `hosted/subscribers/`, the Docker volumes and `hosted/ops.env`. A subscriber's `.env` holds their `FERNET_KEY`, and their connected accounts can't be decrypted without it.
+
+## Hosted MailHub
+
+The same sync and scripts run a private MailHub per subscriber, using `hosted/mailhub-compose.yml`. A catalog entry with `mailhubSends` (emails per month) gets one. A bundle with both `socialAccounts` and `mailhubSends` gets two servers and two setup emails from one subscription, with ids starting `s` and `m`.
+
+```bash
+docker build -t mailhub:0.1.0 products/mailhub
+```
+
+Set `MAILHUB_DOMAIN` and `MAILHUB_IMAGE` in `hosted/ops.env`, and add a wildcard DNS record for `*.$MAILHUB_DOMAIN`. Both products share the port range and `subscribers/` folder, and the Caddy import above covers both. By hand:
+
+```bash
+hosted/subscriber.sh create <id> 10000 mailhub
+```
+
+`limit`, `stop`, `start` and `delete` work as above and find the product themselves. Each server's unsubscribe and tracking links depend on its address, so a stopped MailHub isn't fully stopped: its worker stops and the app closes, but `db` and `web` keep running so unsubscribe links and bounce handling still work. It costs about the same memory as a live server, minus the worker. Deleting one after the 30 days ends those links, so keep it or accept that before you delete. See `products/mailhub/README.md`.

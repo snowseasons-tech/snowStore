@@ -12,10 +12,13 @@ RUN apt-get update && apt-get install -y \
 
 # Copy requirements and install
 COPY documentation_platform/pyproject.toml .
-RUN pip install --no-cache-dir fastapi uvicorn jinja2 pyyaml requests
+RUN pip install --no-cache-dir fastapi uvicorn jinja2 pyyaml requests stripe psycopg2-binary
 
 # Copy the application code
 COPY . .
+
+# The API imports generator.* from inside documentation_platform
+ENV PYTHONPATH=/app/documentation_platform
 
 # Expose the port FastAPI runs on
 EXPOSE 8000

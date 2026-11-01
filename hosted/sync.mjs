@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Matches hosted Social Studio servers to Stripe: creates them for new subscribers, changes limits when plans change,
+// Matches hosted Social Studio and MailHub servers to Stripe: creates them for new subscribers, changes limits when plans change,
 // and stops them when a subscription ends. Run from cron with --apply. Without it, this prints what it would do.
 // It never deletes anything: it emails OPS_EMAIL when a stopped server passes the 30 days the Terms allow.
 import { execFileSync } from 'node:child_process';
@@ -15,23 +15,27 @@ const RUNNING = new Set(['active', 'trialing', 'past_due']);
 const STOPPED = new Set(['canceled', 'unpaid', 'paused', 'incomplete_expired']);
 const KEEP_MS = 30 * 24 * 60 * 60 * 1000;
 
-export const subscriberId = (subscriptionId) => 's' + createHash('sha256').update(subscriptionId).digest('hex').slice(0, 16);
+// A bundle can include both products, so each gets its own server and its own id from one subscription.
+const PRODUCTS = [{ limitKey: 'socialAccounts', prefix: 's' }, { limitKey: 'mailhubSends', prefix: 'm', product: 'mailhub' }];
+export const subscriberId = (subscriptionId, prefix = 's') => prefix + createHash('sha256').update(subscriptionId).digest('hex').slice(0, 16);
 
 export function decide(subscriptions, state, catalog, nowMs) {
   const actions = [], seen = new Set();
   for (const sub of subscriptions) {
-    const limit = catalog[sub.metadata && sub.metadata.product_id]?.socialAccounts;
-    if (!limit) continue;
-    const id = subscriberId(sub.id), current = state[id];
-    seen.add(id);
-    const email = sub.customer && sub.customer.email;
-    if (!current) {
-      if (RUNNING.has(sub.status)) actions.push({ type: 'create', id, limit, email, subscription: sub.id });
-      continue;
+    for (const { limitKey, prefix, product } of PRODUCTS) {
+      const limit = catalog[sub.metadata && sub.metadata.product_id]?.[limitKey];
+      if (!limit) continue;
+      const id = subscriberId(sub.id, prefix), current = state[id];
+      seen.add(id);
+      const email = sub.customer && sub.customer.email;
+      if (!current) {
+        if (RUNNING.has(sub.status)) actions.push({ type: 'create', id, limit, email, subscription: sub.id, ...(product && { product }) });
+        continue;
+      }
+      if (current.running && STOPPED.has(sub.status)) actions.push({ type: 'stop', id });
+      else if (!current.running && RUNNING.has(sub.status)) actions.push({ type: 'start', id });
+      if (RUNNING.has(sub.status) && current.limit !== limit) actions.push({ type: 'limit', id, limit });
     }
-    if (current.running && STOPPED.has(sub.status)) actions.push({ type: 'stop', id });
-    else if (!current.running && RUNNING.has(sub.status)) actions.push({ type: 'start', id });
-    if (RUNNING.has(sub.status) && current.limit !== limit) actions.push({ type: 'limit', id, limit });
   }
   for (const [id, current] of Object.entries(state)) {
     if (!seen.has(id)) actions.push({ type: 'missing', id });
@@ -44,9 +48,10 @@ export function decide(subscriptions, state, catalog, nowMs) {
 export function apply(action, state, nowMs, run) {
   const { type, id } = action;
   if (type === 'create') {
-    const link = run('create', id, String(action.limit)).match(/^SETUP_LINK=(.+)$/m)?.[1];
+    const args = action.product ? [action.product] : [];
+    const link = run('create', id, String(action.limit), ...args).match(/^SETUP_LINK=(.+)$/m)?.[1];
     if (!link) throw new Error(`${id}: create gave no setup link`);
-    state[id] = { subscription: action.subscription, email: action.email, limit: action.limit, running: true, setupLink: link };
+    state[id] = { subscription: action.subscription, email: action.email, limit: action.limit, running: true, setupLink: link, ...(action.product && { product: action.product }) };
   } else if (type === 'stop') {
     run('stop', id);
     Object.assign(state[id], { running: false, stoppedAt: nowMs });
@@ -60,12 +65,13 @@ export function apply(action, state, nowMs, run) {
   }
 }
 
-const welcome = (link) => `Your Social Studio is ready.\n\nCreate your account with this link. It only works once, so keep it private:\n${link}\n\nReply to this email if you need help.`;
+const productName = (entry) => (entry.product === 'mailhub' ? 'MailHub' : 'Social Studio');
+const welcome = (name, link) => `Your ${name} is ready.\n\nCreate your account with this link. It only works once, so keep it private:\n${link}\n\nReply to this email if you need help.`;
 
 export async function sendWelcomes(state, send) {
   for (const entry of Object.values(state)) {
     if (!entry.setupLink || !entry.email) continue;
-    await send(entry.email, 'Your Social Studio is ready', welcome(entry.setupLink));
+    await send(entry.email, `Your ${productName(entry)} is ready`, welcome(productName(entry), entry.setupLink));
     delete entry.setupLink;
   }
 }
@@ -108,7 +114,7 @@ async function main() {
   if (live) {
     try { await sendWelcomes(state, send); } catch (e) { problems.push(`welcome email failed: ${e.message}`); }
     save();
-    if (problems.length) await send(ops.OPS_EMAIL, 'Hosted Social Studio needs attention', problems.join('\n'));
+    if (problems.length) await send(ops.OPS_EMAIL, 'Hosted servers need attention', problems.join('\n'));
   }
   for (const p of problems) console.log('attention', p);
 }
