@@ -32,6 +32,7 @@ cron line in the header of `run_pipeline.sh`.
 | search | queue snapshot | `search_results.csv`, `search_log.csv` | Retries 3x with backoff; stops after 5 failures in a row (likely rate-limited). Names searched OK in the last 30 days are skipped, so a failed batch retries cheaply. |
 | build | search results | `leads.csv` | One row per company: best official domain, phone, description, `domain_confidence`. Skips LinkedIn/Yelp/etc. Never overwrites existing values. |
 | scrape | `leads.csv` | `contacts.csv`, updates `scrape_status` on leads | Home page + up to 5 contact/team/about pages per site. Obeys robots.txt. Saves after every site. |
+| summarize | `leads.csv`, `contacts.csv` | `ai_summary` on leads | Optional. Uses local Ollama. If Ollama is down the step logs it and exits OK; blank leads are tried next run. |
 
 ## Reviewing leads (the one manual step)
 
@@ -73,6 +74,19 @@ when it plausibly matches (`jane@`, `jdoe@`, `jane.doe@`). Expect some misses an
 | `MARIADB_URL` | unset | Turns on the MariaDB sync step |
 
 Extra domains to ignore as "not the company's own site": one per line in `blocked_domains.txt`.
+
+## Lead summaries (Ollama)
+
+`summarize_leads.py` fills `ai_summary` for up to `SUMMARY_LIMIT` leads a night. It sends only the company, domain, title, description and contact counts, never emails, names or phones. Summaries you edit are kept. Treat them as a starting point, since they come from search snippets.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `OLLAMA_URL` | `http://127.0.0.1:11434` | Ollama server |
+| `LEAD_SUMMARY_MODEL` | `qwen2.5:latest` | Model. `:cloud` models are refused unless `OLLAMA_ALLOW_CLOUD=1`, so lead data stays on this machine |
+| `OLLAMA_TIMEOUT` | `180` | Seconds per lead |
+| `OLLAMA_TEMPERATURE` | `0.1` | Lower stays closer to the facts |
+
+Turn the step off with `--skip summarize`.
 
 ## MariaDB analytics copy (optional)
 

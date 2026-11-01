@@ -1,13 +1,14 @@
 #!/usr/bin/env node
-// blogen: scrape-only blog roundup generator (no APIs, no LLMs).
+// blogen: scrape-only blog roundup generator (no APIs; --ai adds an optional local Ollama draft).
 // Usage: node blogen.mjs [--config sources.json] [--topic "name"] [--browser] [--dry]
-//        [--commentary file.md] [--publish hugo|wordpress|ghost] [--live]
+//        [--commentary file.md] [--publish hugo|wordpress|ghost] [--live] [--ai]
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import * as cheerio from 'cheerio';
 import robotsParser from 'robots-parser';
 import { marked } from 'marked';
+import { generateDraft } from './ollama.mjs';
 
 // ---------- CLI ----------
 const args = process.argv.slice(2);
@@ -19,6 +20,8 @@ const FORCE_BROWSER = flag('browser');
 const DRY = flag('dry');
 const PUBLISH = opt('publish');
 const COMMENTARY_FILE = opt('commentary');
+const AI = flag('ai');
+if (AI && flag('live')) { console.error('[blogen] --ai posts need a human read first, so --live is refused'); process.exit(1); }
 const STATUS = flag('live') ? 'publish' : 'draft'; // drafts by default so you can add commentary
 
 const cfg = JSON.parse(await fs.readFile(CONFIG, 'utf8'));
@@ -180,10 +183,10 @@ const DEFAULT_TPL = `{{frontmatter}}
 `;
 
 // Placeholders: {{frontmatter}} {{title}} {{date}} {{intro}} {{commentary}} {{items}} {{sources}} {{tags}}
-function renderPost(topic, items, commentary, template) {
+function renderPost(topic, items, commentary, template, aiDraft = null) {
   const date = new Date().toISOString().slice(0, 10);
   const tags = [...new Set([...(topic.tags || []), ...items.flatMap((i) => i.terms.slice(0, 2))])].slice(0, 8);
-  const fm = `---\ntitle: "${topic.name} — ${date}"\ndate: ${date}\ndraft: ${STATUS === 'draft'}\ntags: [${tags.join(', ')}]\nsources: ${items.length}\n---\n`;
+  const fm = `---\ntitle: "${topic.name} — ${date}"\ndate: ${date}\ndraft: ${STATUS === 'draft'}\n${aiDraft ? 'ai_draft: true\n' : ''}tags: [${tags.join(', ')}]\nsources: ${items.length}\n---\n`;
 
   const intro = `This edition covers ${items.length} recent ${items.length === 1 ? 'piece' : 'pieces'} from ${[...new Set(items.map((i) => mdEscape(i.site)))].join(', ')}. Each entry below is a short summary with a link to the original; read the source for the full story.\n`;
 
@@ -208,7 +211,7 @@ function renderPost(topic, items, commentary, template) {
     title: topic.name,
     date,
     tags: tags.join(', '),
-    intro,
+    intro: aiDraft ? `${aiDraft}\n` : intro,
     commentary: commentary ? `## Editor's take\n\n${commentary.trim()}\n` : '',
     items: sections.join('\n---\n\n'),
     sources: items.map((i) => `- [${mdEscape(i.title)}](${i.url}) (${mdEscape(i.site)})`).join('\n'),
@@ -298,7 +301,8 @@ for (const topic of cfg.topics) {
   if (!items.length) { log('nothing new for', topic.name); continue; }
   const commentary = globalCommentary
     ?? (topic.commentaryFile ? await fs.readFile(topic.commentaryFile, 'utf8') : topic.commentary) ?? '';
-  const md = renderPost(topic, items, commentary, template);
+  const aiDraft = AI ? await generateDraft(topic, items, { url: process.env.OLLAMA_URL || cfg.ollama?.url, model: process.env.BLOGEN_MODEL || cfg.ollama?.model, timeoutMs: cfg.ollama?.timeoutMs, temperature: cfg.ollama?.temperature, log }) : null;
+  const md = renderPost(topic, items, commentary, template, aiDraft);
   const base = `${new Date().toISOString().slice(0, 10)}-${slug(topic.name)}`;
   if (DRY) { console.log(md); continue; }
   await fs.writeFile(path.join(OUT, `${base}.md`), md);

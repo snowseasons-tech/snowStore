@@ -16,6 +16,14 @@ summaries + short capped excerpts + attribution links instead of copying full te
 
 Cron: `0 7 * * 1 cd /path/blogen && node blogen.mjs`
 
+## AI drafts (optional)
+
+`node blogen.mjs --ai` asks a local [Ollama](https://ollama.com) server to write the post's opening from the scraped summaries. Without `--ai`, nothing changes and no model is used.
+
+- Settings: `OLLAMA_URL` (default `http://127.0.0.1:11434`) and `BLOGEN_MODEL` (default `blog-expert`), or `ollama.url`, `ollama.model`, `ollama.timeoutMs`, `ollama.temperature` in `sources.json`. The default timeout is 5 minutes. Temperature defaults to 0.1 to keep the model close to its sources.
+- If Ollama is down, slow or returns nothing, the run logs it and writes the normal post. AI posts carry `ai_draft: true` in the front matter.
+- `--ai` can't be combined with `--live`, so AI text is always a draft for a person to check. Links, images and HTML are stripped from model output, and sentences that speculate or give a cause are dropped unless the sources use the same wording.
+
 ## Commentary, template, publishing
 
 - `template.md` controls layout. Placeholders: `{{frontmatter}} {{title}} {{date}} {{tags}} {{intro}} {{commentary}} {{items}} {{sources}}`.
