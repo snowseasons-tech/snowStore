@@ -55,7 +55,19 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .member-list{list-style:none;display:grid;gap:6px;font-size:.92rem;color:var(--muted)}
 .member-list li{padding-left:22px;position:relative}
 .member-list li::before{content:"";position:absolute;left:2px;top:.55em;width:10px;height:6px;border:solid var(--primary);border-width:0 0 2px 2px;transform:rotate(-45deg)}
+.card.flip-card{height:440px;padding:0;border:0;background:transparent;box-shadow:none;perspective:1100px}
+.card.flip-card:hover,.card.flip-card.member{border:0;box-shadow:none}
+.card-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+.card.is-flipped .card-inner{transform:rotateY(180deg)}
+.card-face{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;padding:24px;overflow:auto;border:1px solid var(--glass-b);border-radius:16px;background:var(--glass);box-shadow:var(--shadow),inset 0 1px 0 var(--hi);backface-visibility:hidden}
+.card-face:hover{border-color:var(--glow);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow),0 14px 44px -10px var(--glow)}
+.card.member .card-face{border-color:var(--primary);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow)}
+.card-back{transform:rotateY(180deg)}
+.card-back h3{font-size:1.05rem}
+.flip-toggle{margin-top:auto}
+.card-back .flip-toggle{flex:none}
 .card.soon{border-style:dashed}
+.card.soon .card-face{border-style:dashed}
 .card .soon-status{margin-top:auto;font-size:.85rem;font-weight:600;color:var(--primary)}
 .soon-status::before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:currentColor;vertical-align:1px}
 .btn.alt{background:transparent;color:var(--primary);border-color:var(--primary);box-shadow:none}
@@ -72,9 +84,6 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .more ul{padding-left:1.1rem;display:grid;gap:4px}
 .more strong{color:var(--text)}
 .more .terms{font-size:.85rem}
-/* An opened card takes the whole row, so its neighbours keep their size instead of stretching to match. */
-.card:has(.more[open]){grid-column:1/-1}
-.card:has(.more[open]):hover{transform:none}
 .more[open] ul{display:block;columns:2 280px;column-gap:28px}
 .more[open] li{break-inside:avoid;margin-bottom:4px}
 .feats img{width:24px;height:22px;flex:none}
@@ -91,7 +100,7 @@ footer a{color:inherit;margin:0 .5rem}
 #notice{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--glass);color:var(--text);border:1px solid var(--glass-b);box-shadow:var(--shadow),0 0 24px -6px var(--glow);padding:12px 18px;border-radius:12px;max-width:90vw;z-index:200}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){header,.card,footer,#notice,.btn-toggle{background:var(--sec)}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.card:hover,.btn:hover{transform:none}}
-@media(max-width:600px){main{padding:44px 0 56px}.intro h1{font-size:2.1rem}.nav-links{gap:.25rem .75rem}}
+@media(max-width:600px){main{padding:44px 0 56px}.intro h1{font-size:2.1rem}.nav-links{gap:.25rem .75rem}.card.flip-card{height:460px}}
 </style></head>
 <body>
 <header><nav class="container" aria-label="Main navigation">
@@ -207,6 +216,29 @@ async function checkout(id,period,btn){
  catch(_){notify("Checkout failed. Please try again.")}
  btn.disabled=false;
 }
+function makeFlipCard(art){
+ const children=[...art.children],front=el("div","card-face card-front"),back=el("div","card-face card-back");
+ children.forEach((child)=>{if(child.matches(".member-list,.more,.feats"))back.append(child);else front.append(child)});
+ back.querySelectorAll("details.more").forEach((details)=>{details.open=true});
+ const title=front.querySelector("h2")?.textContent||"product";
+ if(!back.childElementCount){
+  const summary=front.querySelector(":scope > p:not(.soon-status)");
+  back.append(summary?summary.cloneNode(true):el("p",null,"More information will be available soon."));
+ }
+ back.prepend(el("h3",null,"Details"));
+ const showDetails=el("button","btn alt flip-toggle","View details");
+ showDetails.type="button";showDetails.setAttribute("aria-label",`View details for ${title}`);showDetails.setAttribute("aria-expanded","false");
+ const showOverview=el("button","btn alt flip-toggle","Back to overview");
+ showOverview.type="button";showOverview.setAttribute("aria-label",`Back to ${title} overview`);showOverview.setAttribute("aria-expanded","true");
+ front.append(showDetails);back.append(showOverview);
+ const inner=el("div","card-inner");inner.append(front,back);art.replaceChildren(inner);art.classList.add("flip-card");
+ back.inert=true;
+ const flip=(show)=>{art.classList.toggle("is-flipped",show);front.inert=show;back.inert=!show;showDetails.setAttribute("aria-expanded",String(show));showOverview.setAttribute("aria-expanded",String(show))};
+ showDetails.addEventListener("click",()=>{flip(true);back.scrollTop=0;showOverview.focus({preventScroll:true})});
+ showOverview.addEventListener("click",()=>{flip(false);front.scrollTop=0;showDetails.focus({preventScroll:true})});
+ art.addEventListener("keydown",(event)=>{if(event.key==="Escape"&&art.classList.contains("is-flipped")){flip(false);front.scrollTop=0;showDetails.focus({preventScroll:true})}});
+ return art;
+}
 function buildCard(p){
  const d=DETAILS[p.id]||{category:"Other"},recurring=!!p.interval;
  const opts=[{period:"1m",amount:p.amount,interval:p.interval,intervalCount:1,discount:p.discount},...(p.periods||[])].sort((a,b)=>perMonths(a)-perMonths(b));
@@ -235,7 +267,7 @@ function buildCard(p){
  const buy=el("button","btn",recurring?"Subscribe":"Buy now");buy.type="button";
  buy.addEventListener("click",()=>checkout(p.id,state.period,buy));
  art.append(el("div","actions"));art.lastChild.append(buy);
- return art;
+ return makeFlipCard(art);
 }
 // Full service description, folded so long copy doesn't stretch the grid row: intro, list, coverage, then terms.
 function moreBlock(m){
@@ -266,7 +298,7 @@ function kitCard(){
  art.append(el("div","price","Free"));
  const link=el("a","btn","Get the kit");link.href="/#kit";
  art.append(el("div","actions"));art.lastChild.append(link);
- return art;
+ return makeFlipCard(art);
 }
 // Early-access apps not on sale yet: listed in Founder's Early Access with no price or checkout, only a way to ask for access.
 const SOON=[
@@ -279,7 +311,7 @@ function soonCard(m){
  art.append(cardTop(m.icon,"Coming soon"),relPill(m.release),el("h2",null,m.name),el("p",null,m.blurb),el("p","soon-status",m.status));
  const link=el("a","btn alt","Get early access");link.href=`mailto:${EARLY_ACCESS}?subject=${encodeURIComponent(`Early access: ${m.name}`)}`;
  art.append(el("div","actions"));art.lastChild.append(link);
- return art;
+ return makeFlipCard(art);
 }
 // Products with a release label go in Founder's Early Access; everything else is Production.
 const gridProd=$("#grid-production"),gridEarly=$("#grid-early"),status=$("#status");
