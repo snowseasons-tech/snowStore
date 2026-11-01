@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Spinner & Button Studio | Snow Seasons Tech</title>
+<meta name="description" content="Create atomic spinners and animated buttons with live previews and CSS snippets. Free browser tool from Snow Seasons Tech.">
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="/storefront/spinner-studio/tailwind.css">
+    <!-- Lucide Icons -->
+    <script src="/storefront/spinner-studio/lucide.min.js"></script>
+
+    <style>
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #080c14;
+            color: #e2e8f0;
+        }
+        code, pre {
+            font-family: 'Fira Code', monospace;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        /* CUSTOM ANIMATION CSS ENGINE STYLES */
+        
+        /* 1. Ripple Effect */
+        .btn-ripple-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple-effect-span {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple-anim var(--btn-duration, 0.6s) linear;
+            pointer-events: none;
+        }
+        @keyframes ripple-anim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* 2. Gradient Border Rotation */
+        .btn-gradient-border {
+            position: relative;
+            border-radius: var(--btn-radius, 12px);
+            background: #0f172a;
+            padding: 2px;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .btn-gradient-border::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(var(--btn-primary, #3b82f6), var(--btn-secondary, #8b5cf6), #ec4899, var(--btn-primary, #3b82f6));
+            animation: spin-gradient var(--btn-duration, 3s) linear infinite;
+            z-index: -1;
+        }
+        .btn-gradient-border-inner {
+            background: #0f172a;
+            border-radius: calc(var(--btn-radius, 12px) - 2px);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            transition: background 0.3s ease;
+        }
+        .btn-gradient-border:hover .btn-gradient-border-inner {
+            background: rgba(15, 23, 42, 0.85);
+        }
+        @keyframes spin-gradient {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 3. Neon Glow Pulse */
+        .btn-neon-glow {
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px var(--btn-primary, #3b82f6), inset 0 0 5px var(--btn-primary, #3b82f6);
+        }
+        .btn-neon-glow:hover {
+            box-shadow: 0 0 25px var(--btn-primary, #3b82f6), 0 0 50px var(--btn-primary, #3b82f6), inset 0 0 10px var(--btn-primary, #3b82f6);
+            text-shadow: 0 0 8px #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* 4. Morphing Liquid Shape */
+        .btn-morphing {
+            transition: all var(--btn-duration, 0.4s) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: var(--btn-radius, 12px);
+        }
+        .btn-morphing:hover {
+            border-radius: 25px 8px 25px 8px;
+            transform: scale(1.05);
+        }
+
+        /* 5. Custom Image Spinner Base Styles */
+        .custom-spinner-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .custom-spinner-img {
+            display: block;
+            object-fit: contain;
+            animation: custom-spin var(--spin-speed, 1s) var(--spin-easing, linear) infinite;
+            animation-direction: var(--spin-direction, normal);
+            filter: drop-shadow(0 0 var(--spin-glow, 0px) var(--btn-primary, #3b82f6));
+        }
+
+        /* Atomic & Radioactive Dynamic Orbit Keyframes */
+        .atomic-ring-1 {
+            animation: spin-ring-1 var(--spin-speed, 1.2s) linear infinite;
+            transform-origin: center;
+        }
+        .atomic-ring-2 {
+            animation: spin-ring-2 var(--spin-speed, 1.2s) linear infinite;
+            transform-origin: center;
+        }
+        .atomic-ring-3 {
+            animation: spin-ring-3 var(--spin-speed, 1.2s) linear infinite;
+            transform-origin: center;
+        }
+
+        @keyframes spin-ring-1 {
+            0% { transform: rotateX(70deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(70deg) rotateY(0deg) rotateZ(360deg); }
+        }
+        @keyframes spin-ring-2 {
+            0% { transform: rotateX(70deg) rotateY(60deg) rotateZ(0deg); }
+            100% { transform: rotateX(70deg) rotateY(60deg) rotateZ(360deg); }
+        }
+        @keyframes spin-ring-3 {
+            0% { transform: rotateX(70deg) rotateY(-60deg) rotateZ(0deg); }
+            100% { transform: rotateX(70deg) rotateY(-60deg) rotateZ(360deg); }
+        }
+
+        /* Trefoil Hazard Pulse */
+        .hazard-pulse {
+            animation: hazard-glow-pulse var(--spin-speed, 1.5s) ease-in-out infinite alternate;
+        }
+        @keyframes hazard-glow-pulse {
+            0% { filter: drop-shadow(0 0 4px var(--btn-primary, #22c55e)) opacity(0.8); }
+            100% { filter: drop-shadow(0 0 18px var(--btn-primary, #22c55e)) opacity(1); }
+        }
+
+        /* Custom Mask Shapes */
+        .mask-circle { clip-path: circle(50% at 50% 50%); }
+        .mask-hexagon { clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
+        .mask-star { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+        .mask-square { border-radius: 8px; }
+
+        @keyframes custom-spin {
+            0% { transform: rotate(0deg) scale(var(--spin-scale-min, 1)); }
+            50% { transform: rotate(180deg) scale(var(--spin-scale-max, 1)); }
+            100% { transform: rotate(360deg) scale(var(--spin-scale-min, 1)); }
+        }
+
+        /* Dual Ring Overlay */
+        .spin-ring-overlay {
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: var(--btn-primary, #3b82f6);
+            border-bottom-color: var(--btn-secondary, #8b5cf6);
+            animation: ring-spin var(--spin-speed, 1s) linear infinite reverse;
+        }
+        @keyframes ring-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Loader Button */
+        .btn-loader {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .btn-loader.loading .btn-text {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .btn-loader .spinner-slot {
+            display: none;
+            position: absolute;
+        }
+        .btn-loader.loading .spinner-slot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-darkbg text-gray-100">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800 bg-cardbg/90 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-blue-600 via-indigo-600 to-pink-500 p-2 rounded-xl text-white shadow-lg shadow-blue-500/20">
+                    <i data-lucide="loader-2" class="w-6 h-6 animate-spin"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Button & Custom Image Spinner Studio</h1>
+                    <p class="text-xs text-slate-400">Custom Image Loader Generator & Interactive UI Animations</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="randomizeCustomizer()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+                    <i data-lucide="shuffle" class="w-3.5 h-3.5 text-blue-400"></i> Randomize Style
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main App Container -->
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow space-y-6">
+
+        <!-- Top Category Selector Tabs -->
+        <div class="flex border-b border-slate-800 space-x-2 overflow-x-auto pb-1">
+            <button onclick="selectCategory('custom-spinner')" id="tab-custom-spinner" class="cat-tab px-4 py-2 border-b-2 border-blue-500 text-blue-400 font-medium text-xs flex items-center gap-2 whitespace-nowrap bg-blue-950/30 rounded-t-lg">
+                <i data-lucide="atom" class="w-4 h-4"></i> ☢️ Atomic & Bio/Hazard Energy Spinner
+            </button>
+            <button onclick="selectCategory('ripple')" id="tab-ripple" class="cat-tab px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-xs flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="waves" class="w-4 h-4"></i> Ripple Effect
+            </button>
+            <button onclick="selectCategory('tilt')" id="tab-tilt" class="cat-tab px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-xs flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="box" class="w-4 h-4"></i> 3D Tilt
+            </button>
+            <button onclick="selectCategory('neon')" id="tab-neon" class="cat-tab px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-xs flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="zap" class="w-4 h-4"></i> Neon Glow
+            </button>
+            <button onclick="selectCategory('gradient')" id="tab-gradient" class="cat-tab px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-xs flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="palette" class="w-4 h-4"></i> Gradient Border
+            </button>
+            <button onclick="selectCategory('morphing')" id="tab-morphing" class="cat-tab px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-xs flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="sparkles" class="w-4 h-4"></i> Morphing Shape
+            </button>
+            <button onclick="selectCategory('magnetic')" id="tab-magnetic" class="cat-tab px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-xs flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="magnet" class="w-4 h-4"></i> Magnetic Physics
+            </button>
+            <button onclick="selectCategory('particles')" id="tab-particles" class="cat-tab px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-xs flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="flame" class="w-4 h-4"></i> Particle Burst
+            </button>
+            <button onclick="selectCategory('loader')" id="tab-loader" class="cat-tab px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-xs flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="loader" class="w-4 h-4"></i> Custom Spinner Button
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- LEFT CONTROL PANEL: CUSTOMIZER -->
+            <div class="lg:col-span-5 bg-cardbg border border-slate-800 rounded-xl p-5 shadow-lg space-y-5">
+                <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <i data-lucide="sliders" class="w-4 h-4 text-blue-400"></i> Animation & Spinner Studio Controls
+                </h3>
+
+                <!-- CUSTOM SPINNER ONLY CONTROLS SECTION -->
+                <div id="section-spinner-controls" class="space-y-4">
+                    <!-- Image Upload or Preset Select -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Upload Custom Image / Logo Spinner</label>
+                        <div class="flex items-center gap-2">
+                            <input type="file" id="file-spinner-img" accept="image/*" onchange="handleImageUpload(event)" class="hidden">
+                            <button onclick="document.getElementById('file-spinner-img').click()" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs py-2 px-3 rounded-lg text-slate-300 flex items-center justify-center gap-2 transition">
+                                <i data-lucide="upload" class="w-4 h-4 text-emerald-400"></i>
+                                <span id="lbl-file-name">Upload PNG / SVG / JPG</span>
+                            </button>
+                            <button onclick="resetSpinnerImage()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs py-2 px-2 rounded-lg text-slate-400 hover:text-slate-200">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Atomic & Radioactive Presets -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Atomic & Seasonal Presets</label>
+                        <select id="select-icon-preset" onchange="handlePresetIconChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none">
+                            <option value="bohr_atom">⚛️ Bohr Model Atomic Nucleus</option>
+                            <option value="radioactive_trefoil">☢️ Trefoil Radioactive Hazard Symbol</option>
+                            <option value="fusion_reactor">🌀 Quantum Fusion Reactor Core</option>
+                            <option value="biohazard">☣️ Biohazard Containment Ring</option>
+                            <option value="maple_leaf">🍁 Autumn Maple Leaf</option>
+                            <option value="oak_leaf">🍂 Oak Harvest Leaf</option>
+                            <option value="snowflake">❄️ Fractal Winter Snowflake</option>
+                            <option value="turkey">🦃 Thanksgiving Harvest Turkey</option>
+                            <option value="pilgrim_hat">🎩 Pilgrim Colonial Hat</option>
+                            <option value="feather_emblem">🪶 Native American Feather Motif</option>
+                            <option value="compass">🧭 Tech Compass Vector</option>
+                            <option value="custom" disabled>📁 Custom Image Loaded</option>
+                        </select>
+                    </div>
+
+                    <!-- Radiation Color Palette Presets -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Radiation Glow Preset Colors</label>
+                        <div class="grid grid-cols-5 gap-1.5">
+                            <button onclick="setRadiationColor('#22c55e', '#15803d')" class="bg-emerald-950 border border-emerald-600 text-emerald-300 py-1 rounded text-[10px] font-mono hover:bg-emerald-900">Toxic Green</button>
+                            <button onclick="setRadiationColor('#00f0ff', '#0284c7')" class="bg-cyan-950 border border-cyan-600 text-cyan-300 py-1 rounded text-[10px] font-mono hover:bg-cyan-900">Cherenkov</button>
+                            <button onclick="setRadiationColor('#a855f7', '#7e22ce')" class="bg-purple-950 border border-purple-600 text-purple-300 py-1 rounded text-[10px] font-mono hover:bg-purple-900">Plasma</button>
+                            <button onclick="setRadiationColor('#eab308', '#ca8a04')" class="bg-yellow-950 border border-yellow-600 text-yellow-300 py-1 rounded text-[10px] font-mono hover:bg-yellow-900">Solar Flare</button>
+                            <button onclick="setRadiationColor('#ef4444', '#991b1b')" class="bg-red-950 border border-red-600 text-red-300 py-1 rounded text-[10px] font-mono hover:bg-red-900">Critical Red</button>
+                        </div>
+                    </div>
+
+                    <!-- Spin Physics & Easing -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Spin Direction</label>
+                            <select id="select-spin-direction" onchange="updatePreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none">
+                                <option value="normal">Clockwise ↻</option>
+                                <option value="reverse">Counter-Clockwise ↺</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Easing Motion</label>
+                            <select id="select-spin-easing" onchange="updatePreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none">
+                                <option value="linear">Linear Continuous</option>
+                                <option value="ease-in-out">Smooth Ease In-Out</option>
+                                <option value="cubic-bezier(0.68, -0.55, 0.27, 1.55)">Elastic Bounce</option>
+                                <option value="steps(8, end)">Stepped Radar (8 FPS)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Speed RPM Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Rotation Speed (Seconds / Rev)</span>
+                            <span id="val-spin-speed" class="text-blue-400 font-mono">1.0s</span>
+                        </div>
+                        <input type="range" id="slider-spin-speed" min="0.2" max="3.0" step="0.1" value="1.0" oninput="updatePreview()" class="w-full accent-blue-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Image Sizing Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Spinner Size (Width / Height)</span>
+                            <span id="val-spin-size" class="text-blue-400 font-mono">48px</span>
+                        </div>
+                        <input type="range" id="slider-spin-size" min="20" max="120" step="4" value="48" oninput="updatePreview()" class="w-full accent-blue-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Shape Crop Mask & FX -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Shape Mask Crop</label>
+                            <select id="select-shape-mask" onchange="updatePreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none">
+                                <option value="none">None (Full Original)</option>
+                                <option value="mask-circle">Circle Crop</option>
+                                <option value="mask-hexagon">Hexagon Crop</option>
+                                <option value="mask-star">Star Crop</option>
+                                <option value="mask-square">Rounded Box</option>
+                            </select>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1">
+                                <span class="text-slate-400">Glow Aura</span>
+                                <span id="val-spin-glow" class="text-blue-400 font-mono">10px</span>
+                            </div>
+                            <input type="range" id="slider-spin-glow" min="0" max="30" step="2" value="10" oninput="updatePreview()" class="w-full accent-blue-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Dual Ring & Pulse Toggles -->
+                    <div class="space-y-2 pt-1 border-t border-slate-800">
+                        <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                            <input type="checkbox" id="chk-dual-ring" onchange="updatePreview()" class="accent-blue-500 rounded">
+                            <span>Enable Counter-Spinning Outer Ring Overlay</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                            <input type="checkbox" id="chk-pulse-scale" onchange="updatePreview()" class="accent-blue-500 rounded">
+                            <span>Enable Pulse Scale Breathing Effect</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- STANDARD BUTTON STYLES SECTION -->
+                <div class="space-y-4 pt-2 border-t border-slate-800">
+                    <!-- Button Text Input -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Button Label Text</label>
+                        <input type="text" id="input-btn-text" value="Processing Order" oninput="updatePreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+                    </div>
+
+                    <!-- Color Pickers -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Primary Color</label>
+                            <input type="color" id="picker-primary" value="#3b82f6" onchange="updatePreview()" class="w-full h-8 bg-slate-900 border border-slate-700 rounded cursor-pointer p-0.5">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Secondary Color</label>
+                            <input type="color" id="picker-secondary" value="#8b5cf6" onchange="updatePreview()" class="w-full h-8 bg-slate-900 border border-slate-700 rounded cursor-pointer p-0.5">
+                        </div>
+                    </div>
+
+                    <!-- Text Color -->
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Text Color</label>
+                        <input type="color" id="picker-text" value="#ffffff" onchange="updatePreview()" class="w-full h-8 bg-slate-900 border border-slate-700 rounded cursor-pointer p-0.5">
+                    </div>
+
+                    <!-- Border Radius Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Border Radius</span>
+                            <span id="val-radius" class="text-blue-400 font-mono">12px</span>
+                        </div>
+                        <input type="range" id="slider-radius" min="0" max="32" step="2" value="12" oninput="updatePreview()" class="w-full accent-blue-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT LIVE PREVIEW & CODE EXPORTER -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- Interactive Sandbox Canvas -->
+                <div class="bg-cardbg border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col justify-between min-h-[320px] relative">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-6">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="eye" class="w-4 h-4 text-blue-400"></i>
+                            <h3 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Live Spinner & Button Interactive Sandbox</h3>
+                        </div>
+                        <span id="category-badge" class="text-[10px] bg-blue-950 border border-blue-800 text-blue-300 px-2.5 py-0.5 rounded font-mono font-semibold">CUSTOM IMAGE SPINNER</span>
+                    </div>
+
+                    <!-- PREVIEW STAGE -->
+                    <div id="preview-stage" class="relative flex items-center justify-center py-12 my-auto min-h-[200px]">
+                        <!-- Dynamic Rendered Interactive Button / Custom Spinner -->
+                        <div id="button-target-container"></div>
+                    </div>
+
+                    <div class="text-center text-[11px] text-slate-500 pt-3 border-t border-slate-800/80">
+                        Interactive custom image loader preview. Modify sliders to adjust spin rate, glow, and shape mask in real time.
+                    </div>
+                </div>
+
+                <!-- CODE SNIPPET EXPORTER -->
+                <div class="bg-cardbg border border-slate-800 rounded-xl p-5 shadow-lg space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="code" class="w-4 h-4 text-emerald-400"></i>
+                            <h3 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Generated Starter Code Snippet</h3>
+                        </div>
+
+                        <div class="flex gap-1 bg-slate-900 p-1 border border-slate-800 rounded-lg">
+                            <button onclick="setCodeTab('css')" id="btn-code-css" class="px-2.5 py-0.5 bg-blue-600 text-white rounded text-[11px] font-medium">CSS</button>
+                            <button onclick="setCodeTab('js')" id="btn-code-js" class="px-2.5 py-0.5 text-slate-400 hover:text-white rounded text-[11px] font-medium">JavaScript</button>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <button onclick="copyCodeSnippet()" class="absolute top-3 right-3 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1 rounded text-xs flex items-center gap-1 z-10">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Code
+                        </button>
+                        <pre id="code-snippet-output" class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-[11px] font-mono text-blue-300 overflow-x-auto leading-relaxed max-h-52 select-all"></pre>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-cardbg/50 py-3 mt-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-[11px] text-slate-500 flex justify-between items-center">
+            <a href="/products">← Snow Seasons Tech · Free tools</a>
+            <span class="font-mono">Free preview &amp; starter snippets</span>
+        </div>
+    </footer>
+
+    <!-- Script Logic Engine -->
+    <script>
+        const state = {
+            category: 'custom-spinner',
+            text: 'Processing Order',
+            primaryColor: '#22c55e',
+            secondaryColor: '#16a34a',
+            textColor: '#ffffff',
+            duration: '0.6',
+            radius: '12',
+            fontSize: '14',
+            codeTab: 'css',
+            
+            // Custom Spinner Engine States
+            presetType: 'bohr_atom',
+            customImgUrl: null,
+            spinSpeed: '1.2',
+            spinSize: '64',
+            spinDirection: 'normal',
+            spinEasing: 'linear',
+            spinGlow: '14',
+            shapeMask: 'none',
+            dualRing: true,
+            pulseScale: true
+        };
+
+        const presetIcons = {
+            compass: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="#22c55e" stroke-width="4"/><path d="M50 10 62 50 50 90 38 50Z" fill="#22c55e"/><path d="M10 50 50 38 90 50 50 62Z" fill="#86efac"/><circle cx="50" cy="50" r="6" fill="#0f172a"/></svg>')
+        };
+
+        function setRadiationColor(pri, sec) {
+            state.primaryColor = pri;
+            state.secondaryColor = sec;
+            document.getElementById('picker-primary').value = pri;
+            document.getElementById('picker-secondary').value = sec;
+            updatePreview();
+        }
+
+        function handlePresetIconChange() {
+            const val = document.getElementById('select-icon-preset').value;
+            state.presetType = val;
+            if (presetIcons[val]) {
+                state.customImgUrl = presetIcons[val];
+            } else {
+                state.customImgUrl = null;
+            }
+            document.getElementById('lbl-file-name').textContent = 'Upload PNG / SVG / JPG';
+            updatePreview();
+        }
+
+        function renderTargetButton() {
+            const container = document.getElementById('button-target-container');
+            const styleVars = `
+                --btn-primary: ${state.primaryColor};
+                --btn-secondary: ${state.secondaryColor};
+                --btn-duration: ${state.duration}s;
+                --btn-radius: ${state.radius}px;
+                color: ${state.textColor};
+                font-size: ${state.fontSize}px;
+                border-radius: ${state.radius}px;
+            `;
+
+            const spinnerStyleVars = `
+                --spin-speed: ${state.spinSpeed}s;
+                --spin-glow: ${state.spinGlow}px;
+                --spin-easing: ${state.spinEasing};
+                --spin-direction: ${state.spinDirection};
+                --spin-scale-min: ${state.pulseScale ? 0.85 : 1};
+                --spin-scale-max: ${state.pulseScale ? 1.15 : 1};
+            `;
+
+            if (state.category === 'custom-spinner') {
+                container.innerHTML = `
+                    <div style="${styleVars} ${spinnerStyleVars}" class="custom-spinner-wrapper p-4">
+                        ${state.dualRing ? '<div class="spin-ring-overlay"></div>' : ''}
+                        ${renderAtomicOrCustomSVG()}
+                    </div>
+                `;
+            } else if (state.category === 'loader') {
+                container.innerHTML = `
+                    <button onclick="toggleLoaderState(this)" style="${styleVars} ${spinnerStyleVars}; background: ${state.primaryColor};" class="btn-loader px-6 py-3 font-semibold shadow-lg flex items-center justify-center gap-2 min-w-[170px]">
+                        <span class="btn-text flex items-center gap-2">
+                            <span>${escapeHtml(state.text)}</span>
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                        </span>
+                        <div class="spinner-slot">
+                            <div class="custom-spinner-wrapper">
+                                ${renderAtomicOrCustomSVG(28)}
+                            </div>
+                        </div>
+                    </button>
+                `;
+            } else if (state.category === 'ripple') {
+                container.innerHTML = `
+                    <button onclick="createRipple(event)" style="${styleVars}; background: ${state.primaryColor};" class="btn-ripple-container px-6 py-3 font-semibold shadow-lg shadow-blue-500/20 active:scale-95 transition-transform flex items-center gap-2">
+                        <span>${escapeHtml(state.text)}</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                `;
+            } else if (state.category === 'tilt') {
+                container.innerHTML = `
+                    <button id="tilt-target-btn" style="${styleVars}; background: linear-gradient(135deg, ${state.primaryColor}, ${state.secondaryColor});" class="px-6 py-3 font-semibold shadow-xl transition-transform duration-100 flex items-center gap-2">
+                        <span>${escapeHtml(state.text)}</span>
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    </button>
+                `;
+                initTiltLogic();
+            } else if (state.category === 'neon') {
+                container.innerHTML = `
+                    <button style="${styleVars}; background: #0f172a; border: 1.5px solid ${state.primaryColor};" class="btn-neon-glow px-6 py-3 font-semibold flex items-center gap-2">
+                        <span>${escapeHtml(state.text)}</span>
+                        <i data-lucide="zap" class="w-4 h-4 text-emerald-400"></i>
+                    </button>
+                `;
+            } else if (state.category === 'gradient') {
+                container.innerHTML = `
+                    <div style="${styleVars}" class="btn-gradient-border cursor-pointer">
+                        <div class="btn-gradient-border-inner font-semibold flex items-center gap-2" style="color: ${state.textColor}; font-size: ${state.fontSize}px;">
+                            <span>${escapeHtml(state.text)}</span>
+                            <i data-lucide="compass" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                `;
+            } else if (state.category === 'morphing') {
+                container.innerHTML = `
+                    <button style="${styleVars}; background: linear-gradient(135deg, ${state.primaryColor}, ${state.secondaryColor});" class="btn-morphing px-6 py-3 font-semibold shadow-lg flex items-center gap-2">
+                        <span>${escapeHtml(state.text)}</span>
+                        <i data-lucide="box" class="w-4 h-4"></i>
+                    </button>
+                `;
+            } else if (state.category === 'magnetic') {
+                container.innerHTML = `
+                    <button id="magnetic-target-btn" style="${styleVars}; background: ${state.primaryColor};" class="px-6 py-3 font-semibold shadow-lg transition-transform duration-200 flex items-center gap-2">
+                        <span>${escapeHtml(state.text)}</span>
+                        <i data-lucide="magnet" class="w-4 h-4"></i>
+                    </button>
+                `;
+                initMagneticLogic();
+            } else if (state.category === 'particles') {
+                container.innerHTML = `
+                    <button onclick="triggerParticleBurst(event)" style="${styleVars}; background: ${state.primaryColor};" class="px-6 py-3 font-semibold shadow-lg active:scale-95 transition-transform flex items-center gap-2 relative">
+                        <span>${escapeHtml(state.text)}</span>
+                        <i data-lucide="flame" class="w-4 h-4"></i>
+                    </button>
+                `;
+            }
+
+            lucide.createIcons();
+        }
+
+        function renderAtomicOrCustomSVG(overrideSize = null) {
+            const size = overrideSize || state.spinSize;
+            if (state.customImgUrl) {
+                return `<img src="${state.customImgUrl}" style="width: ${size}px; height: ${size}px;" class="custom-spinner-img ${state.shapeMask !== 'none' ? state.shapeMask : ''}" alt="Custom Spinner" />`;
+            }
+
+            if (state.presetType === 'maple_leaf') {
+                return `
+                    <svg class="hazard-pulse custom-spinner-img" width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 5 L58 28 L68 20 L66 38 L88 35 L76 52 L95 62 L74 70 L78 88 L58 76 L52 95 L48 95 L42 76 L22 88 L26 70 L5 62 L24 52 L12 35 L34 38 L32 20 L42 28 Z" fill="${state.primaryColor}" />
+                        <path d="M50 95 L50 40 M50 55 L32 40 M50 55 L68 40 M50 70 L28 60 M50 70 L72 60" stroke="${state.secondaryColor}" stroke-width="3" stroke-linecap="round" />
+                    </svg>
+                `;
+            } else if (state.presetType === 'oak_leaf') {
+                return `
+                    <svg class="hazard-pulse custom-spinner-img" width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 5 C60 12 70 12 68 25 C78 28 82 38 74 48 C85 55 80 70 65 75 C68 85 58 92 50 95 C42 92 32 85 35 75 C20 70 15 55 26 48 C18 38 22 28 32 25 C30 12 40 12 50 5 Z" fill="${state.primaryColor}" />
+                        <path d="M50 95 L50 20 M50 35 L35 28 M50 35 L65 28 M50 52 L30 46 M50 52 L70 46 M50 70 L34 65 M50 70 L66 65" stroke="${state.secondaryColor}" stroke-width="3" stroke-linecap="round" />
+                    </svg>
+                `;
+            } else if (state.presetType === 'snowflake') {
+                return `
+                    <svg class="custom-spinner-img" width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Main 6 Branches -->
+                        <g stroke="${state.primaryColor}" stroke-width="4" stroke-linecap="round">
+                            <line x1="50" y1="10" x2="50" y2="90" />
+                            <line x1="15" y1="30" x2="85" y2="70" />
+                            <line x1="15" y1="70" x2="85" y2="30" />
+                        </g>
+                        <!-- Branch Feathers -->
+                        <g stroke="${state.secondaryColor}" stroke-width="3" stroke-linecap="round">
+                            <!-- Vertical Feathers -->
+                            <path d="M50 25 L40 15 M50 25 L60 15 M50 75 L40 85 M50 75 L60 85" />
+                            <!-- Diagonal Feathers 1 -->
+                            <path d="M28 37 L20 25 M28 37 L30 48 M72 63 L80 75 M72 63 L70 52" />
+                            <!-- Diagonal Feathers 2 -->
+                            <path d="M28 63 L20 75 M28 63 L30 52 M72 37 L80 25 M72 37 L70 48" />
+                        </g>
+                        <circle cx="50" cy="50" r="8" fill="${state.primaryColor}" stroke="${state.secondaryColor}" stroke-width="2" />
+                    </svg>
+                `;
+            } else if (state.presetType === 'turkey') {
+                return `
+                    <svg class="hazard-pulse custom-spinner-img" width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Feather Fan Background -->
+                        <path d="M15 50 C10 20 30 10 35 30 C35 10 65 10 65 30 C70 10 90 20 85 50 Z" fill="${state.secondaryColor}" />
+                        <path d="M22 45 C18 25 35 18 40 35 C42 18 58 18 60 35 C65 18 82 25 78 45 Z" fill="${state.primaryColor}" />
+                        <!-- Body & Head -->
+                        <circle cx="50" cy="65" r="22" fill="${state.primaryColor}" />
+                        <circle cx="50" cy="45" r="12" fill="${state.primaryColor}" />
+                        <!-- Beak & Wattle -->
+                        <polygon points="50,47 62,50 50,54" fill="#f59e0b" />
+                        <path d="M48 52 C45 56 46 62 50 60" stroke="#ef4444" stroke-width="4" stroke-linecap="round" fill="none" />
+                        <!-- Eyes -->
+                        <circle cx="46" cy="42" r="2.5" fill="#ffffff" />
+                        <circle cx="46" cy="42" r="1" fill="#000000" />
+                    </svg>
+                `;
+            } else if (state.presetType === 'pilgrim_hat') {
+                return `
+                    <svg class="hazard-pulse custom-spinner-img" width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Wide Brim -->
+                        <ellipse cx="50" cy="78" rx="42" ry="10" fill="${state.primaryColor}" />
+                        <!-- Hat Crown -->
+                        <path d="M26 76 L32 25 C32 20 68 20 68 25 L74 76 Z" fill="${state.primaryColor}" />
+                        <!-- Hat Band -->
+                        <path d="M27 64 L29 76 L71 76 L73 64 Z" fill="${state.secondaryColor}" />
+                        <!-- Gold Buckle -->
+                        <rect x="42" y="62" width="16" height="14" rx="2" fill="#eab308" stroke="#78350f" stroke-width="2" />
+                        <rect x="46" y="65" width="8" height="8" rx="1" fill="${state.secondaryColor}" />
+                    </svg>
+                `;
+            } else if (state.presetType === 'feather_emblem') {
+                return `
+                    <svg class="hazard-pulse custom-spinner-img" width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Feather Blade -->
+                        <path d="M50 8 C68 28 65 65 50 88 C35 65 32 28 50 8 Z" fill="${state.primaryColor}" />
+                        <!-- Feather Vane Cuts -->
+                        <path d="M50 25 L65 32 M50 40 L63 48 M50 55 L60 63 M50 25 L35 32 M50 40 L37 48 M50 55 L40 63" stroke="${state.secondaryColor}" stroke-width="2.5" stroke-linecap="round" />
+                        <!-- Center Quill Shaft -->
+                        <line x1="50" y1="8" x2="50" y2="96" stroke="${state.secondaryColor}" stroke-width="3" stroke-linecap="round" />
+                        <!-- Hanging Native Decorative Beads -->
+                        <circle cx="50" cy="88" r="4" fill="#eab308" />
+                        <circle cx="50" cy="94" r="3" fill="#ef4444" />
+                    </svg>
+                `;
+            }
+
+            if (state.presetType === 'radioactive_trefoil') {
+                return `
+                    <svg class="hazard-pulse custom-spinner-img" width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="12" fill="${state.primaryColor}" />
+                        <path d="M50 38C43.3726 38 38 32.6274 38 26C38 19.3726 43.3726 14 50 14C56.6274 14 62 19.3726 62 26C62 32.6274 56.6274 38 50 38Z" fill="${state.primaryColor}" />
+                        <path d="M39.6077 56C36.294 61.7396 28.96 63.7047 23.2204 60.391 17.4808 57.0773 15.5157 49.7433 18.8294 44.0037 22.1431 38.2641 29.4771 36.299 35.2167 39.6127" fill="${state.primaryColor}" />
+                        <path d="M60.3923 56C63.706 61.7396 71.04 63.7047 76.7796 60.391 82.5192 57.0773 84.4843 49.7433 81.1706 44.0037 77.8569 38.2641 70.5229 36.299 64.7833 39.6127" fill="${state.primaryColor}" />
+                        <circle cx="50" cy="50" r="44" stroke="${state.primaryColor}" stroke-width="4" stroke-dasharray="8 6" />
+                    </svg>
+                `;
+            } else if (state.presetType === 'fusion_reactor') {
+                return `
+                    <svg class="custom-spinner-img" width="${size}" height="${size}" viewBox="0 0 100 100" fill="none">
+                        <circle cx="50" cy="50" r="20" fill="${state.primaryColor}" opacity="0.8" />
+                        <circle cx="50" cy="50" r="32" stroke="${state.primaryColor}" stroke-width="6" stroke-dasharray="20 10" />
+                        <circle cx="50" cy="50" r="42" stroke="${state.secondaryColor}" stroke-width="4" stroke-dasharray="12 12" />
+                    </svg>
+                `;
+            } else if (state.presetType === 'biohazard') {
+                return `
+                    <svg class="hazard-pulse custom-spinner-img" width="${size}" height="${size}" viewBox="0 0 100 100" fill="none">
+                        <circle cx="35" cy="40" r="18" stroke="${state.primaryColor}" stroke-width="5" />
+                        <circle cx="65" cy="40" r="18" stroke="${state.primaryColor}" stroke-width="5" />
+                        <circle cx="50" cy="65" r="18" stroke="${state.primaryColor}" stroke-width="5" />
+                        <circle cx="50" cy="48" r="8" fill="${state.primaryColor}" />
+                    </svg>
+                `;
+            }
+
+            // Default Bohr Model Atom
+            return `
+                <svg class="custom-spinner-img" width="${size}" height="${size}" viewBox="0 0 100 100" fill="none">
+                    <circle cx="50" cy="50" r="10" fill="${state.primaryColor}" />
+                    <ellipse cx="50" cy="50" rx="40" ry="14" stroke="${state.primaryColor}" stroke-width="3" transform="rotate(0 50 50)" />
+                    <ellipse cx="50" cy="50" rx="40" ry="14" stroke="${state.primaryColor}" stroke-width="3" transform="rotate(60 50 50)" />
+                    <ellipse cx="50" cy="50" rx="40" ry="14" stroke="${state.primaryColor}" stroke-width="3" transform="rotate(120 50 50)" />
+                </svg>
+            `;
+        }
+
+        function selectCategory(cat) {
+            state.category = cat;
+            document.querySelectorAll('.cat-tab').forEach(tab => {
+                tab.classList.remove('border-blue-500', 'text-blue-400', 'bg-blue-950/30');
+                tab.classList.add('border-transparent', 'text-slate-400');
+            });
+            const activeTab = document.getElementById(`tab-${cat}`);
+            if (activeTab) {
+                activeTab.classList.remove('border-transparent', 'text-slate-400');
+                activeTab.classList.add('border-blue-500', 'text-blue-400', 'bg-blue-950/30');
+            }
+
+            document.getElementById('category-badge').textContent = cat.toUpperCase().replace('-', ' ');
+            updatePreview();
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            document.getElementById('lbl-file-name').textContent = file.name.slice(0, 18) + '...';
+            document.getElementById('select-icon-preset').value = 'custom';
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                state.customImgUrl = evt.target.result;
+                updatePreview();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetSpinnerImage() {
+            document.getElementById('select-icon-preset').value = 'bohr_atom';
+            document.getElementById('lbl-file-name').textContent = 'Upload PNG / SVG / JPG';
+            state.presetType = 'bohr_atom';
+            state.customImgUrl = null;
+            updatePreview();
+        }
+
+        function updatePreview() {
+            state.text = document.getElementById('input-btn-text').value || 'Click Me';
+            state.primaryColor = document.getElementById('picker-primary').value;
+            state.secondaryColor = document.getElementById('picker-secondary').value;
+            state.textColor = document.getElementById('picker-text').value;
+            state.radius = document.getElementById('slider-radius').value;
+
+            // Spinner Parameters
+            state.spinSpeed = document.getElementById('slider-spin-speed').value;
+            state.spinSize = document.getElementById('slider-spin-size').value;
+            state.spinGlow = document.getElementById('slider-spin-glow').value;
+            state.spinDirection = document.getElementById('select-spin-direction').value;
+            state.spinEasing = document.getElementById('select-spin-easing').value;
+            state.shapeMask = document.getElementById('select-shape-mask').value;
+            state.dualRing = document.getElementById('chk-dual-ring').checked;
+            state.pulseScale = document.getElementById('chk-pulse-scale').checked;
+
+            document.getElementById('val-spin-speed').textContent = `${state.spinSpeed}s`;
+            document.getElementById('val-spin-size').textContent = `${state.spinSize}px`;
+            document.getElementById('val-spin-glow').textContent = `${state.spinGlow}px`;
+            document.getElementById('val-radius').textContent = `${state.radius}px`;
+
+            renderTargetButton();
+            renderCodeSnippet();
+        }
+
+        /* Helper function to sanitize HTML text input */
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        /* Category Specific JS Handlers */
+        function createRipple(event) {
+            const btn = event.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+            const radius = diameter / 2;
+            const rect = btn.getBoundingClientRect();
+
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - rect.left - radius}px`;
+            circle.style.top = `${event.clientY - rect.top - radius}px`;
+            circle.classList.add('ripple-effect-span');
+
+            const ripple = btn.getElementsByClassName('ripple-effect-span')[0];
+            if (ripple) {
+                ripple.remove();
+            }
+
+            btn.appendChild(circle);
+        }
+
+        function initTiltLogic() {
+            const btn = document.getElementById('tilt-target-btn');
+            if (!btn) return;
+
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                btn.style.transform = `perspective(500px) rotateX(${-y / 8}deg) rotateY(${x / 8}deg) scale(1.05)`;
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'perspective(500px) rotateX(0deg) rotateY(0deg) scale(1)';
+            });
+        }
+
+        function initMagneticLogic() {
+            const btn = document.getElementById('magnetic-target-btn');
+            if (!btn) return;
+
+            btn.parentElement.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const btnCenterX = rect.left + rect.width / 2;
+                const btnCenterY = rect.top + rect.height / 2;
+                const distX = e.clientX - btnCenterX;
+                const distY = e.clientY - btnCenterY;
+                const distance = Math.hypot(distX, distY);
+
+                if (distance < 120) {
+                    btn.style.transform = `translate(${distX * 0.3}px, ${distY * 0.3}px) scale(1.05)`;
+                } else {
+                    btn.style.transform = 'translate(0px, 0px) scale(1)';
+                }
+            });
+
+            btn.parentElement.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translate(0px, 0px) scale(1)';
+            });
+        }
+
+        function triggerParticleBurst(event) {
+            const btn = event.currentTarget;
+            const rect = btn.getBoundingClientRect();
+            const count = 16;
+
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                const angle = (i / count) * 360;
+                const dist = Math.random() * 60 + 30;
+                const size = Math.random() * 6 + 4;
+
+                p.style.cssText = `
+                    position: fixed;
+                    left: ${rect.left + rect.width / 2}px;
+                    top: ${rect.top + rect.height / 2}px;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${i % 2 === 0 ? state.primaryColor : state.secondaryColor};
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 100;
+                    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+                `;
+
+                document.body.appendChild(p);
+
+                setTimeout(() => {
+                    const rad = (angle * Math.PI) / 180;
+                    const tx = Math.cos(rad) * dist;
+                    const ty = Math.sin(rad) * dist;
+                    p.style.transform = `translate(${tx}px, ${ty}px) scale(0)`;
+                    p.style.opacity = '0';
+                }, 10);
+
+                setTimeout(() => p.remove(), 650);
+            }
+        }
+
+        function toggleLoaderState(btn) {
+            btn.classList.toggle('loading');
+            if (btn.classList.contains('loading')) {
+                setTimeout(() => btn.classList.remove('loading'), 3000);
+            }
+        }
+
+        function setCodeTab(tab) {
+            state.codeTab = tab;
+            document.getElementById('btn-code-css').className = tab === 'css' 
+                ? "px-2.5 py-0.5 bg-blue-600 text-white rounded text-[11px] font-medium"
+                : "px-2.5 py-0.5 text-slate-400 hover:text-white rounded text-[11px] font-medium";
+            document.getElementById('btn-code-js').className = tab === 'js'
+                ? "px-2.5 py-0.5 bg-blue-600 text-white rounded text-[11px] font-medium"
+                : "px-2.5 py-0.5 text-slate-400 hover:text-white rounded text-[11px] font-medium";
+            renderCodeSnippet();
+        }
+
+        function renderCodeSnippet() {
+            const out = document.getElementById('code-snippet-output');
+            if (!out) return;
+
+            if (state.codeTab === 'css') {
+                if (state.category === 'custom-spinner') {
+                    out.textContent = `/* CSS Custom Image / Atomic Spinner */
+.custom-spinner-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-spinner-img {
+    width: ${state.spinSize}px;
+    height: ${state.spinSize}px;
+    animation: custom-spin ${state.spinSpeed}s ${state.spinEasing} infinite ${state.spinDirection};
+    filter: drop-shadow(0 0 ${state.spinGlow}px ${state.primaryColor});
+}
+
+@keyframes custom-spin {
+    0% { transform: rotate(0deg) scale(${state.pulseScale ? 0.85 : 1}); }
+    50% { transform: rotate(180deg) scale(${state.pulseScale ? 1.15 : 1}); }
+    100% { transform: rotate(360deg) scale(${state.pulseScale ? 0.85 : 1}); }
+}`;
+                } else {
+                    out.textContent = `/* Button Style Rule */
+.custom-btn {
+    background: ${state.primaryColor};
+    color: ${state.textColor};
+    border-radius: ${state.radius}px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all ${state.duration}s ease;
+}`;
+                }
+            } else {
+                out.textContent = `// JavaScript Event Listener
+document.querySelector('.custom-btn').addEventListener('click', (e) => {
+    console.log('Button clicked with category: ${state.category}');
+});`;
+            }
+        }
+
+        function copyCodeSnippet() {
+            const text = document.getElementById('code-snippet-output').textContent;
+            navigator.clipboard.writeText(text).then(() => alert('Code snippet copied to clipboard!')).catch(() => alert('Copy unavailable. Select the code and copy it manually.'));
+        }
+
+        function randomizeCustomizer() {
+            const colors = ['#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#00f0ff', '#eab308'];
+            state.primaryColor = colors[Math.floor(Math.random() * colors.length)];
+            state.secondaryColor = colors[Math.floor(Math.random() * colors.length)];
+            document.getElementById('picker-primary').value = state.primaryColor;
+            document.getElementById('picker-secondary').value = state.secondaryColor;
+            updatePreview();
+        }
+
+        // Initialize App Engine on Window Load
+        window.onload = function() {
+            lucide.createIcons();
+            updatePreview();
+        };
+    </script>
+</body>
+</html>

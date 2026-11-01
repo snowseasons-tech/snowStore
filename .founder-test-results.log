@@ -1,0 +1,670 @@
+
+> snowseasonstech-net@0.1.0 test
+> node --test tests/*.test.js
+
+TAP version 13
+# Subtest: app access is counted per app and action
+ok 1 - app access is counted per app and action
+  ---
+  duration_ms: 3.347504
+  ...
+# Subtest: a store failure never reaches the download
+ok 2 - a store failure never reaches the download
+  ---
+  duration_ms: 1.553103
+  ...
+# Subtest: the last version is kept per account and app, and updatedAt moves only on a new version
+ok 3 - the last version is kept per account and app, and updatedAt moves only on a new version
+  ---
+  duration_ms: 10.980183
+  ...
+# Subtest: password hashes verify and reject wrong passwords
+ok 4 - password hashes verify and reject wrong passwords
+  ---
+  duration_ms: 216.487608
+  ...
+# Subtest: login -> me -> download -> logout
+ok 5 - login -> me -> download -> logout
+  ---
+  duration_ms: 165.555842
+  ...
+# Subtest: download refuses products the account does not own
+ok 6 - download refuses products the account does not own
+  ---
+  duration_ms: 83.159248
+  ...
+# Subtest: login rejects form posts and rate-limits per email
+ok 7 - login rejects form posts and rate-limits per email
+  ---
+  duration_ms: 308.637226
+  ...
+# download Invalid URL
+# download Invalid URL
+# download Invalid URL
+# download Invalid URL
+# download Invalid URL
+# download Invalid URL
+# download Invalid URL
+# download Invalid URL
+# download Invalid URL
+# download Invalid URL
+# download Invalid URL
+# download Invalid URL
+# Subtest: in-memory store honours TTLs
+ok 8 - in-memory store honours TTLs
+  ---
+  duration_ms: 1102.260393
+  ...
+# Subtest: session download: failed checks do not use up the allowance; removed products return 410
+ok 9 - session download: failed checks do not use up the allowance; removed products return 410
+  ---
+  duration_ms: 2.97763
+  ...
+# Subtest: remote incr increments and sets the TTL in one atomic call
+ok 10 - remote incr increments and sets the TTL in one atomic call
+  ---
+  duration_ms: 0.774736
+  ...
+# Subtest: download with broken bucket config does not use up the allowance
+ok 11 - download with broken bucket config does not use up the allowance
+  ---
+  duration_ms: 3.839108
+  ...
+# Subtest: only failed sign-ins count, and one IP cannot lock out another
+ok 12 - only failed sign-ins count, and one IP cannot lock out another
+  ---
+  duration_ms: 645.008845
+  ...
+# Subtest: billing portal: session_id only triggers an email to the buyer; the emailed link opens Stripe
+ok 13 - billing portal: session_id only triggers an email to the buyer; the emailed link opens Stripe
+  ---
+  duration_ms: 47.357073
+  ...
+# Subtest: changing the password ends existing sessions
+ok 14 - changing the password ends existing sessions
+  ---
+  duration_ms: 87.665118
+  ...
+# Subtest: matches handles basenames, directory prefixes and exact paths
+ok 15 - matches handles basenames, directory prefixes and exact paths
+  ---
+  duration_ms: 2.389927
+  ...
+# Subtest: mentions does not treat part of a longer name as a reference
+ok 16 - mentions does not treat part of a longer name as a reference
+  ---
+  duration_ms: 2.434624
+  ...
+# Subtest: imports matches quoted module paths and manifest names, not prose
+ok 17 - imports matches quoted module paths and manifest names, not prose
+  ---
+  duration_ms: 0.504734
+  ...
+# Subtest: large files use a lower bar for images and ignored names are skipped
+ok 18 - large files use a lower bar for images and ignored names are skipped
+  ---
+  duration_ms: 116.775151
+  ...
+# Subtest: committed junk is found and an ignore gap is reported only when no rule covers it
+ok 19 - committed junk is found and an ignore gap is reported only when no rule covers it
+  ---
+  duration_ms: 136.025932
+  ...
+# Subtest: duplicates group identical content only, and skip tiny files
+ok 20 - duplicates group identical content only, and skip tiny files
+  ---
+  duration_ms: 58.420086
+  ...
+# Subtest: unused dependencies: scripts, imports and scoped names count as references; @types are skipped
+ok 21 - unused dependencies: scripts, imports and scoped names count as references; @types are skipped
+  ---
+  duration_ms: 44.760698
+  ...
+# Subtest: a package only searches its own directory, so a nested package is not satisfied by the parent
+ok 22 - a package only searches its own directory, so a nested package is not satisfied by the parent
+  ---
+  duration_ms: 50.461253
+  ...
+# Subtest: unreferenced assets and modules are listed; referenced and ignored ones are not
+ok 23 - unreferenced assets and modules are listed; referenced and ignored ones are not
+  ---
+  duration_ms: 44.433638
+  ...
+# Subtest: growth compares with the previous run and lists large files added since
+ok 24 - growth compares with the previous run and lists large files added since
+  ---
+  duration_ms: 98.389128
+  ...
+# Subtest: scanning is read-only: the repo is unchanged afterwards
+ok 25 - scanning is read-only: the repo is unchanged afterwards
+  ---
+  duration_ms: 49.793512
+  ...
+# Subtest: the markdown report has the main sections and flags the growth alert
+ok 26 - the markdown report has the main sections and flags the growth alert
+  ---
+  duration_ms: 43.481509
+  ...
+# Subtest: a good answer becomes the draft, cleaned of thinking
+ok 27 - a good answer becomes the draft, cleaned of thinking
+  ---
+  duration_ms: 19.558846
+  ...
+# Subtest: drafts ask for a low temperature
+ok 28 - drafts ask for a low temperature
+  ---
+  duration_ms: 1.259705
+  ...
+# Subtest: unsupported causes are removed, sourced ones stay
+ok 29 - unsupported causes are removed, sourced ones stay
+  ---
+  duration_ms: 0.636173
+  ...
+# Subtest: model output loses HTML, links, images and template tags
+ok 30 - model output loses HTML, links, images and template tags
+  ---
+  duration_ms: 0.649233
+  ...
+# Subtest: scraped text sits inside the data markers
+ok 31 - scraped text sits inside the data markers
+  ---
+  duration_ms: 0.48902
+  ...
+# Subtest: every failure returns null so the normal post is kept
+ok 32 - every failure returns null so the normal post is kept
+  ---
+  duration_ms: 1.015055
+  ...
+# Subtest: the six draft bundles are valid and not on sale
+ok 33 - the six draft bundles are valid and not on sale
+  ---
+  duration_ms: 6.665604
+  ...
+# Subtest: checkout refuses a draft bundle
+ok 34 - checkout refuses a draft bundle
+  ---
+  duration_ms: 284.273384
+  ...
+# Subtest: a bundle unlocks only software that exists
+ok 35 - a bundle unlocks only software that exists
+  ---
+  duration_ms: 0.795897
+  ...
+# Subtest: every bundle stays blocked until its software exists
+ok 36 - every bundle stays blocked until its software exists
+  ---
+  duration_ms: 0.228726
+  ...
+# Subtest: the validator rejects bad bundles
+ok 37 - the validator rejects bad bundles
+  ---
+  duration_ms: 1.18784
+  ...
+# Subtest: createBundle makes one product with a monthly price
+ok 38 - createBundle makes one product with a monthly price
+  ---
+  duration_ms: 0.960161
+  ...
+# Subtest: createBundle reuses a product and refuses a different price
+ok 39 - createBundle reuses a product and refuses a different price
+  ---
+  duration_ms: 1.116114
+  ...
+# Subtest: sigv4 matches AWS documented presign example
+ok 40 - sigv4 matches AWS documented presign example
+  ---
+  duration_ms: 4.693251
+  ...
+# Subtest: fulfilment is idempotent and records order
+ok 41 - fulfilment is idempotent and records order
+  ---
+  duration_ms: 2.171048
+  ...
+# Subtest: unpaid sessions are not fulfilled
+ok 42 - unpaid sessions are not fulfilled
+  ---
+  duration_ms: 0.385377
+  ...
+# Subtest: bad product releases claim so retry works
+ok 43 - bad product releases claim so retry works
+  ---
+  duration_ms: 1.082311
+  ...
+# Subtest: webhook signature verifies on raw body only
+ok 44 - webhook signature verifies on raw body only
+  ---
+  duration_ms: 12.074856
+  ...
+# Subtest: subscription checkout records order+sub and emails once
+ok 45 - subscription checkout records order+sub and emails once
+  ---
+  duration_ms: 1.247063
+  ...
+# Subtest: new-order notice goes to ORDER_NOTIFY_EMAIL when set
+ok 46 - new-order notice goes to ORDER_NOTIFY_EMAIL when set
+  ---
+  duration_ms: 1.482704
+  ...
+# Subtest: subscription updates apply, stale ones are ignored, delete cancels
+ok 47 - subscription updates apply, stale ones are ignored, delete cancels
+  ---
+  duration_ms: 1.00863
+  ...
+# Subtest: mail failure releases claims so Stripe retry re-sends
+ok 48 - mail failure releases claims so Stripe retry re-sends
+  ---
+  duration_ms: 1.391423
+  ...
+# Subtest: mail module skips without config
+ok 49 - mail module skips without config
+  ---
+  duration_ms: 0.606142
+  ...
+# Subtest: presigned PUT signs the PUT method for the configured bucket
+ok 50 - presigned PUT signs the PUT method for the configured bucket
+  ---
+  duration_ms: 2.396701
+  ...
+# Subtest: a stuck lease makes Stripe retry instead of being treated as handled, then expires
+ok 51 - a stuck lease makes Stripe retry instead of being treated as handled, then expires
+  ---
+  duration_ms: 1104.175547
+  ...
+# Subtest: a failed release does not block the retry for long
+ok 52 - a failed release does not block the retry for long
+  ---
+  duration_ms: 0.678985
+  ...
+# Subtest: a same-second update after deletion cannot reactivate a canceled subscription
+ok 53 - a same-second update after deletion cannot reactivate a canceled subscription
+  ---
+  duration_ms: 0.528829
+  ...
+# Subtest: login -> me -> logout through Pages Functions
+ok 54 - login -> me -> logout through Pages Functions
+  ---
+  duration_ms: 297.663818
+  ...
+# me Persistent store not configured
+# login Persistent store not configured
+# Subtest: login is rate limited per ip and email after repeated failures
+ok 55 - login is rate limited per ip and email after repeated failures
+  ---
+  duration_ms: 376.87403
+  ...
+# Subtest: me and login fail closed (500) without a persistent store
+ok 56 - me and login fail closed (500) without a persistent store
+  ---
+  duration_ms: 1.369353
+  ...
+# Subtest: forgotten password: reset email -> set password -> signed in, link used up
+ok 57 - forgotten password: reset email -> set password -> signed in, link used up
+  ---
+  duration_ms: 165.770391
+  ...
+# Subtest: invited account without a password cannot sign in until the link is used
+ok 58 - invited account without a password cannot sign in until the link is used
+  ---
+  duration_ms: 67.953323
+  ...
+# Subtest: password reset is unavailable (503) without email settings
+ok 59 - password reset is unavailable (503) without email settings
+  ---
+  duration_ms: 0.590637
+  ...
+# checkout Live Stripe key refused: set ALLOW_LIVE=1 only for the production deployment
+# Subtest: checkout function rejects non-POST
+ok 60 - checkout function rejects non-POST
+  ---
+  duration_ms: 284.386176
+  ...
+# Subtest: checkout function validates the request
+ok 61 - checkout function validates the request
+  ---
+  duration_ms: 7.349478
+  ...
+# Subtest: checkout function creates a session through Stripe
+ok 62 - checkout function creates a session through Stripe
+  ---
+  duration_ms: 23.824537
+  ...
+# Subtest: checkout function uses the chosen billing period
+ok 63 - checkout function uses the chosen billing period
+  ---
+  duration_ms: 16.521293
+  ...
+# Subtest: checkout function refuses a live key without ALLOW_LIVE
+ok 64 - checkout function refuses a live key without ALLOW_LIVE
+  ---
+  duration_ms: 2.232367
+  ...
+# Subtest: checkout function applies a valid launch coupon instead of promo-code entry
+ok 65 - checkout function applies a valid launch coupon instead of promo-code entry
+  ---
+  duration_ms: 5.390814
+  ...
+# Subtest: checkout function falls back to promo codes when the launch coupon is expired
+ok 66 - checkout function falls back to promo codes when the launch coupon is expired
+  ---
+  duration_ms: 3.913278
+  ...
+# Subtest: automatic tax collects the full billing address so Stripe can locate the customer
+ok 67 - automatic tax collects the full billing address so Stripe can locate the customer
+  ---
+  duration_ms: 7.311764
+  ...
+# Subtest: Founder checkout enforces published price and requires membership terms
+ok 68 - Founder checkout enforces published price and requires membership terms
+  ---
+  duration_ms: 8.674413
+  ...
+# Subtest: order reports readiness from the webhook-written order only
+ok 69 - order reports readiness from the webhook-written order only
+  ---
+  duration_ms: 88.826838
+  ...
+# Subtest: download signs a URL, counts downloads, and enforces the limit
+ok 70 - download signs a URL, counts downloads, and enforces the limit
+  ---
+  duration_ms: 36.419073
+  ...
+# Subtest: download requires an active subscription for subscription orders
+ok 71 - download requires an active subscription for subscription orders
+  ---
+  duration_ms: 3.564077
+  ...
+# Subtest: app-download needs a session and entitlement
+ok 72 - app-download needs a session and entitlement
+  ---
+  duration_ms: 101.168833
+  ...
+# Subtest: products reads display prices from Stripe
+ok 73 - products reads display prices from Stripe
+  ---
+  duration_ms: 172.925994
+  ...
+# Subtest: products files each active price under its billing period
+ok 74 - products files each active price under its billing period
+  ---
+  duration_ms: 3.51051
+  ...
+# Subtest: products shows the launch discount while the coupon is valid
+ok 75 - products shows the launch discount while the coupon is valid
+  ---
+  duration_ms: 3.701592
+  ...
+# Subtest: portal emails a link, then redeems it for a Stripe billing portal session
+ok 76 - portal emails a link, then redeems it for a Stripe billing portal session
+  ---
+  duration_ms: 17.906011
+  ...
+# Subtest: portal answers other methods with 405 and its Allow list
+ok 77 - portal answers other methods with 405 and its Allow list
+  ---
+  duration_ms: 0.782348
+  ...
+# Subtest: kit signup records the subscriber and returns a signed download URL
+ok 78 - kit signup records the subscriber and returns a signed download URL
+  ---
+  duration_ms: 6.457271
+  ...
+# Subtest: kit signup is rate limited per IP
+ok 79 - kit signup is rate limited per IP
+  ---
+  duration_ms: 12.683162
+  ...
+# Subtest: intake saves getting-started details for a real order and emails the shop
+ok 80 - intake saves getting-started details for a real order and emails the shop
+  ---
+  duration_ms: 6.49715
+  ...
+# Subtest: webhook function rejects non-POST
+ok 81 - webhook function rejects non-POST
+  ---
+  duration_ms: 197.668647
+  ...
+# Subtest: webhook function rejects bad or missing signatures
+ok 82 - webhook function rejects bad or missing signatures
+  ---
+  duration_ms: 26.12891
+  ...
+# Subtest: webhook function fulfils once and is idempotent
+ok 83 - webhook function fulfils once and is idempotent
+  ---
+  duration_ms: 14.97692
+  ...
+# webhook evt_f2 persistent store not configured
+# Subtest: webhook function returns 503 so Stripe retries when the store is missing
+ok 84 - webhook function returns 503 so Stripe retries when the store is missing
+  ---
+  duration_ms: 5.230252
+  ...
+# Subtest: new paying subscribers get a server and other plans do not
+ok 85 - new paying subscribers get a server and other plans do not
+  ---
+  duration_ms: 28.627717
+  ...
+# Subtest: a bundle gets one server per product from one subscription
+ok 86 - a bundle gets one server per product from one subscription
+  ---
+  duration_ms: 2.767482
+  ...
+# Subtest: a canceled subscription stops the server, and a past due one does not
+ok 87 - a canceled subscription stops the server, and a past due one does not
+  ---
+  duration_ms: 0.425884
+  ...
+# Subtest: plan changes update the limit and a new subscription restarts the server
+ok 88 - plan changes update the limit and a new subscription restarts the server
+  ---
+  duration_ms: 0.444392
+  ...
+# Subtest: nothing is stopped when a subscription is missing, and old servers are only flagged
+ok 89 - nothing is stopped when a subscription is missing, and old servers are only flagged
+  ---
+  duration_ms: 0.540841
+  ...
+# Subtest: apply records each step and a welcome is retried until it sends
+ok 90 - apply records each step and a welcome is retried until it sends
+  ---
+  duration_ms: 1.282333
+  ...
+# Subtest: the relay only sends a sign-in back to a subscriber server
+ok 91 - the relay only sends a sign-in back to a subscriber server
+  ---
+  duration_ms: 11.061966
+  ...
+# Subtest: subscriber.sh creates, limits and deletes a server
+ok 92 - subscriber.sh creates, limits and deletes a server
+  ---
+  duration_ms: 241.942421
+  ...
+# Subtest: subscriber.sh runs MailHub with its own image, domain and limit
+ok 93 - subscriber.sh runs MailHub with its own image, domain and limit
+  ---
+  duration_ms: 132.056503
+  ...
+# Subtest: the compose file is valid
+ok 94 - the compose file is valid
+  ---
+  duration_ms: 75.461687
+  ...
+# Subtest: every app has a known group and status, and only unfinished apps lack a link
+ok 95 - every app has a known group and status, and only unfinished apps lack a link
+  ---
+  duration_ms: 19.3561
+  ...
+# Subtest: search matches every word, and pinned apps come first
+ok 96 - search matches every word, and pinned apps come first
+  ---
+  duration_ms: 2.172794
+  ...
+# Subtest: recent apps stay unique and short
+ok 97 - recent apps stay unique and short
+  ---
+  duration_ms: 0.756228
+  ...
+# Subtest: a membership unlocks the files of the products it includes
+ok 98 - a membership unlocks the files of the products it includes
+  ---
+  duration_ms: 3.049426
+  ...
+# Subtest: the validator checks memberships
+ok 99 - the validator checks memberships
+  ---
+  duration_ms: 1.201388
+  ...
+# Subtest: the order lists one download per included product for a membership
+ok 100 - the order lists one download per included product for a membership
+  ---
+  duration_ms: 98.800416
+  ...
+# Subtest: membership downloads need a chosen product and an active membership, and count per product
+ok 101 - membership downloads need a chosen product and an active membership, and count per product
+  ---
+  duration_ms: 56.416933
+  ...
+# Subtest: a membership purchase email points to the downloads, not the getting-started form
+ok 102 - a membership purchase email points to the downloads, not the getting-started form
+  ---
+  duration_ms: 5.3795
+  ...
+# Subtest: dist contains only the public site
+ok 103 - dist contains only the public site
+  ---
+  duration_ms: 22.737547
+  ...
+# Subtest: dist is rebuilt from scratch and fails on a missing index
+ok 104 - dist is rebuilt from scratch and fails on a missing index
+  ---
+  duration_ms: 0.987189
+  ...
+# Subtest: security headers match across Functions and pages/_headers
+ok 105 - security headers match across Functions and pages/_headers
+  ---
+  duration_ms: 73.66994
+  ...
+# Subtest: flags catalog products that are not on sale or have no Stripe product
+ok 106 - flags catalog products that are not on sale or have no Stripe product
+  ---
+  duration_ms: 4.191032
+  ...
+# Subtest: skips price checks and reports an error when live prices could not load
+ok 107 - skips price checks and reports an error when live prices could not load
+  ---
+  duration_ms: 0.338306
+  ...
+# Subtest: flags a catalog kind that disagrees with the Stripe price, and mixed one-time plus recurring prices
+ok 108 - flags a catalog kind that disagrees with the Stripe price, and mixed one-time plus recurring prices
+  ---
+  duration_ms: 0.938232
+  ...
+# Subtest: flags tiers out of order, a missing numbered tier, and prepay options with no saving
+ok 109 - flags tiers out of order, a missing numbered tier, and prepay options with no saving
+  ---
+  duration_ms: 25.232792
+  ...
+# Subtest: flags billing periods missing from some plans in a family
+ok 110 - flags billing periods missing from some plans in a family
+  ---
+  duration_ms: 0.93418
+  ...
+# Subtest: flags identical copy on products with different prices, but not a shared notes list
+ok 111 - flags identical copy on products with different prices, but not a shared notes list
+  ---
+  duration_ms: 1.459029
+  ...
+# Subtest: flags pages that reference unknown, unsold or icon-less products
+ok 112 - flags pages that reference unknown, unsold or icon-less products
+  ---
+  duration_ms: 0.475611
+  ...
+# Subtest: on-sale products without a DETAILS entry are flagged; errors sort first
+ok 113 - on-sale products without a DETAILS entry are flagged; errors sort first
+  ---
+  duration_ms: 0.389987
+  ...
+# Subtest: tierOf reads numbered and named tiers
+ok 114 - tierOf reads numbered and named tiers
+  ---
+  duration_ms: 0.548594
+  ...
+# Subtest: reads DETAILS and the homepage PRODUCTS list from this repo
+ok 115 - reads DETAILS and the homepage PRODUCTS list from this repo
+  ---
+  duration_ms: 4.593869
+  ...
+# Subtest: agent facts carry prices, savings and copy for each product on sale
+ok 116 - agent facts carry prices, savings and copy for each product on sale
+  ---
+  duration_ms: 1.143003
+  ...
+# Subtest: agent findings that name unknown products are marked unverified
+ok 117 - agent findings that name unknown products are marked unverified
+  ---
+  duration_ms: 0.508855
+  ...
+# Subtest: every agent Modelfile parses, uses a Qwen model and asks for a focused review
+ok 118 - every agent Modelfile parses, uses a Qwen model and asks for a focused review
+  ---
+  duration_ms: 1.614283
+  ...
+# Subtest: report lists rule checks and agent results; options parse
+ok 119 - report lists rule checks and agent results; options parse
+  ---
+  duration_ms: 1.347355
+  ...
+# Subtest: agent findings that only restate a rule check are recognised
+ok 120 - agent findings that only restate a rule check are recognised
+  ---
+  duration_ms: 0.605234
+  ...
+# Subtest: homepage features without a title are passed to agents as terms, not as what the plan includes
+ok 121 - homepage features without a title are passed to agents as terms, not as what the plan includes
+  ---
+  duration_ms: 0.929641
+  ...
+# Subtest: runAgent reads a streamed Ollama reply, even when lines arrive split across chunks
+ok 122 - runAgent reads a streamed Ollama reply, even when lines arrive split across chunks
+  ---
+  duration_ms: 113.775659
+  ...
+# Subtest: current store catalog is valid
+ok 123 - current store catalog is valid
+  ---
+  duration_ms: 5.470222
+  ...
+# Subtest: validates required fields, supported options, and safe deliverables
+ok 124 - validates required fields, supported options, and safe deliverables
+  ---
+  duration_ms: 0.718235
+  ...
+# Subtest: reports invalid catalog fields and duplicate identifiers
+ok 125 - reports invalid catalog fields and duplicate identifiers
+  ---
+  duration_ms: 0.97364
+  ...
+# Subtest: rejects non-object catalogs and non-object product values
+ok 126 - rejects non-object catalogs and non-object product values
+  ---
+  duration_ms: 0.382514
+  ...
+# Subtest: rejects duplicate Stripe products and deliverable object keys
+ok 127 - rejects duplicate Stripe products and deliverable object keys
+  ---
+  duration_ms: 0.412196
+  ...
+# Subtest: reports invalid object keys without throwing
+ok 128 - reports invalid object keys without throwing
+  ---
+  duration_ms: 0.268535
+  ...
+1..128
+# tests 128
+# suites 0
+# pass 128
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2754.289102

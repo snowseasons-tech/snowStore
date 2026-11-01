@@ -1,0 +1,4 @@
+Local Launch 1.0 — Snow Seasons Tech
+Copyright 2026 Snow Seasons Tech. All rights reserved.
+A purchase licenses one business to run and modify this builder for its own business websites. The business may publish and modify generated website output and retains its own content. The builder source, package and modified builder may not be redistributed, resold, sublicensed or offered as a competing hosted service. Agency resale requires separate permission.
+Third-party hosting, domains and services are separate. No ranking, revenue or uptime guarantee. Support and refund terms are described in README.md and the storefront policies. This license does not limit rights required by law.

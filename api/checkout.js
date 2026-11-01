@@ -19,6 +19,9 @@ module.exports = async (req, res) => {
     const stripe = stripeClient();
     const chosen = (await prices.activePricesFor(stripe, product.stripeProduct))[period];
     if (!chosen) return send(res, period === '1m' ? 503 : 400, { error: period === '1m' ? 'Checkout not configured' : 'That billing period is not available' });
+    if (body.productId === 'founders-membership' && (period !== '1m' || chosen.unit_amount !== 2900 || chosen.currency !== 'usd' || chosen.recurring?.interval !== 'month' || (chosen.recurring.interval_count || 1) !== 1)) {
+      return send(res, 503, { error: 'Membership price does not match published terms' });
+    }
     const price = chosen.id;
     const isSub = !!chosen.recurring; // checkout mode follows the price itself
     const launch = await launchDiscount(stripe);
@@ -28,6 +31,10 @@ module.exports = async (req, res) => {
       metadata: { product_id: body.productId, ...(period !== '1m' ? { period } : {}) },
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/cancel`,
+      ...(body.productId === 'founders-membership' ? {
+        consent_collection: { terms_of_service: 'required' },
+        custom_text: { terms_of_service_acceptance: { message: `I agree to the [Founders membership terms](${site}/terms#founders): $29 USD/month plus tax, renewing until canceled.` } },
+      } : {}),
       // Stripe Tax needs a location it recognizes. Checkout asks only for country and postal code by default, which
       // can fail with customer_tax_location_invalid, so collect the full billing address (also saved for renewals).
       ...(process.env.STRIPE_AUTOMATIC_TAX === 'true' ? { automatic_tax: { enabled: true }, billing_address_collection: 'required' } : {}),

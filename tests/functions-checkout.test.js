@@ -114,3 +114,27 @@ test('automatic tax collects the full billing address so Stripe can locate the c
     assert.doesNotMatch(s.calls.session, /automatic_tax|billing_address_collection/);
   } finally { s.restore(); }
 });
+
+ test('Founder checkout enforces published price and requires membership terms', async () => {
+  const { onRequestPost } = await load();
+  const founder = price('price_founder', 'prod_VWva1qZT0oarCt', { interval: 'month', interval_count: 1 });
+  founder.unit_amount = 2900;
+  PRICES.push(founder);
+  const s = fakeStripe();
+  try {
+    const request = () => post(JSON.stringify({ productId: 'founders-membership' }));
+    assert.strictEqual((await onRequestPost({ request: request(), env: ENV })).status, 200);
+    const body = new URLSearchParams(s.calls.session);
+    assert.strictEqual(body.get('mode'), 'subscription');
+    assert.strictEqual(body.get('line_items[0][price]'), 'price_founder');
+    assert.strictEqual(body.get('consent_collection[terms_of_service]'), 'required');
+    assert.match(body.get('custom_text[terms_of_service_acceptance][message]'), /terms#founders/);
+    founder.unit_amount = 3900;
+    s.calls.session = null;
+    assert.strictEqual((await onRequestPost({ request: request(), env: ENV })).status, 503);
+    assert.strictEqual(s.calls.session, null);
+    founder.unit_amount = 2900;
+    founder.recurring = null;
+    assert.strictEqual((await onRequestPost({ request: request(), env: ENV })).status, 503);
+  } finally { s.restore(); PRICES.pop(); }
+ });

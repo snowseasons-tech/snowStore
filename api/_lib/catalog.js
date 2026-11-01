@@ -12,6 +12,16 @@
 // that customers can't use yet; a bundle with pending parts can't be created in Stripe.
 // socialAccounts (optional) = this plan gets a hosted Social Studio server with this account limit (see hosted/README.md).
 module.exports = {
+  'local-seo-platform': {
+    name: 'Local Launch — Local SEO Website Platform',
+    stripeProduct: 'prod_VY9TUAccTT6xMm',
+    fileKey: 'local-seo-platform/local-launch-v1.0.0.zip',
+    filename: 'local-launch-v1.0.0.zip',
+    category: 'utilities',
+    blurb: 'Build and export a local-service business website with editable pages, content SEO checks, a Business Profile checklist and manual keyword reports. Downloadable software; hosting is separate.',
+    version: '1.0.0',
+    sha256: 'c659355c1d3cfe2941c6bfb57692b2370c42a0899520e350aab3a777f86c5514',
+  },
   bookscan: {
     name: 'BookScan Live',
     stripeProduct: 'prod_VWvuAv0KIRcIeq',

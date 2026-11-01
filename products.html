@@ -128,7 +128,7 @@ footer a{color:inherit;margin:0 .5rem}
 <div><dt><span class="rel rel-beta">Public Beta</span></dt><dd>A working application with documented limitations.</dd></div>
 <div><dt><span class="rel rel-mvp">MVP · Early Access</span></dt><dd>Core workflows in place; testing and features still limited.</dd></div>
 <div><dt><span class="rel rel-dev">Development</span></dt><dd>Not ready to buy yet. Ask for early access to hear when it is.</dd></div>
-<div><dt>Updates</dt><dd>Buy during early access and every update is free until the product reaches Production.</dd></div>
+<div><dt>Updates</dt><dd>Individual early-access purchases include updates until Production. Membership updates require an active subscription; see the <a href="/terms#founders">membership terms</a>.</dd></div>
 <div><dt>Refunds</dt><dd>Downloadable products can be refunded within 14 days if they don't work as described and we can't fix them. Monthly plans can be cancelled any time and stop at the end of the month you've paid for. See the <a href="/refund">refund policy</a>.</dd></div>
 </dl>
 <div class="grid" id="grid-early"></div>
@@ -141,7 +141,8 @@ footer a{color:inherit;margin:0 .5rem}
 // Category, order and one-line summary for each product. Prices and what is on sale come from Stripe via /api/products;
 // a product sold there but missing from this list still appears, under "Other".
 const DETAILS={
- "founders-membership":{membership:true,icon:"managed-tech",category:"Membership",blurb:"One monthly membership for every MVP / Early Access app: download them all while you're a member, get every update free until each app reaches Production, and get first access to new apps as they open.",includes:["All eight early-access products: GBP Analytics Dashboard, Lead Generation Pipeline, Page Builder, Auto Scheduler, Auto Blogger, Invoice & Biller, BookScan Live and the SaaS Financial Projection Engine", "New early-access apps as they launch", "Free updates until each app reaches Production", "Cancel any time. You keep the files you've downloaded; new downloads and updates stop when your membership ends."]},
+ "local-seo-platform":{icon:"website-primary",category:"Website Tools",blurb:"Build an SEO-ready website for your local service business. Downloadable builder, two styles, editable pages and complete website ZIP export.",includes:["Homepage, service pages, meaningful service-area pages, about and contact", "Editable search titles, descriptions, canonical URLs, JSON-LD, sitemap and robots.txt", "Content checks, manual Business Profile checklist, keyword observations and report exports", "$99 USD one-time plus tax. One business license. No hosting, live rank tracking or call tracking included."]},
+ "founders-membership":{membership:true,icon:"managed-tech",category:"Membership",blurb:"$29 USD/month for eight downloadable early-access products. Access after payment confirmation; downloaded files remain yours to use for your business.",includes:["GBP Analytics Dashboard, Lead Generation Pipeline, Page Builder, Auto Scheduler, Auto Blogger, Invoice & Biller, BookScan Live, SaaS Financial Projection Engine", "10 downloads per product per membership purchase; no monthly reset or automatic overage fees", "Updates through each app’s first Production release while subscribed; future early-access apps included when added", "Cancel any time; access ends after the paid period. See membership terms for refunds and support."]},
  "business-launch":{icon:"managed-tech",category:"Bundles",blurb:"Website tools, online booking and invoicing for a new business. Self-serve software you run yourself, with no managed services. Downloads are available while you subscribe, and any license you already own is unaffected."},
  "marketing-automation":{icon:"managed-tech",category:"Bundles",blurb:"Automated blogging, social media tools for three accounts and MailHub email marketing. Self-serve software you run yourself, with no managed services. Downloads are available while you subscribe, and any license you already own is unaffected."},
  "lead-generation-pro":{icon:"managed-tech",category:"Bundles",blurb:"Find leads, organize them and connect them to your CRM. Self-serve software you run yourself, with no managed services. Downloads are available while you subscribe, and any license you already own is unaffected."},
@@ -243,7 +244,7 @@ function buildCard(p){
  const d=DETAILS[p.id]||{category:"Other"},recurring=!!p.interval;
  const opts=[{period:"1m",amount:p.amount,interval:p.interval,intervalCount:1,discount:p.discount},...(p.periods||[])].sort((a,b)=>perMonths(a)-perMonths(b));
  const base=opts.find((o)=>o.period==="1m"),state={period:"1m"};
- const art=el("article",d.membership?"card member":"card");art.dataset.cat=d.category;
+ const art=el("article",d.membership?"card member":"card");art.dataset.cat=d.category;art.id=p.id;
  art.append(cardTop(d.icon,d.category));
  if(d.release)art.append(relPill(d.release));
  art.append(el("h2",null,p.name));
@@ -267,6 +268,10 @@ function buildCard(p){
  const buy=el("button","btn",recurring?"Subscribe":"Buy now");buy.type="button";
  buy.addEventListener("click",()=>checkout(p.id,state.period,buy));
  art.append(el("div","actions"));art.lastChild.append(buy);
+ if(d.membership){
+  const terms=el("p","terms","$29 USD/month + tax, auto-renewing. Price locked while continuously subscribed. Cancel at period end. 10 downloads/product; downloaded files remain usable. ");
+  const link=el("a",null,"Membership terms, refunds and support");link.href="/terms#founders";terms.append(link);art.append(terms);
+ }
  return makeFlipCard(art);
 }
 // Full service description, folded so long copy doesn't stretch the grid row: intro, list, coverage, then terms.
@@ -317,6 +322,16 @@ function soonCard(m){
 const gridProd=$("#grid-production"),gridEarly=$("#grid-early"),status=$("#status");
 const sections=[$("#production"),$("#early-access")];
 gridProd.append(kitCard());
+const careCard=el("article","card");careCard.dataset.cat="Website Tools";careCard.id="local-launch-care";
+careCard.append(cardTop("website-primary","Managed add-on"),el("h2",null,"Local Launch Care"),el("p",null,"Managed static hosting and weekly automated organic rank tracking after verified setup. $49/month for one site and 10 keywords in one location."),el("p","soon-status","Setup by request · tracking not yet connected · billing starts after verification"));
+const careLink=el("a","btn alt","View service & request setup");careLink.href="/local-launch-care";
+const careActions=el("div","actions");careActions.append(careLink);careCard.append(careActions);gridProd.append(makeFlipCard(careCard));
+
+const spinnerCard=el("article","card");spinnerCard.dataset.cat="Free";
+spinnerCard.append(cardTop("website-primary","Free tool"),el("h2",null,"Spinner & Button Studio"),el("p",null,"Customize atomic spinners, upload your own image, and preview animated buttons. Adjust colors, speed and size, then copy starter CSS snippets."),el("div","price","Free"));
+const spinnerLink=el("a","btn","Open free tool");spinnerLink.href="/spinner-studio";
+const spinnerActions=el("div","actions");spinnerActions.append(spinnerLink);spinnerCard.append(spinnerActions);
+gridProd.append(makeFlipCard(spinnerCard));
 fetch("/api/products").then((r)=>{if(!r.ok)throw new Error(r.status);return r.json()}).then((d)=>{
  const list=[...d.products].sort((a,b)=>rank(a.id)-rank(b.id));
  // The membership leads Founder's Early Access; labelled products follow it there; the rest are Production.
