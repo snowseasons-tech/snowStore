@@ -1,6 +1,7 @@
 const CATALOG = require('./_lib/catalog');
 const store = require('./_lib/store');
 const { downloadsFor, isMembership } = require('./_lib/entitlements');
+const { logAccess } = require('./_lib/access-log');
 const { presignFromEnv } = require('./_lib/sigv4');
 const { send, allow } = require('./_lib/http');
 
@@ -34,6 +35,7 @@ module.exports = async (req, res) => {
     // A membership counts each included download separately.
     const location = presignFromEnv(file.fileKey, file.filename, process.env, URL_TTL_SEC);
     if ((await store.incr(membership ? `dl:${id}:${file.id}` : `dl:${id}`)) > MAX_DOWNLOADS) return send(res, 429, { error: 'Download limit reached. Contact support.' });
+    await logAccess(file.id);
     send(res, 302, '', { Location: location });
   } catch (e) {
     console.error('download', e.message);
