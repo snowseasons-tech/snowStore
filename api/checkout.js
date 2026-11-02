@@ -10,6 +10,7 @@ module.exports = async (req, res) => {
     try { body = JSON.parse((await readRaw(req)).toString() || '{}'); } catch { return send(res, 400, { error: 'Bad JSON' }); }
     const product = Object.prototype.hasOwnProperty.call(CATALOG, body.productId) ? CATALOG[body.productId] : null;
     if (!product || product.retired) return send(res, 400, { error: 'Unknown product' });
+    if (product.draft) return send(res, 503, { error: 'Product not available' });
     // period: '1w', '3m', '6m' or '12m' picks another billing period; default '1m' is the monthly (or one-time) price.
     const period = body.period || '1m';
     if (!prices.PERIODS.includes(period)) return send(res, 400, { error: 'Unknown billing period' });
