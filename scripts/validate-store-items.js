@@ -63,7 +63,6 @@ function validateCatalog(catalog) {
 
     if (product.draft !== undefined) {
       if (product.draft !== true) fail('draft', 'must be true when provided');
-      if (product.stripeProduct !== undefined) fail('draft', 'remove draft once the bundle has a stripeProduct');
       if (!Number.isInteger(product.proposedMonthly) || product.proposedMonthly <= 0) fail('proposedMonthly', 'must be a price in cents');
       if (product.kind !== 'subscription') fail('kind', "must be 'subscription' for a draft bundle");
     }
