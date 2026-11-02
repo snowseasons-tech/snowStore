@@ -1,0 +1,40 @@
+# Installed at repository root as .github/workflows/podcast-growth-studio.yml.
+name: Podcast Growth Studio
+on:
+  pull_request:
+    paths: ['products/podcast-growth-studio/**', '.github/workflows/podcast-growth-studio.yml']
+  push:
+    paths: ['products/podcast-growth-studio/**', '.github/workflows/podcast-growth-studio.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: products/podcast-growth-studio
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: pip install -r requirements.lock
+      - run: sh scripts/check.sh
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: python scripts/configure.py
+      - run: docker compose up --build --wait --wait-timeout 120
+      - name: Browser workflow against PostgreSQL
+        run: |
+          set -a
+          source .env
+          set +a
+          npm run test:browser
+      - if: failure()
+        run: docker compose logs --tail 100 web migrate
+      - if: always()
+        run: docker compose down -v

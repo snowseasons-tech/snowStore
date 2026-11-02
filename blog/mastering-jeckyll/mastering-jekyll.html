@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Discover how to master Jekyll programming. Build secure, fast static sites with Liquid templating and GitHub Pages. Start building your site today!" />
+    <title>Mastering Jekyll: The Ultimate Guide to Building Static Sites with Liquid</title>
+    <style>
+      :root {
+        font-family: Inter, system-ui, -apple-system, sans-serif;
+        color: #1f2937;
+        background: #f8fafc;
+        line-height: 1.7;
+      }
+      body { margin: 0; }
+      main {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 48px 24px 64px;
+        background: #ffffff;
+        min-height: 100vh;
+      }
+      h1 {
+        font-size: 2rem;
+        line-height: 1.25;
+        margin: 0 0 8px;
+        color: #0f172a;
+      }
+      h2 {
+        font-size: 1.4rem;
+        margin-top: 2.2em;
+        padding-top: .4em;
+        border-top: 1px solid #e2e8f0;
+        color: #0f172a;
+      }
+      h3 { font-size: 1.1rem; color: #334155; }
+      code {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 1px 6px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: .9em;
+      }
+      pre {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 10px;
+        padding: 16px 20px;
+        overflow-x: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: .9rem;
+        line-height: 1.6;
+      }
+      pre code {
+        background: transparent;
+        border: none;
+        padding: 0;
+        color: inherit;
+        font-size: inherit;
+      }
+      ul, ol { padding-left: 1.4em; }
+      li { margin: .4em 0; }
+      .cta {
+        display: inline-block;
+        margin-top: 1em;
+        padding: 12px 24px;
+        background: #9333ea;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+      .cta:hover { background: #7e22ce; }
+      .meta {
+        color: #64748b;
+        font-size: .95rem;
+        margin-bottom: 32px;
+      }
+      nav.toc {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 32px;
+      }
+      nav.toc a { color: #9333ea; text-decoration: none; }
+      nav.toc a:hover { text-decoration: underline; }
+      .section-label {
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        font-size: .75rem;
+        color: #64748b;
+        font-weight: 700;
+      }
+      footer {
+        margin-top: 48px;
+        padding-top: 24px;
+        border-top: 1px solid #e2e8f0;
+        font-size: .9rem;
+        color: #64748b;
+      }
+      footer code { background: #f8fafc; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="section-label">Blog Post</p>
+      <h1>Mastering Jekyll: The Ultimate Guide to Building Static Sites with Liquid</h1>
+      <p class="meta">
+        Discover how to master Jekyll programming. Build secure, fast static sites with Liquid templating
+        and GitHub Pages. <strong><a href="#templates">Start building your site today!</a></strong>
+      </p>
+
+      <nav class="toc">
+        <strong>Table of Contents</strong>
+        <ul>
+          <li><a href="#what">What is Jekyll and Why Use It?</a></li>
+          <li><a href="#setup">Setting Up Your Development Environment</a></li>
+          <li><a href="#front-matter">The Anatomy of a Jekyll Post (Front Matter)</a></li>
+          <li><a href="#liquid">Programming with Liquid Templates</a></li>
+          <li><a href="#customization">Customization, Plugins, and Deployment</a></li>
+          <li><a href="#conclusion">Conclusion &amp; Next Steps</a></li>
+        </ul>
+      </nav>
+
+      <h2>Introduction</h2>
+      <p>
+        Static site generation is revolutionizing how developers build web content. Unlike traditional
+        dynamic CMS platforms that query databases on every page load, <strong>Jekyll</strong> transforms
+        plain text files into static HTML before deployment. This results in faster load times, enhanced
+        security, and lower hosting costs.
+      </p>
+      <p>
+        While many assume Jekyll is only for simple blogs, its flexibility makes it a powerful tool for
+        documentation, portfolios, and landing pages. In this guide, we will dive into
+        <strong>Jekyll programming</strong>, covering installation, template logic with Liquid, and
+        deployment strategies to get your site live in minutes.
+      </p>
+
+      <h2 id="what">What is Jekyll and Why Use It?</h2>
+      <p>
+        Jekyll is a simple, blog-aware, static site generator written in Ruby. It takes your content
+        (Markdown or Textile), layouts, and includes, and transforms them into a complete website ready
+        for the web.
+      </p>
+      <ul>
+        <li><strong>Blazing Fast:</strong> Since pages are pre-built as HTML, there is no server-side processing delay during user visits.</li>
+        <li><strong>Secure:</strong> With no database or server-side code running on the live site, attack vectors are significantly reduced.</li>
+        <li><strong>Version Control Friendly:</strong> Your content lives in plain text files (Markdown), making it perfect for Git-based workflows.</li>
+      </ul>
+
+      <h2 id="setup">Setting Up Your Development Environment</h2>
+      <p>
+        Before writing code, you need a stable environment to run the generator locally. Jekyll relies on
+        Ruby and Bundler for dependency management.
+      </p>
+
+      <h3>Prerequisites</h3>
+      <ol>
+        <li><strong>Ruby:</strong> Ensure you have Ruby installed (version 3.0+ recommended).</li>
+        <li><strong>Bundler:</strong> Install via <code>gem install bundler</code>.</li>
+        <li><strong>Jekyll Gem:</strong> Install the core package using <code>gem install jekyll</code>.</li>
+      </ol>
+
+      <h3>Creating a New Site</h3>
+      <p>Initialize your project directory with a single command:</p>
+      <pre><code>jekyll new my-first-site
+cd my-first-site
+bundle exec jekyll serve</code></pre>
+      <p>
+        This creates a standard folder structure including <code>_site</code>, <code>_posts</code>, and
+        <code>_layouts</code>. Opening <code>http://localhost:4000</code> in your browser confirms the setup.
+      </p>
+
+      <h2 id="front-matter">The Anatomy of a Jekyll Post (Front Matter)</h2>
+      <p>
+        Every post or page in Jekyll requires a specific header called <strong>Front Matter</strong>. This
+        YAML-formatted metadata tells Jekyll how to process the file.
+      </p>
+      <ul>
+        <li><strong>Layout:</strong> Links the post to a specific <code>.html</code> template (e.g., <code>layout: post</code>).</li>
+        <li><strong>Date:</strong> Controls publication order (<code>2023-10-27</code>).</li>
+        <li><strong>Title &amp; Description:</strong> Defines SEO tags and page headers.</li>
+      </ul>
+      <pre><code>---
+layout: post
+title:  "My First Post"
+date:   2023-10-27 14:00:00 +0000
+categories: tech
+---</code></pre>
+      <p>Without this metadata, Jekyll cannot categorize or sort your content correctly.</p>
+
+      <h2 id="liquid">Programming with Liquid Templates</h2>
+      <p>
+        The core of <strong>Jekyll programming</strong> lies in the Liquid templating language. Liquid
+        allows you to embed logic within your HTML layouts, such as loops, conditionals, and variable output.
+      </p>
+
+      <h3>Using Variables</h3>
+      <p>Access data from your site configuration or front matter using double curly braces.</p>
+      <pre><code>{{ site.title }}
+{{ page.title }}</code></pre>
+
+      <h3>Logic and Loops</h3>
+      <p>Use <code>for</code> loops to iterate over collections like posts or navigation links.</p>
+      <pre><code>{% for post in site.posts %}
+  &lt;h2&gt;&lt;a href="{{ post.url }}"&gt;{{ post.title }}&lt;/a&gt;&lt;/h2&gt;
+{% endfor %}</code></pre>
+
+      <h3>Conditionals</h3>
+      <p>Control what displays based on specific criteria using <code>if</code> statements.</p>
+      <pre><code>{% if page.layout == "home" %}
+  &lt;p&gt;Welcome to the homepage&lt;/p&gt;
+{% endif %}</code></pre>
+
+      <h2 id="customization">Customization, Plugins, and Deployment</h2>
+      <p>
+        To move beyond basic themes, you can extend Jekyll's functionality with plugins or custom CSS/JS
+        assets stored in <code>_assets</code>.
+      </p>
+
+      <h3>Working with Plugins</h3>
+      <p>
+        Plugins allow for dynamic features like SEO tags, sitemap generation, and minification. To use
+        them, update your <code>Gemfile</code> to include the specific plugin gem and list it under
+        <code>plugins:</code> in your <code>_config.yml</code>.
+      </p>
+
+      <h3>Deployment Strategies</h3>
+      <p>
+        The easiest way to host a Jekyll site is via <strong>GitHub Pages</strong>. It provides free hosting
+        specifically optimized for static sites generated by Jekyll.
+      </p>
+      <ol>
+        <li>Push your repository to GitHub.</li>
+        <li>Navigate to Settings &gt; Pages in your repo.</li>
+        <li>Select the branch (usually <code>main</code> or <code>master</code>) as the source.</li>
+      </ol>
+      <p>Your site will be live at <code>yourusername.github.io</code> within minutes.</p>
+
+      <h2 id="conclusion">Conclusion &amp; Next Steps</h2>
+      <p>
+        Jekyll offers a robust framework for building high-performance websites without the overhead of
+        dynamic servers. By mastering <strong>Liquid templates</strong> and understanding the front matter
+        structure, you gain full control over your content delivery while maintaining simplicity. Whether
+        you are documenting code or running a personal blog, Jekyll remains a top choice for modern web
+        development.
+      </p>
+      <p>
+        <strong>Want to skip the setup?</strong> Download our curated list of production-ready Jekyll themes
+        optimized for SEO.
+      </p>
+      <p id="templates">
+        <a class="cta" href="#">👉 Click here to access the templates</a> and launch your next project today.
+      </p>
+
+      <footer>
+        <p class="section-label">SEO &amp; Distribution Notes</p>
+        <p>
+          <strong>Primary keywords:</strong> <code>Jekyll programming</code>,
+          <code>static site generator tutorial</code>, <code>Liquid templating guide</code>.<br />
+          <strong>Secondary keywords:</strong> <code>GitHub Pages setup</code>,
+          <code>Jekyll installation</code>, <code>Markdown blogging</code>,
+          <code>web development efficiency</code>.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

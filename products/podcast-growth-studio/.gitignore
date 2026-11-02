@@ -1,0 +1,11 @@
+.env
+__pycache__/
+.pytest_cache/
+*.pyc
+*.db
+.venv/
+backups/
+compose.test.yaml
+test-results/
+*.db-*
+node_modules/
