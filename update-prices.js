@@ -1,6 +1,6 @@
 const Stripe = require('stripe');
 // Replace with your actual Stripe secret API key (or use process.env.STRIPE_SECRET_KEY)
-const stripe = Stripe('sk_test_YOUR_SECRET_KEY');
+const stripe = Stripe('');
 
 async function bulkUpdatePrices() {
   try {
