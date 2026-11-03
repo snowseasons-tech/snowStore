@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title | escape }} | {{ site.title | escape }}</title>
+  <!-- Build assets/css/tailwind.css with npm run build:css before opening this page. -->
+  <link rel="stylesheet" href="{{ '/assets/css/tailwind.css' | relative_url }}">
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans leading-relaxed">
+  <main class="mx-auto max-w-5xl p-6">{{ content }}</main>
+</body>
+</html>

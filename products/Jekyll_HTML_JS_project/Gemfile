@@ -1,0 +1,5 @@
+source "https://rubygems.org"
+# Bundler manages a consistent Jekyll environment. Keep the generated lockfile.
+gem "jekyll", "~> 4.4"
+# Explicit WEBrick dependency supports local serving with modern Ruby installs.
+gem "webrick", "~> 1.8"

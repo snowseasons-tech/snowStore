@@ -1,0 +1,18 @@
+---
+layout: tailwind
+title: Optional Tailwind cards
+permalink: /tailwind/
+---
+<!-- This optional page is intentionally separate from the default site styles. -->
+<h1 class="text-3xl font-bold text-brand">Tailwind service cards</h1>
+<p class="my-4">Run npm install and npm run build:css before viewing this experiment.</p>
+<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+{% for service in site.data.services %}
+  <article class="rounded-xl border border-slate-300 bg-white p-6">
+    <h2 class="text-xl font-semibold">{{ service.name | escape }}</h2>
+    <p class="my-4">{{ service.description | escape }}</p>
+    <p>{{ service.display_price | escape }}</p>
+  </article>
+{% endfor %}
+</div>
+<p class="mt-6"><a class="text-blue-800 underline focus-visible:outline-2" href="{{ '/' | relative_url }}">Return home</a></p>

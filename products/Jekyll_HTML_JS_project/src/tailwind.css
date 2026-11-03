@@ -1,0 +1,7 @@
+/* Optional Tailwind v4 pipeline. Default site pages use ordinary CSS. */
+@import "tailwindcss" source(none);
+/* These explicit paths avoid scanning generated _site or dependency trees. */
+@source "../_layouts";
+@source "../_includes";
+@source "../*.html";
+@theme { --color-brand: #174b78; }

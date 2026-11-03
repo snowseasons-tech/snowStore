@@ -1,0 +1,24 @@
+---
+layout: default
+title: Practice calculator
+permalink: /quote/
+calculator: true
+---
+<h1>Practice quote calculator</h1>
+
+  <p>Fictional estimates before tax. Whole-number inputs only. Nothing is stored or sent.</p>
+  <form id="quote-form">
+    <!-- Match each label's for attribute to the corresponding input id. -->
+    <label for="hours">Hours from 1 to 40</label>
+    <input id="hours" type="number" min="1" max="40" step="1" value="3" required>
+    <label for="rate">Hourly rate in whole dollars from 0 to 1000</label>
+    <input id="rate" type="number" min="0" max="1000" step="1" value="50" required>
+    <label for="materials">Materials in whole dollars from 0 to 10000</label>
+    <input id="materials" type="number" min="0" max="10000" step="1" value="25" required>
+    <label for="percent">Discount percent from 0 to 100</label>
+    <input id="percent" type="number" min="0" max="100" step="1" value="10" required>
+    <button type="submit">Calculate estimate</button>
+    <button type="reset">Reset inputs</button>
+  </form>
+  <output id="quote-result" role="status" for="hours rate materials percent">Enter values and calculate.</output>
+  <noscript>Enable JavaScript to calculate a practice estimate.</noscript>

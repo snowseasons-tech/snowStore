@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Practice saved checklist</title><link rel="stylesheet" href="styles.css">
+  <script src="checklist.js" defer></script>
+</head>
+<body><main>
+  <h1>Practice daily checklist</h1>
+  <p>Only these task states are saved in this browser, when storage is available. No accounts or shared audit trail.</p>
+  <fieldset><legend>Practice tasks</legend>
+    <p><label><input id="appointments" type="checkbox"> Check appointments</label></p>
+    <p><label><input id="customer-area" type="checkbox"> Inspect customer area</label></p>
+    <p><label><input id="supplies" type="checkbox"> Prepare supplies</label></p>
+  </fieldset>
+  <button id="clear-tasks" type="button">Clear completed tasks</button>
+  <p id="storage-status" role="status">Loading checklist.</p>
+  <noscript>Enable JavaScript to use persistence. The checkboxes alone do not save state.</noscript>
+</main></body></html>

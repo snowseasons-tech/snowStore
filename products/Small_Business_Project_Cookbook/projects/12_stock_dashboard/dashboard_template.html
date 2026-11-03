@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practice stock dashboard</title>
+<style>
+/* Self-contained report: no network fonts, CDN or build is required. */
+* { box-sizing: border-box; }
+body { margin: 0; font: 1rem/1.6 system-ui,sans-serif; color: #17324a; background: #f3f7fa; }
+main { max-width: 70rem; margin: auto; padding: 1.5rem; }
+label { display: block; font-weight: 700; }
+input { font: inherit; padding: .6rem; max-width: 100%; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; }
+caption { text-align: left; font-weight: 700; }
+th,td { padding: .6rem; text-align: left; border: 1px solid #a6bacb; }
+input:focus-visible { outline: 3px solid #a34700; outline-offset: 3px; }
+@media print { input, label { display: none; } tr[hidden] { display: table-row; } }
+</style></head><body><main>
+<h1>Practice stock dashboard</h1><p>Generated snapshot, not a live stock system. Reorder means quantity is at or below its threshold.</p>
+<label for="filter">Filter visible items by any displayed text</label>
+<input id="filter" type="search" placeholder="Try Reorder or Gloves">
+<p id="count" role="status">All items shown.</p>
+<div class="scroll"><table><caption>Stock snapshot</caption>
+<thead><tr><th scope="col">SKU</th><th scope="col">Item</th><th scope="col">Quantity</th><th scope="col">Reorder at</th><th scope="col">Unit price</th><th scope="col">Status</th></tr></thead>
+<tbody><!-- STOCK_ROWS --></tbody></table></div>
+<noscript>JavaScript is disabled. All rows remain readable; filtering is unavailable.</noscript>
+</main><script>
+"use strict";
+// Only filter existing text nodes; do not construct HTML from the search value.
+const search = document.querySelector("#filter");
+const count = document.querySelector("#count");
+const rows = Array.from(document.querySelectorAll("tbody tr"));
+if (search && count) {
+  search.addEventListener("input", function () {
+    const term = search.value.trim().toLowerCase();
+    let visible = 0;
+    rows.forEach(row => {
+      row.hidden = !row.textContent.toLowerCase().includes(term);
+      if (!row.hidden) visible += 1;
+    });
+    count.textContent = `${visible} of ${rows.length} items shown.`;
+  });
+} else {
+  console.error("Missing dashboard filter controls.");
+}
+</script></body></html>

@@ -1,0 +1,10 @@
+---
+layout: default
+title: Projects
+permalink: /projects/
+---
+<h1>Creative projects</h1><div class="cards">
+<!-- YAML provides content. Liquid repeats this card while Jekyll builds. -->
+{% for project in site.data.projects %}<article><h2>{{ project.title | escape }}</h2>
+<p>{{ project.format | escape }}</p><p>{{ project.description | escape }}</p></article>{% endfor %}
+</div>

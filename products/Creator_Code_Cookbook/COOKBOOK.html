@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creator Code Cookbook Volume 1 | Snow Seasons Tech</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef3f7;color:#192d3d;font:17px/1.7 system-ui,sans-serif}header,main,footer{max-width:68rem;margin:auto;padding:2rem}header{padding-bottom:0}.brand{font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;color:#174b78}h1{font-size:2.6rem;line-height:1.15;color:#101c26}h2{margin-top:3rem;padding-top:1rem;border-top:1px solid #c0ced9;font-size:1.7rem;line-height:1.3;color:#101c26}h3{font-size:1.15rem;margin-top:1.8rem;color:#101c26}main{background:#fff}a{color:#145187;text-underline-offset:.16em}a:focus-visible{outline:3px solid #a34700;outline-offset:3px}p,li{max-width:78ch}code{font:.88em/1.5 ui-monospace,monospace;background:#eff3f7;padding:.12em .3em;overflow-wrap:anywhere}pre{background:#eff3f7;padding:1rem;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #c2cfd9}pre code{padding:0}table{border-collapse:collapse;width:100%;font-size:.9rem;margin-block:1.5rem}th,td{border:1px solid #bbcbd8;padding:.65rem;text-align:left;vertical-align:top}th{background:#e6edf3}nav ol{columns:2;column-gap:2rem;padding-left:1.4rem}nav li{break-inside:avoid;margin-bottom:.4rem}footer{font-size:.9rem}.print-note{font-size:.9rem;color:#445c6f}@media(max-width:640px){header,main,footer{padding:1rem}h1{font-size:2rem}nav ol{columns:1}table{font-size:.75rem}th,td{padding:.35rem}}@media print{@page{size:letter;margin:.65in}body{background:white;font-size:10pt}header,main,footer{padding:0;max-width:none}nav,.print-note{display:none}h2[id^="recipe-"]{break-before:page;border:0;margin-top:0}h1,h2,h3{break-after:avoid}p,li{orphans:3;widows:3}a{color:inherit}table{font-size:9pt}thead{display:table-header-group}tr,pre{break-inside:avoid}}
+</style></head><body><header><p class="brand">Snow Seasons Tech • Make things with code</p><p class="print-note">Open this book locally. Use your browser’s Print command for a paper or PDF copy. Project links open the included source folders.</p><nav aria-label="Recipes"><ol><li><a href="#recipe-01-post-stats-snapshot">Recipe 01 Post stats snapshot</a></li><li><a href="#recipe-02-draft-review-queue">Recipe 02 Draft review queue</a></li><li><a href="#recipe-03-clip-folder-inventory">Recipe 03 Clip folder inventory</a></li><li><a href="#recipe-04-creator-asset-archive">Recipe 04 Creator asset archive</a></li><li><a href="#recipe-05-channel-and-post-reports">Recipe 05 Channel and post reports</a></li><li><a href="#recipe-06-content-calendar-queries">Recipe 06 Content calendar queries</a></li><li><a href="#recipe-07-creator-profile-page">Recipe 07 Creator profile page</a></li><li><a href="#recipe-08-saved-posting-checklist">Recipe 08 Saved posting checklist</a></li><li><a href="#recipe-09-caption-lab">Recipe 09 Caption lab</a></li><li><a href="#recipe-10-responsive-creator-cards">Recipe 10 Responsive creator cards</a></li><li><a href="#recipe-11-creator-portfolio-with-jekyll">Recipe 11 Creator portfolio with Jekyll</a></li><li><a href="#recipe-12-searchable-content-board">Recipe 12 Searchable content board</a></li></ol></nav></header><main><h1>Creator Code Cookbook</h1>
+<p>Snow Seasons Tech • Volume 1 • Version 2.0</p>
+<p>Build things for your creative life while learning to code. This edition is aimed at younger beginners and aspiring creators: people making videos, sketches, photos, gaming clips or personal projects. The tone is direct and beginner-friendly, with no assumed business experience.</p>
+<p>Start with a project you care about: a creator profile, caption tool, draft checklist or content board. Each recipe has commented source, sample data, expected results and a remix challenge. The projects teach practical coding rather than promises of followers, virality or income.</p>
+<h2 id="pick-your-first-build">Pick your first build</h2>
+<table>
+<thead>
+<tr>
+<th>Recipe</th>
+<th>Project</th>
+<th>Languages</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01</td>
+<td><a href="projects/01_post_stats/README.md">Post stats snapshot</a></td>
+<td>Python</td>
+<td>45–60 minutes</td>
+</tr>
+<tr>
+<td>02</td>
+<td><a href="projects/02_draft_queue/README.md">Draft review queue</a></td>
+<td>Python</td>
+<td>45–60 minutes</td>
+</tr>
+<tr>
+<td>03</td>
+<td><a href="projects/03_clip_inventory/README.md">Clip folder inventory</a></td>
+<td>Bash</td>
+<td>30–45 minutes</td>
+</tr>
+<tr>
+<td>04</td>
+<td><a href="projects/04_creator_archive/README.md">Creator asset archive</a></td>
+<td>Bash</td>
+<td>45–75 minutes</td>
+</tr>
+<tr>
+<td>05</td>
+<td><a href="projects/05_post_reports/README.md">Channel and post reports</a></td>
+<td>SQL with SQLite</td>
+<td>60–90 minutes</td>
+</tr>
+<tr>
+<td>06</td>
+<td><a href="projects/06_content_calendar/README.md">Content calendar queries</a></td>
+<td>SQL with SQLite</td>
+<td>45–75 minutes</td>
+</tr>
+<tr>
+<td>07</td>
+<td><a href="projects/07_creator_profile/README.md">Creator profile page</a></td>
+<td>HTML and CSS</td>
+<td>30–60 minutes</td>
+</tr>
+<tr>
+<td>08</td>
+<td><a href="projects/08_posting_checklist/README.md">Saved posting checklist</a></td>
+<td>HTML, CSS and JavaScript</td>
+<td>60–90 minutes</td>
+</tr>
+<tr>
+<td>09</td>
+<td><a href="projects/09_caption_lab/README.md">Caption lab</a></td>
+<td>HTML, CSS and JavaScript</td>
+<td>45–75 minutes</td>
+</tr>
+<tr>
+<td>10</td>
+<td><a href="projects/10_creator_cards/README.md">Responsive creator cards</a></td>
+<td>HTML, CSS and Tailwind</td>
+<td>90–150 minutes plus setup</td>
+</tr>
+<tr>
+<td>11</td>
+<td><a href="projects/11_creator_site/README.md">Creator portfolio with Jekyll</a></td>
+<td>Jekyll, HTML, CSS and JavaScript</td>
+<td>2–3 hours plus setup</td>
+</tr>
+<tr>
+<td>12</td>
+<td><a href="projects/12_content_board/README.md">Searchable content board</a></td>
+<td>Python, SQLite, HTML, CSS and JavaScript</td>
+<td>2–3 hours</td>
+</tr>
+</tbody></table>
+<h2 id="how-to-use-the-cookbook">How to use the cookbook</h2>
+<p>Run the original sample, compare the expected result, read the comments and make one small change. Predict what will happen before rerunning. Break a practice input on purpose and observe the error message. Keep your edited version separate from the reference.</p>
+<p>All terminal commands start at the extracted Creator_Code_Cookbook root unless a recipe says to change directory. Linux/macOS examples use python3; Windows users substitute py -3. Bash on Windows uses WSL. SQLite .read commands run inside the SQLite shell, not your operating system terminal. Replace uppercase path placeholders with actual paths and quote paths containing spaces.</p>
+<p>Use the HTML/CSS projects first if you want a quick visible result. Follow with caption lab and saved checklist for JavaScript. Python reports and SQL queries build data skills. The Jekyll portfolio and content board combine those ideas. Tailwind and Jekyll have extra setup and are good later projects.</p>
+<h2 id="tools-and-sample-data">Tools and sample data</h2>
+<p>Python recipes use only its standard library. Ordinary browser projects need an editor and browser. Bash, the SQLite shell, Node/npm and Ruby/Bundler are needed only where named. Follow official installation instructions for your system. Tailwind follows v4; Jekyll uses the included Gemfile. Real dependency lockfiles must be generated and tested locally.</p>
+<p>The data and creator names are fictional. No project asks for your social password, connects an account or posts automatically. Keep practice captions and examples free of personal details. These are useful coding projects, not a complete social management platform.</p>
+<h2 id="recipe-01-post-stats-snapshot">Recipe 01 Post stats snapshot</h2>
+<p><strong>Build:</strong> Turn a fictional CSV into a simple post-performance report.</p>
+<p><strong>Languages:</strong> Python. <strong>Time:</strong> 45–60 minutes.</p>
+<h3>What you need</h3>
+<p>Python 3.11 or later; stats.py and posts.csv. No packages or social account login.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Inspect posts.csv: title, views, likes, comments and saves.</li>
+<li>Run <code>python3 projects/01_post_stats/stats.py</code> from the cookbook root.</li>
+<li>Read summarize and the commented zero-view branch. Try a separate file by adding its quoted path to the command.</li>
+</ol>
+<h3>What to expect</h3>
+<p>Three posts; 1500 total views and 190 actions. Combined actions/views is 12.67%. The zero-view post displays not available rather than dividing by zero.</p>
+<h3>Remix challenge and answer</h3>
+<p>Add 10 saves to Sketch timelapse. Answer: 200 total actions and 13.33% combined actions/views. Try a negative count in a copy; it should fail clearly.</p>
+<h3>Error handling and limits</h3>
+<p>The formula is (likes + comments + saves) / views × 100. It is a teaching definition, not an official platform engagement rate. Views may include repeat views and actions are not unique people. Do not average individual percentages to obtain the combined rate.</p>
+<h2 id="recipe-02-draft-review-queue">Recipe 02 Draft review queue</h2>
+<p><strong>Build:</strong> Find drafts planned on or before a chosen date.</p>
+<p><strong>Languages:</strong> Python. <strong>Time:</strong> 45–60 minutes.</p>
+<h3>What you need</h3>
+<p>Python 3.11 or later; drafts.py and drafts.csv.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Read the sample dates and draft/published statuses.</li>
+<li>Run <code>python3 projects/02_draft_queue/drafts.py --as-of 2026-10-29</code>.</li>
+<li>Repeat with --as-of 2026-11-05. Read the date validation and sorted output.</li>
+</ol>
+<h3>What to expect</h3>
+<p>Desk setup tour and Sketch timelapse appear first: Drafts to review: 2. The later comparison date includes Weekend photo walk for a count of 3.</p>
+<h3>Remix challenge and answer</h3>
+<p>Change Sketch timelapse to published. Answer: at the original fixed date, only Desk setup tour remains. Try an invalid date to check the error message.</p>
+<h3>Error handling and limits</h3>
+<p>This is a local date-based review list. It neither posts content nor claims that the planned date is the best time to post. Omit --as-of to use your computer’s local current date.</p>
+<h2 id="recipe-03-clip-folder-inventory">Recipe 03 Clip folder inventory</h2>
+<p><strong>Build:</strong> See what is inside one project folder without renaming or moving files.</p>
+<p><strong>Languages:</strong> Bash. <strong>Time:</strong> 30–45 minutes.</p>
+<h3>What you need</h3>
+<p>Bash 3.2 or later; Windows uses WSL. Sample files are fictional text notes, not actual clips.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Run <code>bash projects/03_clip_inventory/inventory.sh &quot;projects/03_clip_inventory/sample clips&quot;</code>.</li>
+<li>Read the comments explaining quoted paths, the loop and printf %q.</li>
+<li>Try an empty folder and a missing folder.</li>
+</ol>
+<h3>What to expect</h3>
+<p>Three regular files. Spaces appear shell-escaped in the listing so filenames remain identifiable.</p>
+<h3>Remix challenge and answer</h3>
+<p>Add one more text note and a subfolder. Answer: regular file count becomes four; the subfolder is not counted. A symlink is also skipped.</p>
+<h3>Error handling and limits</h3>
+<p>This is a one-level inventory, not a recursive media scanner. Hidden regular files are included. The script does not modify source files or inspect their contents.</p>
+<h2 id="recipe-04-creator-asset-archive">Recipe 04 Creator asset archive</h2>
+<p><strong>Build:</strong> Archive fictional clips, captions and thumbnail notes into a fresh workspace.</p>
+<p><strong>Languages:</strong> Bash. <strong>Time:</strong> 45–75 minutes.</p>
+<h3>What you need</h3>
+<p>Bash, mkdir, mktemp and tar. No admin permissions are needed.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Run <code>bash projects/04_creator_archive/archive.sh</code>.</li>
+<li>Type no first; sample assets are created but no archive is made.</li>
+<li>Run again, type yes and copy the printed workspace path. Use the master cheat sheet’s guarded restore command to extract the archive into a new folder.</li>
+</ol>
+<h3>What to expect</h3>
+<p>A fresh directory under your home folder with Clips/sample.txt, Captions/sample.txt and Thumbnails/sample.txt. A confirmed run creates backup/creator-assets.tar.gz.</p>
+<h3>Remix challenge and answer</h3>
+<p>Add Audio to the categories array. Answer: the next archive contains four sample asset files. Restore and read Clips/sample.txt to check its contents.</p>
+<h3>Error handling and limits</h3>
+<p>This example creates fictional assets rather than archiving your actual media library. The archive is local and unencrypted; it does not protect against losing the drive. Each run preserves earlier workspaces.</p>
+<h2 id="recipe-05-channel-and-post-reports">Recipe 05 Channel and post reports</h2>
+<p><strong>Build:</strong> Join posts to creative series and include channels that have no published posts.</p>
+<p><strong>Languages:</strong> SQL with SQLite. <strong>Time:</strong> 60–90 minutes.</p>
+<h3>What you need</h3>
+<p>SQLite shell with foreign key support; setup.sql and reports.sql.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Open a new practice file: <code>sqlite3 -bail creator_posts_01.db</code>.</li>
+<li>At the SQLite prompt enter <code>.bail on</code>, <code>.headers on</code> and <code>.mode column</code>, one per line.</li>
+<li>Run <code>.read projects/05_post_reports/setup.sql</code>, then <code>.read projects/05_post_reports/reports.sql</code>.</li>
+<li>Read the comments on LEFT JOIN, COUNT and NULLIF.</li>
+</ol>
+<h3>What to expect</h3>
+<p>Studio Notes has two published posts and 1500 total views. Weekend Lens and Game Sketches remain in the report with zero published posts. Individual actions/views rates are 11.00%, 16.00% and NULL for zero views.</p>
+<h3>Remix challenge and answer</h3>
+<p>Add a published Game Sketches post with 200 views in a new practice database. Answer: that channel’s published count becomes one and total views 200. Explain why the filter is in ON rather than WHERE.</p>
+<h3>Error handling and limits</h3>
+<p>The data is fictional and manually entered. Channel names are creative series, not connected platform accounts. Enable PRAGMA foreign_keys = ON on each connection before writing related data. Rates do not imply reach quality or official platform definitions.</p>
+<h2 id="recipe-06-content-calendar-queries">Recipe 06 Content calendar queries</h2>
+<p><strong>Build:</strong> Filter a content plan by date and practice a status change you can undo.</p>
+<p><strong>Languages:</strong> SQL with SQLite. <strong>Time:</strong> 45–75 minutes.</p>
+<h3>What you need</h3>
+<p>SQLite shell; calendar.sql. Use a fresh database separate from recipe 5.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Open <code>sqlite3 -bail creator_calendar_01.db</code> from the cookbook root.</li>
+<li>Enter <code>.bail on</code>, <code>.headers on</code> and <code>.mode column</code> on separate lines.</li>
+<li>Run <code>.read projects/06_content_calendar/calendar.sql</code> once. Read the date-window query and BEGIN/UPDATE/ROLLBACK sequence.</li>
+</ol>
+<h3>What to expect</h3>
+<p>Three planned posts fall in the 2026-10-29 to before 2026-11-02 window. Post 2 changes to ready inside the transaction and returns to draft after rollback.</p>
+<h3>Remix challenge and answer</h3>
+<p>Copy only the report query and filter for status ready. Answer: Desk setup tour. Do not rerun setup in the same database, because it deliberately refuses to recreate its table.</p>
+<h3>Error handling and limits</h3>
+<p>ISO dates are stored as text; the schema alone does not validate calendar dates. A script error can leave an interactive transaction open: use ROLLBACK before starting over. This is not an automatic posting scheduler.</p>
+<h2 id="recipe-07-creator-profile-page">Recipe 07 Creator profile page</h2>
+<p><strong>Build:</strong> Build a home for sketches, short-video ideas and photo projects.</p>
+<p><strong>Languages:</strong> HTML and CSS. <strong>Time:</strong> 30–60 minutes.</p>
+<h3>What you need</h3>
+<p>A browser and plain-text editor; index.html and styles.css.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Open projects/07_creator_profile/index.html in your browser.</li>
+<li>Change the fictional creator name in title and h1, then save and refresh.</li>
+<li>Follow the Projects and About links. Open the disclosure with keyboard and pointer.</li>
+<li>Read the comments on ids, headings and articles.</li>
+</ol>
+<h3>What to expect</h3>
+<p>A local profile page with three creative project cards and working in-page navigation. Cards stack on narrow screens.</p>
+<h3>Remix challenge and answer</h3>
+<p>Add a fourth project card. Answer: add an article inside the cards container with an h3 and paragraph. Keep a meaningful heading hierarchy rather than choosing headings just for their font size.</p>
+<h3>Error handling and limits</h3>
+<p>There is no real handle, sign-in, contact collection or publishing connection. Use your own work or media you have permission to share. Layout and keyboard behavior still need real-browser review.</p>
+<h2 id="recipe-08-saved-posting-checklist">Recipe 08 Saved posting checklist</h2>
+<p><strong>Build:</strong> Save a personal pre-share checklist in your browser.</p>
+<p><strong>Languages:</strong> HTML, CSS and JavaScript. <strong>Time:</strong> 60–90 minutes.</p>
+<h3>What you need</h3>
+<p>A browser; Python 3 can serve the page at a stable local origin.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Run <code>python3 -m http.server 8080 --bind 127.0.0.1 --directory projects/08_posting_checklist</code>.</li>
+<li>Open <a href="http://127.0.0.1:8080/">http://127.0.0.1:8080/</a>, check a task and refresh at the same address.</li>
+<li>Read checklist.js: the versioned key, JSON shape checks and storage error handling.</li>
+<li>Try Clear completed tasks, then stop the server with Ctrl+C.</li>
+</ol>
+<h3>What to expect</h3>
+<p>Three review tasks covering the idea/media, caption/private details and accessible text. When browser storage is available, checks survive refresh.</p>
+<h3>Remix challenge and answer</h3>
+<p>Add a new task only after updating the ids array and storage version. Answer: the existing stored array has the old length, so change the key version or write an explicit migration. Do not clear unrelated localStorage keys.</p>
+<h3>Error handling and limits</h3>
+<p>Blocked storage or invalid saved data produces a readable message. File-URL storage is inconsistent, so use the loopback server for this exercise. These checks are personal reminders, not automated content review or a shared audit trail.</p>
+<h2 id="recipe-09-caption-lab">Recipe 09 Caption lab</h2>
+<p><strong>Build:</strong> Count a draft against your own writing budget without sending it anywhere.</p>
+<p><strong>Languages:</strong> HTML, CSS and JavaScript. <strong>Time:</strong> 45–75 minutes.</p>
+<h3>What you need</h3>
+<p>A browser and editor; index.html, caption.js and styles.css.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Open projects/09_caption_lab/index.html locally.</li>
+<li>Type hello. Expect five Unicode code points and 275 remaining in the default budget.</li>
+<li>Type more than 280 ordinary letters and see the over-budget message.</li>
+<li>Read countCodePoints and update. Try Clear caption and notice focus returns to the text area.</li>
+</ol>
+<h3>What to expect</h3>
+<p>Live count, remaining budget and an over-budget message with text as well as color. Nothing is saved or published.</p>
+<h3>Remix challenge and answer</h3>
+<p>Change the personal budget to 150 and test 151 plain letters. Answer: one over budget. Try an emoji sequence and explain why one visible symbol can count as several code points.</p>
+<h3>Error handling and limits</h3>
+<p>The 280-point budget is a personal exercise value, not a claim about any platform’s current limit. Code points differ from UTF-16 units, grapheme clusters and platform-specific counting. The textarea’s generous maxlength uses UTF-16 units; our displayed counter uses code points.</p>
+<h2 id="recipe-10-responsive-creator-cards">Recipe 10 Responsive creator cards</h2>
+<p><strong>Build:</strong> Style a project gallery with ordinary CSS, then recreate it using Tailwind v4.</p>
+<p><strong>Languages:</strong> HTML, CSS and Tailwind. <strong>Time:</strong> 90–150 minutes plus setup.</p>
+<h3>What you need</h3>
+<p>Browser/editor for CSS; supported Node LTS and npm for the optional Tailwind build.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Open projects/10_creator_cards/free_starter/index_solution.html.</li>
+<li>Compare its CSS grid and media query with the starter.</li>
+<li>Change directory into projects/10_creator_cards and run <code>npm install</code>, then <code>npm run build:css</code>.</li>
+<li>Open paid_pack/index_solution.html after the generated stylesheet exists. Compare grid-cols-1 and md:grid-cols-3.</li>
+</ol>
+<h3>What to expect</h3>
+<p>Cards for a setup tour, sketch timelapse and photo collection. One narrow column becomes three at the medium breakpoint.</p>
+<h3>Remix challenge and answer</h3>
+<p>Change md:grid-cols-3 to md:grid-cols-2, rebuild and predict which card wraps. Answer: the third begins another row. Keep complete class names in scanned source.</p>
+<h3>Error handling and limits</h3>
+<p>Tailwind dependencies and compiled output are not bundled or verified here. Plain CSS needs no npm. Preserve readable contrast and keyboard focus. The CLI setup uses v4; do not substitute an older v3 init workflow.</p>
+<h2 id="recipe-11-creator-portfolio-with-jekyll">Recipe 11 Creator portfolio with Jekyll</h2>
+<p><strong>Build:</strong> Turn the profile and caption lab into a reusable multi-page project.</p>
+<p><strong>Languages:</strong> Jekyll, HTML, CSS and JavaScript. <strong>Time:</strong> 2–3 hours plus setup.</p>
+<h3>What you need</h3>
+<p>Supported Ruby, Bundler and Jekyll prerequisites from <a href="https://jekyllrb.com/docs/installation/">https://jekyllrb.com/docs/installation/</a> . Windows learners follow the documented WSL path.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Change directory into projects/11_creator_site.</li>
+<li>Run <code>bundle config set --local path vendor/bundle</code>, <code>bundle install</code> and <code>bundle exec jekyll build --trace</code>.</li>
+<li>Start <code>bundle exec jekyll serve --host 127.0.0.1</code> and open <a href="http://127.0.0.1:4000/">http://127.0.0.1:4000/</a> after it succeeds.</li>
+<li>Read the shared layout, header include and _data/projects.yml. Test the caption lab and the three navigation links.</li>
+</ol>
+<h3>What to expect</h3>
+<p>Home, Projects and Caption lab pages with shared navigation. Three YAML records become project cards. The caption script loads only on the caption-lab page.</p>
+<h3>Remix challenge and answer</h3>
+<p>Add a fourth YAML project and rebuild. Answer: the Projects page gets a fourth card without duplicating card HTML. Test <code>bundle exec jekyll serve --baseurl /creator-site --host 127.0.0.1</code> at /creator-site/.</p>
+<h3>Error handling and limits</h3>
+<p>Ruby dependency resolution and the Jekyll build require verification on a configured machine. Keep the generated Gemfile.lock. Edit source, not _site. This is a local project: hosting, real accounts and deployment are not included.</p>
+<h2 id="recipe-12-searchable-content-board">Recipe 12 Searchable content board</h2>
+<p><strong>Build:</strong> Turn a CSV content plan into a SQLite snapshot and a searchable local board.</p>
+<p><strong>Languages:</strong> Python, SQLite, HTML, CSS and JavaScript. <strong>Time:</strong> 2–3 hours.</p>
+<h3>What you need</h3>
+<p>Python 3.11 or later with sqlite3 and a browser; content.csv, build_board.py and board_template.html.</p>
+<h3>Build and explore</h3>
+<ol>
+<li>Inspect the four fictional content.csv rows.</li>
+<li>Run <code>python3 projects/12_content_board/build_board.py</code> from the cookbook root.</li>
+<li>Open the printed index.html path. Filter for ready, video and then an empty search.</li>
+<li>Read the complete CSV validation, bound SQL insert and HTML escaping. Each run creates a fresh content-board-* folder.</li>
+</ol>
+<h3>What to expect</h3>
+<p>Four posts, one ready. Search ready shows Desk setup tour; video shows two rows. A new content.db sits beside the self-contained HTML snapshot.</p>
+<h3>Remix challenge and answer</h3>
+<p>Change Sketch timelapse to ready and rebuild. Answer: the new board reports two ready posts. Try a duplicate post id or invalid date: it should fail before creating output. Put <em>Sketch</em> in a title and confirm it remains literal text.</p>
+<h3>Error handling and limits</h3>
+<p>This is a snapshot, not a live scheduler. Filtering changes visibility only. Edit CSV and rebuild to change data. The database is generated locally; there is no platform API, automatic publishing, shared editing or login. Filesystem errors may leave a partial output folder.</p>
+<h2 id="where-to-go-next">Where to go next</h2>
+<p>Make the projects yours: change the creative topic, improve a label, add a status or choose a different visual style. Document the change and show one successful case and one failure case. That makes a stronger portfolio entry than a screenshot alone.</p>
+<p>These recipes are independent except for the explicit combinations in the Jekyll portfolio and content board. They do not share accounts or live data. The next development step would be a separately designed application with a shared data model, clear permissions and a deliberate publishing workflow.</p>
+<h2 id="reference-shelf">Reference shelf</h2>
+<ul>
+<li>Python CSV: <a href="https://docs.python.org/3/library/csv.html">https://docs.python.org/3/library/csv.html</a></li>
+<li>Python SQLite: <a href="https://docs.python.org/3/library/sqlite3.html">https://docs.python.org/3/library/sqlite3.html</a></li>
+<li>Bash: <a href="https://www.gnu.org/software/bash/manual/bash.html">https://www.gnu.org/software/bash/manual/bash.html</a></li>
+<li>SQLite shell: <a href="https://www.sqlite.org/cli.html">https://www.sqlite.org/cli.html</a></li>
+<li>HTML/CSS/JavaScript learning: <a href="https://developer.mozilla.org/en-US/docs/Learn_web_development">https://developer.mozilla.org/en-US/docs/Learn_web_development</a></li>
+<li>Browser storage: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage</a></li>
+<li>Tailwind: <a href="https://tailwindcss.com/docs/installation/tailwind-cli">https://tailwindcss.com/docs/installation/tailwind-cli</a></li>
+<li>Jekyll: <a href="https://jekyllrb.com/docs/">https://jekyllrb.com/docs/</a></li>
+</ul>
+</main><footer>Review and pilot edition • Read TESTING.md before releasing these projects to students.</footer></body></html>

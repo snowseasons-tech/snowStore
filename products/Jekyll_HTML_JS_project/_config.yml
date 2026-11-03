@@ -1,0 +1,21 @@
+# EDIT HERE: quote text containing punctuation such as a colon.
+title: "Practice Service Co"
+description: "A fictional service site and quote calculator for learning"
+url: ""
+# Empty for a domain root. For a project subpath use e.g. /practice-site.
+baseurl: ""
+# Plain CSS is the default; the optional Tailwind page uses its own stylesheet.
+markdown: kramdown
+exclude:
+  - README.md
+  - LESSONS.md
+  - COMMAND_CHEAT_SHEET.md
+  - TESTING.md
+  - Gemfile
+  - Gemfile.lock
+  - package.json
+  - package-lock.json
+  - node_modules
+  - vendor
+  - src
+  - seller

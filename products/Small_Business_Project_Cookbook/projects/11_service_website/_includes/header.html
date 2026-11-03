@@ -1,0 +1,10 @@
+<!-- One shared header means navigation changes apply across default pages. -->
+<header>
+  <p>{{ site.title | escape }}</p>
+  <nav aria-label="Main navigation">
+    <a href="{{ '/' | relative_url }}">Home</a>
+    <a href="{{ '/services/' | relative_url }}">Services</a>
+    <a href="{{ '/quote/' | relative_url }}">Practice calculator</a>
+    <a href="{{ '/about/' | relative_url }}">About this example</a>
+  </nav>
+</header>

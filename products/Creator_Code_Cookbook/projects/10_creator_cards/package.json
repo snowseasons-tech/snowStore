@@ -1,0 +1,13 @@
+{
+  "name": "snow-seasons-styling-lessons",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./paid_pack/src/input.css -o ./paid_pack/assets/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./paid_pack/src/input.css -o ./paid_pack/assets/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.3.0",
+    "@tailwindcss/cli": "^4.3.0"
+  }
+}

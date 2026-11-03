@@ -1,0 +1,4 @@
+# Verification notes
+Completed with the installed Node runtime: quote arithmetic for default and alternative examples, zero and full discounts, rejection of fractional/nonfinite/string/out-of-range arguments, event callbacks using mocked DOM elements, missing-control guards, error feedback, invalid-form guard, stale-result message and reset message. All script files passed JavaScript parsing. HTML file references, ids, labels and fragments were also checked.
+
+DOM mocks do not validate actual browser behavior. Native constraint validation, keyboard submission, form-reset timing, accessibility announcements, narrow layouts and real browser execution still require hands-on checks. Browser automation was attempted, but the required browser executable was unavailable. No cross-browser or beginner pilot testing is claimed.

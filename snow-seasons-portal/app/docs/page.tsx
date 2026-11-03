@@ -1,46 +1,45 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { docsApi } from '@/lib/docs-api';
+import React, { useEffect, useState } from 'react';
+import { docsApi, type ProductDocs } from '../../lib/docs-api';
 
 export default function DocumentationCenter() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<ProductDocs[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Mock token for now - in production this comes from Auth context
-  const token = "mock_token";
+  const token = 'mock_token';
 
   useEffect(() => {
-    async function fetchMyProducts() {
+    async function fetchMyProducts(): Promise<void> {
       try {
         // In a real app, we would first fetch the list of products the user owns
         // For this demo, we'll try the known core products
         const coreProducts = ['cdot-stations', 'mailhub', 'lead-intelligence', 'autoblogger', 'autoscheduler'];
-        const entitlements = [];
+        const entitlements: ProductDocs[] = [];
 
         for (const id of coreProducts) {
           try {
             const data = await docsApi.getProductDocs(id, token);
             entitlements.push(data);
-          } catch (e) {
+          } catch {
             // Product not owned, skip it
           }
         }
 
         setProducts(entitlements);
-      } catch (err) {
-        setError("Failed to load documentation center.");
+      } catch {
+        setError('Failed to load documentation center.');
       } finally {
         setLoading(false);
       }
     }
 
-    fetchMyProducts();
+    void fetchMyProducts();
   }, []);
 
-  const handleDownload = async (productId, filename) => {
+  const handleDownload = async (productId: string, filename: string): Promise<void> => {
     try {
       const blob = await docsApi.downloadDocument(productId, filename, token);
       const url = window.URL.createObjectURL(blob);
@@ -50,8 +49,8 @@ export default function DocumentationCenter() {
       document.body.appendChild(a);
       a.click();
       a.remove();
-    } catch (err) {
-      alert("Download failed. Please check your subscription.");
+    } catch {
+      alert('Download failed. Please check your subscription.');
     }
   };
 
@@ -72,7 +71,7 @@ export default function DocumentationCenter() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map(product => (
+          {products.map((product: ProductDocs) => (
             <div key={product.product} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
@@ -87,10 +86,10 @@ export default function DocumentationCenter() {
                 <div className="space-y-3">
                   <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Available Documents</p>
                   <div className="flex flex-col gap-2">
-                    {product.documents.map(doc => (
+                    {product.documents.map((doc: string) => (
                       <button
                         key={doc}
-                        onClick={() => handleDownload(product.product, doc)}
+                        onClick={() => void handleDownload(product.product, doc)}
                         className="flex items-center justify-between p-2 text-sm text-slate-700 bg-slate-50 rounded hover:bg-slate-100 transition-colors group"
                       >
                         <span className="truncate">{doc.replace('_', ' ').replace('.md', '').replace('.pdf', '').toLowerCase()}</span>

@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caption lab</title><link rel="stylesheet" href="styles.css"><script src="caption.js" defer></script>
+</head><body><main><h1>Caption lab</h1><p>A personal writing-budget tool. Nothing is sent or saved.</p>
+<label for="caption">Draft caption</label>
+<!-- maxlength is only a generous UI bound; it uses UTF-16 units, unlike our counter. -->
+<textarea id="caption" rows="6" maxlength="10000" aria-describedby="count-note" placeholder="Write a fictional caption..."></textarea>
+<p id="count-note">The counter uses Unicode code points. Some emoji and combined characters count as several. Your chosen platform may count text differently.</p>
+<button id="clear-caption" type="button">Clear caption</button><p id="caption-result" role="status"></p>
+<noscript>Enable JavaScript to count the caption. This page does not publish it.</noscript>
+</main></body></html>

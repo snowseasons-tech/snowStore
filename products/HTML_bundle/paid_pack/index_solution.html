@@ -1,0 +1,62 @@
+<!doctype html>
+<!-- RUN: open this local file in a browser. No server or account is needed. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A fictional small business services page for HTML practice.">
+  <title>Practice Cleaning Co service guide</title>
+  <!-- Relative paths locate files beside this HTML file. Keep styles.css here. -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Keyboard users can skip repeated navigation and reach the main content. -->
+  <a class="skip" href="#main-content">Skip to main content</a>
+  <header>
+    <!-- EDIT HERE: update the business name and browser title together. -->
+    <h1>Practice Cleaning Co</h1>
+    <p>A fictional business page built with semantic HTML.</p>
+    <!-- Navigation links point to unique ids on this same page. -->
+    <nav aria-label="Page sections">
+      <a href="#services">Services</a>
+      <a href="#prices">Practice prices</a>
+      <a href="#questions">Questions</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+  <main id="main-content">
+    <section id="services">
+      <h2>Services</h2>
+      <!-- article groups a self-contained description; h3 sits below h2. -->
+      <article><h3>Office cleaning</h3><p>A fictional service for small offices.</p></article>
+      <!-- PRACTICE: add another article with an h3 and a paragraph here. -->
+      <article><h3>Move out cleaning</h3><p>A fictional service for empty rooms.</p></article>
+    </section>
+    <section id="prices">
+      <h2>Practice prices</h2>
+      <!-- Tables describe related data, not the visual layout of a page. -->
+      <table>
+        <caption>Example service rates in US dollars</caption>
+        <thead><tr><th scope="col">Service</th><th scope="col">Hourly rate</th></tr></thead>
+        <tbody>
+          <!-- EDIT HERE: keep a row's service and rate in separate td cells. -->
+          <tr><th scope="row">Office cleaning</th><td>$50</td></tr>
+          <tr><th scope="row">Move out cleaning</th><td>$65</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section id="questions">
+      <h2>Common questions</h2>
+      <!-- details and summary provide a disclosure without JavaScript. -->
+      <details><summary>Can this page book a job?</summary><p>No. It is a local HTML learning project.</p></details>
+    </section>
+    <section id="contact">
+      <h2>Contact</h2>
+      <!-- address identifies contact information; it need not be a street address. -->
+      <address><a href="mailto:hello@practice.example">hello@practice.example</a></address>
+      <p>The address is fictional. This page does not collect or send inquiries.</p>
+    </section>
+  </main>
+  <footer><p>Training example by Snow Seasons Tech</p><a href="#main-content">Back to content</a></footer>
+</body>
+</html>

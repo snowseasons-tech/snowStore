@@ -1,0 +1,34 @@
+<!doctype html>
+<!-- First run npm install and npm run build:css from the bundle root. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tailwind practice service cards</title>
+  <link rel="stylesheet" href="assets/tailwind.css">
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans leading-relaxed">
+  <!-- mx-auto centers; max-w-5xl limits line length; p-6 adds internal space. -->
+  <main class="mx-auto max-w-5xl p-6">
+    <h1 class="text-3xl font-bold leading-tight">Practice Cleaning Co services</h1>
+    <p class="mt-4 mb-6">Fictional rates for a Tailwind lesson.</p>
+    <!-- TASK: add md:grid-cols-3 to make three columns at medium widths. -->
+    <div class="grid grid-cols-1 gap-4">
+      <!-- Utility classes do the styling; article still carries semantic meaning. -->
+      <article class="rounded-xl border border-slate-300 bg-white p-6">
+        <h2 class="text-xl font-semibold">Office cleaning</h2><p class="my-4">$50 per hour</p>
+        <a class="text-blue-800 underline focus-visible:outline-2 focus-visible:outline-offset-4" href="#contact">Ask about office care</a>
+      </article>
+      <article class="rounded-xl border border-slate-300 bg-white p-6">
+        <h2 class="text-xl font-semibold">Move out cleaning</h2><p class="my-4">$65 per hour</p>
+        <a class="text-blue-800 underline focus-visible:outline-2 focus-visible:outline-offset-4" href="#contact">Ask about moving care</a>
+      </article>
+      <article class="rounded-xl border border-slate-300 bg-white p-6">
+        <h2 class="text-xl font-semibold">Window cleaning</h2><p class="my-4">$55 per hour</p>
+        <a class="text-blue-800 underline focus-visible:outline-2 focus-visible:outline-offset-4" href="#contact">Ask about window care</a>
+      </article>
+    </div>
+    <section id="contact" class="mt-8"><h2 class="text-xl font-semibold">Practice contact</h2><p>Learning example only; no booking delivery.</p></section>
+  </main>
+</body>
+</html>

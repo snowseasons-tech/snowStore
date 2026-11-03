@@ -1,0 +1,7 @@
+/* STARTER: add styles one step at a time using LESSON.md. */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; line-height: 1.6; }
+/* TASK 1: center .container with max-width, margin-inline and padding. */
+/* TASK 2: style .card with padding and a visible border. */
+/* TASK 3: add one-column grid, then the 48rem three-column media query. */
+a:focus-visible { outline: 3px solid #a34700; outline-offset: 3px; }

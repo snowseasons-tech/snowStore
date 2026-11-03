@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Small Business Project Cookbook Volume 1 | Snow Seasons Tech</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef3f7;color:#192d3d;font:17px/1.7 system-ui,sans-serif}header,main,footer{max-width:68rem;margin:auto;padding:2rem}header{padding-bottom:0}.brand{font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;color:#174b78}h1{font-size:2.6rem;line-height:1.15;color:#101c26}h2{margin-top:3rem;padding-top:1rem;border-top:1px solid #c0ced9;font-size:1.7rem;line-height:1.3;color:#101c26}h3{font-size:1.15rem;margin-top:1.8rem;color:#101c26}main{background:#fff}a{color:#145187;text-underline-offset:.16em}a:focus-visible{outline:3px solid #a34700;outline-offset:3px}p,li{max-width:78ch}code{font:.88em/1.5 ui-monospace,monospace;background:#eff3f7;padding:.12em .3em;overflow-wrap:anywhere}pre{background:#eff3f7;padding:1rem;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #c2cfd9}pre code{padding:0}table{border-collapse:collapse;width:100%;font-size:.9rem;margin-block:1.5rem}th,td{border:1px solid #bbcbd8;padding:.65rem;text-align:left;vertical-align:top}th{background:#e6edf3}nav ol{columns:2;column-gap:2rem;padding-left:1.4rem}nav li{break-inside:avoid;margin-bottom:.4rem}footer{font-size:.9rem}.print-note{font-size:.9rem;color:#445c6f}@media(max-width:640px){header,main,footer{padding:1rem}h1{font-size:2rem}nav ol{columns:1}table{font-size:.75rem}th,td{padding:.35rem}}@media print{@page{size:letter;margin:.65in}body{background:white;font-size:10pt}header,main,footer{padding:0;max-width:none}nav,.print-note{display:none}h2[id^="recipe-"]{break-before:page;border:0;margin-top:0}h1,h2,h3{break-after:avoid}p,li{orphans:3;widows:3}a{color:inherit}table{font-size:9pt}thead{display:table-header-group}tr,pre{break-inside:avoid}}
+</style></head><body><header><p class="brand">Snow Seasons Tech • Learn by building</p><p class="print-note">Open this book locally. Use your browser’s Print command for a paper or PDF copy. Project links open the included source folders.</p><nav aria-label="Recipes"><ol><li><a href="#recipe-01-expense-summary">Recipe 01 Expense summary</a></li><li><a href="#recipe-02-customer-follow-up-queue">Recipe 02 Customer follow-up queue</a></li><li><a href="#recipe-03-read-only-folder-inventory">Recipe 03 Read-only folder inventory</a></li><li><a href="#recipe-04-local-records-archive">Recipe 04 Local records archive</a></li><li><a href="#recipe-05-customer-and-job-reports">Recipe 05 Customer and job reports</a></li><li><a href="#recipe-06-overdue-invoice-balances">Recipe 06 Overdue invoice balances</a></li><li><a href="#recipe-07-office-opening-checklist">Recipe 07 Office opening checklist</a></li><li><a href="#recipe-08-saved-daily-checklist">Recipe 08 Saved daily checklist</a></li><li><a href="#recipe-09-interactive-service-quote">Recipe 09 Interactive service quote</a></li><li><a href="#recipe-10-responsive-service-cards">Recipe 10 Responsive service cards</a></li><li><a href="#recipe-11-data-driven-service-website">Recipe 11 Data-driven service website</a></li><li><a href="#recipe-12-searchable-stock-dashboard">Recipe 12 Searchable stock dashboard</a></li></ol></nav></header><main><h1>Small Business Project Cookbook</h1>
+<p>Snow Seasons Tech • Volume 1 • Version 1.0</p>
+<p>Twelve practical recipes for adults who own small businesses and are learning to code. Use Python for reports, Bash for file tasks, SQL for related data, HTML for structure, CSS and Tailwind for presentation, JavaScript for browser interaction, and Jekyll to assemble reusable pages.</p>
+<p>This cookbook includes complete commented source, fictional sample data, expected outcomes and modification challenges. Seven recipes introduce new examples; five adapt projects from the companion lesson bundles. The adapted recipes are 4, 5, 9, 10 and 11. You do not need those older downloads because their required source is included here.</p>
+<h2 id="how-to-use-this-book">How to use this book</h2>
+<ol>
+<li>Choose one recipe and read its ingredients before installing anything.</li>
+<li>Run the supplied sample unchanged and compare with the expected result.</li>
+<li>Read the source comments, make one modification and predict its effect.</li>
+<li>Try a bad input or failure case, then explain the recovery behavior.</li>
+<li>Keep your edited learning copy separate from the reference solution.</li>
+</ol>
+<p>Open COOKBOOK.html for the styled, printable edition or COOKBOOK.md for the plain text source. All recipes have a local README.md beside their code. The book links directly to each recipe folder. Browser code is provided for learning; a complete security, accessibility and operational review is still needed before adapting it to actual customers.</p>
+<h2 id="choose-a-project">Choose a project</h2>
+<table>
+<thead>
+<tr>
+<th>Recipe</th>
+<th>Useful result</th>
+<th>Languages</th>
+<th>Approximate time</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01</td>
+<td><a href="projects/01_expense_summary/README.md">Expense summary</a></td>
+<td>Python</td>
+<td>45–60 minutes</td>
+</tr>
+<tr>
+<td>02</td>
+<td><a href="projects/02_followup_queue/README.md">Customer follow-up queue</a></td>
+<td>Python</td>
+<td>45–60 minutes</td>
+</tr>
+<tr>
+<td>03</td>
+<td><a href="projects/03_folder_inventory/README.md">Read-only folder inventory</a></td>
+<td>Bash</td>
+<td>30–45 minutes</td>
+</tr>
+<tr>
+<td>04</td>
+<td><a href="projects/04_records_archive/README.md">Local records archive</a></td>
+<td>Bash</td>
+<td>45–75 minutes</td>
+</tr>
+<tr>
+<td>05</td>
+<td><a href="projects/05_customer_job_reports/README.md">Customer and job reports</a></td>
+<td>SQL with SQLite</td>
+<td>60–90 minutes</td>
+</tr>
+<tr>
+<td>06</td>
+<td><a href="projects/06_receivables/README.md">Overdue invoice balances</a></td>
+<td>SQL with SQLite</td>
+<td>45–75 minutes</td>
+</tr>
+<tr>
+<td>07</td>
+<td><a href="projects/07_opening_checklist/README.md">Office opening checklist</a></td>
+<td>HTML and CSS</td>
+<td>30–45 minutes</td>
+</tr>
+<tr>
+<td>08</td>
+<td><a href="projects/08_saved_checklist/README.md">Saved daily checklist</a></td>
+<td>HTML, CSS and JavaScript</td>
+<td>60–90 minutes</td>
+</tr>
+<tr>
+<td>09</td>
+<td><a href="projects/09_service_quote/README.md">Interactive service quote</a></td>
+<td>HTML, CSS and JavaScript</td>
+<td>60–90 minutes</td>
+</tr>
+<tr>
+<td>10</td>
+<td><a href="projects/10_responsive_service_cards/README.md">Responsive service cards</a></td>
+<td>HTML, CSS and Tailwind</td>
+<td>90–150 minutes plus setup</td>
+</tr>
+<tr>
+<td>11</td>
+<td><a href="projects/11_service_website/README.md">Data-driven service website</a></td>
+<td>Jekyll, HTML, JavaScript and CSS</td>
+<td>2–3 hours plus setup</td>
+</tr>
+<tr>
+<td>12</td>
+<td><a href="projects/12_stock_dashboard/README.md">Searchable stock dashboard</a></td>
+<td>Python, SQL, HTML, CSS and JavaScript</td>
+<td>2–3 hours</td>
+</tr>
+</tbody></table>
+<h2 id="setup-conventions">Setup conventions</h2>
+<p>Start terminal commands from the extracted Small_Business_Project_Cookbook root unless a recipe explicitly tells you to change directory. Replace ALL_CAPS path placeholders with actual paths. Keep paths in quotes. Python commands use python3 on Linux/macOS; on Windows substitute py -3. Bash recipes use WSL on Windows. HTML pages open locally unless a recipe specifies a loopback server. SQLite dot commands run inside sqlite3, not in your operating system shell.</p>
+<p>Python recipes use the standard library and require no pip packages. SQLite shell, Node/npm, Ruby and Bundler are only needed for the recipes that name them. Tailwind setup follows v4, and Jekyll follows the supplied Gemfile. Follow current official operating system instructions rather than running everything with administrator rights.</p>
+<h2 id="what-has-been-verified">What has been verified</h2>
+<p>See TESTING.md for the exact checks. Python, Bash and SQLite data behavior are tested locally. JavaScript checks use a Node runtime and mocked DOM/storage objects. Browser rendering, cross-browser accessibility, Tailwind dependency compilation and Jekyll builds are not claimed as complete. The cookbook is ready for your review and beginner pilot testing, with those release gates visible.</p>
+<h2 id="recipe-01-expense-summary">Recipe 01 Expense summary</h2>
+<p><strong>Outcome:</strong> Read a CSV of expenses and total each category without editing the source.</p>
+<p><strong>Languages:</strong> Python. <strong>Time:</strong> 45–60 minutes.</p>
+<p><strong>Files:</strong> <a href="projects/01_expense_summary/">projects/01_expense_summary</a>.</p>
+<h3>Ingredients</h3>
+<p>Python 3.11 or later. The standard library supplies csv, decimal and argparse; no pip installation is needed. Files: report.py and expenses.csv.</p>
+<h3>Method</h3>
+<ol>
+<li>Inspect expenses.csv. It has date, category and amount headings with four fictional records.</li>
+<li>From the cookbook root run <code>python3 projects/01_expense_summary/report.py</code>. On Windows use <code>py -3</code> instead of <code>python3</code> in all Python commands.</li>
+<li>Read the inline comments, then find summarize and money. Note where text becomes a Decimal and then whole cents.</li>
+<li>To use a separate practice file, run <code>python3 projects/01_expense_summary/report.py &quot;PATH_TO_CSV&quot;</code>, replacing the placeholder with your file path. Quotes preserve spaces.</li>
+</ol>
+<h3>Expected result</h3>
+<p>Software: $29.00; Supplies: $60.00; Travel: $18.25; Total: $107.25. Category lines are sorted alphabetically.</p>
+<h3>Make it your own</h3>
+<p>Add a $10.00 Travel record using a valid date. Predict the new category and overall totals, then run. Answer: Travel $28.25 and total $117.25. In a copy, try amount hello or 1.001 and confirm a readable failure with no partial report.</p>
+<h3>Error handling and limits</h3>
+<p>Requires exact, unique CSV headings. Missing files, malformed rows, invalid dates, nonfinite amounts and fractional cents are rejected. Negative amounts are deliberately unsupported; refunds require a separate policy. Category matching is case-sensitive. This is a summary tool, not a tax or accounting ledger.</p>
+<h2 id="recipe-02-customer-follow-up-queue">Recipe 02 Customer follow-up queue</h2>
+<p><strong>Outcome:</strong> List open follow-ups due on or before a chosen date, without sending messages.</p>
+<p><strong>Languages:</strong> Python. <strong>Time:</strong> 45–60 minutes.</p>
+<p><strong>Files:</strong> <a href="projects/02_followup_queue/">projects/02_followup_queue</a>.</p>
+<h3>Ingredients</h3>
+<p>Python 3.11 or later. Files: followups.py and customers.csv. The fixed comparison date below makes results repeatable.</p>
+<h3>Method</h3>
+<ol>
+<li>Read the four sample rows in customers.csv. open and closed are the only allowed statuses.</li>
+<li>Run <code>python3 projects/02_followup_queue/followups.py --as-of 2026-10-29</code>.</li>
+<li>Trace date.fromisoformat, the open-status check and the final sort in the commented source.</li>
+<li>Run again with <code>--as-of 2026-11-05</code> and compare the queue. Omit --as-of to use your computer&#39;s local current date.</li>
+</ol>
+<h3>Expected result</h3>
+<p>For 2026-10-29, Aspen Cleaning and Cedar Repairs appear in date order; Due follow-ups: 2. Pine Office is excluded because it is closed.</p>
+<h3>Make it your own</h3>
+<p>Move Frost Studio&#39;s follow-up to 2026-10-28 in a copy. Answer: three due tasks at the fixed date, sorted Aspen, Frost, Cedar. Set a status to pending and confirm the script rejects it instead of guessing its meaning.</p>
+<h3>Error handling and limits</h3>
+<p>Dates and statuses are checked before a report prints. This is a date-only workflow and does not schedule reminders, interpret time zones or contact customers. Use the result as a manual work queue.</p>
+<h2 id="recipe-03-read-only-folder-inventory">Recipe 03 Read-only folder inventory</h2>
+<p><strong>Outcome:</strong> List regular files in one folder, including hidden files, without moving or changing them.</p>
+<p><strong>Languages:</strong> Bash. <strong>Time:</strong> 30–45 minutes.</p>
+<p><strong>Files:</strong> <a href="projects/03_folder_inventory/">projects/03_folder_inventory</a>.</p>
+<h3>Ingredients</h3>
+<p>Bash 3.2 or later. On Windows use WSL. Files: inventory.sh and the fictional sample files directory. No sudo or chmod is needed when invoking bash.</p>
+<h3>Method</h3>
+<ol>
+<li>From the cookbook root run <code>bash projects/03_folder_inventory/inventory.sh &quot;projects/03_folder_inventory/sample files&quot;</code>.</li>
+<li>Read the comments about nullglob, dotglob and symbolic links.</li>
+<li>Compare the printed escaped filenames with the directory contents.</li>
+<li>Run against an empty practice directory and then a nonexistent directory to compare success and failure.</li>
+</ol>
+<h3>Expected result</h3>
+<p>Three file entries and Regular files: 3. A filename containing a space may be displayed with a backslash because printf %q uses shell-escaped output.</p>
+<h3>Make it your own</h3>
+<p>Add a fourth plain-text sample file and a subfolder. Answer: regular file count becomes four, not five. A symlink is skipped even if it points to a regular file. Try a path with spaces to check quoting.</p>
+<h3>Error handling and limits</h3>
+<p>Only one directory level is inspected. Symlinks and subdirectories are excluded. The tool checks access to the directory but does not read or validate the contents of each file. Output is printed to the terminal; redirecting it with &gt; is a separate action that can replace an existing destination.</p>
+<h2 id="recipe-04-local-records-archive">Recipe 04 Local records archive</h2>
+<p><strong>Outcome:</strong> Create fictional business records, archive them after confirmation and practice restoring them.</p>
+<p><strong>Languages:</strong> Bash. <strong>Time:</strong> 45–75 minutes.</p>
+<p><strong>Files:</strong> <a href="projects/04_records_archive/">projects/04_records_archive</a>.</p>
+<h3>Ingredients</h3>
+<p>Bash, mkdir, mktemp and tar. This recipe adapts the commented archive solution from the Bash lesson pack.</p>
+<h3>Method</h3>
+<ol>
+<li>Run <code>bash projects/04_records_archive/archive.sh</code> from the cookbook root.</li>
+<li>First type no. Sample records are created in a new private workspace but no archive is made.</li>
+<li>Run again, type yes and copy the printed workspace path. The archive contains Invoices/sample.txt, Receipts/sample.txt and Reports/sample.txt.</li>
+<li>Set <code>workspace=&quot;PASTE_PRINTED_WORKSPACE_PATH&quot;</code> in your Bash terminal, replacing the placeholder. Use the guarded restore pattern in the master cheat sheet to extract into a fresh directory.</li>
+</ol>
+<h3>Expected result</h3>
+<p>A new workspace under your home directory, three sample records and, after yes, backup/business-records.tar.gz. Listing the archive shows the sample members.</p>
+<h3>Make it your own</h3>
+<p>Add Customers to the categories array. Answer: the new archive has four sample files. Restore the archive and inspect Invoices/sample.txt before considering the exercise complete.</p>
+<h3>Error handling and limits</h3>
+<p>The script creates new practice data, not a backup of your actual business folder. It preserves earlier runs. Failed creation exits nonzero and partial output must not be treated as a valid archive. A same-device archive does not protect against losing the device.</p>
+<h2 id="recipe-05-customer-and-job-reports">Recipe 05 Customer and job reports</h2>
+<p><strong>Outcome:</strong> Join customer names to jobs and report completed job values while preserving customers with no matches.</p>
+<p><strong>Languages:</strong> SQL with SQLite. <strong>Time:</strong> 60–90 minutes.</p>
+<p><strong>Files:</strong> <a href="projects/05_customer_job_reports/">projects/05_customer_job_reports</a>.</p>
+<h3>Ingredients</h3>
+<p>SQLite command line shell with foreign key support. The source is adapted from the SQL lesson pack. The README in this recipe is the cookbook-specific launch guide.</p>
+<h3>Method</h3>
+<ol>
+<li>From the cookbook root open a new practice file: <code>sqlite3 -bail cookbook_jobs_01.db</code>. Use a new filename if already used.</li>
+<li>At the SQLite prompt enter <code>.bail on</code>, <code>.headers on</code> and <code>.mode column</code> on separate lines.</li>
+<li>Run <code>.read projects/05_customer_job_reports/setup.sql</code>, then <code>.read projects/05_customer_job_reports/reports_solution.sql</code>.</li>
+<li>Read the joins and GROUP BY clauses. Run <code>.read projects/05_customer_job_reports/changes_practice.sql</code> to see temporary edits rolled back.</li>
+</ol>
+<h3>Expected result</h3>
+<p>Four customers, five jobs and completed job value 50000 cents ($500.00). The completed-customer report retains Pine Office with zero matching jobs.</p>
+<h3>Make it your own</h3>
+<p>Change the grouped-report threshold from 20000 to 10000 cents in a copy. Answer: Cedar Repairs, Aspen Cleaning and Frost Studio qualify. Explain why COUNT(j.job_id), rather than COUNT(*), is used after the LEFT JOIN.</p>
+<h3>Error handling and limits</h3>
+<p>Keep foreign keys enabled on each connection. If a script error leaves an interactive transaction open, enter ROLLBACK before starting over. Completed job value is not necessarily cash collected or recognized revenue. SQL shell dot commands are not portable to PostgreSQL or MySQL.</p>
+<h2 id="recipe-06-overdue-invoice-balances">Recipe 06 Overdue invoice balances</h2>
+<p><strong>Outcome:</strong> Combine invoices with partial payments and list balances overdue before a fixed date.</p>
+<p><strong>Languages:</strong> SQL with SQLite. <strong>Time:</strong> 45–75 minutes.</p>
+<p><strong>Files:</strong> <a href="projects/06_receivables/">projects/06_receivables</a>.</p>
+<h3>Ingredients</h3>
+<p>SQLite command line shell. File: receivables.sql. This is a small fictional teaching ledger, not a payment processor.</p>
+<h3>Method</h3>
+<ol>
+<li>Open a fresh file from the cookbook root: <code>sqlite3 -bail cookbook_receivables_01.db</code>.</li>
+<li>Enter <code>.bail on</code>, <code>.headers on</code> and <code>.mode column</code>, each on its own line.</li>
+<li>Run <code>.read projects/06_receivables/receivables.sql</code> once. Read the comments explaining the paid CTE.</li>
+<li>To experiment without rerunning setup, copy only the final WITH ... SELECT statement into a query file. A CTE exists for the statement immediately following it.</li>
+</ol>
+<h3>Expected result</h3>
+<p>Invoice 1 for Aspen Cleaning, due 2026-10-20, with balance_cents 12500 ($125.00). Invoice 2 is fully paid. Invoice 3 is not yet overdue on 2026-10-29.</p>
+<h3>Make it your own</h3>
+<p>In a new database, add a further 2500-cent payment for invoice 1. Answer: its balance becomes 10000 cents. Advance the comparison date to 2026-11-11 in the report only: invoice 3 also appears with 10000 cents.</p>
+<h3>Error handling and limits</h3>
+<p>Aggregate payments before joining them to invoices. Joining raw one-to-many payments and summing invoice totals would double count some invoices. Overpayments, refunds, voids, multiple currencies and real calendar-date validation are outside this simplified schema.</p>
+<h2 id="recipe-07-office-opening-checklist">Recipe 07 Office opening checklist</h2>
+<p><strong>Outcome:</strong> Create a readable checklist with native controls and expandable instructions, without JavaScript.</p>
+<p><strong>Languages:</strong> HTML and CSS. <strong>Time:</strong> 30–45 minutes.</p>
+<p><strong>Files:</strong> <a href="projects/07_opening_checklist/">projects/07_opening_checklist</a>.</p>
+<h3>Ingredients</h3>
+<p>Plain-text editor and browser. Files: index.html and styles.css. Keep them together.</p>
+<h3>Method</h3>
+<ol>
+<li>Open projects/07_opening_checklist/index.html in your browser.</li>
+<li>Read the HTML comments about fieldset, legend and nested labels.</li>
+<li>Use Tab to focus a checkbox and Space to toggle it. Activate the details summary using keyboard and pointer.</li>
+<li>Edit a label, save and refresh. This example deliberately does not promise any saved state.</li>
+</ol>
+<h3>Expected result</h3>
+<p>Three labeled tasks and an expandable explanation. The page works as a local interface even without JavaScript.</p>
+<h3>Make it your own</h3>
+<p>Add a fourth labeled checkbox for checking the entrance. Answer: place a new label/input pair inside the fieldset; no script change is required. Explain why a placeholder is not a substitute for a visible label.</p>
+<h3>Error handling and limits</h3>
+<p>There is no completion history, shared account or reliable persistence. A browser might restore form state opportunistically, but this is not an audit record. A real operating procedure should be reviewed by the business owner.</p>
+<h2 id="recipe-08-saved-daily-checklist">Recipe 08 Saved daily checklist</h2>
+<p><strong>Outcome:</strong> Persist three checkbox states in the browser with schema checks and readable storage-error messages.</p>
+<p><strong>Languages:</strong> HTML, CSS and JavaScript. <strong>Time:</strong> 60–90 minutes.</p>
+<p><strong>Files:</strong> <a href="projects/08_saved_checklist/">projects/08_saved_checklist</a>.</p>
+<h3>Ingredients</h3>
+<p>Browser and editor. Python 3 is useful for a predictable local origin. Files: index.html, styles.css and checklist.js.</p>
+<h3>Method</h3>
+<ol>
+<li>From the cookbook root start a loopback-only development server: <code>python3 -m http.server 8080 --bind 127.0.0.1 --directory projects/08_saved_checklist</code>. Windows uses py -3 instead of python3.</li>
+<li>Open <a href="http://127.0.0.1:8080/">http://127.0.0.1:8080/</a> and check a task. Refresh at the same address. If storage is available, the check remains.</li>
+<li>Read the try/catch blocks, versioned storage key and JSON shape validation in checklist.js.</li>
+<li>Clear completed tasks using the button. Stop the terminal server with Ctrl+C when finished.</li>
+</ol>
+<h3>Expected result</h3>
+<p>With available storage, changes report Checklist saved in this browser and survive refresh at the same origin. If storage is blocked, a readable message explains that only the current page session works.</p>
+<h3>Make it your own</h3>
+<p>Add another task only after updating ids and deciding how to migrate or version stored data. Answer: changing the array length makes old saved arrays incompatible; use a new versioned key or a deliberate migration. Explain why this recipe does not call localStorage.clear().</p>
+<h3>Error handling and limits</h3>
+<p>Local file URL storage behavior varies, so use the loopback server for the exercise. Changing hostname, protocol or port changes the storage origin. Browser clearing, private browsing or blocked storage may lose data. This is not a shared audit trail, encrypted vault or backup.</p>
+<h2 id="recipe-09-interactive-service-quote">Recipe 09 Interactive service quote</h2>
+<p><strong>Outcome:</strong> Calculate a pretax practice estimate with native form constraints, function validation and a clear breakdown.</p>
+<p><strong>Languages:</strong> HTML, CSS and JavaScript. <strong>Time:</strong> 60–90 minutes.</p>
+<p><strong>Files:</strong> <a href="projects/09_service_quote/">projects/09_service_quote</a>.</p>
+<h3>Ingredients</h3>
+<p>Browser and editor. This recipe adapts the JavaScript paid lesson pack and includes commented starter and solution files.</p>
+<h3>Method</h3>
+<ol>
+<li>Open projects/09_service_quote/index_solution.html locally. Calculate using its default inputs.</li>
+<li>Compare quote.js (calculation) and app_solution.js (form events). Trace the named result object to the displayed breakdown.</li>
+<li>Change a field after calculation; the old estimate must be cleared. Try invalid or fractional input and use Reset inputs.</li>
+<li>Work through the copied LESSON.md to extend index_starter.html and app_starter.js from labor-only output to the full calculation.</li>
+</ol>
+<h3>Expected result</h3>
+<p>Default subtotal $175.00, discount $17.50 and estimate $157.50. With 4 hours, $60 rate, $40 materials and 5 percent discount, total $266.00.</p>
+<h3>Make it your own</h3>
+<p>Show labor and materials separately using textContent and formatted amounts. Answer: quote.laborCents and quote.materialsCents contain those values; divide by 100 only for currency display. Keep the try/catch and stale-output behavior.</p>
+<h3>Error handling and limits</h3>
+<p>Only bounded whole hours, whole-dollar inputs and whole-percent discounts are accepted. Tax, billing, saved estimates and payment processing are absent. A future backend must independently validate inputs; client-side constraints do not establish server trust.</p>
+<h2 id="recipe-10-responsive-service-cards">Recipe 10 Responsive service cards</h2>
+<p><strong>Outcome:</strong> Build equivalent card layouts in plain CSS and Tailwind v4 and understand what the build generates.</p>
+<p><strong>Languages:</strong> HTML, CSS and Tailwind. <strong>Time:</strong> 90–150 minutes plus setup.</p>
+<p><strong>Files:</strong> <a href="projects/10_responsive_service_cards/">projects/10_responsive_service_cards</a>.</p>
+<h3>Ingredients</h3>
+<p>Browser/editor for plain CSS. The Tailwind branch also needs a supported Node LTS release, npm and an internet connection for dependency installation. This recipe adapts the styling lesson pack.</p>
+<h3>Method</h3>
+<ol>
+<li>Open projects/10_responsive_service_cards/free_starter/index_solution.html. Inspect the grid and media query in styles_solution.css.</li>
+<li>In a terminal change into projects/10_responsive_service_cards, then run <code>npm install</code> and <code>npm run build:css</code>.</li>
+<li>After a successful build open paid_pack/index_solution.html. Generated paid_pack/assets/tailwind.css supplies the styles.</li>
+<li>Compare grid grid-cols-1 gap-4 md:grid-cols-3 with the plain CSS grid. Try changes in the starters and rebuild the Tailwind stylesheet.</li>
+</ol>
+<h3>Expected result</h3>
+<p>A readable single column at narrow widths and three columns at medium/wider widths. The Tailwind page needs its generated stylesheet before it can show the intended layout.</p>
+<h3>Make it your own</h3>
+<p>Change md:grid-cols-3 to md:grid-cols-2. Answer: cards use two columns from the medium breakpoint and the third wraps. Add text-brand to a heading and rebuild to exercise the @theme custom color.</p>
+<h3>Error handling and limits</h3>
+<p>Tailwind dependencies and output are not installed or precompiled in this cookbook. Keep the generated package-lock.json after testing. Use complete utility names in scanned source, preserve semantic markup and keep keyboard focus visible. Do not assume a copied older v3 init command matches this v4 project.</p>
+<h2 id="recipe-11-data-driven-service-website">Recipe 11 Data-driven service website</h2>
+<p><strong>Outcome:</strong> Combine shared navigation, YAML service cards and the quote calculator into a multi-page static project.</p>
+<p><strong>Languages:</strong> Jekyll, HTML, JavaScript and CSS. <strong>Time:</strong> 2–3 hours plus setup.</p>
+<p><strong>Files:</strong> <a href="projects/11_service_website/">projects/11_service_website</a>.</p>
+<h3>Ingredients</h3>
+<p>Supported Ruby/Jekyll development environment and Bundler. Plain CSS is the default. Optional Tailwind uses its own Node/npm build. This adapts the combined Jekyll project.</p>
+<h3>Method</h3>
+<ol>
+<li>Follow projects/11_service_website/README.md for operating system prerequisites.</li>
+<li>In that project directory run <code>bundle config set --local path vendor/bundle</code>, <code>bundle install</code> and <code>bundle exec jekyll build --trace</code>.</li>
+<li>Run <code>bundle exec jekyll serve --host 127.0.0.1</code> and open <a href="http://127.0.0.1:4000/">http://127.0.0.1:4000/</a> after success.</li>
+<li>Add a fictional record to _data/services.yml and rebuild. Trace the Liquid loop, include and layout. Test the calculator and the documented /practice-site baseurl example.</li>
+</ol>
+<h3>Expected result</h3>
+<p>Home, services, calculator and about pages with consistent navigation. The services page contains three cards initially; the default calculator result is $157.50.</p>
+<h3>Make it your own</h3>
+<p>Add a fourth service and a new plain content page. Answer: update the YAML list, then create a page with layout: default and a unique permalink; add a relative_url navigation link. Do not edit _site.</p>
+<h3>Error handling and limits</h3>
+<p>The Ruby build and optional Tailwind build still need verification in a configured environment. _site is generated output, not editable source. No GitHub workflow, hosting action, inquiry delivery or deployment is included. The calculator rate is entered manually rather than automatically selected from YAML.</p>
+<h2 id="recipe-12-searchable-stock-dashboard">Recipe 12 Searchable stock dashboard</h2>
+<p><strong>Outcome:</strong> Validate inventory CSV, create a SQLite snapshot and generate a self-contained searchable HTML report.</p>
+<p><strong>Languages:</strong> Python, SQL, HTML, CSS and JavaScript. <strong>Time:</strong> 2–3 hours.</p>
+<p><strong>Files:</strong> <a href="projects/12_stock_dashboard/">projects/12_stock_dashboard</a>.</p>
+<h3>Ingredients</h3>
+<p>Python 3.11 or later with sqlite3 and a browser. Files: stock.csv, build_dashboard.py and dashboard_template.html. No pip packages, web server or API is needed.</p>
+<h3>Method</h3>
+<ol>
+<li>Inspect stock.csv, including whole-item quantities, reorder thresholds and dollar unit prices.</li>
+<li>From the cookbook root run <code>python3 projects/12_stock_dashboard/build_dashboard.py</code>.</li>
+<li>Copy the printed report path and open that index.html in your browser. Search for Reorder, then Gloves, then clear the field.</li>
+<li>Read validate_stock, create_database and render_dashboard. Values enter SQL through bound parameters and enter HTML through escaping. To place fresh report folders elsewhere, use <code>--output-parent &quot;EXISTING_WRITABLE_FOLDER&quot;</code>.</li>
+</ol>
+<h3>Expected result</h3>
+<p>A fresh stock-report-* directory containing stock.db and index.html. Four items, two requiring reorder. Paper towels and Glass cleaner have quantities at or below their thresholds. Filtering Reorder shows those two rows; Gloves shows one.</p>
+<h3>Make it your own</h3>
+<p>Set Gloves quantity to 3 in a practice CSV and rebuild. Answer: three reorder items appear in the new snapshot. Add a duplicate SKU or fractional-cent price and confirm it fails. Put <code>&lt;em&gt;Sample&lt;/em&gt;</code> in a name and confirm it displays literally rather than becoming HTML.</p>
+<h3>Error handling and limits</h3>
+<p>This is an immutable snapshot: browser filtering changes visibility only. Inventory edits require changing source data and rebuilding. Every run creates new output rather than overwriting earlier reports. A filesystem failure may leave a partial output folder. The page is self-contained but not an authenticated inventory application.</p>
+<h2 id="combine-the-recipes-into-a-workflow">Combine the recipes into a workflow</h2>
+<p>Use the expense summary and follow-up queue for personal practice reports. Use SQL customer/job reports to learn relationships before the receivables example. Build a semantic page before adding JavaScript, then compare ordinary CSS with Tailwind. Jekyll turns repeated page content into layouts and data. The stock dashboard combines Python validation, SQLite storage and safe HTML generation without introducing a server API.</p>
+<p>These are independent recipes, not an integrated live business suite. They do not share a customer database or authentication. The two explicit combined projects are the Jekyll site and stock dashboard. Linking the other tools into production would require a shared data model and a separate design.</p>
+<h2 id="official-references">Official references</h2>
+<ul>
+<li>Python CSV: <a href="https://docs.python.org/3/library/csv.html">https://docs.python.org/3/library/csv.html</a></li>
+<li>Python SQLite: <a href="https://docs.python.org/3/library/sqlite3.html">https://docs.python.org/3/library/sqlite3.html</a></li>
+<li>Bash manual: <a href="https://www.gnu.org/software/bash/manual/bash.html">https://www.gnu.org/software/bash/manual/bash.html</a></li>
+<li>SQLite shell: <a href="https://www.sqlite.org/cli.html">https://www.sqlite.org/cli.html</a></li>
+<li>HTML and JavaScript: <a href="https://developer.mozilla.org/en-US/docs/Learn_web_development">https://developer.mozilla.org/en-US/docs/Learn_web_development</a></li>
+<li>Browser storage: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage</a></li>
+<li>Tailwind CLI: <a href="https://tailwindcss.com/docs/installation/tailwind-cli">https://tailwindcss.com/docs/installation/tailwind-cli</a></li>
+<li>Jekyll: <a href="https://jekyllrb.com/docs/">https://jekyllrb.com/docs/</a></li>
+</ul>
+</main><footer>Review and pilot edition • Read TESTING.md before releasing these projects to students.</footer></body></html>

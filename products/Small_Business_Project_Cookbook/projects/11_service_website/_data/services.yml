@@ -1,0 +1,11 @@
+# EDIT HERE: page content comes from these records.
+# Keep cents as whole numbers; display_price is text for service listings.
+- name: "Office cleaning"
+  description: "Fictional service for small offices."
+  display_price: "$50 per hour"
+- name: "Move out cleaning"
+  description: "Fictional care for empty rooms."
+  display_price: "$65 per hour"
+- name: "Window cleaning"
+  description: "Fictional window care."
+  display_price: "$55 per hour"

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creator content board</title>
+<style>
+/* Self-contained report: no network fonts, CDN or build is required. */
+* { box-sizing: border-box; }
+body { margin: 0; font: 1rem/1.6 system-ui,sans-serif; color: #17324a; background: #f3f7fa; }
+main { max-width: 70rem; margin: auto; padding: 1.5rem; }
+label { display: block; font-weight: 700; }
+input { font: inherit; padding: .6rem; max-width: 100%; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; }
+caption { text-align: left; font-weight: 700; }
+th,td { padding: .6rem; text-align: left; border: 1px solid #a6bacb; }
+input:focus-visible { outline: 3px solid #a34700; outline-offset: 3px; }
+@media print { input, label { display: none; } tr[hidden] { display: table-row; } }
+</style></head><body><main>
+<h1>Creator content board</h1><p>Generated snapshot, not a live publishing system. Edit the CSV and rebuild to change the plan.</p>
+<label for="filter">Filter visible posts by any displayed text</label>
+<input id="filter" type="search" placeholder="Try ready or video">
+<p id="count" role="status">All posts shown.</p>
+<div class="scroll"><table><caption>Content plan snapshot</caption>
+<thead><tr><th scope="col">Post ID</th><th scope="col">Title</th><th scope="col">Format</th><th scope="col">Planned date</th><th scope="col">Status</th></tr></thead>
+<tbody><!-- CONTENT_ROWS --></tbody></table></div>
+<noscript>JavaScript is disabled. All rows remain readable; filtering is unavailable.</noscript>
+</main><script>
+"use strict";
+// Only filter existing text nodes; do not construct HTML from the search value.
+const search = document.querySelector("#filter");
+const count = document.querySelector("#count");
+const rows = Array.from(document.querySelectorAll("tbody tr"));
+if (search && count) {
+  search.addEventListener("input", function () {
+    const term = search.value.trim().toLowerCase();
+    let visible = 0;
+    rows.forEach(row => {
+      row.hidden = !row.textContent.toLowerCase().includes(term);
+      if (!row.hidden) visible += 1;
+    });
+    count.textContent = `${visible} of ${rows.length} posts shown.`;
+  });
+} else {
+  console.error("Missing content board filter controls.");
+}
+</script></body></html>

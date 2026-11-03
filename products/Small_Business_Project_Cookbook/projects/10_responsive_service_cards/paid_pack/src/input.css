@@ -1,0 +1,7 @@
+/* Tailwind v4 imports the framework and opts into explicit source scanning. */
+@import "tailwindcss" source(none);
+/* Paths below are relative to this input CSS file, not your terminal. */
+@source "../index_starter.html";
+@source "../index_solution.html";
+/* PRACTICE: optional brand utility generated as bg-brand and text-brand. */
+@theme { --color-brand: #174b78; }

@@ -1,0 +1,18 @@
+---
+layout: default
+title: Services
+permalink: /services/
+---
+<h1>Practice services</h1>
+<p>All descriptions and rates are fictional.</p>
+<div class="service-grid">
+  <!-- Liquid loops through the YAML file and renders a card for each service. -->
+  {% for service in site.data.services %}
+    <article class="service-card">
+      <h2>{{ service.name | escape }}</h2>
+      <p>{{ service.description | escape }}</p>
+      <p>{{ service.display_price | escape }}</p>
+    </article>
+  {% endfor %}
+</div>
+<p><a href="{{ '/quote/' | relative_url }}">Try a custom practice estimate</a>. The calculator accepts a manually entered rate; choosing a service does not automatically fill it.</p>

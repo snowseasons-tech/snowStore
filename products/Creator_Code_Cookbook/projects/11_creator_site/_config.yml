@@ -1,0 +1,6 @@
+title: "Pixel Journal"
+description: "A fictional creator portfolio and caption lab"
+url: ""
+# Use /creator-site for a project subpath; leave empty at the domain root.
+baseurl: ""
+exclude: [README.md, Gemfile, Gemfile.lock, vendor]
