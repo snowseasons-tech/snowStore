@@ -196,6 +196,16 @@ const PRODUCTS=[
   features:["Coordinated content planning","Post creation","Scheduling and publishing","Brand consistency management","Account monitoring","Performance reporting"],
   notes:["Supports approved business accounts across Facebook, Instagram, LinkedIn and other supported platforms","Posting frequency and content deliverables are defined by the service agreement","Paid advertising and third-party platform fees are excluded"],
   unit:"subscription"},
+ {id:"snowsocial",icon:"social-media",name:"SnowSocial — Social Content Planner",category:"Social Media",
+  blurb:"Plan, approve, schedule and review monthly performance for one business brand in a single workspace.",
+  tagline:"Early-access software pilot",
+  featuresTitle:"Pilot includes",
+  features:["One administrator workspace for one business brand","Content drafts, approval, scheduling and delivery status","Supported publishing to Facebook, Instagram, Google Business Profile, LinkedIn and X","Monthly channel and post-level performance summaries with CSV export"],
+  notes:["Pilot price: $99/month plus $250 one-time onboarding. Request access; checkout is not enabled yet.","Publishing formats vary: Facebook, LinkedIn and X text; Instagram single-image posts; Google Business Profile Local Posts.","Provider permissions and API availability are required. X analytics is optional and may incur provider usage charges.","Content creation, branded graphics, advertising and inbox management are not included; managed social media services are separate.","The MVP supports one administrator and is not a self-serve multi-client platform."],
+  contactPrice:"$99/month + $250 onboarding",
+  contactHref:"mailto:info@snowseasonstech.net?subject=SnowSocial%20pilot%20request&body=I%20would%20like%20to%20discuss%20SnowSocial%20pilot%20access.",
+  contactLabel:"Request a pilot",
+  unit:"software pilot"},
  {id:"managed-database",icon:"managed-database",name:"Managed Database Infrastructure",category:"Infrastructure",
   blurb:"Snow Seasons Tech provides ongoing database administration, infrastructure maintenance, security oversight, and technical support for business-critical database environments. Our managed infrastructure service helps organizations maintain reliable database operations, protect business information, and support the applications and websites that depend on structured data.",
   featuresTitle:"Services include",
@@ -239,14 +249,15 @@ const pic=p=>p.icon?`<img class="pic" src="/img/icons/${esc(p.icon)}.webp" alt="
 const thumb=p=>p.img?`<img class="thumb" src="${esc(p.img)}" alt="${esc(p.alt||"")}" width="800" height="450" loading="lazy" decoding="async">`:"";
 const tagline=p=>p.tagline?`<p class="tagline">${esc(p.tagline)}</p>`:"";
 const buyLabel=p=>p.unit==="subscription"?"Subscribe":"Buy now";
-const priceRow=p=>`<div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div>`;
+const buyAction=p=>p.contactHref?`<a class="btn" href="${esc(p.contactHref)}">${esc(p.contactLabel||"Contact us")}</a>`:"<button class=\"btn\" data-buy=\""+esc(p.id)+"\" type=\"button\">"+buyLabel(p)+"</button>";
+const priceRow=p=>p.contactPrice?`<div class="price">${esc(p.contactPrice)} <small>${esc(p.unit||"")}</small></div>`:`<div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div>`;
 // coverage = [label, value] rows, shown as a table on the back of the card.
 const coverage=p=>p.coverage?`<h4>Coverage</h4><dl class="specs">${p.coverage.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`:"";
 // notes = terms shown under the features list, e.g. what is billed separately.
 const notes=p=>p.notes?`<h4>Good to know</h4><ul>${p.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:"";
-$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article class="card">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div>${rel(p)}<h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button></div></article>`
- :`<article class="flip"><div class="card front">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div>${rel(p)}<h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
- +`<div class="card back" inert><h3>${esc(p.name)}</h3>${p.features?`<h4>${esc(p.featuresTitle||"Good to know")}</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}${coverage(p)}${notes(p)}${specs(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
+$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article class="card">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div>${rel(p)}<h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions">${buyAction(p)}</div></article>`
+ :`<article class="flip"><div class="card front">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div>${rel(p)}<h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions">${buyAction(p)}<button class="btn alt" data-flip type="button">More info</button></div></div>`
+ +`<div class="card back" inert><h3>${esc(p.name)}</h3>${p.features?`<h4>${esc(p.featuresTitle||"Good to know")}</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}${coverage(p)}${notes(p)}${specs(p)}${priceRow(p)}<div class="actions">${buyAction(p)}<button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
 document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
  if(!t&&(e.target.closest("a,button,select")||String(getSelection())))return;
  const had=c.contains(document.activeElement),on=c.classList.toggle("flipped"),[front,back]=c.children;
