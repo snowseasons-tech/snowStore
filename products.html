@@ -212,7 +212,7 @@ const money=(n,c)=>new Intl.NumberFormat("en-US",{style:"currency",currency:c.to
 // A "once" or "repeating" coupon only discounts the first invoice(s) of a subscription, so say so instead of showing a lower recurring price.
 function renderPrice(node,p,o){
  const per=perLabel(o);
- if(!o.discount){node.textContent=money(o.amount,p.currency)+per;return}
+ if(!o.discount){node.textContent=o.amount===0?"Free":money(o.amount,p.currency)+per;return}
  const d=o.discount,off=Math.round(d.percent)+"% off",tag=el("span","sale");
  if(o.interval&&(d.duration==="once"||d.duration==="repeating")){
   const span=d.duration==="repeating"&&d.months>1&&o.interval==="month"&&o.intervalCount===1?`first ${d.months} months`:o.intervalCount>1?`first ${o.intervalCount} ${o.interval}s`:`first ${o.interval}`;
@@ -301,7 +301,7 @@ function buildCard(p){
  }
  art.append(price);
  renderPrice(amount,p,base);
- const buy=el("button","btn",recurring?"Subscribe":"Buy now");buy.type="button";
+ const buy=el("button","btn",recurring?"Subscribe":p.amount===0?"Download free":"Buy now");buy.type="button";
  buy.addEventListener("click",()=>checkout(p.id,state.period,buy));
  art.append(el("div","actions"));art.lastChild.append(buy);
  if(d.membership){
