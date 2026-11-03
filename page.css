@@ -1,7 +1,9 @@
-:root{--bg:#fff;--text:#1f2937;--muted:#6b7280;--primary:#2878b5;--sec:#f4f6f8;color-scheme:light}
+@import url("/img/snow-theme.css");
+
+:root{--bg:var(--sst-paper);--text:var(--sst-ink);--muted:var(--sst-muted);--primary:var(--sst-blue);--sec:var(--sst-frost);color-scheme:light}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161c;--text:#f4f4f4;--muted:#a1a9b5;--sec:#1f2630;--primary:#4aa3e0;color-scheme:dark}}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;background:var(--bg);color:var(--text)}
+body{font-family:var(--sst-font);line-height:1.6;background:var(--bg);color:var(--text)}
 .container{max-width:760px;margin:0 auto;padding:0 20px}
 header{background:var(--sec);padding:1rem 0;box-shadow:0 2px 5px rgba(0,0,0,.1)}
 .logo{font-size:1.4rem;font-weight:700;color:var(--primary);text-decoration:none}

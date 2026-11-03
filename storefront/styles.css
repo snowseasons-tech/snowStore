@@ -1,19 +1,19 @@
 :root {
-  --bg: #f4f7fb;
+  --bg: var(--sst-paper);
   --bg-accent: #edf4ff;
   --surface: #ffffff;
   --surface-strong: #eef3ff;
   --surface-muted: #f8faff;
-  --ink: #14213d;
-  --ink-soft: #4c5f7c;
-  --line: #dfe7f5;
-  --primary: #155eef;
+  --ink: var(--sst-ink);
+  --ink-soft: var(--sst-muted);
+  --line: var(--sst-line);
+  --primary: var(--sst-blue);
   --primary-strong: #0c48c7;
   --primary-soft: rgba(21, 94, 239, 0.12);
   --success: #0d9a65;
   --warning: #f59e0b;
   --shadow: 0 20px 40px rgba(20, 33, 61, 0.08);
-  --radius: 18px;
+  --radius: var(--sst-radius);
 }
 
 * {
@@ -26,8 +26,8 @@ html {
 
 body {
   margin: 0;
-  font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: linear-gradient(180deg, #f8fbff 0%, #edf3ff 100%);
+  font-family: var(--sst-font);
+  background: linear-gradient(180deg, var(--sst-paper), var(--sst-frost));
   color: var(--ink);
   line-height: 1.55;
 }
@@ -480,3 +480,12 @@ footer {
 .link-button:hover {
   text-decoration: underline;
 }
+
+
+.brand-mark { background:var(--sst-frost); box-shadow:none; }
+.portal-hero { background:linear-gradient(110deg,var(--sst-navy) 24%,var(--sst-deep-blue)); color:#f7fcff; }
+.portal-hero > div:first-child .muted { color:#d0e2f1; }
+.portal-hero > div:first-child .eyebrow { color:var(--sst-ice); }
+.portal-hero > div:first-child .trust-row span { background:#e5f4ff; color:#142742; }
+.portal-hero .login-panel { color:var(--sst-ink); }
+:where(a,button,input,summary):focus-visible { outline:3px solid var(--sst-focus); outline-offset:3px; }
