@@ -7,7 +7,7 @@
 // retired: true = no longer sold (left out of /api/products and checkout); kept so past buyers can still download.
 // includes (optional) = a membership: a subscription with no file of its own that unlocks the downloads of these
 // products while it is active (see api/_lib/entitlements.js).
-// draft: true = a bundle not on sale yet: it has no stripeProduct, so it stays out of /api/products and checkout.
+// draft: true = a bundle not on sale yet. A Stripe product may be linked while a bundle remains hidden from /api/products and checkout.
 // proposedMonthly = a draft's price in cents, used only by scripts/create-bundles.js. pending = software a bundle promises
 // that customers can't use yet; a bundle with pending parts can't be created in Stripe.
 // socialAccounts (optional) = this plan gets a hosted Social Studio server with this account limit (see hosted/README.md).
@@ -174,6 +174,7 @@ module.exports = {
   },
   'marketing-automation': {
     name: 'Marketing Automation',
+    stripeProduct: 'prod_VXlg9YtHAYA2kJ',
     kind: 'subscription',
     socialAccounts: 3,
     draft: true,
@@ -185,6 +186,7 @@ module.exports = {
   },
   'lead-generation-pro': {
     name: 'Lead Generation Pro',
+    stripeProduct: 'prod_VXlh65V6L9My0f',
     kind: 'subscription',
     draft: true,
     proposedMonthly: 24900,
