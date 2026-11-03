@@ -256,5 +256,6 @@ module.exports = {
   'operations-lead-intelligence': { name: 'Operations & Lead Intelligence', kind: 'subscription', stripeProduct: 'prod_VWZn5NCFzs4bXV' },
   'mailhub-intelligence': { name: 'MailHub Marketing Intelligence', kind: 'subscription', stripeProduct: 'prod_VWZoFAvBr0LCEz' },
   'inspections-intelligence': { name: 'dotTracker', kind: 'subscription', stripeProduct: 'prod_VWZrK0O24fEuqG' },
+  'snowsocial': { name: 'SnowSocial — Social Content Planner', kind: 'subscription', stripeProduct: 'prod_VYnykaB2h3hxqb', blurb: 'Managed social publishing for one business brand: up to 12 posts monthly across five supported channels, with caption adaptation, simple branded graphics, approval, scheduling and monthly performance reporting.' },
   'managed-package': { name: 'Managed Technology & Marketing Package', kind: 'subscription', stripeProduct: 'prod_VWazGQhLiTNtSu' },
 };
