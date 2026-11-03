@@ -141,6 +141,13 @@
             font-weight: 600;
             transition: all 0.6s ease;
         }
+        .btn-gradient-border.custom-btn {
+            background: #0f172a;
+            border-radius: var(--btn-radius, 12px);
+            padding: 2px;
+            font-weight: inherit;
+            transition: all var(--btn-duration, 0.6s) ease;
+        }
 
         /* Atomic & Radioactive Dynamic Orbit Keyframes */
         .atomic-ring-1 {
@@ -621,7 +628,7 @@
                 `;
             } else if (state.category === 'gradient') {
                 container.innerHTML = `
-                    <div style="${styleVars}" class="btn-gradient-border cursor-pointer">
+                    <div style="${styleVars}" class="btn-gradient-border custom-btn cursor-pointer" role="button" tabindex="0" data-category="gradient" aria-label="Gradient border preview">
                         <div class="btn-gradient-border-inner font-semibold flex items-center gap-2" style="color: ${state.textColor}; font-size: ${state.fontSize}px;">
                             <span>${escapeHtml(state.text)}</span>
                             <i data-lucide="compass" class="w-4 h-4"></i>
@@ -1034,6 +1041,23 @@ document.querySelector('.custom-btn').addEventListener('click', (e) => {
             document.getElementById('picker-secondary').value = state.secondaryColor;
             updatePreview();
         }
+
+        document.addEventListener('click', (event) => {
+            const button = event.target instanceof Element
+                ? event.target.closest('#button-target-container .custom-btn')
+                : null;
+            if (!button) return;
+            console.log(`Button clicked with category: ${button.dataset.category || state.category}`);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            const button = event.target instanceof Element
+                ? event.target.closest('#button-target-container .custom-btn')
+                : null;
+            if (!button || (event.key !== 'Enter' && event.key !== ' ')) return;
+            event.preventDefault();
+            button.click();
+        });
 
         // Initialize App Engine on Window Load
         window.onload = function() {
