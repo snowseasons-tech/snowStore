@@ -114,7 +114,7 @@
             transform: scale(1.05);
         }
 
-        /* 5. Custom Image Spinner Base Styles */
+        /* CSS Custom Image / Atomic Spinner */
         .custom-spinner-wrapper {
             position: relative;
             display: inline-flex;
@@ -126,7 +126,11 @@
             object-fit: contain;
             animation: custom-spin var(--spin-speed, 1s) var(--spin-easing, linear) infinite;
             animation-direction: var(--spin-direction, normal);
-            filter: drop-shadow(0 0 var(--spin-glow, 0px) var(--btn-primary, #3b82f6));
+            filter: drop-shadow(0 0 var(--spin-glow, 10px) var(--btn-primary, #00f0ff));
+        }
+        img.custom-spinner-img {
+            width: 48px;
+            height: 48px;
         }
 
         /* Atomic & Radioactive Dynamic Orbit Keyframes */
