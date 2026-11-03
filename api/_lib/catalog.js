@@ -217,6 +217,7 @@ module.exports = {
   },
   'complete-business-suite': {
     name: 'Complete Business Suite',
+    stripeProduct: 'prod_VXloGp9hHT5D1B',
     kind: 'subscription',
     socialAccounts: 5,
     draft: true,
