@@ -199,7 +199,7 @@ const DETAILS={
 const ORDER=Object.keys(DETAILS);
 // icon names a file in /img/icons/; features name files in /img/icons/gbp/. Icons sit beside the product name, so they're decorative (alt="").
 const pic=(src,cls,w,h)=>Object.assign(el("img",cls),{src,alt:"",width:w,height:h,loading:"lazy",decoding:"async"});
-function cardTop(icon,tag){const top=el("div","card-top");if(icon){const course=icon.startsWith("/products/");top.append(pic(course?encodeURI(icon):`/img/icons/${icon}.webp`,course?"pic course-pic":"pic",88,course?88:65))}top.append(el("span","tag",tag));return top}
+function cardTop(icon,tag){const top=el("div","card-top");if(icon){const course=icon.startsWith("/img/course-icons/");top.append(pic(course?encodeURI(icon):`/img/icons/${icon}.webp`,course?"pic course-pic":"pic",88,course?88:65))}top.append(el("span","tag",tag));return top}
 const rank=id=>{const i=ORDER.indexOf(id);return i<0?ORDER.length:i};
 const $=s=>document.querySelector(s);
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n};
