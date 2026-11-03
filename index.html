@@ -23,6 +23,7 @@ nav{display:flex;justify-content:space-between;align-items:center;gap:1rem}
 .nav-links a:hover{color:var(--primary);text-shadow:0 0 12px var(--glow)}
 .btn{display:inline-block;background:var(--btn);color:#fff;padding:10px 20px;border:1px solid transparent;border-radius:10px;cursor:pointer;text-decoration:none;font-size:1rem;font-family:inherit;
 box-shadow:0 4px 14px -4px var(--glow);transition:box-shadow .2s,transform .2s}
+.custom-btn{background:#df1111;color:#0dc809;border-radius:2px;padding:12px 24px;font-weight:600;transition:all .6s ease}
 .btn:hover{box-shadow:0 0 0 1px var(--glow),0 6px 26px -2px var(--glow);transform:translateY(-1px)}
 .btn:focus-visible,.nav-links a:focus-visible,.logo:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
 .btn:disabled{opacity:.6;cursor:wait;transform:none}
@@ -216,7 +217,7 @@ const pic=p=>p.icon?`<img class="pic" src="/img/icons/${esc(p.icon)}.webp" alt="
 const thumb=p=>p.img?`<img class="thumb" src="${esc(p.img)}" alt="${esc(p.alt||"")}" width="800" height="450" loading="lazy" decoding="async">`:"";
 const tagline=p=>p.tagline?`<p class="tagline">${esc(p.tagline)}</p>`:"";
 const buyLabel=p=>p.unit==="subscription"?"Subscribe":"Buy now";
-const buyAction=p=>p.contactHref?`<a class="btn" href="${esc(p.contactHref)}">${esc(p.contactLabel||"Contact us")}</a>`:"<button class=\"btn\" data-buy=\""+esc(p.id)+"\" type=\"button\">"+buyLabel(p)+"</button>";
+const buyAction=p=>p.contactHref?`<a class="btn" href="${esc(p.contactHref)}">${esc(p.contactLabel||"Contact us")}</a>`:"<button class=\"btn custom-btn\" data-buy=\""+esc(p.id)+"\" type=\"button\">"+buyLabel(p)+"</button>";
 const priceRow=p=>p.contactPrice?`<div class="price">${esc(p.contactPrice)} <small>${esc(p.unit||"")}</small></div>`:`<div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div>`;
 // coverage = [label, value] rows, shown as a table on the back of the card.
 const coverage=p=>p.coverage?`<h4>Coverage</h4><dl class="specs">${p.coverage.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`:"";

@@ -23,6 +23,7 @@ nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-
 a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
 .btn{display:inline-block;background:var(--btn);color:#fff;padding:10px 20px;border:1px solid transparent;border-radius:10px;cursor:pointer;text-decoration:none;font-size:1rem;font-family:inherit;
 box-shadow:0 4px 14px -4px var(--glow);transition:box-shadow .2s,transform .2s}
+.custom-btn{background:#df1111;color:#0dc809;border-radius:2px;padding:12px 24px;font-weight:600;transition:all .6s ease}
 .btn:hover{box-shadow:0 0 0 1px var(--glow),0 6px 26px -2px var(--glow);transform:translateY(-1px)}
 .btn:disabled{opacity:.6;cursor:wait;transform:none}
 .btn-toggle{background:var(--glass);color:var(--text);border:1px solid var(--glass-b);box-shadow:none;padding:6px 12px;font-size:.8rem}
@@ -296,7 +297,7 @@ function buildCard(p){
  }
  art.append(price);
  renderPrice(amount,p,base);
- const buy=el("button","btn",recurring?"Subscribe":p.amount===0?"Download free":"Buy now");buy.type="button";
+ const buy=el("button","btn custom-btn",recurring?"Subscribe":p.amount===0?"Download free":"Buy now");buy.type="button";
  buy.addEventListener("click",()=>checkout(p.id,state.period,buy));
  art.append(el("div","actions"));art.lastChild.append(buy);
  if(d.membership){
