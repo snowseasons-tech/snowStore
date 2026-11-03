@@ -1,10 +1,10 @@
 // Prices are read from Stripe by product ID (catalog stripeProduct), so no Price IDs live in env vars.
-// Each active price is filed under a billing period: '1w', '1m', '3m', '6m' or '12m'. A one-time price files as '1m'.
+// Recurring prices are grouped by billing period; a one-time price is kept separately as 'once'.
 const PERIODS = ['1w', '1m', '3m', '6m', '12m'];
 
 function periodOf(price) {
   const r = price.recurring;
-  if (!r) return '1m';
+  if (!r) return 'once';
   const n = r.interval_count || 1;
   if (r.interval === 'week' && n === 1) return '1w';
   if (r.interval === 'month' && [1, 3, 6, 12].includes(n)) return n === 12 ? '12m' : `${n}m`;
