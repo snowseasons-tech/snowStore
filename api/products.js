@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
       const found = byProduct[p.stripeProduct], base = found['1m'] || found.once;
       // Other billing periods (weekly, 3, 6 or 12 months) offered alongside the monthly price.
       const periods = prices.PERIODS.filter((k) => k !== '1m' && found[k]).map((k) => card(found[k], k));
-      return { id, name: p.name, blurb: p.blurb || null, amount: base.unit_amount, currency: base.currency, interval: base.recurring ? base.recurring.interval : null, ...(p.kind === 'subscription' && found.once ? { setupAmount: found.once.unit_amount } : {}), ...discounted(base.unit_amount, launch), ...(periods.length ? { periods } : {}) };
+      return { id, name: p.name, blurb: p.blurb || null, amount: base.unit_amount, currency: base.currency, interval: base.recurring ? base.recurring.interval : null, ...discounted(base.unit_amount, launch), ...(periods.length ? { periods } : {}) };
     });
     send(res, 200, { products }, { 'Cache-Control': 'public, max-age=60' });
   } catch (e) {
