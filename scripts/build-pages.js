@@ -19,6 +19,25 @@ function build({ root = path.join(__dirname, '..'), out = path.join(root, 'dist'
   const pages = fs.readdirSync(root).filter((f) => f.endsWith('.html'));
   if (!pages.includes('index.html')) throw new Error('missing index.html');
   [...pages, ...PUBLIC_FILES, ...PUBLIC_DIRS].forEach(copy);
+  // Publish only the nine course card illustrations from products/, never seller files or course archives.
+  const courseIcons = {
+    'creator-code-cookbook': 'Creator_Code_Cookbook/Candy coding cookbook with creator tools-1.png',
+    'html-for-small-business': 'HTML_bundle/Sweet HTML coding tutorial-1.png',
+    'javascript-for-small-business': 'JS_bundle/Candy-style JavaScript learning icon-3.png',
+    'jekyll-html-js-project': 'Jekyll_HTML_JS_project/Candy-Style Jekyll Coding Tutorial Icon-7.png',
+    'small-business-project-cookbook': 'Small_Business_Project_Cookbook/Candy-Style Coding Cookbook-6.png',
+    'css-tailwind-for-small-business': 'Tailwind_CSS_bundle/Pastel candy CSS and Tailwind tutorial-2.png',
+    'bash-for-small-business': 'bash_course_bundle/Pastel Candy Bash Tutorial Icon-2.png',
+    'python-for-small-business': 'python_course_bundle/Candy Python coding learning icon-4.png',
+    'sql-for-small-business': 'sql_bundle/Sweet SQL learning icon-5.png',
+  };
+  const iconOut = path.join(out, 'img', 'course-icons');
+  fs.mkdirSync(iconOut, { recursive: true });
+  for (const [id, source] of Object.entries(courseIcons)) {
+    const from = path.join(root, 'products', source);
+    if (!fs.existsSync(from)) throw new Error(`missing course icon: ${source}`);
+    fs.copyFileSync(from, path.join(iconOut, `${id}.png`));
+  }
   fs.copyFileSync(path.join(root, 'pages', '_headers'), path.join(out, '_headers'));
   return out;
 }
