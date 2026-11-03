@@ -4,13 +4,15 @@
 <title>Products | Snow Seasons Tech</title>
 <meta name="description" content="Browse Snow Seasons Tech products: API integrations, website and social media management, managed databases, business intelligence and a free website kit.">
 <script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(_){}</script>
+<meta name="theme-color" content="#101e39">
+<link rel="stylesheet" href="/img/snow-theme.css">
 <style>
-:root{--bg:#f4f7fb;--text:#1f2937;--muted:#5b6472;--primary:#2878b5;--btn:#2878b5;--sec:#eef2f7;--glass:rgba(255,255,255,.6);--glass-b:rgba(255,255,255,.85);--hi:rgba(255,255,255,.7);--shadow:0 8px 30px rgba(31,41,55,.08);--glow:rgba(40,120,181,.35);--b1:rgba(40,120,181,.2);--b2:rgba(124,92,255,.14);--b3:rgba(0,184,217,.14);--rel-beta:#1f6fb2;--rel-mvp:#9a5b00;--rel-dev:#5b6472;color-scheme:light}
+:root{--bg:var(--sst-paper);--text:var(--sst-ink);--muted:var(--sst-muted);--primary:var(--sst-blue);--btn:var(--sst-blue);--sec:var(--sst-frost);--glass:rgba(255,255,255,.6);--glass-b:rgba(255,255,255,.85);--hi:rgba(255,255,255,.7);--shadow:0 8px 30px rgba(31,41,55,.08);--glow:rgba(40,120,181,.35);--b1:rgba(40,120,181,.2);--b2:rgba(124,92,255,.14);--b3:rgba(0,184,217,.14);--rel-beta:#1f6fb2;--rel-mvp:#9a5b00;--rel-dev:#5b6472;color-scheme:light}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--rel-beta:#7cc0f0;--rel-mvp:#f0b45a;--rel-dev:#a1a9b5;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0a0f15;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--sec:#121922;--glass:rgba(22,30,41,.55);--glass-b:rgba(255,255,255,.09);--hi:rgba(255,255,255,.06);--shadow:0 10px 34px rgba(0,0,0,.45);--glow:rgba(90,176,234,.45);--b1:rgba(40,120,181,.38);--b2:rgba(124,92,255,.24);--b3:rgba(0,184,217,.2);--rel-beta:#7cc0f0;--rel-mvp:#f0b45a;--rel-dev:#a1a9b5;color-scheme:dark}
 *{margin:0;padding:0;box-sizing:border-box}
 [hidden]{display:none!important}
-body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:var(--text);min-height:100vh;
+body{font-family:var(--sst-font);line-height:1.6;color:var(--text);min-height:100vh;
 background:radial-gradient(42rem 32rem at 8% -6%,var(--b1),transparent 70%),radial-gradient(38rem 30rem at 96% 14%,var(--b2),transparent 70%),radial-gradient(44rem 34rem at 50% 108%,var(--b3),transparent 70%),var(--bg);background-attachment:fixed}
 .container{max-width:1100px;margin:0 auto;padding:0 20px}
 header,.card,footer,#notice,.btn-toggle{-webkit-backdrop-filter:blur(16px) saturate(160%);backdrop-filter:blur(16px) saturate(160%)}
@@ -23,7 +25,7 @@ nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-
 a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
 .btn{display:inline-block;background:var(--btn);color:#fff;padding:10px 20px;border:1px solid transparent;border-radius:10px;cursor:pointer;text-decoration:none;font-size:1rem;font-family:inherit;
 box-shadow:0 4px 14px -4px var(--glow);transition:box-shadow .2s,transform .2s}
-.custom-btn{background:#df1111;color:#0dc809;border-radius:2px;padding:12px 24px;font-weight:600;transition:all .6s ease}
+.custom-btn{font-weight:650}
 .btn:hover{box-shadow:0 0 0 1px var(--glow),0 6px 26px -2px var(--glow);transform:translateY(-1px)}
 .btn:disabled{opacity:.6;cursor:wait;transform:none}
 .btn-toggle{background:var(--glass);color:var(--text);border:1px solid var(--glass-b);box-shadow:none;padding:6px 12px;font-size:.8rem}
@@ -103,10 +105,18 @@ footer a{color:inherit;margin:0 .5rem}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){header,.card,footer,#notice,.btn-toggle{background:var(--sec)}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.card:hover,.btn:hover{transform:none}}
 @media(max-width:600px){main{padding:44px 0 56px}.intro h1{font-size:2.1rem}.nav-links{gap:.25rem .75rem}.card.flip-card{height:460px}}
+header .logo { display:inline-flex; align-items:center; gap:.65rem; font-weight:750; letter-spacing:-.03em; text-shadow:none; }
+header .logo img { flex:none; }
+.intro { border-radius:var(--sst-radius); background:linear-gradient(110deg,var(--sst-navy) 24%,var(--sst-deep-blue)); color:#f7fcff; padding:clamp(20px,4vw,42px); }
+.intro h1 { text-shadow:none; letter-spacing:-.055em; }
+.intro p { color:#d0e2f1; }
+.intro p a { color:var(--sst-ice); }
+.card { border-radius:var(--sst-radius); }
+:where(a,button,input,select,summary):focus-visible { outline:3px solid var(--sst-focus); outline-offset:3px; }
 </style></head>
 <body>
 <header><nav class="container" aria-label="Main navigation">
-<a class="logo" href="/">Snow Seasons Technology</a>
+<a class="logo" href="/"><img src="/img/snow-mark.svg" width="42" height="42" alt="">Snow Seasons Tech</a>
 <ul class="nav-links"><li><a href="/products" aria-current="page">Products</a></li><li><a href="/#products">Services</a></li><li><a href="/#kit">Website Kit</a></li><li><a href="/blog/">Blog</a></li><li><a href="/#contact">Contact</a></li></ul>
 <button class="btn btn-toggle" id="theme-toggle" type="button" aria-pressed="false">Toggle theme</button>
 </nav></header>
