@@ -207,6 +207,7 @@ module.exports = {
   },
   'ai-business-intelligence': {
     name: 'AI Business Intelligence',
+    stripeProduct: 'prod_VXlj1mFPuVVCLk',
     kind: 'subscription',
     draft: true,
     proposedMonthly: 34900,
