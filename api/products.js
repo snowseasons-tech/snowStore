@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     // One list call for every active price in the account; products with no active base price are left out.
     const byProduct = await prices.activePricesByProduct(stripe);
     const card = (pr, period) => ({ period, amount: pr.unit_amount, interval: pr.recurring ? pr.recurring.interval : null, intervalCount: pr.recurring ? pr.recurring.interval_count : null, ...discounted(pr.unit_amount, launch) });
-    const products = Object.entries(CATALOG).filter(([, p]) => !p.retired && p.stripeProduct && byProduct[p.stripeProduct] && byProduct[p.stripeProduct]['1m']).map(([id, p]) => {
+    const products = Object.entries(CATALOG).filter(([, p]) => !p.retired && !p.draft && !p.hidden && p.stripeProduct && byProduct[p.stripeProduct] && byProduct[p.stripeProduct]['1m']).map(([id, p]) => {
       const found = byProduct[p.stripeProduct], base = found['1m'];
       // Other billing periods (weekly, 3, 6 or 12 months) offered alongside the monthly price.
       const periods = prices.PERIODS.filter((k) => k !== '1m' && found[k]).map((k) => card(found[k], k));

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Creates the Stripe product and monthly price for each draft bundle in the catalog.
 // Dry run by default. --apply writes to the Stripe account behind STRIPE_SECRET_KEY, so run it in test mode first.
-// Bundles with pending parts are skipped. After applying, set each printed stripeProduct in the catalog and remove draft.
+// Bundles with pending parts are skipped. Linked products are retained while drafts stay hidden.
 const CATALOG = require('../api/_lib/catalog');
 const { activePricesFor } = require('../api/_lib/prices');
 
@@ -28,6 +28,7 @@ async function main() {
   for (const bundle of drafts(CATALOG)) {
     const price = `$${bundle.proposedMonthly / 100}/month`;
     if (blocked(bundle)) console.log(`skip    ${bundle.id}: waiting on ${bundle.pending.join(', ')}`);
+    else if (bundle.stripeProduct) console.log(`linked  ${bundle.id}: ${bundle.stripeProduct}`);
     else if (!apply) console.log(`ready   ${bundle.id}: ${price}`);
     else console.log(`created ${bundle.id}: ${price}, stripeProduct ${await createBundle(stripe, bundle)}`);
   }

@@ -19,7 +19,9 @@ test('the six draft bundles are valid and not on sale', () => {
   const bundles = drafts(CATALOG);
   assert.strictEqual(bundles.length, 6);
   assert.deepStrictEqual(validateCatalog(CATALOG), []);
-  for (const b of bundles) assert.strictEqual(b.stripeProduct, undefined, `${b.id} must wait for Stripe`);
+  for (const b of bundles) assert.strictEqual(b.draft, true, `${b.id} must remain hidden`);
+  assert.strictEqual(CATALOG['marketing-automation'].stripeProduct, 'prod_VXlg9YtHAYA2kJ');
+  assert.strictEqual(CATALOG['lead-generation-pro'].stripeProduct, 'prod_VXlh65V6L9My0f');
 });
 
 test('checkout refuses a draft bundle', async () => {
@@ -45,11 +47,11 @@ test('the validator rejects bad bundles', () => {
   const errors = validateCatalog({
     d: { name: 'D', kind: 'subscription', draft: true, proposedMonthly: 100, socialAccounts: 0 },
     a: { name: 'A', kind: 'subscription', draft: true },
-    b: { name: 'B', kind: 'subscription', draft: true, proposedMonthly: 100, stripeProduct: 'prod_b' },
+    b: { name: 'B', kind: 'subscription', draft: true, proposedMonthly: 100, stripeProduct: 'not_a_product' },
     c: { name: 'C', draft: true, proposedMonthly: 100, pending: [] },
   });
   assert.ok(errors.includes('a.proposedMonthly: must be a price in cents'));
-  assert.ok(errors.includes('b.draft: remove draft once the bundle has a stripeProduct'));
+  assert.ok(errors.includes('b.stripeProduct: must be a Stripe product ID (prod_...)'));
   assert.ok(errors.includes("c.kind: must be 'subscription' for a draft bundle"));
   assert.ok(errors.includes('c.pending: must be a non-empty list of names'));
   assert.ok(errors.includes('d.socialAccounts: must be a positive whole number'));
