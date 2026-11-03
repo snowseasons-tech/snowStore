@@ -56,6 +56,7 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .member-list li{padding-left:22px;position:relative}
 .member-list li::before{content:"";position:absolute;left:2px;top:.55em;width:10px;height:6px;border:solid var(--primary);border-width:0 0 2px 2px;transform:rotate(-45deg)}
 .card.flip-card{height:440px;padding:0;border:0;background:transparent;box-shadow:none;perspective:1100px}
+.course-deck{grid-column:1/-1;width:min(100%,820px);margin:8px auto 0}.course-stack{position:relative;height:478px;perspective:1100px}.course-pic{object-fit:cover}.course-stack-card{position:absolute;top:12px;left:50%;width:min(100%,360px);height:440px;margin:0;transition:transform .32s ease,opacity .32s ease,filter .32s ease}.course-stack-card.stack-front{z-index:3;transform:translateX(-50%)}.course-stack-card.stack-next{z-index:2;transform:translateX(calc(-50% + 12px)) translateY(9px) scale(.965) rotate(1.5deg);filter:saturate(.8)}.course-stack-card.stack-third{z-index:1;transform:translateX(calc(-50% + 23px)) translateY(18px) scale(.93) rotate(3deg);filter:saturate(.65)}.course-stack-card.stack-away{visibility:hidden;opacity:0;pointer-events:none;transform:translateX(-50%) translateY(30px) scale(.88)}.course-stack-card.stack-front:hover{transform:translateX(-50%) translateY(-3px)}.course-deck-controls{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px}.course-deck-count{min-width:5.5em;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}.course-deck-controls button:disabled{opacity:.45;cursor:not-allowed}@media(max-width:600px){.course-stack{height:498px}.course-deck-controls{gap:8px}.course-stack-card{width:min(100%,360px);height:460px}}@media(prefers-reduced-motion:reduce){.course-stack-card{transition:none!important}}
 .card.flip-card:hover,.card.flip-card.member{border:0;box-shadow:none}
 .card-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.7,.2,1)}
 .card.is-flipped .card-inner{transform:rotateY(180deg)}
@@ -141,15 +142,15 @@ footer a{color:inherit;margin:0 .5rem}
 // Category, order and one-line summary for each product. Prices and what is on sale come from Stripe via /api/products;
 // a product sold there but missing from this list still appears, under "Other".
 const DETAILS={
- "creator-code-cookbook":{category:"Coding Courses",blurb:"A beginner-friendly set of 12 creative coding projects with commented examples and step-by-step guidance.",more:{title:"Inside the bundle",items:["12 beginner projects", "Commented source and sample data", "Instructions, expected outcomes, remix challenges and a master cheat sheet", "No paid APIs or automatic publishing"]}},
- "html-for-small-business":{category:"Coding Courses",blurb:"Learn HTML by building a clear service page with starter files, solutions and practice exercises.",more:{title:"Inside the bundle",items:["Starter and solution files", "Exercises, answers and a tag cheat sheet", "Two lessons included; six later lessons are planned, not included"]}},
- "javascript-for-small-business":{category:"Coding Courses",blurb:"Build a service quote calculator while learning beginner JavaScript through guided practice.",more:{title:"Inside the bundle",items:["Commented HTML and JavaScript", "Starter and solution files", "Exercises, answers and syntax cheat sheet", "Four course sessions included"]}},
- "jekyll-html-js-project":{category:"Coding Projects",blurb:"Practice combining Jekyll, HTML and JavaScript in a ready-to-explore website project.",more:{title:"Before you start",items:["Jekyll, HTML and JavaScript practice files", "Tailwind is optional and requires its documented local toolchain", "Tailwind output is not precompiled"]}},
- "small-business-project-cookbook":{category:"Coding Courses",blurb:"Build through 12 project recipes with source files, expected results and challenges.",more:{title:"Inside the bundle",items:["12 project recipes", "Source files and expected results", "Step-by-step challenges and a master cheat sheet", "Seller documentation is retained in the archive"]}},
- "css-tailwind-for-small-business":{category:"Coding Courses",blurb:"Style responsive service cards with plain CSS, then explore the Tailwind CSS v4 workflow.",more:{title:"Inside the bundle",items:["Starter lesson and four course sessions", "CSS and Tailwind practice files", "Tailwind requires Node.js and a local build"]}},
- "bash-for-small-business":{category:"Coding Courses",blurb:"Automate everyday file tasks while learning Bash with practical scripts and guided lessons.",more:{title:"Inside the bundle",items:["Free starter lesson", "Four course sessions and practice materials", "Linux tested; macOS and Windows WSL checks are pending"]}},
- "python-for-small-business":{category:"Coding Courses",blurb:"Get started with Python through small practical projects and the standard library.",more:{title:"Inside the bundle",items:["Free starter lesson and four course sessions", "Projects use Python's standard library", "Cross-platform installation checks are pending"]}},
- "sql-for-small-business":{category:"Coding Courses",blurb:"Learn SQL with SQLite using starter exercises based on fictional customers and jobs.",more:{title:"Inside the bundle",items:["Starter and solution files", "Practice using fictional data", "Two lessons included; six later lessons are planned, not included"]}},
+ "creator-code-cookbook":{courseIcon:"/products/Creator_Code_Cookbook/Candy coding cookbook with creator tools-1.png",category:"Coding Courses",blurb:"A beginner-friendly set of 12 creative coding projects with commented examples and step-by-step guidance.",more:{title:"Inside the bundle",items:["12 beginner projects", "Commented source and sample data", "Instructions, expected outcomes, remix challenges and a master cheat sheet", "No paid APIs or automatic publishing"]}},
+ "html-for-small-business":{courseIcon:"/products/HTML_bundle/Sweet HTML coding tutorial-1.png",category:"Coding Courses",blurb:"Learn HTML by building a clear service page with starter files, solutions and practice exercises.",more:{title:"Inside the bundle",items:["Starter and solution files", "Exercises, answers and a tag cheat sheet", "Two lessons included; six later lessons are planned, not included"]}},
+ "javascript-for-small-business":{courseIcon:"/products/JS_bundle/Candy-style JavaScript learning icon-3.png",category:"Coding Courses",blurb:"Build a service quote calculator while learning beginner JavaScript through guided practice.",more:{title:"Inside the bundle",items:["Commented HTML and JavaScript", "Starter and solution files", "Exercises, answers and syntax cheat sheet", "Four course sessions included"]}},
+ "jekyll-html-js-project":{courseIcon:"/products/Jekyll_HTML_JS_project/Candy-Style Jekyll Coding Tutorial Icon-7.png",category:"Coding Projects",blurb:"Practice combining Jekyll, HTML and JavaScript in a ready-to-explore website project.",more:{title:"Before you start",items:["Jekyll, HTML and JavaScript practice files", "Tailwind is optional and requires its documented local toolchain", "Tailwind output is not precompiled"]}},
+ "small-business-project-cookbook":{courseIcon:"/products/Small_Business_Project_Cookbook/Candy-Style Coding Cookbook-6.png",category:"Coding Courses",blurb:"Build through 12 project recipes with source files, expected results and challenges.",more:{title:"Inside the bundle",items:["12 project recipes", "Source files and expected results", "Step-by-step challenges and a master cheat sheet", "Seller documentation is retained in the archive"]}},
+ "css-tailwind-for-small-business":{courseIcon:"/products/Tailwind_CSS_bundle/Pastel candy CSS and Tailwind tutorial-2.png",category:"Coding Courses",blurb:"Style responsive service cards with plain CSS, then explore the Tailwind CSS v4 workflow.",more:{title:"Inside the bundle",items:["Starter lesson and four course sessions", "CSS and Tailwind practice files", "Tailwind requires Node.js and a local build"]}},
+ "bash-for-small-business":{courseIcon:"/products/bash_course_bundle/Pastel Candy Bash Tutorial Icon-2.png",category:"Coding Courses",blurb:"Automate everyday file tasks while learning Bash with practical scripts and guided lessons.",more:{title:"Inside the bundle",items:["Free starter lesson", "Four course sessions and practice materials", "Linux tested; macOS and Windows WSL checks are pending"]}},
+ "python-for-small-business":{courseIcon:"/products/python_course_bundle/Candy Python coding learning icon-4.png",category:"Coding Courses",blurb:"Get started with Python through small practical projects and the standard library.",more:{title:"Inside the bundle",items:["Free starter lesson and four course sessions", "Projects use Python's standard library", "Cross-platform installation checks are pending"]}},
+ "sql-for-small-business":{courseIcon:"/products/sql_bundle/Sweet SQL learning icon-5.png",category:"Coding Courses",blurb:"Learn SQL with SQLite using starter exercises based on fictional customers and jobs.",more:{title:"Inside the bundle",items:["Starter and solution files", "Practice using fictional data", "Two lessons included; six later lessons are planned, not included"]}},
  "local-seo-platform":{icon:"website-primary",category:"Website Tools",blurb:"Build an SEO-ready website for your local service business. Downloadable builder, two styles, editable pages and complete website ZIP export.",includes:["Homepage, service pages, meaningful service-area pages, about and contact", "Editable search titles, descriptions, canonical URLs, JSON-LD, sitemap and robots.txt", "Content checks, manual Business Profile checklist, keyword observations and report exports", "$99 USD one-time plus tax. One business license. No hosting, live rank tracking or call tracking included."]},
  "founders-membership":{membership:true,icon:"managed-tech",category:"Membership",blurb:"$29 USD/month for eight downloadable early-access products. Access after payment confirmation; downloaded files remain yours to use for your business.",includes:["GBP Analytics Dashboard, Lead Generation Pipeline, Page Builder, Auto Scheduler, Auto Blogger, Invoice & Biller, BookScan Live, SaaS Financial Projection Engine", "10 downloads per product per membership purchase; no monthly reset or automatic overage fees", "Updates through each app’s first Production release while subscribed; future early-access apps included when added", "Cancel any time; access ends after the paid period. See membership terms for refunds and support."]},
  "business-launch":{icon:"managed-tech",category:"Bundles",blurb:"Website tools, online booking and invoicing for a new business. Self-serve software you run yourself, with no managed services. Downloads are available while you subscribe, and any license you already own is unaffected."},
@@ -198,7 +199,7 @@ const DETAILS={
 const ORDER=Object.keys(DETAILS);
 // icon names a file in /img/icons/; features name files in /img/icons/gbp/. Icons sit beside the product name, so they're decorative (alt="").
 const pic=(src,cls,w,h)=>Object.assign(el("img",cls),{src,alt:"",width:w,height:h,loading:"lazy",decoding:"async"});
-function cardTop(icon,tag){const top=el("div","card-top");if(icon)top.append(pic(`/img/icons/${icon}.webp`,"pic",88,65));top.append(el("span","tag",tag));return top}
+function cardTop(icon,tag){const top=el("div","card-top");if(icon){const course=icon.startsWith("/products/");top.append(pic(course?encodeURI(icon):`/img/icons/${icon}.webp`,course?"pic course-pic":"pic",88,course?88:65))}top.append(el("span","tag",tag));return top}
 const rank=id=>{const i=ORDER.indexOf(id);return i<0?ORDER.length:i};
 const $=s=>document.querySelector(s);
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n};
@@ -218,6 +219,32 @@ function renderPrice(node,p,o){
   const then=el("small",null,`then ${money(o.amount,p.currency)}${per}`);then.dataset.then="";
   tag.textContent=`${off} your ${span}`;node.replaceChildren(`${money(d.amount,p.currency)} ${span} `,then," ",tag);return}
  const was=el("s",null,money(o.amount,p.currency));tag.textContent=off+" launch price";node.replaceChildren(was," "+money(d.amount,p.currency)+per+" ",tag);
+}
+function setupCourseDeck(){
+ const courseCards=[...gridProd.querySelectorAll(".course-card"),...gridEarly.querySelectorAll(".course-card")];
+ if(!courseCards.length)return null;
+ const deck=el("div","course-deck"),stage=el("div","course-stack"),controls=el("div","course-deck-controls");
+ deck.setAttribute("role","region");deck.setAttribute("aria-label","Coding course cards");stage.setAttribute("aria-label","Course card stack");
+ const previous=el("button","btn alt","Previous"),next=el("button","btn alt","Next"),count=el("span","course-deck-count");
+ previous.type=next.type="button";previous.setAttribute("aria-label","Previous course");next.setAttribute("aria-label","Next course");
+ let index=0,visible=[];
+ const refresh=()=>{
+  visible=courseCards.filter((card)=>!card.hidden);deck.hidden=!visible.length;
+  if(index>=visible.length)index=Math.max(0,visible.length-1);
+  courseCards.forEach((card)=>{card.classList.remove("stack-front","stack-next","stack-third","stack-away");card.inert=true;card.setAttribute("aria-hidden","true")});
+  visible.forEach((card,i)=>{
+   if(card.classList.contains("is-flipped"))card.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true}));
+   const pos=i-index,cls=pos===0?"stack-front":pos===1?"stack-next":pos===2?"stack-third":"stack-away";
+   card.classList.add("course-stack-card",cls);
+   const shown=pos>=0&&pos<3;card.inert=!shown;card.setAttribute("aria-hidden",String(!shown));
+  });
+  count.textContent=visible.length?`${index+1} of ${visible.length}`:"0 of 0";
+  previous.disabled=index===0;next.disabled=index>=visible.length-1;
+ };
+ previous.addEventListener("click",()=>{if(index>0){index--;refresh()}});
+ next.addEventListener("click",()=>{if(index<visible.length-1){index++;refresh()}});
+ controls.append(previous,count,next);deck.append(stage,controls);courseCards.forEach((card)=>stage.append(card));gridProd.append(deck);refresh();
+ return refresh;
 }
 async function checkout(id,period,btn){
  btn.disabled=true;
@@ -253,8 +280,8 @@ function buildCard(p){
  const d=DETAILS[p.id]||{category:"Other"},recurring=!!p.interval;
  const opts=[{period:"1m",amount:p.amount,interval:p.interval,intervalCount:1,discount:p.discount},...(p.periods||[])].sort((a,b)=>perMonths(a)-perMonths(b));
  const base=opts.find((o)=>o.period==="1m"),state={period:"1m"};
- const art=el("article",d.membership?"card member":"card");art.dataset.cat=d.category;art.id=p.id;
- art.append(cardTop(d.icon,d.category));
+ const art=el("article",d.membership?"card member":"card");if(d.courseIcon)art.classList.add("course-card");art.dataset.cat=d.category;art.id=p.id;
+ art.append(cardTop(d.courseIcon||d.icon,d.category));
  if(d.release)art.append(relPill(d.release));
  art.append(el("h2",null,p.name));
  if(d.blurb)art.append(el("p",null,d.blurb));
@@ -349,12 +376,14 @@ fetch("/api/products").then((r)=>{if(!r.ok)throw new Error(r.status);return r.js
 }).catch(()=>{status.textContent="Prices could not be loaded. Refresh the page, or email us for a quote."})
 .finally(()=>{
  SOON.forEach((m)=>gridEarly.append(soonCard(m)));
+ const refreshCourseDeck=setupCourseDeck();
  // Chips: All, Early Access (that section only), then each category. A section with nothing to show is hidden.
- const cards=()=>[...gridProd.children,...gridEarly.children];
+ const cards=()=>[...gridProd.querySelectorAll(".card"),...gridEarly.querySelectorAll(".card")];
  const bar=$("#filters"),cats=[...new Set(cards().map((c)=>c.dataset.cat).filter(Boolean))];
  const show=(name)=>{
   cards().forEach((c)=>{c.hidden=name==="Early Access"?c.parentElement!==gridEarly:name!=="All"&&c.dataset.cat!==name});
   sections.forEach((s)=>{s.hidden=![...s.querySelectorAll(".card")].some((c)=>!c.hidden)});
+  refreshCourseDeck?.();
  };
  ["All","Early Access",...cats].forEach((name,i)=>{const b=el("button","chip",name);b.type="button";b.setAttribute("aria-pressed",String(i===0));
   b.addEventListener("click",()=>{[...bar.children].forEach((x)=>x.setAttribute("aria-pressed",String(x===b)));show(name)});bar.append(b)});
