@@ -16,11 +16,11 @@ module.exports = async (req, res) => {
     // One list call for every active price in the account; products with no active base price are left out.
     const byProduct = await prices.activePricesByProduct(stripe);
     const card = (pr, period) => ({ period, amount: pr.unit_amount, interval: pr.recurring ? pr.recurring.interval : null, intervalCount: pr.recurring ? pr.recurring.interval_count : null, ...discounted(pr.unit_amount, launch) });
-    const products = Object.entries(CATALOG).filter(([, p]) => !p.retired && !p.draft && !p.hidden && p.stripeProduct && byProduct[p.stripeProduct] && byProduct[p.stripeProduct]['1m']).map(([id, p]) => {
-      const found = byProduct[p.stripeProduct], base = found['1m'];
+    const products = Object.entries(CATALOG).filter(([, p]) => !p.retired && !p.draft && !p.hidden && p.stripeProduct && byProduct[p.stripeProduct] && (byProduct[p.stripeProduct]['1m'] || byProduct[p.stripeProduct].once)).map(([id, p]) => {
+      const found = byProduct[p.stripeProduct], base = found['1m'] || found.once;
       // Other billing periods (weekly, 3, 6 or 12 months) offered alongside the monthly price.
       const periods = prices.PERIODS.filter((k) => k !== '1m' && found[k]).map((k) => card(found[k], k));
-      return { id, name: p.name, blurb: p.blurb || null, amount: base.unit_amount, currency: base.currency, interval: base.recurring ? base.recurring.interval : null, ...discounted(base.unit_amount, launch), ...(periods.length ? { periods } : {}) };
+      return { id, name: p.name, blurb: p.blurb || null, amount: base.unit_amount, currency: base.currency, interval: base.recurring ? base.recurring.interval : null, ...(id === 'snowsocial' && found.once ? { setupAmount: found.once.unit_amount, setupCurrency: found.once.currency } : {}), ...discounted(base.unit_amount, launch), ...(periods.length ? { periods } : {}) };
     });
     send(res, 200, { products }, { 'Cache-Control': 'public, max-age=60' });
   } catch (e) {

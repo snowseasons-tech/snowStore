@@ -18,17 +18,26 @@ module.exports = async (req, res) => {
     if (!site || !product.stripeProduct) return send(res, 503, { error: 'Checkout not configured' });
 
     const stripe = stripeClient();
-    const chosen = (await prices.activePricesFor(stripe, product.stripeProduct))[period];
+    const available = await prices.activePricesFor(stripe, product.stripeProduct);
+    const chosen = available[period];
     if (!chosen) return send(res, period === '1m' ? 503 : 400, { error: period === '1m' ? 'Checkout not configured' : 'That billing period is not available' });
     if (body.productId === 'founders-membership' && (period !== '1m' || chosen.unit_amount !== 2900 || chosen.currency !== 'usd' || chosen.recurring?.interval !== 'month' || (chosen.recurring.interval_count || 1) !== 1)) {
       return send(res, 503, { error: 'Membership price does not match published terms' });
     }
     const price = chosen.id;
     const isSub = !!chosen.recurring; // checkout mode follows the price itself
+    let lineItems = [{ price, quantity: 1 }];
+    if (body.productId === 'snowsocial') {
+      const setup = available.once;
+      if (!isSub || !setup || setup.id !== 'price_1UXgMuPM6gpd3uZBxtEuoJNE' || setup.unit_amount !== 9900 || setup.currency !== 'usd') {
+        return send(res, 503, { error: 'SnowSocial setup price is unavailable or does not match the published $99 USD fee' });
+      }
+      lineItems.push({ price: setup.id, quantity: 1 });
+    }
     const launch = await launchDiscount(stripe);
     const session = await stripe.checkout.sessions.create({
       mode: isSub ? 'subscription' : 'payment',
-      line_items: [{ price, quantity: 1 }],
+      line_items: lineItems,
       metadata: { product_id: body.productId, ...(period !== '1m' ? { period } : {}) },
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/cancel`,

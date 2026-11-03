@@ -166,35 +166,12 @@ const PRODUCTS=[
   features:["Routine website health monitoring and functionality checks", "Security updates, maintenance and technical troubleshooting", "Updates to existing content: business information, service descriptions, images and contact information", "Basic performance optimization and mobile compatibility reviews", "SSL certificate monitoring and domain configuration assistance", "Maintenance of existing contact forms, inquiry forms and lead capture", "Basic technical SEO maintenance, including metadata and search indexing checks", "Backup coordination and recovery assistance where supported", "Maintenance of existing integrations and analytics configurations", "Compatibility reviews after software or hosting changes"],
   notes:["Covers one designated secondary website", "Requires an active Website Management — Primary subscription", "Major development, redesigns, custom applications, new integrations and extensive content changes are billed separately"],
   unit:"subscription"},
- {id:"social-media-1",icon:"social-media",name:"Social Media — 1 Account",category:"Social Media",
-  blurb:"Professional social media management for one authorized business account, keeping a consistent online presence through planned content, scheduled publishing and performance monitoring.",
-  featuresTitle:"Services include",
-  features:["Up to 8 posts per month, created and scheduled from your information and approved content", "Management of one business account, such as Facebook, Instagram or LinkedIn", "A monthly content publishing schedule", "AI-assisted drafting of captions, promotions, service highlights, educational content and announcements", "Formatting of your images and graphics for the platform", "Scheduled publishing through supported, authorized account connections", "Hashtag and keyword recommendations", "Monitoring for failed or unsuccessful posts", "Monthly performance summaries", "Schedule adjustments based on your priorities and observed performance", "Your review and approval of scheduled content when required"],
-  notes:["Covers one business account on one supported platform", "Paid advertising and ad budgets, professional photography, video production, direct message management, customer service responses and advanced community engagement are not included unless separately contracted", "Results such as audience growth, engagement, leads or sales are not guaranteed"],
-  unit:"subscription"},
- {id:"social-media-2",icon:"social-media",name:"Social Media Management — 2 Accounts",category:"Social Media",
-  blurb:"Professional social media management for up to two authorized business accounts across Facebook, Instagram, LinkedIn or other supported platforms.",
-  featuresTitle:"Services include",
-  features:["16 posts per month","Content planning","Branded post creation","Scheduling and publishing","Account monitoring","Content coordination","Monthly performance reporting"],
-  notes:["Designed for businesses seeking consistent brand messaging and an active presence across multiple social media platforms"],
-  unit:"subscription"},
- {id:"social-media-3",icon:"social-media",name:"Social Media Management — 3 Accounts",category:"Social Media",
-  blurb:"Comprehensive social media management for up to three authorized business accounts, including Facebook, Instagram, LinkedIn or other supported platforms.",
-  featuresTitle:"Includes",
-  features:["24 posts per month","Coordinated content strategy","Branded post creation","Content calendars","Automated scheduling and publishing","Account monitoring","Engagement analytics","Monthly performance reporting"],
-  notes:["Centralized management to maintain consistent branding, improve online visibility and streamline marketing operations across multiple platforms"],
-  unit:"subscription"},
- {id:"social-media-4",icon:"social-media",name:"Social Media Management — 4 Accounts",category:"Social Media",
-  blurb:"Advanced social media management for up to four authorized business accounts across Facebook, Instagram, LinkedIn and other supported platforms.",
-  featuresTitle:"Includes",
-  features:["32 posts per month","Multi-platform content planning","Branded post creation","Coordinated content calendars","Automated scheduling and publishing","Account monitoring","Performance analytics","Monthly reporting"],
-  notes:["Designed for businesses requiring centralized management of multiple social channels, consistent brand messaging and coordinated digital marketing"],
-  unit:"subscription"},
- {id:"social-media-5",icon:"social-media",name:"Social Media — 5 Accounts",category:"Social Media",
-  blurb:"Centralized social media management for up to five business social media accounts.",
-  featuresTitle:"Includes",
-  features:["Coordinated content planning","Post creation","Scheduling and publishing","Brand consistency management","Account monitoring","Performance reporting"],
-  notes:["Supports approved business accounts across Facebook, Instagram, LinkedIn and other supported platforms","Posting frequency and content deliverables are defined by the service agreement","Paid advertising and third-party platform fees are excluded"],
+ {id:"snowsocial",icon:"social-media",name:"SnowSocial — Social Content Planner",category:"Social Media",
+  blurb:"Managed social publishing for one business brand, with up to 12 posts each month across five supported channels.",
+  tagline:"Managed social media service",
+  featuresTitle:"Monthly service includes",
+  features:["Up to 12 posts per month for one business brand","Connect up to five profiles across Facebook, Instagram, Google Business Profile, LinkedIn and X","Caption adaptation and simple branded graphics","Content approval, scheduled publishing and monthly performance reporting"],
+  notes:["Supported formats vary by platform: Facebook, LinkedIn and X text; Instagram single-image posts; Google Business Profile Local Posts.","Platform permissions and API availability are required. X analytics is optional and may incur provider usage charges.","Paid advertising, community inbox management and video production are not included.","A $99 USD one-time setup fee is charged with the first subscription payment. Renewals are charged at the selected recurring interval."],
   unit:"subscription"},
  {id:"managed-database",icon:"managed-database",name:"Managed Database Infrastructure",category:"Infrastructure",
   blurb:"Snow Seasons Tech provides ongoing database administration, infrastructure maintenance, security oversight, and technical support for business-critical database environments. Our managed infrastructure service helps organizations maintain reliable database operations, protect business information, and support the applications and websites that depend on structured data.",
@@ -239,14 +216,15 @@ const pic=p=>p.icon?`<img class="pic" src="/img/icons/${esc(p.icon)}.webp" alt="
 const thumb=p=>p.img?`<img class="thumb" src="${esc(p.img)}" alt="${esc(p.alt||"")}" width="800" height="450" loading="lazy" decoding="async">`:"";
 const tagline=p=>p.tagline?`<p class="tagline">${esc(p.tagline)}</p>`:"";
 const buyLabel=p=>p.unit==="subscription"?"Subscribe":"Buy now";
-const priceRow=p=>`<div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div>`;
+const buyAction=p=>p.contactHref?`<a class="btn" href="${esc(p.contactHref)}">${esc(p.contactLabel||"Contact us")}</a>`:"<button class=\"btn\" data-buy=\""+esc(p.id)+"\" type=\"button\">"+buyLabel(p)+"</button>";
+const priceRow=p=>p.contactPrice?`<div class="price">${esc(p.contactPrice)} <small>${esc(p.unit||"")}</small></div>`:`<div class="price"><span data-price="${esc(p.id)}">…</span> <small>${esc(p.unit)}</small></div>`;
 // coverage = [label, value] rows, shown as a table on the back of the card.
 const coverage=p=>p.coverage?`<h4>Coverage</h4><dl class="specs">${p.coverage.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`:"";
 // notes = terms shown under the features list, e.g. what is billed separately.
 const notes=p=>p.notes?`<h4>Good to know</h4><ul>${p.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:"";
-$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article class="card">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div>${rel(p)}<h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button></div></article>`
- :`<article class="flip"><div class="card front">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div>${rel(p)}<h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">More info</button></div></div>`
- +`<div class="card back" inert><h3>${esc(p.name)}</h3>${p.features?`<h4>${esc(p.featuresTitle||"Good to know")}</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}${coverage(p)}${notes(p)}${specs(p)}${priceRow(p)}<div class="actions"><button class="btn" data-buy="${esc(p.id)}" type="button">${buyLabel(p)}</button><button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
+$("#product-grid").innerHTML=PRODUCTS.map(p=>!p.features&&!p.coverage?`<article class="card">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div>${rel(p)}<h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}${priceRow(p)}<div class="actions">${buyAction(p)}</div></article>`
+ :`<article class="flip"><div class="card front">${thumb(p)}<div class="card-top">${pic(p)}<span class="tag">${esc(p.category)}</span></div>${rel(p)}<h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>${tagline(p)}<p class="hint">Click the card for what's included.</p>${priceRow(p)}<div class="actions">${buyAction(p)}<button class="btn alt" data-flip type="button">More info</button></div></div>`
+ +`<div class="card back" inert><h3>${esc(p.name)}</h3>${p.features?`<h4>${esc(p.featuresTitle||"Good to know")}</h4><ul>${p.features.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}${coverage(p)}${notes(p)}${specs(p)}${priceRow(p)}<div class="actions">${buyAction(p)}<button class="btn alt" data-flip type="button">Back</button></div></div></article>`).join("");
 document.addEventListener("click",e=>{const c=e.target.closest(".flip");if(!c)return;const t=e.target.closest("[data-flip]");
  if(!t&&(e.target.closest("a,button,select")||String(getSelection())))return;
  const had=c.contains(document.activeElement),on=c.classList.toggle("flipped"),[front,back]=c.children;
@@ -257,11 +235,11 @@ const perLabel=o=>!o.interval?"":o.intervalCount>1?` every ${o.intervalCount} ${
 const firstSpan=o=>o.intervalCount>1?`first ${o.intervalCount} ${o.interval}s`:`first ${o.interval}`;
 const periodMonths=o=>({week:12/52,year:12}[o.interval]||1)*(o.intervalCount||1);
 const periodName=o=>o.period==="1m"?"Monthly":o.intervalCount===1?{week:"Weekly",month:"Monthly",year:"Yearly"}[o.interval]:`Every ${o.intervalCount} ${o.interval}s`;
-function renderPrice(el,p,o){const money=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:p.currency.toUpperCase()}).format(n/100),per=perLabel(o);
- if(!o.discount){el.textContent=money(o.amount)+per;return}const d=o.discount,off=Math.round(d.percent)+"% off",tag=document.createElement("span");tag.className="sale";
+function renderPrice(el,p,o){const money=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:p.currency.toUpperCase()}).format(n/100),per=perLabel(o),setup=()=>{if(!p.setupAmount)return;const fee=document.createElement("small");fee.textContent=" + "+new Intl.NumberFormat("en-US",{style:"currency",currency:p.setupCurrency.toUpperCase()}).format(p.setupAmount/100)+" one-time setup";el.appendChild(fee)};
+ if(!o.discount){el.textContent=money(o.amount)+per;setup();return}const d=o.discount,off=Math.round(d.percent)+"% off",tag=document.createElement("span");tag.className="sale";
  // A "once" or "repeating" coupon only discounts the first invoice(s) of a subscription, so say so instead of showing a lower recurring price.
- if(o.interval&&(d.duration==="once"||d.duration==="repeating")){const span=d.duration==="repeating"&&d.months>1&&o.interval==="month"&&o.intervalCount===1?`first ${d.months} months`:firstSpan(o),then=document.createElement("small");then.style.display="block";then.textContent=`then ${money(o.amount)}${per}`;tag.textContent=`${off} your ${span}`;el.replaceChildren(`${money(d.amount)} ${span} `,then," ",tag);return}
- const was=document.createElement("s");was.textContent=money(o.amount);tag.textContent=off+" launch price";el.replaceChildren(was," "+money(d.amount)+per+" ",tag)}
+ if(o.interval&&(d.duration==="once"||d.duration==="repeating")){const span=d.duration==="repeating"&&d.months>1&&o.interval==="month"&&o.intervalCount===1?`first ${d.months} months`:firstSpan(o),then=document.createElement("small");then.style.display="block";then.textContent=`then ${money(o.amount)}${per}`;tag.textContent=`${off} your ${span}`;el.replaceChildren(`${money(d.amount)} ${span} `,then," ",tag);setup();return}
+ const was=document.createElement("s");was.textContent=money(o.amount);tag.textContent=off+" launch price";el.replaceChildren(was," "+money(d.amount)+per+" ",tag);setup()}
 fetch("/api/products").then(r=>r.json()).then(d=>d.products.forEach(p=>{
  const opts=[{period:"1m",amount:p.amount,interval:p.interval,intervalCount:1,discount:p.discount},...(p.periods||[])].sort((a,b)=>periodMonths(a)-periodMonths(b));
  const show=()=>{const o=opts.find(x=>x.period===(chosen[p.id]||"1m"))||opts[0];document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>renderPrice(el,p,o));document.querySelectorAll('select[data-period="'+p.id+'"]').forEach(s=>s.value=o.period)};

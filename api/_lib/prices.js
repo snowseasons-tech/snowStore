@@ -20,7 +20,8 @@ function groupByProduct(prices) {
     const product = typeof p.product === 'string' ? p.product : p.product && p.product.id;
     if (!period || !product || p.unit_amount == null) continue;
     const slot = (out[product] = out[product] || {});
-    if (!slot[period] || p.created > slot[period].created) slot[period] = p;
+    if (!p.recurring && (!slot.once || p.created > slot.once.created)) slot.once = p;
+    if (!slot[period] || p.created > slot[period].created || (p.created === slot[period].created && p.recurring && !slot[period].recurring)) slot[period] = p;
   }
   return out;
 }
