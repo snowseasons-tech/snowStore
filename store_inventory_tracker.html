@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Inventory Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            750: '#1e293b',
+                            850: '#0f172a',
+                            900: '#090d16',
+                        },
+                        cyan: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for dark mode tables */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-gradient-to-tr from-cyan-600 to-blue-600 rounded-xl shadow-lg shadow-cyan-500/20">
+                    <i data-lucide="boxes" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">SnowSeasons Tech</h1>
+                    <p class="text-xs text-slate-400">Store Inventory Tracker</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button id="openModalBtn" onclick="openAddModal()" class="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 active:scale-95">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Add Item</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+        <!-- Stat Cards Section -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Items Card -->
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 flex items-center justify-between hover:border-slate-600 transition-all duration-200 shadow-sm">
+                <div>
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total SKUs</p>
+                    <h3 id="statTotalItems" class="text-2xl font-bold text-white mt-1">0</h3>
+                </div>
+                <div class="p-3 bg-cyan-500/10 text-cyan-400 rounded-xl border border-cyan-500/20">
+                    <i data-lucide="package" class="w-6 h-6"></i>
+                </div>
+            </div>
+
+            <!-- Total Units in Stock Card -->
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 flex items-center justify-between hover:border-slate-600 transition-all duration-200 shadow-sm">
+                <div>
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Quantity</p>
+                    <h3 id="statTotalUnits" class="text-2xl font-bold text-white mt-1">0</h3>
+                </div>
+                <div class="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                    <i data-lucide="layers" class="w-6 h-6"></i>
+                </div>
+            </div>
+
+            <!-- Low Stock Items Card -->
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 flex items-center justify-between hover:border-slate-600 transition-all duration-200 shadow-sm">
+                <div>
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Low Stock Warnings</p>
+                    <h3 id="statLowStock" class="text-2xl font-bold text-amber-400 mt-1">0</h3>
+                </div>
+                <div class="p-3 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
+                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                </div>
+            </div>
+
+            <!-- Total Inventory Value Card -->
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 flex items-center justify-between hover:border-slate-600 transition-all duration-200 shadow-sm">
+                <div>
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Inventory Value</p>
+                    <h3 id="statTotalValue" class="text-2xl font-bold text-emerald-400 mt-1">$0.00</h3>
+                </div>
+                <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                    <i data-lucide="dollar-sign" class="w-6 h-6"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter & Search Controls Bar -->
+        <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-1">
+                <!-- Search Input -->
+                <div class="relative flex-1 max-w-md">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="Search by item name or SKU..." 
+                        class="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all">
+                </div>
+
+                <!-- Category Filter -->
+                <div class="w-full sm:w-48">
+                    <select id="categoryFilter" 
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all">
+                        <option value="All">All Categories</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Snow Apparel">Snow Apparel</option>
+                        <option value="Gear & Accessories">Gear & Accessories</option>
+                        <option value="Thermal Wear">Thermal Wear</option>
+                    </select>
+                </div>
+
+                <!-- Stock Status Filter -->
+                <div class="w-full sm:w-40">
+                    <select id="statusFilter" 
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all">
+                        <option value="All">All Statuses</option>
+                        <option value="In Stock">In Stock</option>
+                        <option value="Low Stock">Low Stock (< 5)</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Reset Filters -->
+            <button onclick="resetFilters()" class="text-xs text-slate-400 hover:text-cyan-400 flex items-center gap-1.5 transition-colors py-1 px-2">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                Reset Filters
+            </button>
+        </div>
+
+        <!-- Inventory Table Section -->
+        <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl overflow-hidden shadow-xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-900/90 text-slate-400 uppercase text-[11px] font-semibold tracking-wider border-b border-slate-700/60">
+                        <tr>
+                            <th scope="col" class="py-4 px-6">Product Details</th>
+                            <th scope="col" class="py-4 px-4">SKU</th>
+                            <th scope="col" class="py-4 px-4">Category</th>
+                            <th scope="col" class="py-4 px-4 text-right">Cost</th>
+                            <th scope="col" class="py-4 px-4 text-right">Retail Price</th>
+                            <th scope="col" class="py-4 px-4 text-center">In-Stock Qty</th>
+                            <th scope="col" class="py-4 px-4">Status</th>
+                            <th scope="col" class="py-4 px-6 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody" class="divide-y divide-slate-700/40">
+                        <!-- Dynamic Rows Injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden py-16 text-center space-y-3">
+                <div class="inline-flex p-4 rounded-full bg-slate-900 text-slate-500 mb-1 border border-slate-800">
+                    <i data-lucide="package-search" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-base font-semibold text-slate-300">No Inventory Found</h3>
+                <p class="text-xs text-slate-500 max-w-sm mx-auto">No products matched your current search filters. Try adjusting your query or category selection.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for Adding New Item -->
+    <div id="addItemModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 transition-transform duration-200" id="modalContainer">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-850">
+                <div class="flex items-center gap-2">
+                    <div class="p-1.5 bg-cyan-500/10 text-cyan-400 rounded-lg">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-base font-semibold text-white">Add New Product</h3>
+                </div>
+                <button onclick="closeAddModal()" class="text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-700">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form -->
+            <form id="addItemForm" onsubmit="handleAddItem(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Item Name *</label>
+                    <input type="text" id="itemName" required placeholder="e.g. Heated Snow Goggles Pro" 
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">SKU *</label>
+                        <input type="text" id="itemSku" required placeholder="e.g. SNT-GOG-001" 
+                            class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Category *</label>
+                        <select id="itemCategory" required 
+                            class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+                            <option value="Electronics">Electronics</option>
+                            <option value="Snow Apparel">Snow Apparel</option>
+                            <option value="Gear & Accessories">Gear & Accessories</option>
+                            <option value="Thermal Wear">Thermal Wear</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Cost ($) *</label>
+                        <input type="number" step="0.01" min="0" id="itemCost" required placeholder="45.00" 
+                            class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Retail Price ($) *</label>
+                        <input type="number" step="0.01" min="0" id="itemPrice" required placeholder="89.99" 
+                            class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Initial Stock *</label>
+                        <input type="number" min="0" id="itemQuantity" required placeholder="10" 
+                            class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3 border-t border-slate-700/60 mt-6">
+                    <button type="button" onclick="closeAddModal()" class="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-xl transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 text-xs font-semibold bg-cyan-500 text-slate-950 rounded-xl hover:bg-cyan-400 transition-colors shadow-md shadow-cyan-500/20">
+                        Save Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast Box -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Main JavaScript Logic -->
+    <script>
+        // Initial Mock Data
+        const initialProducts = [
+            { id: 1, name: "Smart Bluetooth Heated Gloves", sku: "SNT-GLV-102", category: "Snow Apparel", cost: 32.50, price: 79.99, quantity: 12 },
+            { id: 2, name: "Ultra-Thermal Insulated Jacket", sku: "SNT-JAC-401", category: "Snow Apparel", cost: 85.00, price: 189.99, quantity: 3 },
+            { id: 3, name: "Portable Boot Dryer & Sanitizer", sku: "SNT-DRY-88", category: "Gear & Accessories", cost: 18.00, price: 45.00, quantity: 24 },
+            { id: 4, name: "Anti-Fog LED Snow Goggles", sku: "SNT-GOG-204", category: "Electronics", cost: 42.00, price: 119.50, quantity: 2 },
+            { id: 5, name: "Rechargeable Hand Warmer 10000mAh", sku: "SNT-ACC-012", category: "Electronics", cost: 10.50, price: 29.99, quantity: 0 },
+            { id: 6, name: "Merino Wool Base Layer Set", sku: "SNT-THM-05", category: "Thermal Wear", cost: 25.00, price: 64.99, quantity: 18 },
+            { id: 7, name: "Avalanche Rescue Beacon Transceiver", sku: "SNT-EQP-99", category: "Gear & Accessories", cost: 150.00, price: 349.99, quantity: 4 }
+        ];
+
+        let products = [...initialProducts];
+
+        // Initialize UI Elements
+        document.addEventListener("DOMContentLoaded", () => {
+            renderTable();
+            updateStats();
+            lucide.createIcons();
+
+            // Event listeners for real-time filtering
+            document.getElementById('searchInput').addEventListener('input', renderTable);
+            document.getElementById('categoryFilter').addEventListener('change', renderTable);
+            document.getElementById('statusFilter').addEventListener('change', renderTable);
+        });
+
+        // Determine stock status dynamically
+        function getStockStatus(quantity) {
+            if (quantity === 0) return { label: 'Out of Stock', color: 'bg-rose-500/10 text-rose-400 border-rose-500/20' };
+            if (quantity < 5) return { label: 'Low Stock', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' };
+            return { label: 'In Stock', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
+        }
+
+        // Render Inventory Table based on active filters
+        function renderTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+            const categoryVal = document.getElementById('categoryFilter').value;
+            const statusVal = document.getElementById('statusFilter').value;
+
+            // Filter Products
+            const filtered = products.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(searchVal) || item.sku.toLowerCase().includes(searchVal);
+                const matchesCategory = categoryVal === 'All' || item.category === categoryVal;
+                
+                let matchesStatus = true;
+                if (statusVal === 'In Stock') matchesStatus = item.quantity >= 5;
+                if (statusVal === 'Low Stock') matchesStatus = item.quantity > 0 && item.quantity < 5;
+                if (statusVal === 'Out of Stock') matchesStatus = item.quantity === 0;
+
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
+
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+
+                filtered.forEach(item => {
+                    const status = getStockStatus(item.quantity);
+                    const isLowStock = item.quantity < 5;
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-800/40 transition-colors group";
+                    tr.innerHTML = `
+                        <td class="py-4 px-6 font-medium text-slate-100 flex items-center gap-2">
+                            <span>${escapeHtml(item.name)}</span>
+                            ${isLowStock ? `
+                                <span class="inline-flex items-center text-amber-400 text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20" title="Stock lower than 5 units!">
+                                    <i data-lucide="alert-circle" class="w-3 h-3 mr-1"></i> Low
+                                </span>
+                            ` : ''}
+                        </td>
+                        <td class="py-4 px-4 text-xs font-mono text-slate-400">${escapeHtml(item.sku)}</td>
+                        <td class="py-4 px-4 text-slate-300">
+                            <span class="px-2.5 py-1 rounded-lg text-xs bg-slate-900 border border-slate-700/80 text-slate-300">
+                                ${escapeHtml(item.category)}
+                            </span>
+                        </td>
+                        <td class="py-4 px-4 text-right font-mono text-slate-400">$${item.cost.toFixed(2)}</td>
+                        <td class="py-4 px-4 text-right font-mono font-medium text-slate-200">$${item.price.toFixed(2)}</td>
+                        <td class="py-4 px-4 text-center">
+                            <div class="inline-flex items-center bg-slate-900 rounded-xl border border-slate-700/80 p-1">
+                                <button onclick="adjustQuantity(${item.id}, -1)" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors active:scale-95">
+                                    <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <span class="w-10 text-center font-bold text-sm ${item.quantity === 0 ? 'text-rose-400' : 'text-slate-100'}">
+                                    ${item.quantity}
+                                </span>
+                                <button onclick="adjustQuantity(${item.id}, 1)" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors active:scale-95">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${status.color}">
+                                <span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-current"></span>
+                                ${status.label}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            <button onclick="deleteProduct(${item.id})" class="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors" title="Delete Product">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            lucide.createIcons();
+        }
+
+        // Adjust Quantity Handler (+ / -)
+        function adjustQuantity(id, change) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            const newQty = product.quantity + change;
+            if (newQty < 0) return; // Prevent negative stock
+
+            product.quantity = newQty;
+            renderTable();
+            updateStats();
+
+            if (change > 0) {
+                showToast(`Increased quantity for "${product.name}"`, 'success');
+            } else {
+                showToast(`Decreased quantity for "${product.name}"`, 'info');
+            }
+        }
+
+        // Add Product Form Handler
+        function handleAddItem(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('itemName').value.trim();
+            const sku = document.getElementById('itemSku').value.trim().toUpperCase();
+            const category = document.getElementById('itemCategory').value;
+            const cost = parseFloat(document.getElementById('itemCost').value);
+            const price = parseFloat(document.getElementById('itemPrice').value);
+            const quantity = parseInt(document.getElementById('itemQuantity').value, 10);
+
+            // Validation
+            if (!name || !sku || isNaN(cost) || isNaN(price) || isNaN(quantity)) {
+                showToast("Please fill in all fields correctly.", "error");
+                return;
+            }
+
+            const newProduct = {
+                id: Date.now(),
+                name,
+                sku,
+                category,
+                cost,
+                price,
+                quantity
+            };
+
+            products.unshift(newProduct);
+            renderTable();
+            updateStats();
+            closeAddModal();
+            showToast(`Product "${name}" added successfully!`, 'success');
+
+            // Reset form
+            document.getElementById('addItemForm').reset();
+        }
+
+        // Delete Product
+        function deleteProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            products = products.filter(p => p.id !== id);
+            renderTable();
+            updateStats();
+            showToast(`Deleted "${product.name}" from inventory.`, 'info');
+        }
+
+        // Update Statistics Cards
+        function updateStats() {
+            const totalItems = products.length;
+            const totalUnits = products.reduce((sum, p) => sum + p.quantity, 0);
+            const lowStockCount = products.filter(p => p.quantity < 5).length;
+            const totalValue = products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+
+            document.getElementById('statTotalItems').textContent = totalItems.toLocaleString();
+            document.getElementById('statTotalUnits').textContent = totalUnits.toLocaleString();
+            document.getElementById('statLowStock').textContent = lowStockCount.toLocaleString();
+            document.getElementById('statTotalValue').textContent = `$${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        // Reset Filters
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = 'All';
+            document.getElementById('statusFilter').value = 'All';
+            renderTable();
+        }
+
+        // Modal Logic
+        function openAddModal() {
+            const modal = document.getElementById('addItemModal');
+            const container = document.getElementById('modalContainer');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                container.classList.remove('scale-95');
+                container.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeAddModal() {
+            const modal = document.getElementById('addItemModal');
+            const container = document.getElementById('modalContainer');
+            modal.classList.add('opacity-0');
+            container.classList.remove('scale-100');
+            container.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // Toast Notification System (replaces standard alerts)
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+
+            let icon = 'info';
+            let colorClass = 'bg-slate-800 border-slate-700 text-slate-200';
+
+            if (type === 'success') {
+                icon = 'check-circle';
+                colorClass = 'bg-slate-800 border-emerald-500/40 text-emerald-400';
+            } else if (type === 'error') {
+                icon = 'alert-triangle';
+                colorClass = 'bg-slate-800 border-rose-500/40 text-rose-400';
+            }
+
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl text-xs font-medium pointer-events-auto transform translate-y-2 opacity-0 transition-all duration-300 ${colorClass}`;
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-4 h-4 shrink-0"></i>
+                <span>${escapeHtml(message)}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            // Animate In
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            // Animate Out
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Helper to escape HTML characters
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+    </script>
+</body>
+</html>
