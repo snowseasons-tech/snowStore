@@ -2,6 +2,7 @@ import type {SideBarItem} from '@docusaurus/plugin-content-docs';
 
 const sidebars: Record<string, SideBarItem[]> = {
   productSidebar: [
+    'intro',
     {
       type: 'category',
       label: 'Product Documentation',
