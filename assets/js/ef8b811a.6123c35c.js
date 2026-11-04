@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocumentation_platform_docs_site=self.webpackChunkdocumentation_platform_docs_site||[]).push([["8416"],{6600(e){e.exports=JSON.parse('{"authors":[{"name":"Snow Seasons Tech","title":"Engineering Team","url":"https://snowseasonstech.net","imageURL":"/img/logo.svg","key":"Snow Seasons Tech","page":null,"count":1}]}')}}]);

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocumentation_platform_docs_site=self.webpackChunkdocumentation_platform_docs_site||[]).push([["1833"],{5513(e){e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Introducing the Snow Seasons Tech Documentation Center","permalink":"/blog/2026/10/29/docs-platform-launch","unlisted":false,"date":"2026-10-29T00:00:00.000Z"}]}')}}]);

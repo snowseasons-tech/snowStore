@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="rss.xsl"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>Snow Seasons Tech Blog</title>
+        <link>https://docs.snowseasonstech.net/blog</link>
+        <description>Snow Seasons Tech Blog</description>
+        <lastBuildDate>Thu, 29 Oct 2026 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <language>en</language>
+        <item>
+            <title><![CDATA[Introducing the Snow Seasons Tech Documentation Center]]></title>
+            <link>https://docs.snowseasonstech.net/blog/2026/10/29/docs-platform-launch</link>
+            <guid>https://docs.snowseasonstech.net/blog/2026/10/29/docs-platform-launch</guid>
+            <pubDate>Thu, 29 Oct 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[A new way to access our software guides and product sheets.]]></description>
+            <content:encoded><![CDATA[<p>We are thrilled to announce the launch of our centralized <strong>Documentation Platform</strong>. As we expand our suite of SaaS tools—from <strong>CDOT Stations</strong> to <strong>Lead Intelligence</strong>—we wanted to ensure that our customers have a world-class experience accessing the information they need.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="whats-new">What's New?<a href="https://docs.snowseasonstech.net/blog/2026/10/29/docs-platform-launch#whats-new" class="hash-link" aria-label="Direct link to What's New?" title="Direct link to What's New?" translate="no">​</a></h2>
+<p>Our new system isn't just a collection of pages; it's a <strong>Docs-as-Code</strong> pipeline. This means:</p>
+<ul>
+<li class=""><strong>Always Up-to-Date</strong>: Documentation is generated directly from our product registries. When a feature is added to the software, it's added to the docs.</li>
+<li class=""><strong>Professional PDFs</strong>: Need a hard copy? Every guide now comes with a professional, branded PDF download.</li>
+<li class=""><strong>Secure Access</strong>: Via our Customer Portal, you only see the documentation for the products you are subscribed to.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="how-to-get-started">How to get started<a href="https://docs.snowseasonstech.net/blog/2026/10/29/docs-platform-launch#how-to-get-started" class="hash-link" aria-label="Direct link to How to get started" title="Direct link to How to get started" translate="no">​</a></h2>
+<ol>
+<li class="">Visit our <a class="" href="https://docs.snowseasonstech.net/docs/intro">Documentation Center</a>.</li>
+<li class="">Sign in to the <a href="https://portal.snowseasonstech.net/" target="_blank" rel="noopener noreferrer" class="">Customer Portal</a> to access your private product sheets.</li>
+<li class="">Explore the a-z of our software capabilities.</li>
+</ol>
+<p>We are committed to transparency and clarity. If there's something missing from our guides, let us know through the support ticket system!</p>
+<hr>
+<p><em>Published by the Snow Seasons Tech Engineering Team</em></p>]]></content:encoded>
+            <category>announcement</category>
+            <category>documentation</category>
+            <category>saas</category>
+        </item>
+    </channel>
+</rss>
