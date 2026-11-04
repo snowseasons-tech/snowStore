@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Offline simulation of a lead research pipeline.">
+  <title>Lead Pipeline Demo</title>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#142738;background:#eff4f8}
+    *{box-sizing:border-box}body{margin:0}.wrap{max-width:1000px;margin:auto;padding:24px}
+    header,.panel{background:#fff;border:1px solid #d5e0e8;border-radius:16px;padding:24px;margin:0 0 18px}
+    h1,h2,p{margin:0 0 12px}h1{font-size:clamp(1.7rem,5vw,2.4rem)}h2{font-size:1.15rem}
+    .muted{color:#506477}.badge{display:inline-block;background:#e5f4fb;color:#12567a;padding:3px 9px;border-radius:999px;font-size:.82rem;font-weight:650}
+    .callout{border-left:4px solid #b66b00;padding:10px 12px;background:#fff7e8;border-radius:5px}
+    .controls{display:flex;flex-wrap:wrap;gap:10px}.controls input{flex:1 1 240px;min-width:0}
+    input,button{font:inherit;padding:9px 12px;border:1px solid #9db1c1;border-radius:8px;background:white;color:inherit}
+    button{cursor:pointer;background:#12567a;color:white;border-color:#12567a;font-weight:650}
+    button.secondary{background:white;color:#12567a}button:hover{filter:brightness(.93)}
+    table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #dbe5ec}
+    th{font-size:.85rem;color:#425a6e}.stats{display:flex;flex-wrap:wrap;gap:20px;margin-top:16px}
+    .stats strong{font-size:1.2rem}.message{min-height:1.5em;color:#175b45}.stage{font-size:.85rem;font-weight:700}
+    a{color:#145987}@media(max-width:650px){.wrap{padding:14px}.panel{padding:16px;overflow-x:auto}table{min-width:680px}}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <span class="badge">Offline simulation</span>
+      <h1>Lead research pipeline</h1>
+      <p class="muted">Watch fictional company records move through lookup, review, and contact-scan stages.</p>
+      <p class="callout"><strong>Demo only:</strong> no websites are searched, no pages are scraped, and no contact data is collected. Everything runs in this browser session.</p>
+    </header>
+    <section class="panel">
+      <h2>Pipeline controls</h2>
+      <div class="controls">
+        <label class="sr-only" for="company">Fictional company name</label>
+        <input id="company" type="text" maxlength="80" placeholder="Add a fictional company name">
+        <button id="add" type="button">Add to queue</button>
+        <button id="run" type="button">Run next simulated step</button>
+        <button id="reset" class="secondary" type="button">Reset sample</button>
+      </div>
+      <p id="message" class="message" aria-live="polite"></p>
+      <div class="stats" aria-live="polite">
+        <span><strong id="total">0</strong> queued records</span>
+        <span><strong id="review">0</strong> need review</span>
+        <span><strong id="done">0</strong> complete (simulated)</span>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Sample records</h2>
+      <table>
+        <thead><tr><th>Company</th><th>Stage</th><th>Example domain</th><th>Review status</th></tr></thead>
+        <tbody id="records"></tbody>
+      </table>
+    </section>
+    <section class="panel">
+      <p><a href="/products.html#lead-generator">Back to products</a></p>
+    </section>
+  </main>
+  <script>
+    const stages = ["Queued", "Website lookup", "Manual review", "Contact scan", "Complete (demo)"];
+    const sample = [
+      {name: "Aspen Cleaning", step: 0},
+      {name: "Cedar Repairs", step: 1},
+      {name: "Frost Studio", step: 2},
+      {name: "Pine Office", step: 3}
+    ];
+    let records = [];
+    const slug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "sample";
+    function render() {
+      const body = document.querySelector("#records");
+      body.replaceChildren();
+      records.forEach((record) => {
+        const row = document.createElement("tr");
+        const values = [
+          record.name,
+          stages[record.step],
+          record.step ? `www.${slug(record.name)}.example` : "Not looked up",
+          record.step === 2 ? "Check the site manually" : record.step >= 4 ? "Fictional result only" : "Pending"
+        ];
+        values.forEach((value) => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.append(cell);
+        });
+        body.append(row);
+      });
+      document.querySelector("#total").textContent = String(records.length);
+      document.querySelector("#review").textContent = String(records.filter((record) => record.step === 2).length);
+      document.querySelector("#done").textContent = String(records.filter((record) => record.step === 4).length);
+    }
+    document.querySelector("#run").addEventListener("click", () => {
+      const next = records.find((record) => record.step < stages.length - 1);
+      document.querySelector("#message").textContent = next
+        ? `${next.name}: moved to ${stages[++next.step]}.`
+        : "No simulated work remains in the queue.";
+      render();
+    });
+    document.querySelector("#add").addEventListener("click", () => {
+      const field = document.querySelector("#company");
+      const name = field.value.trim();
+      if (!name) {
+        document.querySelector("#message").textContent = "Enter a fictional company name first.";
+        field.focus();
+        return;
+      }
+      records.push({name, step: 0});
+      field.value = "";
+      document.querySelector("#message").textContent = "Added to the in-memory demo queue.";
+      render();
+    });
+    document.querySelector("#reset").addEventListener("click", () => {
+      records = sample.map((record) => ({...record}));
+      document.querySelector("#message").textContent = "Sample pipeline restored.";
+      render();
+    });
+    records = sample.map((record) => ({...record}));
+    render();
+  </script>
+</body>
+</html>

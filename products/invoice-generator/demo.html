@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Try a sample invoice calculation in your browser.">
+  <title>Invoice &amp; Biller Demo</title>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#1b2b3b;background:#eef3f8}
+    *{box-sizing:border-box}body{margin:0}.wrap{max-width:1000px;margin:auto;padding:24px}
+    header,.panel{background:#fff;border:1px solid #d5e0e8;border-radius:16px;padding:24px;margin:0 0 18px}
+    h1,h2,p{margin:0 0 12px}h1{font-size:clamp(1.7rem,5vw,2.4rem)}h2{font-size:1.15rem}
+    .muted{color:#506477}.badge{display:inline-block;background:#e5f4fb;color:#12567a;padding:3px 9px;border-radius:999px;font-size:.82rem;font-weight:650}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}
+    .fields{display:grid;gap:12px}.field{display:grid;gap:5px}.field input,.field select,button{font:inherit;padding:9px 12px;border:1px solid #9db1c1;border-radius:8px;background:#fff;color:inherit}
+    button{cursor:pointer;background:#12567a;color:#fff;border-color:#12567a;font-weight:650}
+    .invoice{padding:26px;border:1px solid #d5e0e8;border-radius:12px;min-height:360px}.invoice-head{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #d5e0e8;padding-bottom:16px}
+    .invoice-head h2{font-size:1.4rem}.invoice table{width:100%;border-collapse:collapse;margin:22px 0}
+    th,td{text-align:left;padding:9px 5px;border-bottom:1px solid #e0e7ed}.invoice .num{text-align:right;font-variant-numeric:tabular-nums}
+    .total{display:flex;justify-content:space-between;font-size:1.15rem;font-weight:750}.message{min-height:1.5em;color:#8e2c25}
+    a{color:#145987}.note{font-size:.9rem}
+    @media(max-width:700px){.wrap{padding:14px}.panel{padding:16px}.layout{grid-template-columns:1fr}}
+    @media print{body{background:white}.no-print{display:none!important}.wrap{max-width:none;padding:0}.panel{border:0;padding:0}.layout{display:block}.fields{display:none}.invoice{border:0;padding:0}.invoice-head{border-color:#aaa}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="no-print">
+      <span class="badge">Interactive product demo</span>
+      <h1>Invoice &amp; Biller</h1>
+      <p class="muted">Adjust a fictional service invoice and see the cents-rounded calculation update immediately. This preview does not save, send, or collect anything.</p>
+    </header>
+    <section class="panel">
+      <div class="layout">
+        <form class="fields no-print" id="invoice-form">
+          <h2>Sample details</h2>
+          <label class="field" for="client">Client name<input id="client" value="Example Client" maxlength="80"></label>
+          <label class="field" for="description">Service<input id="description" value="Website design" maxlength="120"></label>
+          <label class="field" for="quantity">Quantity<input id="quantity" type="number" min="0.001" max="1000000" step="0.001" value="2"></label>
+          <label class="field" for="rate">Rate per unit (USD)<input id="rate" type="number" min="0" max="1000000" step="0.01" value="85"></label>
+          <label class="field" for="tax">Tax rate (%)<input id="tax" type="number" min="0" max="100" step="0.001" value="8.25"></label>
+          <p id="error" class="message" role="alert"></p>
+          <button type="button" id="print">Print this preview</button>
+        </form>
+        <article class="invoice" aria-label="Invoice preview">
+          <div class="invoice-head">
+            <div><h2>Example Studio</h2><p class="muted">you@example.com<br>Springfield, ZZ 00000</p></div>
+            <div><strong>INVOICE</strong><p>#DEMO-1042</p><p class="muted">Sample only</p></div>
+          </div>
+          <p style="margin-top:16px">Bill to: <strong id="preview-client">Example Client</strong></p>
+          <table>
+            <thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead>
+            <tbody><tr><td id="preview-description">Website design</td><td class="num" id="preview-quantity">2</td><td class="num" id="preview-rate">$85.00</td><td class="num" id="preview-subtotal">$170.00</td></tr></tbody>
+          </table>
+          <p class="muted">Tax (<span id="preview-tax-rate">8.25</span>%)</p>
+          <p class="total"><span>Total</span><span id="preview-total">$184.03</span></p>
+          <p class="note muted" style="margin-top:20px">Fictional example. No payment is due.</p>
+        </article>
+      </div>
+    </section>
+    <section class="panel no-print">
+      <p><a href="/products.html#invoice-generator">Back to products</a></p>
+    </section>
+  </main>
+  <script>
+    const fields = ["client", "description", "quantity", "rate", "tax"].map((id) => document.getElementById(id));
+    const asCents = (value) => Math.round(Number(value) * 100);
+    const money = (cents) => new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(cents / 100);
+    function update() {
+      const [client, description, quantity, rate, tax] = fields;
+      const q = Number(quantity.value);
+      const unit = Number(rate.value);
+      const taxRate = Number(tax.value);
+      const error = document.getElementById("error");
+      const valid = client.value.trim() && description.value.trim()
+        && Number.isFinite(q) && q > 0 && q <= 1000000
+        && Number.isFinite(unit) && unit >= 0 && unit <= 1000000
+        && Number.isFinite(taxRate) && taxRate >= 0 && taxRate <= 100;
+      if (!valid) {
+        error.textContent = "Enter a client, service, positive quantity, and valid non-negative amounts.";
+        return;
+      }
+      error.textContent = "";
+      const subtotal = Math.round(q * asCents(unit));
+      const total = subtotal + Math.round(subtotal * taxRate / 100);
+      document.getElementById("preview-client").textContent = client.value.trim();
+      document.getElementById("preview-description").textContent = description.value.trim();
+      document.getElementById("preview-quantity").textContent = String(q);
+      document.getElementById("preview-rate").textContent = money(asCents(unit));
+      document.getElementById("preview-subtotal").textContent = money(subtotal);
+      document.getElementById("preview-tax-rate").textContent = String(taxRate);
+      document.getElementById("preview-total").textContent = money(total);
+    }
+    fields.forEach((field) => field.addEventListener("input", update));
+    document.getElementById("print").addEventListener("click", () => window.print());
+    document.getElementById("invoice-form").addEventListener("submit", (event) => event.preventDefault());
+  </script>
+</body>
+</html>

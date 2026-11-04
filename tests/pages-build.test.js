@@ -14,13 +14,28 @@ test('dist contains only the public site', () => {
   const files = list(out).sort();
   for (const f of ['index.html', '404.html', 'success.html', 'cancel.html', 'privacy.html', 'refund.html', 'terms.html', 'page.css', '_headers',
     'storefront/portal.html', 'storefront/portal.js', 'storefront/styles.css', 'img/hero-banner.jpg', 'img/flake-1.png',
-    'blog/index.html', 'blog/how-to-create-a-successful-stripe-store/index.html']) assert.ok(files.includes(f), `${f} missing`);
+    'blog/index.html', 'blog/how-to-create-a-successful-stripe-store/index.html',
+    'demos/sql-for-small-business.html', 'demos/small-business-project-cookbook.html',
+    'demos/lead-generator.html', 'demos/invoice-generator.html',
+    'demos/documentation-platform-entitlements.html']) assert.ok(files.includes(f), `${f} missing`);
   const article = fs.readFileSync(path.join(out, 'blog/how-to-create-a-successful-stripe-store/index.html'), 'utf8');
   assert.match(article, /<link rel="canonical" href="https:\/\/snowseasonstech\.net\/blog\/how-to-create-a-successful-stripe-store\/">/);
   assert.match(article, /Treat webhooks as the source of truth/);
   assert.match(article, /Stripe store launch checklist/);
+  const products = fs.readFileSync(path.join(out, 'products.html'), 'utf8');
+  for (const demoUrl of ['/demos/sql-for-small-business.html', '/demos/small-business-project-cookbook.html',
+    '/demos/lead-generator.html', '/demos/invoice-generator.html']) {
+    assert.ok(products.includes(`demoUrl:"${demoUrl}"`), `${demoUrl} missing from product cards`);
+  }
   const leaks = files.filter((f) => /^(api|functions|products\/|private-files|scripts|tests|node_modules|ecommerce-expert|\.)/.test(f) || /\.md$|\.env|package|vercel\.json/.test(f));
   assert.deepStrictEqual(leaks, []);
+  assert.deepStrictEqual(files.filter((f) => f.startsWith('demos/')).sort(), [
+    'demos/documentation-platform-entitlements.html',
+    'demos/invoice-generator.html',
+    'demos/lead-generator.html',
+    'demos/small-business-project-cookbook.html',
+    'demos/sql-for-small-business.html',
+  ]);
 });
 
 test('dist is rebuilt from scratch and fails on a missing index', () => {

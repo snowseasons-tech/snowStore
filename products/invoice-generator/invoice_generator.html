@@ -497,8 +497,8 @@ table.list .acts{display:flex;gap:4px;justify-content:flex-end;white-space:nowra
     var issue = todayISO();
     return {
       number: 'INV-1042', status: 'sent', issueDate: issue, termsKey: 'net30', dueDate: addDays(issue, 30), currency: 'USD',
-      from: { name: 'Snowline Design Studio', address: '48 Birch Hollow Road\nPortland, ME 04101\nUnited States', email: 'studio@example.com', phone: '+1 (207) 555-0148', taxId: 'EIN 84-1234567', logoId: 'sample' },
-      client: { name: 'Maya Thompson', company: 'Harbor Lane Café', address: '210 Commercial Street\nPortland, ME 04101', email: 'maya@example.com' },
+      from: { name: 'Your Brand Studio', address: 'Springfield, ZZ 00000\nUnited States', email: 'studio@example.com', phone: '+1 (202) 555-0100', taxId: 'EIN 00-0000000', logoId: 'sample' },
+      client: { name: 'Jane Doe', company: 'Example Café', address: 'Sample City, ZZ 00000', email: 'jane@example.com' },
       items: [
         { description: 'Website landing page design\nResponsive layout, two rounds of revisions', qty: '1', price: '850.00' },
         { description: 'Product photography, edited images', qty: '12', price: '35.00' },
@@ -506,7 +506,7 @@ table.list .acts{display:flex;gap:4px;justify-content:flex-end;white-space:nowra
         { description: 'Printed business cards, box of 250', qty: '3', price: '19.99' }
       ],
       discountType: 'percent', discountValue: '10', taxLabel: 'Sales tax', taxRate: '8.25', shipping: '12.50', amountPaid: '500.00',
-      notes: 'Bank transfer to Snowline Design Studio, account ending 4567. Please use the invoice number as the reference.\nThank you for your business!',
+      notes: 'Bank transfer to Your Brand Studio, account ending 0000. Please use the invoice number as the reference.\nThank you for your business!',
       termsText: 'Payment is due within 30 days. Overdue balances may incur a late fee of 1.5% per month.',
       sample: true
     };

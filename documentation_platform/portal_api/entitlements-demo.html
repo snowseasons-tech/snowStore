@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore simulated product entitlements in an offline browser demo.">
+  <title>Entitlements Demo</title>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#17283a;background:#eff4f8}
+    *{box-sizing:border-box}body{margin:0}.wrap{max-width:900px;margin:auto;padding:24px}
+    header,.panel{background:#fff;border:1px solid #d5e0e8;border-radius:16px;padding:24px;margin:0 0 18px}
+    h1,h2,p{margin:0 0 12px}h1{font-size:clamp(1.7rem,5vw,2.4rem)}h2{font-size:1.15rem}
+    .muted{color:#506477}.badge{display:inline-block;background:#e5f4fb;color:#12567a;padding:3px 9px;border-radius:999px;font-size:.82rem;font-weight:650}
+    .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:end}.field{display:grid;gap:5px}
+    select,button{font:inherit;padding:9px 12px;border:1px solid #9db1c1;border-radius:8px;background:white;color:inherit}
+    button{cursor:pointer;background:#12567a;color:white;border-color:#12567a;font-weight:650}
+    button.danger{background:#fff;color:#8e2c25;border-color:#c87972}button:hover{filter:brightness(.94)}
+    table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #dbe5ec}
+    .status{font-weight:700}.message{min-height:1.5em;color:#175b45}a{color:#145987}
+    @media(max-width:600px){.wrap{padding:14px}.panel{padding:16px;overflow-x:auto}table{min-width:440px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <span class="badge">Offline simulation</span>
+      <h1>Product access check</h1>
+      <p class="muted">Choose a demo user and product to check, grant, or revoke access.</p>
+      <p><strong>This is not connected to the API or PostgreSQL.</strong> Changes exist only in this page's memory and reset when it reloads.</p>
+    </header>
+    <section class="panel">
+      <h2>Try an access action</h2>
+      <div class="controls">
+        <label class="field" for="user">Demo user
+          <select id="user"><option value="demo-user-1">demo-user-1</option><option value="demo-user-2">demo-user-2</option></select>
+        </label>
+        <label class="field" for="product">Product
+          <select id="product"><option value="docs-product-a">docs-product-a</option><option value="docs-product-b">docs-product-b</option></select>
+        </label>
+        <button id="check" type="button">Check access</button>
+        <button id="grant" type="button">Grant access</button>
+        <button id="revoke" class="danger" type="button">Revoke access</button>
+      </div>
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+    </section>
+    <section class="panel">
+      <h2>Current demo grants</h2>
+      <table>
+        <thead><tr><th>Demo user</th><th>Product</th><th>Tier</th></tr></thead>
+        <tbody id="grants"></tbody>
+      </table>
+      <p id="empty" class="muted" hidden>No demo entitlements are currently granted.</p>
+    </section>
+    <section class="panel">
+      <p class="muted">The API example checks the user/product pair in an entitlements table and uses an upsert to grant access.</p>
+      <p><a href="/products.html">Browse products</a></p>
+    </section>
+  </main>
+  <script>
+    let grants = [
+      {user: "demo-user-1", product: "docs-product-a", tier: "standard"},
+      {user: "demo-user-2", product: "docs-product-b", tier: "standard"}
+    ];
+    const selected = () => ({user: document.querySelector("#user").value, product: document.querySelector("#product").value});
+    const match = (grant, key) => grant.user === key.user && grant.product === key.product;
+    function render() {
+      const body = document.querySelector("#grants");
+      body.replaceChildren();
+      grants.forEach((grant) => {
+        const row = document.createElement("tr");
+        [grant.user, grant.product, grant.tier].forEach((value) => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.append(cell);
+        });
+        body.append(row);
+      });
+      document.querySelector("#empty").hidden = grants.length !== 0;
+    }
+    document.querySelector("#check").addEventListener("click", () => {
+      const key = selected();
+      const active = grants.some((grant) => match(grant, key));
+      document.querySelector("#message").textContent = `${key.user} ${active ? "has" : "does not have"} access to ${key.product}.`;
+    });
+    document.querySelector("#grant").addEventListener("click", () => {
+      const key = selected();
+      if (!grants.some((grant) => match(grant, key))) grants.push({...key, tier: "standard"});
+      document.querySelector("#message").textContent = `Granted simulated access to ${key.product} for ${key.user}.`;
+      render();
+    });
+    document.querySelector("#revoke").addEventListener("click", () => {
+      const key = selected();
+      const hadGrant = grants.some((grant) => match(grant, key));
+      grants = grants.filter((grant) => !match(grant, key));
+      document.querySelector("#message").textContent = hadGrant
+        ? `Revoked simulated access to ${key.product} for ${key.user}.`
+        : `No simulated grant existed for ${key.user} and ${key.product}.`;
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>

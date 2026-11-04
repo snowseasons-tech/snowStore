@@ -4,6 +4,8 @@ A single-file invoice maker for small sellers and freelancers. Open `invoice_gen
 
 ## Quick start
 
+Try the [interactive invoice preview](demo.html) first. It uses fictional details and does not save or send invoices.
+
 1. Open `invoice_generator.html` in any modern browser (Chrome, Edge, Firefox, Safari).
 2. Click **Load sample invoice** to see a finished example, or start typing in the blank invoice.
 3. Fill in your business details once. They are remembered for every new invoice.

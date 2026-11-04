@@ -38,6 +38,20 @@ function build({ root = path.join(__dirname, '..'), out = path.join(root, 'dist'
     if (!fs.existsSync(from)) throw new Error(`missing course icon: ${source}`);
     fs.copyFileSync(from, path.join(iconOut, `${id}.png`));
   }
+  const demos = {
+    'sql-for-small-business': 'products/sql_bundle/demo.html',
+    'small-business-project-cookbook': 'products/Small_Business_Project_Cookbook/projects/06_receivables/demo.html',
+    'lead-generator': 'Lead-Pipeline/demo.html',
+    'invoice-generator': 'products/invoice-generator/demo.html',
+    'documentation-platform-entitlements': 'documentation_platform/portal_api/entitlements-demo.html',
+  };
+  const demoOut = path.join(out, 'demos');
+  fs.mkdirSync(demoOut, { recursive: true });
+  for (const [id, source] of Object.entries(demos)) {
+    const from = path.join(root, source);
+    if (!fs.existsSync(from)) throw new Error(`missing demo: ${source}`);
+    fs.copyFileSync(from, path.join(demoOut, `${id}.html`));
+  }
   fs.copyFileSync(path.join(root, 'pages', '_headers'), path.join(out, '_headers'));
   return out;
 }

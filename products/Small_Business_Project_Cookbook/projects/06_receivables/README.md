@@ -6,6 +6,8 @@
 
 **Files:** [projects/06_receivables](projects/06_receivables/).
 
+Try the [interactive offline demo](demo.html). It uses in-memory fictional data and is not a payment processor.
+
 ### Ingredients
 
 SQLite command line shell. File: receivables.sql. This is a small fictional teaching ledger, not a payment processor.

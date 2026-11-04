@@ -24,6 +24,7 @@ A Python-based engine that renders Markdown templates.
 A FastAPI backend that ensures customers only access documentation for products they have purchased.
 - **Entitlement Check:** Verifies product access before listing or serving files.
 - **Secure Delivery:** Serves build artifacts directly from the secure build directory.
+- Try the [offline entitlements demo](portal_api/entitlements-demo.html) to simulate grant, check, and revoke actions in memory.
 
 ## 💻 Getting Started
 
@@ -36,6 +37,7 @@ A FastAPI backend that ensures customers only access documentation for products 
 ```bash
 pip install -r requirements.txt # or use poetry install
 ```
+Set `DATABASE_URL` to your PostgreSQL connection string before starting the portal API.
 
 ### Basic Usage
 

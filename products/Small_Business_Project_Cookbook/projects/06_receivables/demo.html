@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Try a fictional overdue invoice balance report in your browser.">
+  <title>Overdue Balances Demo</title>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#182a39;background:#eef3f7}
+    *{box-sizing:border-box}body{margin:0}.wrap{max-width:920px;margin:auto;padding:24px}
+    header,.panel{background:#fff;border:1px solid #d4dfe8;border-radius:16px;padding:24px;margin:0 0 18px}
+    h1,h2,p{margin:0 0 12px}h1{font-size:clamp(1.7rem,5vw,2.4rem)}h2{font-size:1.15rem}
+    .muted{color:#506477}.badge{display:inline-block;background:#e4f4ee;color:#175b45;padding:3px 9px;border-radius:999px;font-size:.82rem;font-weight:650}
+    .controls{display:flex;flex-wrap:wrap;align-items:end;gap:14px}.field{display:grid;gap:5px}
+    input,select,button{font:inherit;padding:9px 12px;border:1px solid #9db1c1;border-radius:8px;background:white;color:inherit}
+    button{cursor:pointer;background:#145b76;color:white;border-color:#145b76;font-weight:650}
+    button:hover{background:#0d465e}input[type=number]{width:160px}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+    th,td{text-align:left;padding:10px;border-bottom:1px solid #dbe5ec}th{font-size:.85rem;color:#425a6e}td:last-child,th:last-child{text-align:right}
+    pre{padding:14px;border-radius:10px;background:#10273a;color:#ecf5fb;overflow:auto;white-space:pre-wrap}
+    .status{font-size:.82rem;font-weight:700;color:#80520a}.message{min-height:1.5em;color:#175b45}
+    a{color:#145987}.note{font-size:.9rem}@media(max-width:600px){.wrap{padding:14px}.panel{padding:16px;overflow-x:auto}table{min-width:570px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <span class="badge">Offline browser demo</span>
+      <h1>Overdue invoice balances</h1>
+      <p class="muted">Change the comparison date or add a fictional payment to see how partial payments affect a balance. This is a report preview only; it does not send or collect money.</p>
+    </header>
+    <section class="panel">
+      <h2>Report inputs</h2>
+      <div class="controls">
+        <label class="field" for="cutoff">Overdue before
+          <input id="cutoff" type="date" value="2026-10-29">
+        </label>
+        <label class="field" for="invoice">Add sample payment to
+          <select id="invoice"><option value="1">Invoice 1 - Aspen Cleaning</option><option value="2">Invoice 2 - Cedar Repairs</option><option value="3">Invoice 3 - Frost Studio</option></select>
+        </label>
+        <label class="field" for="amount">Amount (cents)
+          <input id="amount" type="number" min="1" step="1" value="2500">
+        </label>
+        <button id="add-payment" type="button">Add payment</button>
+      </div>
+      <p id="message" class="message" aria-live="polite"></p>
+    </section>
+    <section class="panel">
+      <h2>Matching overdue balances</h2>
+      <table>
+        <thead><tr><th>Invoice</th><th>Customer</th><th>Due</th><th>Total</th><th>Paid</th><th>Balance</th></tr></thead>
+        <tbody id="results"></tbody>
+      </table>
+      <p id="empty" class="muted" hidden>No positive balances are overdue before this date.</p>
+    </section>
+    <section class="panel">
+      <h2>SQL idea</h2>
+      <pre>WITH paid AS (
+  SELECT invoice_id, SUM(amount_cents) AS paid_cents
+  FROM payments GROUP BY invoice_id
+)
+SELECT invoices.total_cents - COALESCE(paid.paid_cents, 0) AS balance_cents
+FROM invoices LEFT JOIN paid USING (invoice_id)
+WHERE invoices.due_date &lt; :cutoff
+  AND balance_cents &gt; 0;</pre>
+      <p class="note muted">The initial result for 2026-10-29 is invoice 1 with 12500 cents due. All records and payments stay in this page's memory and reset on reload.</p>
+      <p><a href="/products.html#small-business-project-cookbook">Back to products</a></p>
+    </section>
+  </main>
+  <script>
+    const invoices = [
+      {id: 1, customer: "Aspen Cleaning", due: "2026-10-20", total: 20000},
+      {id: 2, customer: "Cedar Repairs", due: "2026-10-25", total: 15000},
+      {id: 3, customer: "Frost Studio", due: "2026-11-10", total: 10000}
+    ];
+    const payments = [{invoice: 1, cents: 5000}, {invoice: 1, cents: 2500}, {invoice: 2, cents: 15000}];
+    const money = (cents) => new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(cents / 100);
+    function render() {
+      const cutoff = document.querySelector("#cutoff").value;
+      const due = invoices.map((invoice) => ({
+        ...invoice,
+        paid: payments.filter((payment) => payment.invoice === invoice.id).reduce((sum, payment) => sum + payment.cents, 0)
+      })).filter((invoice) => invoice.due < cutoff && invoice.total > invoice.paid);
+      const body = document.querySelector("#results");
+      body.replaceChildren();
+      for (const invoice of due) {
+        const row = document.createElement("tr");
+        [String(invoice.id), invoice.customer, invoice.due, money(invoice.total), money(invoice.paid), money(invoice.total - invoice.paid)].forEach((value, i) => {
+          const cell = document.createElement(i === 5 ? "th" : "td");
+          if (i === 5) cell.scope = "row";
+          cell.textContent = value;
+          row.append(cell);
+        });
+        body.append(row);
+      }
+      document.querySelector("#empty").hidden = due.length !== 0;
+    }
+    document.querySelector("#cutoff").addEventListener("input", render);
+    document.querySelector("#add-payment").addEventListener("click", () => {
+      const amount = Number(document.querySelector("#amount").value);
+      const invoice = Number(document.querySelector("#invoice").value);
+      const message = document.querySelector("#message");
+      if (!Number.isSafeInteger(amount) || amount <= 0) {
+        message.textContent = "Enter a positive whole number of cents.";
+        return;
+      }
+      payments.push({invoice, cents: amount});
+      message.textContent = `Added a fictional ${money(amount)} payment to invoice ${invoice}.`;
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>

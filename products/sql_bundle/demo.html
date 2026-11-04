@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Try a small, fictional customer and job report in your browser.">
+  <title>SQL Practice Demo</title>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#142536;background:#eef4f8}
+    *{box-sizing:border-box}body{margin:0}.wrap{max-width:980px;margin:auto;padding:24px}
+    header,.panel{background:#fff;border:1px solid #d5e0e8;border-radius:16px;padding:24px;margin:0 0 18px}
+    h1,h2,p{margin:0 0 12px}h1{font-size:clamp(1.7rem,5vw,2.4rem)}h2{font-size:1.15rem}
+    .muted{color:#506477}.badge{display:inline-block;background:#e5f4fb;color:#12567a;padding:3px 9px;border-radius:999px;font-size:.82rem;font-weight:650}
+    .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:end}.field{display:grid;gap:5px}
+    select{font:inherit;padding:9px 12px;border:1px solid #9db1c1;border-radius:8px;background:#fff;color:inherit}
+    table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th,td{text-align:left;padding:10px;border-bottom:1px solid #dbe5ec}
+    th{font-size:.85rem;color:#425a6e}td:last-child,th:last-child{text-align:right}
+    .summary{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}.summary strong{font-size:1.15rem}
+    pre{padding:14px;border-radius:10px;background:#10273a;color:#ecf5fb;overflow:auto;white-space:pre-wrap}
+    a{color:#145987}.note{font-size:.9rem}.empty{padding:18px;text-align:center;color:#506477}
+    @media(max-width:600px){.wrap{padding:14px}.panel{padding:16px;overflow-x:auto}table{min-width:540px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <span class="badge">Offline browser demo</span>
+      <h1>Customer and job report</h1>
+      <p class="muted">Explore how customers relate to jobs, then filter the sample report. The query is simulated in this page; no database or network is used.</p>
+    </header>
+    <section class="panel" aria-labelledby="filters-title">
+      <h2 id="filters-title">Choose a report</h2>
+      <div class="controls">
+        <label class="field" for="city-filter">Customer city
+          <select id="city-filter"><option value="">All cities</option><option>Longmont</option><option>Boulder</option><option>Loveland</option></select>
+        </label>
+        <label class="field" for="status-filter">Job status
+          <select id="status-filter"><option value="">All statuses</option><option>completed</option><option>quoted</option><option>cancelled</option></select>
+        </label>
+      </div>
+      <div class="summary" aria-live="polite">
+        <span><strong id="job-count">0</strong> matching jobs</span>
+        <span>Completed value: <strong id="completed-total">$0.00</strong></span>
+      </div>
+      <table>
+        <thead><tr><th>Customer</th><th>City</th><th>Job</th><th>Status</th><th>Value</th></tr></thead>
+        <tbody id="report"></tbody>
+      </table>
+      <p id="empty" class="empty" hidden>No jobs match those filters.</p>
+    </section>
+    <section class="panel">
+      <h2>SQL idea behind this report</h2>
+      <pre id="query"></pre>
+      <p class="note muted">Amounts are stored as whole cents in the lesson database. This browser example uses the same fictional customers and jobs as the paid pack.</p>
+      <p><a href="/products.html#sql-for-small-business">Back to products</a></p>
+    </section>
+  </main>
+  <script>
+    const customers = [
+      {id: 1, name: "Aspen Cleaning", city: "Longmont"},
+      {id: 2, name: "Cedar Repairs", city: "Boulder"},
+      {id: 3, name: "Frost Studio", city: "Longmont"},
+      {id: 4, name: "Pine Office", city: "Loveland"}
+    ];
+    const jobs = [
+      {id: 101, customerId: 1, status: "completed", cents: 15000},
+      {id: 102, customerId: 1, status: "quoted", cents: 8000},
+      {id: 103, customerId: 2, status: "completed", cents: 22500},
+      {id: 104, customerId: 3, status: "cancelled", cents: 10000},
+      {id: 105, customerId: 3, status: "completed", cents: 12500}
+    ];
+    const money = (cents) => new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(cents / 100);
+    const byId = new Map(customers.map((customer) => [customer.id, customer]));
+    const report = document.querySelector("#report");
+    const city = document.querySelector("#city-filter");
+    const status = document.querySelector("#status-filter");
+    const query = document.querySelector("#query");
+    function render() {
+      const selected = jobs.filter((job) => {
+        const customer = byId.get(job.customerId);
+        return (!city.value || customer.city === city.value) && (!status.value || job.status === status.value);
+      });
+      report.replaceChildren();
+      for (const job of selected) {
+        const customer = byId.get(job.customerId);
+        const row = document.createElement("tr");
+        [customer.name, customer.city, `#${job.id}`, job.status, money(job.cents)].forEach((value) => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.append(cell);
+        });
+        report.append(row);
+      }
+      const completed = selected.filter((job) => job.status === "completed").reduce((sum, job) => sum + job.cents, 0);
+      document.querySelector("#job-count").textContent = String(selected.length);
+      document.querySelector("#completed-total").textContent = money(completed);
+      document.querySelector("#empty").hidden = selected.length !== 0;
+      query.textContent = `SELECT c.business_name, c.city, j.job_id, j.status, j.amount_cents
+FROM customers AS c
+JOIN jobs AS j ON j.customer_id = c.customer_id
+${city.value ? `WHERE c.city = '${city.value}'` : status.value ? `WHERE j.status = '${status.value}'` : ""}
+${city.value && status.value ? `  AND j.status = '${status.value}'` : ""}
+ORDER BY c.business_name, j.job_id;`;
+    }
+    city.addEventListener("change", render);
+    status.addEventListener("change", render);
+    render();
+  </script>
+</body>
+</html>

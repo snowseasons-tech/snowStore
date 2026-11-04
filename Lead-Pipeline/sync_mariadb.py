@@ -8,7 +8,7 @@ deleted. Re-running changes nothing. A missing or empty CSV is skipped, so a
 lost file can't wipe its table. Columns that aren't standard (hand-added ones,
 ai_summary) are kept in the row's `extra` JSON.
 
-Usage:  MARIADB_URL=mysql://leads:PASSWORD@127.0.0.1:3307/leads ./sync_mariadb.py
+Usage:  MARIADB_URL=YOUR_MARIADB_URL ./sync_mariadb.py
 """
 from __future__ import annotations
 

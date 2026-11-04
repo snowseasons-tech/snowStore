@@ -7,7 +7,9 @@ class DatabaseService:
     Handles connections to the PostgreSQL database.
     """
     def __init__(self):
-        self.conn_str = os.getenv("DATABASE_URL", "postgresql://user:pass@localhost:5432/snowstore")
+        self.conn_str = os.getenv("DATABASE_URL")
+        if not self.conn_str:
+            raise RuntimeError("DATABASE_URL environment variable must be set")
 
     def get_connection(self):
         return psycopg2.connect(self.conn_str, cursor_factory=RealDictCursor)

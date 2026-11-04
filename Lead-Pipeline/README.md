@@ -25,6 +25,8 @@ chmod +x run_pipeline.sh
 `run_pipeline.sh` picks up `.venv/bin/python` automatically. For nightly runs, use the
 cron line in the header of `run_pipeline.sh`.
 
+Try the [offline pipeline demo](demo.html) to explore the queue workflow with fictional records; it does not search the web or scrape sites.
+
 ## What each step does
 
 | Step | Reads | Writes | Notes |
@@ -99,7 +101,8 @@ Extra columns land in the `extra` JSON column. Dates or numbers it can't parse b
 ```bash
 export MARIADB_PASSWORD=choose-one MARIADB_ROOT_PASSWORD=choose-another
 docker compose -f docker-compose.mariadb.yml up -d
-export MARIADB_URL="mysql://leads:$MARIADB_PASSWORD@127.0.0.1:3307/leads"
+# Replace the placeholder with your local connection URL; don't commit credentials.
+export MARIADB_URL=YOUR_MARIADB_URL
 ./sync_mariadb.py
 ```
 
