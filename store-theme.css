@@ -1,0 +1,233 @@
+/* Snow Seasons Tech store theme: dark navy, cyan accents, Manrope headings, Source Sans 3 body.
+   Linked last on every store page, so it wins over each page's own colours while leaving layout alone.
+   Most pages style themselves through the --bg/--text/--primary and --sst-* variables, so remapping
+   those carries most of the look; the rest targets the blog article and Local Launch templates. */
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('/img/fonts/manrope-latin-variable.woff2') format('woff2');
+  font-weight: 400 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Source Sans 3';
+  src: url('/img/fonts/source-sans-3-latin-variable.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+/* html:root:not(...) outranks page.css's dark-mode :root:not([data-theme="light"]) block,
+   so the theme applies whatever the visitor's light/dark preference. */
+html:root:not([data-theme="none"]) {
+  color-scheme: dark;
+  --st-bg: #070d19;
+  --st-panel: #101a2a;
+  --st-card: #152035;
+  --st-card-end: #0b1423;
+  --st-text: #edf4ff;
+  --st-muted: #b4c3d5;
+  --st-blue: #74dbff;
+  --st-button: #8adfff;
+  --st-button-text: #061223;
+  --st-line: #243044;
+  --st-line-strong: #34516d;
+  --st-heading-font: 'Manrope', system-ui, sans-serif;
+  --st-body-font: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --st-mono-font: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Shared variables the store pages already use. */
+  --sst-paper: var(--st-bg);
+  --sst-ink: var(--st-text);
+  --sst-muted: var(--st-muted);
+  --sst-line: var(--st-line);
+  --sst-navy: var(--st-bg);
+  /* Hero gradients run from --sst-navy to --sst-deep-blue, so keep this a deep blue, as in the design's hero glow. */
+  --sst-deep-blue: #12305a;
+  /* Release badge text colours, lightened for the dark background. */
+  --rel-beta: #8cc8ff;
+  --rel-mvp: #ffc46b;
+  --rel-dev: #b4c3d5;
+  --sst-blue: var(--st-blue);
+  --sst-frost: var(--st-panel);
+  --sst-ice: var(--st-blue);
+  --sst-focus: var(--st-button);
+  --sst-font: var(--st-body-font);
+  --bg: var(--st-bg);
+  --text: var(--st-text);
+  --muted: var(--st-muted);
+  --primary: var(--st-blue);
+  --sec: var(--st-panel);
+  --btn: var(--st-button);
+  /* Portal (storefront/styles.css). */
+  --bg-accent: var(--st-panel);
+  --surface: var(--st-panel);
+  --surface-strong: var(--st-card);
+  --surface-muted: var(--st-panel);
+  --ink: var(--st-text);
+  --ink-soft: var(--st-muted);
+  --line: var(--st-line);
+  --primary-strong: var(--st-button);
+  --primary-soft: rgba(116, 219, 255, 0.14);
+  --shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  /* Homepage and products glass effects: their dark-mode values, so light-mode visitors get the same look. */
+  --glass: rgba(22, 30, 41, 0.55);
+  --glass-b: rgba(255, 255, 255, 0.09);
+  --hi: rgba(255, 255, 255, 0.06);
+  --glow: rgba(90, 176, 234, 0.45);
+  --b1: rgba(40, 120, 181, 0.38);
+  --b2: rgba(124, 92, 255, 0.24);
+  --b3: rgba(0, 184, 217, 0.2);
+  --hero-filter: brightness(.34) saturate(1.1);
+  --hero-sub: #d3d9e1;
+}
+
+/* The theme is dark only, so the homepage and products light/dark toggle would do nothing. */
+html body .btn-toggle { display: none; }
+
+html body {
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-body-font);
+  font-size: 18px;
+  line-height: 1.65;
+}
+html body h1, html body h2, html body h3 {
+  font-family: var(--st-heading-font);
+  letter-spacing: -0.035em;
+  color: var(--st-text);
+}
+html body a { color: var(--st-blue); }
+html body ::selection { background: rgba(116, 219, 255, 0.3); }
+html body a:focus-visible, html body button:focus-visible, html body input:focus-visible,
+html body select:focus-visible, html body textarea:focus-visible, html body summary:focus-visible {
+  outline: 2px solid var(--st-button);
+  outline-offset: 4px;
+}
+
+/* Header, nav and footer, as used across the store pages. */
+html body > header, html body .topbar {
+  background: var(--st-bg);
+  border-bottom: 1px solid var(--st-line);
+  box-shadow: none;
+}
+html body .topbar { background: rgba(16, 26, 42, 0.86); border: 1px solid var(--st-line); }
+html body .logo, html body .brand { color: #92e5ff; font-family: var(--st-heading-font); }
+html body nav a { color: #b8c6d8; }
+html body nav a:hover { color: var(--st-text); }
+html body > footer {
+  background: var(--st-bg);
+  border-top: 1px solid var(--st-line);
+  color: #8fa4ba;
+}
+html body > footer a { color: #b8c6d8; }
+html body .muted, html body .meta, html body .fine, html body small { color: var(--st-muted); }
+
+/* Buttons: light cyan fill with dark text, as in the design. */
+html body .btn, html body .btn-primary, html body .button, html body .cta,
+html body button.primary, html body a.btn {
+  background: var(--st-button);
+  color: var(--st-button-text);
+  border: 0;
+  border-radius: 7px;
+  font-weight: 700;
+}
+html body .btn:hover, html body .btn-primary:hover, html body .button:hover, html body .cta:hover {
+  background: #b5ecff;
+  color: var(--st-button-text);
+}
+html body .btn-outline, html body .btn.alt {
+  background: transparent;
+  color: var(--st-text);
+  border: 1px solid #46556b;
+}
+/* The homepage hero styles its buttons by id, so match that to keep the design's colours. */
+html body #hero .btn { background: var(--st-button); color: var(--st-button-text); }
+html body #hero .btn.alt { background: transparent; color: var(--st-text); border-color: #46556b; }
+/* Filled pills and the selected filter chip use the button colour as a background with white text. */
+html body .kitgrid .tag, html body .card-top > .tag, html body .chip[aria-pressed="true"] {
+  background: var(--st-button);
+  color: var(--st-button-text);
+}
+
+/* Cards and boxed content. */
+html body .card, html body .box, html body .article-card, html body .tier,
+html body .login-panel, html body .security-panel {
+  background: linear-gradient(140deg, var(--st-card), var(--st-card-end));
+  border: 1px solid #26334a;
+  border-radius: 13px;
+  color: var(--st-text);
+}
+/* Portal sections and the hero hard-code light surfaces. */
+html body .section {
+  background: var(--st-panel);
+  border-color: var(--st-line);
+  color: var(--st-text);
+}
+html body .portal-hero { background: radial-gradient(ellipse at 90% 40%, #10285177, transparent 65%), var(--st-bg); }
+html body .note {
+  background: var(--st-panel);
+  border: 1px solid var(--st-line-strong);
+  border-radius: 10px;
+  color: var(--st-text);
+}
+
+/* Code, tables, quotes and lists in written content. */
+html body code {
+  background: var(--st-panel);
+  border: 1px solid var(--st-line);
+  color: #a1eaff;
+  font-family: var(--st-mono-font);
+}
+html body pre {
+  background: var(--st-panel);
+  border: 1px solid var(--st-line);
+  border-radius: 8px;
+  color: var(--st-text);
+}
+html body pre code { border: 0; background: none; }
+html body .security-list code { background: var(--st-panel); color: #a1eaff; }
+html body table { border-color: var(--st-line); }
+html body th, html body td { border-color: var(--st-line); }
+html body th { background: var(--st-panel); color: var(--st-text); }
+html body blockquote {
+  background: var(--st-panel);
+  border-left: 4px solid var(--st-blue);
+  color: var(--st-text);
+}
+html body hr { border-color: var(--st-line); }
+html body input, html body select, html body textarea,
+html body .login-panel input, html body .toolbar input, html body .toolbar select {
+  background: var(--st-panel);
+  color: var(--st-text);
+  border: 1px solid var(--st-line);
+}
+
+/* Blog article template (blog/<post>/<post>.html). */
+html body main:has(> .meta), html body main:has(nav.toc) { background: transparent; }
+html body main h2 { border-top-color: var(--st-line); }
+html body nav.toc {
+  background: var(--st-panel);
+  border: 1px solid var(--st-line);
+}
+html body nav.toc a, html body .back-link { color: var(--st-blue); }
+html body .section-label, html body .eyebrow, html body .tag {
+  color: #9ab9d1;
+  letter-spacing: 0.12em;
+}
+html body main footer { border-top-color: var(--st-line); background: transparent; color: var(--st-muted); }
+html body footer code { background: var(--st-panel); }
+/* Articles colour strong text near-black inline. */
+html body strong { color: inherit; }
+
+/* Local Launch pages set a light green body and borders inline. */
+html body .lead { color: var(--st-muted); }
+html body .shot { border-color: var(--st-line); }
+html body header a { color: var(--st-blue); }
+html body .price small { color: var(--st-muted); }
+
+/* Spinner Studio is its own Tailwind app; give it the theme's background and fonts only. */
+html body .bg-darkbg { background-color: var(--st-bg); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
