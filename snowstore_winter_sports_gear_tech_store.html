@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>snowStore — Snow Seasons Tech Software Apps & Tools</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #070d18;
+            color: #f1f5f9;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1322;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-nav {
+            background: rgba(7, 13, 24, 0.9);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #38bdf8 60%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-bg {
+            background: radial-gradient(ellipse at 50% 0%, rgba(14, 165, 233, 0.2) 0%, rgba(7, 13, 24, 0) 75%);
+        }
+    </style>
+</head>
+<body class="min-h-full flex flex-col antialiased selection:bg-sky-500 selection:text-white">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-gradient-to-r from-sky-950 via-slate-900 to-indigo-950 text-sky-200 text-xs py-2.5 px-4 text-center font-medium border-b border-sky-900/40 flex justify-center items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+        <span>SNOW SEASONS TECH: Single-File Apps & Software Suite | Promo code <strong class="text-sky-400">POWDER20</strong> for 20% OFF</span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-40 glass-nav transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <button onclick="setCategoryFilter('All')" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/25 group-hover:scale-105 transition-transform">
+                        <i data-lucide="terminal" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-2xl font-black tracking-tight text-white">snow<span class="text-sky-400">Store</span></span>
+                </button>
+
+                <!-- Navigation Categories (Desktop) -->
+                <nav id="desktopCategoryNav" class="hidden md:flex space-x-4 text-xs font-semibold text-slate-300">
+                    <!-- Dynamic Navigation Rendered Here -->
+                </nav>
+
+                <!-- Actions & Search -->
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <!-- Search Input -->
+                    <div class="relative hidden sm:block w-40 lg:w-52">
+                        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search software..." class="w-full bg-slate-900/90 border border-slate-700/70 rounded-full py-2 pl-9 pr-4 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                    </div>
+
+                    <!-- Wishlist Trigger Button -->
+                    <button onclick="openWishlistModal()" class="relative p-2.5 rounded-full bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-sky-400 hover:bg-slate-800 transition-all" title="Wishlist">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                        <span id="wishlistBadge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white rounded-full text-[10px] font-extrabold flex items-center justify-center">0</span>
+                    </button>
+
+                    <!-- Cart Trigger Button -->
+                    <button onclick="toggleCartDrawer()" class="relative p-2.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 hover:bg-sky-500/20 transition-all" title="Shopping Cart">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                        <span id="cartBadge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-sky-500 text-white rounded-full text-[10px] font-extrabold flex items-center justify-center">0</span>
+                    </button>
+
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Drawer -->
+        <div id="mobileMenu" class="hidden md:hidden border-b border-slate-800 bg-slate-950 px-4 pt-3 pb-6 space-y-3">
+            <div class="mb-3">
+                <input type="text" id="mobileSearchInput" oninput="handleMobileSearch()" placeholder="Search store products..." class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-3 pr-4 text-xs text-slate-200">
+            </div>
+            <div id="mobileCategoryLinks" class="space-y-1"></div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- Hero Promotional Banner -->
+        <section class="relative overflow-hidden pt-10 pb-12 md:pt-16 md:pb-20 hero-bg border-b border-slate-800/60">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="grid lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-300 text-xs font-semibold mb-5">
+                            <i data-lucide="code" class="w-3.5 h-3.5 text-sky-400"></i>
+                            <span id="heroBadge">Snow Seasons Tech — Official Software Store</span>
+                        </div>
+                        <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white mb-4 leading-[1.15]">
+                            Standalone Web Apps & <br><span class="text-gradient">Engineered Digital Tools</span>
+                        </h1>
+                        <p class="text-slate-400 text-sm sm:text-base mb-6 max-w-xl mx-auto lg:mx-0">
+                            Single-file responsive applications, business tools, SaaS models, and automated software packages for instant deployment with zero subscription lock-in.
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
+                            <a href="#catalog" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold shadow-lg shadow-sky-500/25 transition-all text-center text-xs">
+                                Browse Software Suite
+                            </a>
+                            <button type="button" onclick="openDemo(101)" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500 hover:text-white font-bold transition-all text-center text-xs flex items-center justify-center gap-2">
+                                <i data-lucide="play" class="w-4 h-4"></i> Try a Live Demo
+                            </button>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-5 relative">
+                        <div class="relative mx-auto max-w-md lg:max-w-none">
+                            <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-sky-500 to-indigo-600 opacity-30 blur-2xl"></div>
+                            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80" alt="SnowSeasons Software Suite" class="relative rounded-2xl shadow-2xl object-cover h-[320px] w-full border border-slate-700/60">
+                            <div class="absolute bottom-4 left-4 right-4 glass-card p-3.5 rounded-xl flex items-center justify-between">
+                                <div>
+                                    <p class="text-[10px] text-sky-400 font-bold uppercase tracking-wider">Featured Release</p>
+                                    <p class="text-xs font-bold text-white">Invoice & Biller App</p>
+                                </div>
+                                <span class="text-sm font-black text-sky-300">$19.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Product Catalog Section -->
+        <section id="catalog" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 pb-5 border-b border-slate-800">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Software Products & Applications</h2>
+                    <p id="productCount" class="text-xs text-slate-400 mt-1">Showing all products</p>
+                </div>
+
+                <!-- Sorting and Mobile Filter Toggle -->
+                <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                    <button onclick="toggleMobileSidebar()" class="md:hidden flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300">
+                        <i data-lucide="sliders-horizontal" class="w-4 h-4"></i> Filter
+                    </button>
+
+                    <div class="flex items-center gap-2">
+                        <label for="sortSelect" class="text-xs text-slate-400 font-medium hidden sm:inline">Sort By:</label>
+                        <select id="sortSelect" onchange="applyFiltersAndSort()" class="bg-slate-900 border border-slate-800 rounded-xl py-2 px-3 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
+                            <option value="featured">Featured First</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="rating">Top Rated</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Sidebar Filters -->
+                <aside id="sidebarFilter" class="hidden md:block col-span-1 space-y-6 glass-card p-5 rounded-2xl h-fit sticky top-28 z-30">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <h3 class="font-bold text-white text-xs flex items-center gap-2">
+                            <i data-lucide="filter" class="w-4 h-4 text-sky-400"></i> Category Filters
+                        </h3>
+                        <button onclick="resetFilters()" class="text-[11px] text-sky-400 hover:underline font-semibold">Reset All</button>
+                    </div>
+
+                    <!-- Category Filter List -->
+                    <div>
+                        <h4 class="text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-2">Category</h4>
+                        <div id="sidebarCategories" class="space-y-1 text-xs">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="border-t border-slate-800 pt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Max Price</h4>
+                            <span id="priceRangeValue" class="text-xs font-bold text-sky-400">$150</span>
+                        </div>
+                        <input type="range" id="priceRange" min="1" max="150" step="1" value="150" oninput="updatePriceLabel(this.value)" onchange="applyFiltersAndSort()" class="w-full accent-sky-500 bg-slate-800 h-1.5 rounded-lg">
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-1 font-medium">
+                            <span>$1</span>
+                            <span>$150</span>
+                        </div>
+                    </div>
+
+                    <!-- Minimum Rating -->
+                    <div class="border-t border-slate-800 pt-4">
+                        <h4 class="text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-2">Min Rating</h4>
+                        <div class="space-y-1 text-xs">
+                            <button onclick="setMinRating(0)" class="rating-btn w-full text-left py-1 px-2 rounded hover:bg-slate-800 text-slate-300 font-medium" data-rate="0">All Ratings</button>
+                            <button onclick="setMinRating(4.8)" class="rating-btn w-full text-left py-1 px-2 rounded hover:bg-slate-800 text-slate-300 font-medium" data-rate="4.8">★ 4.8 & Up</button>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Product Grid -->
+                <div class="col-span-1 md:col-span-3">
+                    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <!-- Rendered Product Cards -->
+                    </div>
+                    <div id="emptyCatalogState" class="hidden text-center py-16 glass-card rounded-2xl">
+                        <i data-lucide="cloud-off" class="w-12 h-12 text-slate-500 mx-auto mb-3"></i>
+                        <h3 class="text-lg font-bold text-white">No products match your query</h3>
+                        <p class="text-xs text-slate-400 mt-1 mb-4">Try clearing your filters or selecting a different category.</p>
+                        <button onclick="resetFilters()" class="px-5 py-2.5 rounded-xl bg-sky-500 text-white font-bold text-xs">Reset All Filters</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reviews Section -->
+        <section class="border-t border-slate-800/80 bg-slate-950/60 py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Developer & Business Feedback</h2>
+                    <p class="text-xs text-slate-400 mt-2">Tested and deployed by creators, freelancers, and small agencies.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-card p-6 rounded-2xl border border-slate-800">
+                        <div class="flex items-center gap-1 text-amber-400 mb-3">
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-4">"The Invoice & Biller app saved me from paying $30/mo subscriptions. Clean PDF generation and zero backend needed."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs">JS</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Jason S.</h4>
+                                <p class="text-[10px] text-slate-500">Freelance Web Developer</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl border border-slate-800">
+                        <div class="flex items-center gap-1 text-amber-400 mb-3">
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-4">"The SaaS Financial Engine gives us investor-level models instantly. MRR and Cap Table formulas are rock solid."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">AM</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Alex M.</h4>
+                                <p class="text-[10px] text-slate-500">Startup Founder</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl border border-slate-800">
+                        <div class="flex items-center gap-1 text-amber-400 mb-3">
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-4">"Local Launch allowed me to package local SEO websites for clients in under 30 minutes for a $1 tripwire."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-xs">RL</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Rachel L.</h4>
+                                <p class="text-[10px] text-slate-500">Agency Owner</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800 text-slate-400 text-xs py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-sky-500 flex items-center justify-center text-white">
+                            <i data-lucide="terminal" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-lg font-bold text-white">snowStore</span>
+                    </div>
+                    <p class="text-slate-400 leading-relaxed">Engineered software tools, single-file applications, and business utilities built by Snow Seasons Tech.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Software Categories</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#catalog" onclick="setCategoryFilter('Business Apps')" class="hover:text-sky-400">Business Apps</a></li>
+                        <li><a href="#catalog" onclick="setCategoryFilter('Retail & Automation')" class="hover:text-sky-400">Retail Automation</a></li>
+                        <li><a href="#catalog" onclick="setCategoryFilter('Web Tools')" class="hover:text-sky-400">Web Tools</a></li>
+                        <li><a href="#catalog" onclick="setCategoryFilter('Financial Tools')" class="hover:text-sky-400">Financial Tools</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Developer Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-sky-400">Single File Setup Guide</a></li>
+                        <li><a href="#" class="hover:text-sky-400">License Terms</a></li>
+                        <li><a href="#" class="hover:text-sky-400">GitHub Repository</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Tech Updates</h4>
+                    <p class="text-slate-400 mb-3">Get new single-file app releases and open source updates.</p>
+                    <div class="flex gap-2">
+                        <input type="email" placeholder="Enter email..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white w-full">
+                        <button onclick="subscribeNewsletter()" class="bg-sky-500 hover:bg-sky-400 text-white px-3 py-2 rounded-lg font-bold">Join</button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-slate-900 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-500">
+                <p>&copy; 2026 Snow Seasons Tech. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CART SLIDE-OUT DRAWER OVERLAY -->
+    <div id="cartOverlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden transition-opacity" onclick="toggleCartDrawer()"></div>
+    <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-slate-950 border-l border-slate-800 z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="shopping-bag" class="w-5 h-5 text-sky-400"></i>
+                <h3 class="font-extrabold text-white text-base">Your Cart</h3>
+                <span id="cartItemCount" class="text-xs bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded-full font-bold">0 items</span>
+            </div>
+            <button onclick="toggleCartDrawer()" class="p-1 rounded-lg text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <div id="cartItemsContainer" class="flex-grow overflow-y-auto p-5 space-y-4">
+            <!-- Dynamic Cart Items -->
+        </div>
+
+        <div class="p-5 border-t border-slate-800 bg-slate-900/50 space-y-3">
+            <div class="flex gap-2">
+                <input type="text" id="promoCodeInput" placeholder="Promo code (POWDER20)" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white uppercase tracking-wider w-full">
+                <button onclick="applyPromoCode()" class="bg-slate-800 hover:bg-slate-700 text-sky-400 font-bold px-4 py-2 rounded-xl text-xs">Apply</button>
+            </div>
+            <div id="promoMessage" class="hidden text-[11px] font-semibold text-emerald-400"></div>
+
+            <div class="space-y-1.5 text-xs text-slate-400">
+                <div class="flex justify-between">
+                    <span>Subtotal</span>
+                    <span id="cartSubtotal" class="text-white font-medium">$0.00</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Discount</span>
+                    <span id="cartDiscount" class="text-emerald-400 font-medium">-$0.00</span>
+                </div>
+                <div class="flex justify-between text-sm font-black text-white pt-2 border-t border-slate-800">
+                    <span>Total Amount</span>
+                    <span id="cartTotal" class="text-sky-400">$0.00</span>
+                </div>
+            </div>
+
+            <button onclick="openCheckoutModal()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-extrabold text-xs shadow-lg shadow-sky-500/20 transition-all flex items-center justify-center gap-2">
+                Checkout & Download <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- QUICK VIEW MODAL -->
+    <div id="quickViewModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto relative glass-card">
+            <button onclick="closeQuickView()" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800 text-slate-400 hover:text-white z-10">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="quickViewContent" class="p-6">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- LIVE DEMO MODAL -->
+    <div id="demoModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="demoTitle">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col glass-card">
+            <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800">
+                <div class="min-w-0">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Live demo · sample data</p>
+                    <h3 id="demoTitle" class="text-sm font-extrabold text-white truncate"></h3>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button type="button" id="demoBuyBtn" class="px-3 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs">Add to Cart</button>
+                    <button type="button" id="demoCloseBtn" onclick="closeDemo()" aria-label="Close demo" class="p-2 rounded-full bg-slate-800 text-slate-400 hover:text-white">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="demoBody" class="flex-grow overflow-y-auto p-5"></div>
+            <p class="px-5 py-3 border-t border-slate-800 text-[11px] text-slate-500">A simplified preview that runs in your browser. Nothing you enter is saved.</p>
+        </div>
+    </div>
+
+    <!-- WISHLIST MODAL -->
+    <div id="wishlistModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 glass-card relative">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-4">
+                <h3 class="font-extrabold text-white text-lg flex items-center gap-2">
+                    <i data-lucide="heart" class="w-5 h-5 text-pink-500"></i> Saved Wishlist
+                </h3>
+                <button onclick="closeWishlistModal()" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="wishlistItemsContainer" class="max-h-[60vh] overflow-y-auto space-y-3">
+                <!-- Rendered Wishlist Items -->
+            </div>
+        </div>
+    </div>
+
+    <!-- CHECKOUT MODAL -->
+    <div id="checkoutModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 glass-card relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <form id="checkoutStep1" onsubmit="handleFinalPayment(event)" class="space-y-4">
+                <h3 class="text-base font-bold text-white">Instant Software Download</h3>
+                <input type="email" placeholder="Email Address for License Delivery" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white">
+                <input type="text" placeholder="Cardholder Name" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white">
+                <input type="text" placeholder="Card Number" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" placeholder="MM/YY" required class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white">
+                    <input type="text" placeholder="CVC" required class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white">
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs mt-4">Complete Order & Access Code</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SUCCESS MODAL -->
+    <div id="orderSuccessModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-8 text-center glass-card relative">
+            <div class="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/30">
+                <i data-lucide="check-circle-2" class="w-10 h-10"></i>
+            </div>
+            <h3 class="text-2xl font-black text-white mb-2">License Generated!</h3>
+            <p class="text-xs text-slate-400 mb-6">Your standalone application files have been generated and sent to your email address.</p>
+            <button onclick="closeSuccessModal()" class="w-full py-3.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-extrabold text-xs">Back to Store</button>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        const products = [
+            {
+                id: 101,
+                name: 'Invoice & Biller App',
+                category: 'Business Apps',
+                type: 'Standalone HTML',
+                brand: 'Snow Seasons Tech',
+                price: 19,
+                rating: 4.9,
+                reviews: 56,
+                badge: 'Best Seller',
+                image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80',
+                description: 'Single HTML file with line items, tax calculations, status stamp, JSON backup export, and instant browser PDF export. Zero backend required.',
+                sizes: ['Single License ($19)', 'Developer License ($49)']
+            },
+            {
+                id: 102,
+                name: 'BookScan Live & Profit Check',
+                category: 'Retail & Automation',
+                type: 'Standalone HTML',
+                brand: 'Snow Seasons Tech',
+                price: 1,
+                rating: 4.8,
+                reviews: 42,
+                badge: 'Store Special ($1)',
+                image: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80',
+                description: 'Barcode-scanner friendly web app integrated with Open Library API. Live profit margin lookup and running scan history.',
+                sizes: ['Standard App License ($1)']
+            },
+            {
+                id: 103,
+                name: 'Store Inventory Tracker',
+                category: 'Retail & Automation',
+                type: 'Standalone HTML',
+                brand: 'Snow Seasons Tech',
+                price: 29,
+                rating: 4.8,
+                reviews: 35,
+                badge: 'Popular',
+                image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80',
+                description: 'Track stock for a shop in one file that works offline. Low-stock alerts, SKU search/filter, and CSV import/export.',
+                sizes: ['Single License ($29)']
+            },
+            {
+                id: 104,
+                name: 'Page Builder & Vanilla Template',
+                category: 'Web Tools',
+                type: 'Standalone HTML',
+                brand: 'Snow Seasons Tech',
+                price: 49,
+                rating: 4.9,
+                reviews: 31,
+                badge: 'Web Tool',
+                image: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?auto=format&fit=crop&w=800&q=80',
+                description: 'Build a products page in your browser without code, then export a single HTML file with light/dark theme.',
+                sizes: ['Standalone License ($49)']
+            },
+            {
+                id: 105,
+                name: 'SaaS Financial Projection Engine',
+                category: 'Financial Tools',
+                type: 'Excel + Web',
+                brand: 'Snow Seasons Tech',
+                price: 99,
+                rating: 4.9,
+                reviews: 38,
+                badge: 'Investor Ready',
+                image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80',
+                description: '5-year SaaS financial model calculating MRR/ARR, cash flow, EBITDA, CAC, LTV, payback periods, and cap table dilution.',
+                sizes: ['Complete Model Package ($99)']
+            },
+            {
+                id: 106,
+                name: 'Auto Blogger & RSS Collector',
+                category: 'Content Automation',
+                type: 'Python Scripts',
+                brand: 'Snow Seasons Tech',
+                price: 39,
+                rating: 4.7,
+                reviews: 28,
+                badge: 'Automation',
+                image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
+                description: 'Build weekly blog roundups from RSS feeds and web pages, then publish drafts to Hugo, WordPress or Ghost with zero API fees.',
+                sizes: ['Script Package ($39)']
+            },
+            {
+                id: 107,
+                name: 'Auto Scheduler & Booking App',
+                category: 'Web Tools',
+                type: 'React / Tailwind Component',
+                brand: 'Snow Seasons Tech',
+                price: 39,
+                rating: 4.9,
+                reviews: 44,
+                badge: 'Top Choice',
+                image: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=800&q=80',
+                description: 'White-label weekly booking calendar with double-booking prevention, live booking stats, and slot selection.',
+                sizes: ['React Package ($39)']
+            },
+            {
+                id: 108,
+                name: 'Local Launch — SEO Website Platform',
+                category: 'Business Apps',
+                type: 'Standalone HTML',
+                brand: 'Snow Seasons Tech',
+                price: 1,
+                rating: 4.9,
+                reviews: 49,
+                badge: 'Tripwire ($1)',
+                image: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=800&q=80',
+                description: 'Build and export a local-service business website with editable pages, content SEO checks, and keyword reports.',
+                sizes: ['Single License ($1)']
+            }
+        ];
+
+        let cart = [];
+        let wishlist = [];
+        let selectedCategory = 'All';
+        let searchQuery = '';
+        let appliedPromo = null;
+        let minRatingFilter = 0;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCategoryNavigation();
+            applyFiltersAndSort();
+        });
+
+        function renderCategoryNavigation() {
+            const categories = ['All', ...new Set(products.map(p => p.category))];
+            
+            const nav = document.getElementById('desktopCategoryNav');
+            nav.innerHTML = categories.map(cat => `
+                <button onclick="setCategoryFilter('${cat}')" class="cat-link py-2 hover:text-sky-400 transition-colors ${selectedCategory === cat ? 'text-sky-400 font-bold' : ''}" data-cat="${cat}">
+                    ${cat}
+                </button>
+            `).join('');
+
+            const sidebarCatContainer = document.getElementById('sidebarCategories');
+            sidebarCatContainer.innerHTML = categories.map(cat => `
+                <label class="flex items-center space-x-2 text-slate-300 hover:text-white cursor-pointer py-1">
+                    <input type="radio" name="categoryFilter" value="${cat}" ${selectedCategory === cat ? 'checked' : ''} onchange="setCategoryFilter('${cat}')" class="accent-sky-500">
+                    <span>${cat}</span>
+                </label>
+            `).join('');
+
+            const mobileContainer = document.getElementById('mobileCategoryLinks');
+            mobileContainer.innerHTML = categories.map(cat => `
+                <button onclick="setCategoryFilter('${cat}'); toggleMobileMenu();" class="block w-full text-left py-2 text-slate-300 font-medium hover:text-sky-400">${cat}</button>
+            `).join('');
+        }
+
+        function applyFiltersAndSort() {
+            const priceVal = parseFloat(document.getElementById('priceRange').value);
+            const sortVal = document.getElementById('sortSelect').value;
+
+            let filtered = products.filter(item => {
+                const matchesCategory = (selectedCategory === 'All') || (item.category === selectedCategory);
+                const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.category.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesPrice = item.price <= priceVal;
+                const matchesRating = item.rating >= minRatingFilter;
+
+                return matchesCategory && matchesSearch && matchesPrice && matchesRating;
+            });
+
+            if (sortVal === 'price-low') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (sortVal === 'price-high') {
+                filtered.sort((a, b) => b.price - a.price);
+            } else if (sortVal === 'rating') {
+                filtered.sort((a, b) => b.rating - a.rating);
+            }
+
+            renderProductsList(filtered);
+        }
+
+        function setCategoryFilter(category) {
+            selectedCategory = category;
+            renderCategoryNavigation();
+            applyFiltersAndSort();
+        }
+
+        function renderProductsList(items) {
+            const grid = document.getElementById('productGrid');
+            const emptyState = document.getElementById('emptyCatalogState');
+            const countLabel = document.getElementById('productCount');
+
+            countLabel.textContent = `Showing ${items.length} of ${products.length} software apps`;
+
+            if (items.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = items.map(product => {
+                const isWish = wishlist.some(id => id === product.id);
+
+                return `
+                <div class="glass-card rounded-2xl overflow-hidden group hover:border-slate-700 transition-all duration-300 flex flex-col h-full">
+                    <div class="relative overflow-hidden aspect-[4/3]">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        ${product.badge ? `<span class="absolute top-3 left-3 bg-sky-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-1 rounded-full shadow-md">${product.badge}</span>` : ''}
+                        
+                        <button onclick="toggleWishlist(${product.id})" class="absolute top-3 right-3 p-2 rounded-full bg-slate-900/80 text-slate-300 hover:text-pink-500 transition-colors">
+                            <i data-lucide="heart" class="w-4 h-4 ${isWish ? 'text-pink-500 fill-pink-500' : ''}"></i>
+                        </button>
+
+                        <button onclick="openQuickView(${product.id})" class="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity px-4 py-2 bg-slate-900/90 backdrop-blur text-white font-semibold text-xs rounded-xl shadow-lg border border-slate-700 hover:bg-sky-500 hover:border-sky-400">
+                            View Details
+                        </button>
+                    </div>
+
+                    <div class="p-5 flex flex-col flex-grow justify-between">
+                        <div>
+                            <div class="flex justify-between items-center text-[11px] text-slate-400 mb-1">
+                                <span>${product.brand}</span>
+                                <div class="flex items-center text-amber-400">
+                                    <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400 mr-1"></i>
+                                    <span class="font-bold">${product.rating}</span>
+                                    <span class="text-slate-500 ml-1">(${product.reviews})</span>
+                                </div>
+                            </div>
+                            <h3 class="text-sm font-extrabold text-white group-hover:text-sky-400 transition-colors line-clamp-1 mb-2">${product.name}</h3>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-800/80 mt-3">
+                            <div>
+                                <span class="text-xs text-slate-400 block font-medium">Price</span>
+                                <span class="text-lg font-black text-white">$${product.price.toFixed(2)}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                ${demoRunners[product.id] ? `
+                                <button onclick="openDemo(${product.id})" aria-label="Try the ${product.name} demo" class="px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs hover:bg-emerald-500 hover:text-white transition-all flex items-center gap-1.5">
+                                    <i data-lucide="play" class="w-3.5 h-3.5"></i> Demo
+                                </button>` : ''}
+                                <button onclick="addToCart(${product.id})" class="px-4 py-2 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 font-bold text-xs hover:bg-sky-500 hover:text-white transition-all flex items-center gap-1.5">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value;
+            applyFiltersAndSort();
+        }
+        function handleMobileSearch() {
+            searchQuery = document.getElementById('mobileSearchInput').value;
+            applyFiltersAndSort();
+        }
+
+        function updatePriceLabel(val) {
+            document.getElementById('priceRangeValue').textContent = `$${val}`;
+        }
+
+        function setMinRating(rate) {
+            minRatingFilter = rate;
+            applyFiltersAndSort();
+        }
+
+        function resetFilters() {
+            selectedCategory = 'All';
+            searchQuery = '';
+            minRatingFilter = 0;
+            document.getElementById('searchInput').value = '';
+            document.getElementById('priceRange').value = 150;
+            document.getElementById('priceRangeValue').textContent = '$150';
+            setCategoryFilter('All');
+        }
+
+        function openQuickView(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            document.getElementById('quickViewContent').innerHTML = `
+                <div class="grid md:grid-cols-2 gap-6">
+                    <img src="${product.image}" class="rounded-xl w-full h-64 object-cover border border-slate-800">
+                    <div>
+                        <span class="text-xs font-bold text-sky-400 uppercase">${product.category}</span>
+                        <h3 class="text-xl font-extrabold text-white mt-1 mb-2">${product.name}</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-4">${product.description}</p>
+                        <div class="text-2xl font-black text-white mb-4">$${product.price.toFixed(2)}</div>
+                        ${demoRunners[product.id] ? `<button onclick="closeQuickView(); openDemo(${product.id});" class="w-full py-3 mb-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-bold text-xs hover:bg-emerald-500 hover:text-white">Try Live Demo</button>` : ''}
+                        <button onclick="addToCart(${product.id}); closeQuickView();" class="w-full py-3 rounded-xl bg-sky-500 text-white font-bold text-xs hover:bg-sky-400">Add to Cart</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('quickViewModal').classList.remove('hidden');
+        }
+
+        function closeQuickView() {
+            document.getElementById('quickViewModal').classList.add('hidden');
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        }
+
+        function toggleMobileSidebar() {
+            document.getElementById('sidebarFilter').classList.toggle('hidden');
+        }
+
+        function toggleWishlist(productId) {
+            const index = wishlist.indexOf(productId);
+            if (index > -1) wishlist.splice(index, 1);
+            else wishlist.push(productId);
+            
+            const badge = document.getElementById('wishlistBadge');
+            if (wishlist.length > 0) {
+                badge.textContent = wishlist.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+            applyFiltersAndSort();
+        }
+
+        function openWishlistModal() {
+            const container = document.getElementById('wishlistItemsContainer');
+            const wishItems = products.filter(p => wishlist.includes(p.id));
+
+            if (wishItems.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs"><p>Your wishlist is currently empty.</p></div>`;
+            } else {
+                container.innerHTML = wishItems.map(p => `
+                    <div class="flex items-center justify-between p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <img src="${p.image}" class="w-12 h-12 rounded-lg object-cover">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">${p.name}</h4>
+                                <p class="text-[11px] text-sky-400 font-bold">$${p.price.toFixed(2)}</p>
+                            </div>
+                        </div>
+                        <button onclick="addToCart(${p.id}); closeWishlistModal();" class="px-3 py-1.5 rounded-lg bg-sky-500 text-white font-bold text-xs">Add to Cart</button>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('wishlistModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeWishlistModal() {
+            document.getElementById('wishlistModal').classList.add('hidden');
+        }
+
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cartDrawer');
+            const overlay = document.getElementById('cartOverlay');
+            const isOpen = !drawer.classList.contains('translate-x-full');
+
+            if (isOpen) {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            } else {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                renderCartItems();
+            }
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = cart.find(item => item.id === productId);
+            if (existing) existing.qty += 1;
+            else cart.push({ ...product, qty: 1 });
+
+            updateCartBadges();
+            toggleCartDrawer();
+        }
+
+        function updateCartBadges() {
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const badge = document.getElementById('cartBadge');
+            document.getElementById('cartItemCount').textContent = `${totalQty} items`;
+
+            if (totalQty > 0) {
+                badge.textContent = totalQty;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function updateQty(index, delta) {
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) cart.splice(index, 1);
+            updateCartBadges();
+            renderCartItems();
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cartItemsContainer');
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-16 text-slate-500"><p class="text-xs">Your cart is empty</p></div>`;
+                calculateTotals();
+                return;
+            }
+
+            container.innerHTML = cart.map((item, idx) => `
+                <div class="flex items-center justify-between gap-3 p-3 bg-slate-900 border border-slate-800 rounded-xl">
+                    <img src="${item.image}" class="w-12 h-12 object-cover rounded-lg">
+                    <div class="flex-grow">
+                        <h4 class="text-xs font-bold text-white line-clamp-1">${item.name}</h4>
+                        <span class="text-xs font-black text-sky-400">$${item.price.toFixed(2)}</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg p-1">
+                        <button onclick="updateQty(${idx}, -1)" class="text-slate-400 hover:text-white px-1.5 font-bold">-</button>
+                        <span class="text-xs font-bold text-white">${item.qty}</span>
+                        <button onclick="updateQty(${idx}, 1)" class="text-slate-400 hover:text-white px-1.5 font-bold">+</button>
+                    </div>
+                </div>
+            `).join('');
+
+            calculateTotals();
+            lucide.createIcons();
+        }
+
+        function applyPromoCode() {
+            const code = document.getElementById('promoCodeInput').value.trim().toUpperCase();
+            const promoMsg = document.getElementById('promoMessage');
+
+            if (code === 'POWDER20') {
+                appliedPromo = 0.20;
+                promoMsg.textContent = "Promo POWDER20 applied (20% OFF)!";
+                promoMsg.classList.remove('hidden');
+            } else {
+                appliedPromo = null;
+                promoMsg.textContent = "Invalid promo code.";
+                promoMsg.className = "text-[11px] font-semibold text-red-400";
+                promoMsg.classList.remove('hidden');
+            }
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const discount = appliedPromo ? subtotal * appliedPromo : 0;
+            const total = subtotal - discount;
+
+            document.getElementById('cartSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cartDiscount').textContent = `-$${discount.toFixed(2)}`;
+            document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function openCheckoutModal() {
+            if (cart.length === 0) return alert("Cart is empty!");
+            toggleCartDrawer();
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        function handleFinalPayment(e) {
+            e.preventDefault();
+            closeCheckoutModal();
+            cart = [];
+            updateCartBadges();
+
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+            }
+            document.getElementById('orderSuccessModal').classList.remove('hidden');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('orderSuccessModal').classList.add('hidden');
+        }
+
+        function subscribeNewsletter() {
+            alert("Thanks for subscribing to Snow Seasons Tech updates!");
+        }
+
+        // ---------- LIVE DEMOS ----------
+        // Each runner builds a small working preview of the product inside #demoBody.
+        // Visitor input is only ever written with textContent / value, never as HTML.
+        const field = 'w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400';
+        const btnPrimary = 'px-3 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs';
+        const btnGhost = 'px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs';
+        const label = 'block text-[11px] font-semibold text-slate-400';
+        const money = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+        let demoReturnFocus = null;
+
+        function el(tag, className, text) {
+            const node = document.createElement(tag);
+            if (className) node.className = className;
+            if (text !== undefined) node.textContent = text;
+            return node;
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function downloadFile(name, content, type) {
+            const url = URL.createObjectURL(new Blob([content], { type }));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = name;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
+
+        function openDemo(productId) {
+            const product = products.find(p => p.id === productId);
+            const runner = demoRunners[productId];
+            if (!product || !runner) return;
+
+            demoReturnFocus = document.activeElement;
+            document.getElementById('demoTitle').textContent = product.name;
+            document.getElementById('demoBuyBtn').onclick = () => { closeDemo(); addToCart(productId); };
+            const body = document.getElementById('demoBody');
+            body.replaceChildren();
+            runner(body);
+
+            document.getElementById('demoModal').classList.remove('hidden');
+            lucide.createIcons();
+            document.getElementById('demoCloseBtn').focus();
+        }
+
+        function closeDemo() {
+            const modal = document.getElementById('demoModal');
+            if (modal.classList.contains('hidden')) return;
+            modal.classList.add('hidden');
+            document.getElementById('demoBody').replaceChildren();
+            if (demoReturnFocus && document.contains(demoReturnFocus)) demoReturnFocus.focus();
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDemo(); });
+        document.getElementById('demoModal').addEventListener('click', e => { if (e.target.id === 'demoModal') closeDemo(); });
+
+        function invoiceDemo(root) {
+            const lines = [
+                { desc: 'Website setup', qty: 1, rate: 450 },
+                { desc: 'Monthly hosting', qty: 3, rate: 25 }
+            ];
+            root.innerHTML = `
+                <div class="grid lg:grid-cols-5 gap-5">
+                    <div class="lg:col-span-3 space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="${label}">Bill to<input id="invClient" class="${field} mt-1" value="Juniper Coffee Co."></label>
+                            <label class="${label}">Status<select id="invStatus" class="${field} mt-1"><option>Draft</option><option>Sent</option><option>Paid</option></select></label>
+                        </div>
+                        <div class="grid grid-cols-12 gap-2 text-[10px] font-bold uppercase text-slate-500"><span class="col-span-6">Description</span><span class="col-span-2">Qty</span><span class="col-span-3">Rate</span></div>
+                        <div id="invLines" class="space-y-2"></div>
+                        <div class="flex flex-wrap items-end gap-3">
+                            <button type="button" id="invAdd" class="${btnGhost}">+ Add line</button>
+                            <label class="${label}">Tax %<input id="invTax" type="number" min="0" step="0.01" value="8.25" class="${field} mt-1 !w-24"></label>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2 bg-white text-slate-900 rounded-xl p-5 relative">
+                        <span id="invStamp" class="absolute top-4 right-4 border-2 rounded px-2 py-0.5 text-[10px] font-black uppercase rotate-6"></span>
+                        <p class="text-[10px] font-bold uppercase text-slate-500">Invoice INV-1042</p>
+                        <p id="invClientOut" class="text-sm font-extrabold mt-1 pr-16"></p>
+                        <div id="invPreview" class="mt-4 space-y-1 text-xs"></div>
+                        <div class="mt-4 pt-3 border-t border-slate-200 text-xs space-y-1">
+                            <div class="flex justify-between"><span>Subtotal</span><span id="invSub"></span></div>
+                            <div class="flex justify-between"><span>Tax</span><span id="invTaxOut"></span></div>
+                            <div class="flex justify-between font-black text-sm"><span>Total</span><span id="invTotal"></span></div>
+                        </div>
+                        <button type="button" id="invExport" class="${btnPrimary} w-full mt-4">Download JSON backup</button>
+                    </div>
+                </div>`;
+            const q = s => root.querySelector(s);
+            const stampColors = { Draft: 'text-slate-400 border-slate-400', Sent: 'text-sky-600 border-sky-600', Paid: 'text-emerald-600 border-emerald-600' };
+
+            function totals() {
+                const sub = lines.reduce((s, l) => s + l.qty * l.rate, 0);
+                // Round tax to the cent, as the full app does.
+                const tax = Math.round(sub * (parseFloat(q('#invTax').value) || 0)) / 100;
+                return { sub, tax, total: sub + tax };
+            }
+
+            function renderLines() {
+                q('#invLines').replaceChildren(...lines.map((line, i) => {
+                    const row = el('div', 'grid grid-cols-12 gap-2');
+                    row.innerHTML = `
+                        <input aria-label="Description" data-k="desc" class="${field} col-span-6">
+                        <input aria-label="Quantity" data-k="qty" type="number" min="0" class="${field} col-span-2">
+                        <input aria-label="Rate" data-k="rate" type="number" min="0" step="0.01" class="${field} col-span-3">
+                        <button type="button" aria-label="Remove line" class="col-span-1 text-slate-500 hover:text-red-400 text-lg leading-none">&times;</button>`;
+                    row.querySelectorAll('input').forEach(input => {
+                        const key = input.dataset.k;
+                        input.value = line[key];
+                        input.addEventListener('input', () => {
+                            line[key] = key === 'desc' ? input.value : Math.max(0, parseFloat(input.value) || 0);
+                            update();
+                        });
+                    });
+                    row.querySelector('button').addEventListener('click', () => { lines.splice(i, 1); renderLines(); update(); });
+                    return row;
+                }));
+            }
+
+            function update() {
+                const { sub, tax, total } = totals();
+                q('#invClientOut').textContent = q('#invClient').value || 'Client name';
+                q('#invPreview').replaceChildren(...lines.map(l => {
+                    const row = el('div', 'flex justify-between gap-2');
+                    row.append(el('span', null, `${l.desc || 'Item'} × ${l.qty}`), el('span', null, money(l.qty * l.rate)));
+                    return row;
+                }));
+                q('#invSub').textContent = money(sub);
+                q('#invTaxOut').textContent = money(tax);
+                q('#invTotal').textContent = money(total);
+                const status = q('#invStatus').value;
+                q('#invStamp').textContent = status;
+                q('#invStamp').className = `absolute top-4 right-4 border-2 rounded px-2 py-0.5 text-[10px] font-black uppercase rotate-6 ${stampColors[status]}`;
+            }
+
+            q('#invAdd').addEventListener('click', () => { lines.push({ desc: '', qty: 1, rate: 0 }); renderLines(); update(); });
+            ['#invClient', '#invTax', '#invStatus'].forEach(s => q(s).addEventListener('input', update));
+            q('#invExport').addEventListener('click', () => {
+                const backup = { number: 'INV-1042', client: q('#invClient').value, status: q('#invStatus').value, taxPercent: parseFloat(q('#invTax').value) || 0, lines, ...totals() };
+                downloadFile('INV-1042.json', JSON.stringify(backup, null, 2), 'application/json');
+            });
+            renderLines();
+            update();
+        }
+
+        function bookscanDemo(root) {
+            root.innerHTML = `
+                <div class="space-y-4">
+                    <form id="bsForm" class="flex flex-col sm:flex-row gap-2">
+                        <label for="bsIsbn" class="sr-only">ISBN</label>
+                        <input id="bsIsbn" inputmode="numeric" placeholder="Type or scan an ISBN" class="${field}">
+                        <button class="${btnPrimary} shrink-0">Look up</button>
+                    </form>
+                    <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+                        <span>Try a sample:</span>
+                        <button type="button" data-isbn="9780140328721" class="${btnGhost} !py-1">9780140328721</button>
+                        <button type="button" data-isbn="9780061120084" class="${btnGhost} !py-1">9780061120084</button>
+                        <button type="button" data-isbn="9780743273565" class="${btnGhost} !py-1">9780743273565</button>
+                    </div>
+                    <p id="bsStatus" class="text-xs text-slate-400" role="status">Lookups use the public Open Library API, so the ISBN is sent to openlibrary.org.</p>
+                    <div id="bsResult" class="hidden grid sm:grid-cols-[96px_1fr] gap-4 p-4 rounded-xl bg-slate-950 border border-slate-800">
+                        <img id="bsCover" alt="" class="w-24 h-36 object-cover rounded bg-slate-800">
+                        <div class="space-y-3">
+                            <div>
+                                <h4 id="bsTitle" class="text-sm font-extrabold text-white"></h4>
+                                <p id="bsMeta" class="text-[11px] text-slate-400"></p>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <label class="${label}">You paid<input id="bsPaid" type="number" min="0" step="0.01" value="1.00" class="${field} mt-1"></label>
+                                <label class="${label}">Sale price<input id="bsSale" type="number" min="0" step="0.01" value="12.00" class="${field} mt-1"></label>
+                                <label class="${label}">Fees %<input id="bsFees" type="number" min="0" step="0.1" value="15" class="${field} mt-1"></label>
+                            </div>
+                            <p id="bsProfit" class="text-sm font-black"></p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Scan history</h4>
+                        <ul id="bsHistory" class="space-y-1 text-xs text-slate-300"><li class="text-slate-500">No scans yet.</li></ul>
+                    </div>
+                </div>`;
+            const q = s => root.querySelector(s);
+            const history = [];
+
+            function updateProfit() {
+                const paid = parseFloat(q('#bsPaid').value) || 0;
+                const sale = parseFloat(q('#bsSale').value) || 0;
+                const profit = sale * (1 - (parseFloat(q('#bsFees').value) || 0) / 100) - paid;
+                const out = q('#bsProfit');
+                out.textContent = `Estimated profit: ${money(profit)}${sale > 0 ? ` (${Math.round(profit / sale * 100)}% of sale)` : ''}`;
+                out.className = `text-sm font-black ${profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`;
+            }
+
+            async function lookup(raw) {
+                const isbn = raw.replace(/[^0-9Xx]/g, '').toUpperCase();
+                const status = q('#bsStatus');
+                if (isbn.length !== 10 && isbn.length !== 13) {
+                    status.textContent = 'An ISBN has 10 or 13 digits.';
+                    return;
+                }
+                status.textContent = `Looking up ${isbn}…`;
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 8000);
+                try {
+                    const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`, { signal: controller.signal });
+                    if (!res.ok) throw new Error(res.status);
+                    const book = (await res.json())[`ISBN:${isbn}`];
+                    if (!root.isConnected) return;
+                    if (!book) {
+                        status.textContent = `No record found for ${isbn}. Check the number and try again.`;
+                        q('#bsResult').classList.add('hidden');
+                        return;
+                    }
+                    q('#bsTitle').textContent = book.title || 'Untitled';
+                    const authors = (book.authors || []).map(a => a.name).join(', ');
+                    q('#bsMeta').textContent = [authors, book.publish_date, `ISBN ${isbn}`].filter(Boolean).join(' · ');
+                    const cover = q('#bsCover');
+                    cover.classList.remove('invisible');
+                    cover.onerror = () => cover.classList.add('invisible');
+                    cover.src = `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg?default=false`;
+                    q('#bsResult').classList.remove('hidden');
+                    status.textContent = 'Found it. Adjust the prices to check your margin.';
+                    updateProfit();
+                    history.unshift(`${book.title || 'Untitled'} — ${isbn}`);
+                    q('#bsHistory').replaceChildren(...history.slice(0, 5).map(t => el('li', null, t)));
+                } catch (err) {
+                    if (root.isConnected) status.textContent = 'Lookup failed. Check your connection and try again.';
+                } finally {
+                    clearTimeout(timer);
+                }
+            }
+
+            q('#bsForm').addEventListener('submit', e => { e.preventDefault(); lookup(q('#bsIsbn').value); });
+            root.querySelectorAll('[data-isbn]').forEach(b => b.addEventListener('click', () => { q('#bsIsbn').value = b.dataset.isbn; lookup(b.dataset.isbn); }));
+            ['#bsPaid', '#bsSale', '#bsFees'].forEach(s => q(s).addEventListener('input', updateProfit));
+        }
+
+        function inventoryDemo(root) {
+            const items = [
+                { sku: 'CF-001', name: 'House blend 1 lb', qty: 24, min: 10 },
+                { sku: 'CF-002', name: 'Decaf 1 lb', qty: 6, min: 8 },
+                { sku: 'MG-010', name: 'Logo mug', qty: 3, min: 5 },
+                { sku: 'TL-201', name: 'Pour-over filters', qty: 40, min: 15 },
+                { sku: 'TL-202', name: 'Gooseneck kettle', qty: 2, min: 2 }
+            ];
+            root.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+                        <label for="invSearch" class="sr-only">Search SKU or name</label>
+                        <input id="invSearch" placeholder="Search SKU or name" class="${field} sm:!w-56">
+                        <label class="flex items-center gap-2 text-xs text-slate-300"><input id="invLow" type="checkbox" class="accent-sky-500"> Low stock only</label>
+                        <span id="invSummary" class="text-[11px] text-slate-400 sm:ml-auto"></span>
+                        <button type="button" id="invCsv" class="${btnGhost}">Export CSV</button>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-slate-800">
+                        <table class="w-full text-xs min-w-[480px]">
+                            <thead class="bg-slate-950 text-slate-400 text-[10px] uppercase"><tr><th class="text-left p-2.5">SKU</th><th class="text-left p-2.5">Item</th><th class="text-left p-2.5">Reorder at</th><th class="text-left p-2.5">In stock</th></tr></thead>
+                            <tbody id="invRows"></tbody>
+                        </table>
+                    </div>
+                    <form id="invForm" class="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end">
+                        <label class="${label}">SKU<input name="sku" required maxlength="20" class="${field} mt-1"></label>
+                        <label class="${label} col-span-2 sm:col-span-1">Item<input name="name" required maxlength="60" class="${field} mt-1"></label>
+                        <label class="${label}">Qty<input name="qty" type="number" min="0" value="10" class="${field} mt-1"></label>
+                        <label class="${label}">Reorder at<input name="min" type="number" min="0" value="5" class="${field} mt-1"></label>
+                        <button class="${btnPrimary}">Add item</button>
+                    </form>
+                    <p id="invMsg" class="text-[11px] text-amber-400" role="status"></p>
+                </div>`;
+            const q = s => root.querySelector(s);
+
+            function render() {
+                const term = q('#invSearch').value.trim().toLowerCase();
+                const lowOnly = q('#invLow').checked;
+                const shown = items.filter(i => (!term || i.sku.toLowerCase().includes(term) || i.name.toLowerCase().includes(term)) && (!lowOnly || i.qty <= i.min));
+                q('#invSummary').textContent = `${items.length} items · ${items.filter(i => i.qty <= i.min).length} low`;
+                q('#invRows').replaceChildren(...shown.map(item => {
+                    const low = item.qty <= item.min;
+                    const tr = el('tr', 'border-t border-slate-800');
+                    tr.append(el('td', 'p-2.5 font-mono text-slate-400', item.sku), el('td', 'p-2.5 text-white', item.name), el('td', 'p-2.5 text-slate-400', String(item.min)));
+                    const cell = el('td', 'p-2.5');
+                    const wrap = el('div', 'flex items-center gap-2');
+                    const minus = el('button', 'w-6 h-6 rounded bg-slate-800 hover:bg-slate-700', '−');
+                    const plus = el('button', 'w-6 h-6 rounded bg-slate-800 hover:bg-slate-700', '+');
+                    minus.type = plus.type = 'button';
+                    minus.setAttribute('aria-label', `Remove one ${item.name}`);
+                    plus.setAttribute('aria-label', `Add one ${item.name}`);
+                    minus.onclick = () => { item.qty = Math.max(0, item.qty - 1); render(); };
+                    plus.onclick = () => { item.qty += 1; render(); };
+                    wrap.append(minus, el('span', `w-8 text-center font-bold ${low ? 'text-amber-400' : 'text-white'}`, String(item.qty)), plus);
+                    if (low) wrap.append(el('span', 'text-[10px] font-bold uppercase text-amber-400', 'Low'));
+                    cell.append(wrap);
+                    tr.append(cell);
+                    return tr;
+                }));
+                if (!shown.length) {
+                    const tr = el('tr');
+                    const td = el('td', 'p-4 text-center text-slate-500', 'No items match.');
+                    td.colSpan = 4;
+                    tr.append(td);
+                    q('#invRows').append(tr);
+                }
+            }
+
+            q('#invSearch').addEventListener('input', render);
+            q('#invLow').addEventListener('change', render);
+            q('#invForm').addEventListener('submit', e => {
+                e.preventDefault();
+                const f = e.target;
+                const sku = f.sku.value.trim().toUpperCase();
+                if (items.some(i => i.sku === sku)) { q('#invMsg').textContent = `SKU ${sku} already exists.`; return; }
+                items.push({ sku, name: f.name.value.trim(), qty: parseInt(f.qty.value, 10) || 0, min: parseInt(f.min.value, 10) || 0 });
+                q('#invMsg').textContent = '';
+                f.sku.value = f.name.value = '';
+                render();
+            });
+            q('#invCsv').addEventListener('click', () => {
+                const cell = v => `"${String(v).replace(/"/g, '""')}"`;
+                const csv = [['SKU', 'Item', 'Qty', 'Reorder at'], ...items.map(i => [i.sku, i.name, i.qty, i.min])].map(r => r.map(cell).join(',')).join('\n');
+                downloadFile('inventory.csv', csv, 'text/csv');
+            });
+            render();
+        }
+
+        function builderDemo(root) {
+            root.innerHTML = `
+                <div class="grid lg:grid-cols-5 gap-5">
+                    <div class="lg:col-span-2 space-y-3">
+                        <label class="${label}">Business name<input id="pbName" class="${field} mt-1" value="Alpine Print Shop"></label>
+                        <label class="${label}">Headline<input id="pbHead" class="${field} mt-1" value="Custom prints, ready in 48 hours"></label>
+                        <label class="${label}">Subheadline<textarea id="pbSub" rows="2" class="${field} mt-1">Posters, stickers and banners printed locally on recycled stock.</textarea></label>
+                        <label class="${label}">Button text<input id="pbCta" class="${field} mt-1" value="Shop products"></label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="${label}">Accent<input id="pbColor" type="color" value="#0ea5e9" class="mt-1 w-full h-9 rounded-lg bg-slate-950 border border-slate-700"></label>
+                            <label class="${label}">Theme<select id="pbTheme" class="${field} mt-1"><option value="light">Light</option><option value="dark">Dark</option></select></label>
+                        </div>
+                        <button type="button" id="pbExport" class="${btnPrimary} w-full">Export single HTML file</button>
+                    </div>
+                    <div class="lg:col-span-3 rounded-xl overflow-hidden border border-slate-700" aria-label="Live preview">
+                        <div id="pbPreview" class="p-6 min-h-[280px] transition-colors">
+                            <p id="pbNameOut" class="text-xs font-black uppercase tracking-wider mb-8"></p>
+                            <h4 id="pbHeadOut" class="text-2xl font-black leading-tight mb-3"></h4>
+                            <p id="pbSubOut" class="text-sm opacity-75 mb-6"></p>
+                            <span id="pbCtaOut" class="inline-block px-5 py-2.5 rounded-lg text-white text-xs font-bold"></span>
+                        </div>
+                    </div>
+                </div>`;
+            const q = s => root.querySelector(s);
+            const values = () => ({
+                name: q('#pbName').value, head: q('#pbHead').value, sub: q('#pbSub').value, cta: q('#pbCta').value,
+                color: /^#[0-9a-f]{6}$/i.test(q('#pbColor').value) ? q('#pbColor').value : '#0ea5e9',
+                dark: q('#pbTheme').value === 'dark'
+            });
+
+            function update() {
+                const v = values();
+                q('#pbNameOut').textContent = v.name;
+                q('#pbNameOut').style.color = v.color;
+                q('#pbHeadOut').textContent = v.head;
+                q('#pbSubOut').textContent = v.sub;
+                q('#pbCtaOut').textContent = v.cta;
+                q('#pbCtaOut').style.background = v.color;
+                q('#pbPreview').style.background = v.dark ? '#0f172a' : '#ffffff';
+                q('#pbPreview').style.color = v.dark ? '#f1f5f9' : '#0f172a';
+            }
+
+            root.querySelectorAll('input, textarea, select').forEach(i => i.addEventListener('input', update));
+            q('#pbExport').addEventListener('click', () => {
+                const v = values();
+                const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(v.name)}</title>
+<style>body{margin:0;font-family:system-ui,sans-serif;background:${v.dark ? '#0f172a' : '#fff'};color:${v.dark ? '#f1f5f9' : '#0f172a'}}main{max-width:720px;margin:0 auto;padding:64px 24px}.brand{color:${v.color};font-weight:900;text-transform:uppercase;letter-spacing:.08em;font-size:13px}h1{font-size:40px;line-height:1.1}p{opacity:.75}a{display:inline-block;background:${v.color};color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:700}</style>
+</head><body><main><p class="brand">${escapeHtml(v.name)}</p><h1>${escapeHtml(v.head)}</h1><p>${escapeHtml(v.sub)}</p><a href="#">${escapeHtml(v.cta)}</a></main></body></html>`;
+                downloadFile('my-page.html', html, 'text/html');
+            });
+            update();
+        }
+
+        function saasDemo(root) {
+            const inputs = [
+                ['ssStart', 'Starting customers', 20, 1],
+                ['ssNew', 'New customers / month', 15, 1],
+                ['ssArpa', 'Revenue per customer / mo ($)', 49, 1],
+                ['ssChurn', 'Monthly churn (%)', 3, 0.1],
+                ['ssCac', 'Cost to acquire a customer ($)', 180, 1],
+                ['ssMargin', 'Gross margin (%)', 80, 1]
+            ];
+            root.innerHTML = `
+                <div class="grid lg:grid-cols-5 gap-5">
+                    <div class="lg:col-span-2 grid grid-cols-2 lg:grid-cols-1 gap-3">
+                        ${inputs.map(([id, text, val, step]) => `<label class="${label}">${text}<input id="${id}" type="number" min="0" step="${step}" value="${val}" class="${field} mt-1"></label>`).join('')}
+                    </div>
+                    <div class="lg:col-span-3 space-y-4">
+                        <div id="ssKpis" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+                        <div class="overflow-x-auto rounded-xl border border-slate-800">
+                            <table class="w-full text-xs">
+                                <thead class="bg-slate-950 text-slate-400 text-[10px] uppercase"><tr><th class="text-left p-2.5">Month</th><th class="text-right p-2.5">Customers</th><th class="text-right p-2.5">MRR</th><th class="text-right p-2.5">ARR</th></tr></thead>
+                                <tbody id="ssRows"></tbody>
+                            </table>
+                        </div>
+                        <p class="text-[11px] text-slate-500">Simplified preview with one flat churn rate. The full workbook adds costs, headcount, cohorts, scenarios and a cap table. A planning aid, not financial advice.</p>
+                    </div>
+                </div>`;
+            const q = s => root.querySelector(s);
+            const num = id => Math.max(0, parseFloat(q('#' + id).value) || 0);
+
+            function update() {
+                const arpa = num('ssArpa'), churn = num('ssChurn') / 100, cac = num('ssCac'), margin = num('ssMargin') / 100;
+                let customers = num('ssStart');
+                const rows = [];
+                for (let m = 1; m <= 60; m++) {
+                    customers = customers * (1 - churn) + num('ssNew');
+                    if (m % 12 === 0) rows.push([m, customers]);
+                }
+                q('#ssRows').replaceChildren(...rows.map(([m, c]) => {
+                    const tr = el('tr', 'border-t border-slate-800');
+                    tr.append(el('td', 'p-2.5 text-slate-400', `Year ${m / 12}`), el('td', 'p-2.5 text-right text-white', Math.round(c).toLocaleString()), el('td', 'p-2.5 text-right text-white', money(c * arpa)), el('td', 'p-2.5 text-right font-bold text-sky-400', money(c * arpa * 12)));
+                    return tr;
+                }));
+                const monthlyProfit = arpa * margin;
+                const ltv = churn > 0 ? monthlyProfit / churn : null;
+                const kpis = [
+                    ['LTV', ltv === null ? 'n/a' : money(ltv)],
+                    ['LTV : CAC', ltv === null || !cac ? 'n/a' : `${(ltv / cac).toFixed(1)}×`],
+                    ['CAC payback', monthlyProfit ? `${(cac / monthlyProfit).toFixed(1)} mo` : 'n/a'],
+                    ['Month-60 ARR', money(rows[rows.length - 1][1] * arpa * 12)]
+                ];
+                q('#ssKpis').replaceChildren(...kpis.map(([k, v]) => {
+                    const tile = el('div', 'p-3 rounded-xl bg-slate-950 border border-slate-800');
+                    tile.append(el('p', 'text-[10px] font-bold uppercase text-slate-500', k), el('p', 'text-sm font-black text-white mt-1', v));
+                    return tile;
+                }));
+            }
+
+            root.querySelectorAll('input').forEach(i => i.addEventListener('input', update));
+            update();
+        }
+
+        function autobloggerDemo(root) {
+            // Fictional feed items; the real tool collects these from your RSS feeds and pages.
+            const feed = [
+                { source: 'Main Street Weekly', title: 'Five ways small shops are cutting card fees', url: 'https://example.com/card-fees' },
+                { source: 'Local Biz Journal', title: 'What a good Google Business Profile photo looks like', url: 'https://example.com/profile-photos' },
+                { source: 'Indie Maker Notes', title: 'Pricing a one-time software license', url: 'https://example.org/license-pricing' },
+                { source: 'Main Street Weekly', title: 'Holiday hours: tell customers early', url: 'https://example.com/holiday-hours' }
+            ];
+            const today = new Date();
+            root.innerHTML = `
+                <div class="grid lg:grid-cols-2 gap-5">
+                    <div class="space-y-3">
+                        <fieldset class="space-y-2">
+                            <legend class="${label} mb-2">Collected this week (sample feed)</legend>
+                            ${feed.map((f, i) => `<label class="flex items-start gap-2 p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs cursor-pointer"><input type="checkbox" data-i="${i}" ${i < 3 ? 'checked' : ''} class="accent-sky-500 mt-0.5"><span><span class="text-white font-semibold">${escapeHtml(f.title)}</span><span class="block text-[10px] text-slate-500">${escapeHtml(f.source)}</span></span></label>`).join('')}
+                        </fieldset>
+                        <label class="${label}">Post title<input id="abTitle" class="${field} mt-1" value="Weekly roundup: ${today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}"></label>
+                        <label class="${label}">Your commentary<textarea id="abNote" rows="3" class="${field} mt-1">A few useful reads for anyone running a small shop this week.</textarea></label>
+                        <label class="${label}">Publish draft to<select id="abTarget" class="${field} mt-1"><option>Hugo</option><option>WordPress</option><option>Ghost</option></select></label>
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="${label}">Generated Markdown draft</span>
+                            <button type="button" id="abCopy" class="${btnGhost} !py-1">Copy</button>
+                        </div>
+                        <pre id="abOut" class="flex-grow min-h-[260px] p-4 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-emerald-300 whitespace-pre-wrap break-words"></pre>
+                    </div>
+                </div>`;
+            const q = s => root.querySelector(s);
+
+            function update() {
+                const picked = [...root.querySelectorAll('[data-i]:checked')].map(c => feed[c.dataset.i]);
+                const title = q('#abTitle').value.trim() || 'Weekly roundup';
+                const header = q('#abTarget').value === 'Hugo'
+                    ? `---\ntitle: "${title.replace(/"/g, '\\"')}"\ndate: ${today.toISOString().slice(0, 10)}\ndraft: true\n---\n\n`
+                    : `# ${title}\n\n<!-- Sent to ${q('#abTarget').value} as a draft -->\n\n`;
+                const list = picked.length ? picked.map(f => `- [${f.title}](${f.url}), via ${f.source}`).join('\n') : '_Pick at least one item._';
+                q('#abOut').textContent = `${header}${q('#abNote').value.trim()}\n\n## This week's picks\n\n${list}\n`;
+            }
+
+            root.querySelectorAll('input, textarea, select').forEach(i => i.addEventListener('input', update));
+            q('#abCopy').addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(q('#abOut').textContent);
+                    q('#abCopy').textContent = 'Copied';
+                } catch {
+                    q('#abCopy').textContent = 'Select & copy';
+                }
+                setTimeout(() => { if (root.isConnected) q('#abCopy').textContent = 'Copy'; }, 1500);
+            });
+            update();
+        }
+
+        function schedulerDemo(root) {
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+            const slots = ['9:00', '10:00', '11:00', '12:00', '1:00', '2:00', '3:00'];
+            const bookings = { '0-1': 'Dana R.', '2-3': 'Lee M.', '4-0': 'Sam K.' };
+            root.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex flex-col sm:flex-row gap-2 sm:items-end">
+                        <label class="${label} sm:w-64">Customer name<input id="scName" maxlength="40" placeholder="e.g. Jordan P." class="${field} mt-1"></label>
+                        <p class="text-[11px] text-slate-400 sm:pb-2">Pick an open slot to book it. Pick a booked slot to cancel.</p>
+                    </div>
+                    <div id="scStats" class="grid grid-cols-3 gap-2"></div>
+                    <div class="overflow-x-auto">
+                        <div id="scGrid" class="grid grid-cols-6 gap-1.5 min-w-[520px] text-[11px]"></div>
+                    </div>
+                    <div id="scMsg" class="min-h-[2rem] text-xs text-slate-300 flex items-center gap-3" role="status"></div>
+                </div>`;
+            const q = s => root.querySelector(s);
+
+            function message(text, cancelKey) {
+                const box = q('#scMsg');
+                box.replaceChildren(el('span', null, text));
+                if (cancelKey) {
+                    const cancel = el('button', `${btnGhost} !py-1 text-red-300`, 'Cancel booking');
+                    cancel.type = 'button';
+                    cancel.onclick = () => { delete bookings[cancelKey]; message('Booking cancelled.'); render(); };
+                    box.append(cancel);
+                }
+            }
+
+            function render() {
+                const booked = Object.keys(bookings).length;
+                const total = days.length * slots.length;
+                q('#scStats').replaceChildren(...[['Booked', booked], ['Open', total - booked], ['Fill rate', `${Math.round(booked / total * 100)}%`]].map(([k, v]) => {
+                    const tile = el('div', 'p-3 rounded-xl bg-slate-950 border border-slate-800');
+                    tile.append(el('p', 'text-[10px] font-bold uppercase text-slate-500', k), el('p', 'text-sm font-black text-white', String(v)));
+                    return tile;
+                }));
+                const grid = q('#scGrid');
+                grid.replaceChildren(el('span'), ...days.map(d => el('span', 'text-center font-bold text-slate-400 py-1', d)));
+                slots.forEach((time, s) => {
+                    grid.append(el('span', 'text-right pr-2 py-2 text-slate-500', time));
+                    days.forEach((day, d) => {
+                        const key = `${d}-${s}`;
+                        const who = bookings[key];
+                        const btn = el('button', who
+                            ? 'py-2 rounded-lg bg-sky-500/20 border border-sky-500/40 text-sky-200 font-semibold truncate px-1'
+                            : 'py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-500 hover:border-emerald-500/50 hover:text-emerald-300', who || 'Open');
+                        btn.type = 'button';
+                        btn.setAttribute('aria-label', `${day} ${time}: ${who ? `booked by ${who}` : 'open'}`);
+                        btn.onclick = () => {
+                            if (bookings[key]) return message(`${day} ${time} is already booked by ${bookings[key]}.`, key);
+                            const name = q('#scName').value.trim();
+                            if (!name) { q('#scName').focus(); return message('Enter a customer name first.'); }
+                            bookings[key] = name;
+                            message(`Booked ${name} for ${day} ${time}.`);
+                            render();
+                        };
+                        grid.append(btn);
+                    });
+                });
+            }
+            render();
+        }
+
+        function localLaunchDemo(root) {
+            root.innerHTML = `
+                <div class="grid lg:grid-cols-2 gap-5">
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="${label}">Business<input id="llBiz" class="${field} mt-1" value="Pinecrest Plumbing"></label>
+                            <label class="${label}">City<input id="llCity" class="${field} mt-1" value="Fort Collins"></label>
+                        </div>
+                        <label class="${label}">Service<input id="llService" class="${field} mt-1" value="Water heater repair"></label>
+                        <label class="${label}">Page title <span id="llTitleLen" class="text-slate-500"></span><input id="llTitle" class="${field} mt-1" value="Water Heater Repair in Fort Collins | Pinecrest Plumbing"></label>
+                        <label class="${label}">Meta description <span id="llDescLen" class="text-slate-500"></span><textarea id="llDesc" rows="3" class="${field} mt-1">Same-week water heater repair and replacement for Fort Collins homes. Upfront pricing and licensed plumbers.</textarea></label>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-xl bg-white">
+                            <p class="text-[10px] font-bold uppercase text-slate-400 mb-2">Search result preview</p>
+                            <p id="llUrl" class="text-[11px] text-emerald-700 truncate"></p>
+                            <p id="llSnipTitle" class="text-base text-blue-700 leading-snug"></p>
+                            <p id="llSnipDesc" class="text-xs text-slate-600 mt-1"></p>
+                        </div>
+                        <div>
+                            <p class="${label} mb-2">Content checks <span id="llScore" class="text-sky-400"></span></p>
+                            <ul id="llChecks" class="space-y-1.5 text-xs"></ul>
+                        </div>
+                        <p class="text-[11px] text-slate-500">Checks are on-page guidelines, not a ranking guarantee.</p>
+                    </div>
+                </div>`;
+            const q = s => root.querySelector(s);
+            const has = (text, part) => part.trim() !== '' && text.toLowerCase().includes(part.trim().toLowerCase());
+            const truncate = (s, n) => s.length > n ? s.slice(0, n - 1).trimEnd() + '…' : s;
+
+            function update() {
+                const biz = q('#llBiz').value, city = q('#llCity').value, service = q('#llService').value;
+                const title = q('#llTitle').value, desc = q('#llDesc').value;
+                const slug = `${service} ${city}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                q('#llUrl').textContent = `example.com › ${slug || 'page'}`;
+                q('#llSnipTitle').textContent = truncate(title || 'Page title', 60);
+                q('#llSnipDesc').textContent = truncate(desc || 'Meta description', 160);
+                q('#llTitleLen').textContent = `(${title.length})`;
+                q('#llDescLen').textContent = `(${desc.length})`;
+                const checks = [
+                    [title.length >= 30 && title.length <= 60, 'Title is 30–60 characters'],
+                    [desc.length >= 70 && desc.length <= 160, 'Description is 70–160 characters'],
+                    [has(title, service), 'Title names the service'],
+                    [has(title, city), 'Title names the city'],
+                    [has(desc, city), 'Description names the city'],
+                    [has(title, biz), 'Title includes the business name']
+                ];
+                q('#llScore').textContent = `${checks.filter(c => c[0]).length}/${checks.length}`;
+                q('#llChecks').replaceChildren(...checks.map(([ok, text]) => el('li', ok ? 'text-emerald-400' : 'text-amber-400', `${ok ? '✓' : '✗'} ${text}`)));
+            }
+
+            root.querySelectorAll('input, textarea').forEach(i => i.addEventListener('input', update));
+            update();
+        }
+
+        const demoRunners = {
+            101: invoiceDemo,
+            102: bookscanDemo,
+            103: inventoryDemo,
+            104: builderDemo,
+            105: saasDemo,
+            106: autobloggerDemo,
+            107: schedulerDemo,
+            108: localLaunchDemo
+        };
+    </script>
+</body>
+</html>
