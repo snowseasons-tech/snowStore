@@ -2,6 +2,8 @@
 
 Scrape-only blog roundup generator. No APIs, no LLMs, no per-run cost.
 
+Try the [interactive roundup demo](demo.html) first. It builds a post from fictional articles and doesn't fetch or publish anything.
+
     npm install
     # optional, for JS-rendered sites:
     npx playwright install chromium

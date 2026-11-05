@@ -43,6 +43,12 @@ function build({ root = path.join(__dirname, '..'), out = path.join(root, 'dist'
     'small-business-project-cookbook': 'products/Small_Business_Project_Cookbook/projects/06_receivables/demo.html',
     'lead-generator': 'Lead-Pipeline/demo.html',
     'invoice-generator': 'products/invoice-generator/demo.html',
+    'gbp-analytics-dashboard': 'products/gbp-dashboard/demo.html',
+    'page-builder': 'products/vanilla-webpage/demo.html',
+    'booking-app': 'products/booking-app/demo.html',
+    'blog-gen': 'products/blog-gen/demo.html',
+    'bookscan': 'products/bookscan-live/demo.html',
+    'saas-financial-engine': 'products/saas-financial-engine/demo.html',
     'documentation-platform-entitlements': 'documentation_platform/portal_api/entitlements-demo.html',
   };
   const demoOut = path.join(out, 'demos');

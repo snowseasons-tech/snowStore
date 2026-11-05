@@ -2,6 +2,8 @@
 
 A 5-year (60-month) financial model for SaaS and subscription start-ups, built as a single Excel workbook with live formulas.
 
+Try the [interactive revenue model demo](demo.html) first. It runs the workbook's customer and MRR formulas in your browser on the same sample assumptions.
+
 ## File
 - `SaaS_Financial_Engine.xlsx`
 

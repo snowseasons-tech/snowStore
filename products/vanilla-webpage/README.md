@@ -2,6 +2,8 @@
 
 A lightweight, dependency-free products page for your own site, plus a browser-based builder that makes one without touching code. Each is a single self-contained HTML file. No frameworks, no build step, no CDNs, no account. Open it in a browser and it works.
 
+Try the [interactive builder demo](demo.html) first. It edits a sample page with a live preview and doesn't save or export anything.
+
 Built by Snow Seasons Tech ([snowseasonstech.store](https://snowseasonstech.store)).
 
 ## Files

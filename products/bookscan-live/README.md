@@ -1,4 +1,5 @@
 Book scanner with attached search for market price.
+Try the [interactive offline demo](demo.html) first. It uses fictional sample books and the same price estimate as the app.
 What it does:
 Scan/enter an ISBN — type it or use a real barcode scanner (it fires on Enter, which is how scanners work). A "sample" dropdown lets you try any of the built-in books.
 Instant market prices — offers from Amazon, AbeBooks, eBay, and BookScouter (buyback), with the best resale price highlighted.

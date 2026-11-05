@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Try a BookScan Live profit check on sample books in your browser.">
+  <title>BookScan Live Demo</title>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#1b2b3b;background:#eef3f8}
+    *{box-sizing:border-box}body{margin:0}.wrap{max-width:1000px;margin:auto;padding:24px}
+    header,.panel{background:#fff;border:1px solid #d5e0e8;border-radius:16px;padding:24px;margin:0 0 18px}
+    h1,h2,p{margin:0 0 12px}h1{font-size:clamp(1.7rem,5vw,2.4rem)}h2{font-size:1.15rem}
+    .muted{color:#506477}.badge{display:inline-block;background:#e5f4fb;color:#12567a;padding:3px 9px;border-radius:999px;font-size:.82rem;font-weight:650}
+    .field{display:grid;gap:5px}.field input,.field select,button{font:inherit;padding:9px 12px;border:1px solid #9db1c1;border-radius:8px;background:#fff;color:inherit}
+    button{cursor:pointer;background:#12567a;color:#fff;border-color:#12567a;font-weight:650}
+    a{color:#145987}.message{min-height:1.5em;color:#8e2c25}
+    .row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.4fr) auto;gap:12px;align-items:end}
+    .book{display:grid;grid-template-columns:90px minmax(0,1fr);gap:18px}
+    .cover{height:130px;border-radius:8px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:1.6rem}
+    table{width:100%;border-collapse:collapse;margin:14px 0}th,td{text-align:left;padding:8px 5px;border-bottom:1px solid #e0e7ed}.num{text-align:right;font-variant-numeric:tabular-nums}
+    tr.best td{font-weight:700;color:#0f6b3f}
+    .profit{padding:12px 14px;border-radius:10px;font-weight:650}.pos{background:#e3f6ec;color:#0f6b3f}.neg{background:#fbe9e7;color:#8e2c25}
+    .cost{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;margin-top:12px}
+    .total{font-size:1.2rem;font-weight:750}
+    @media(max-width:700px){.wrap{padding:14px}.panel{padding:16px}.row{grid-template-columns:1fr}.book{grid-template-columns:70px 1fr}.cover{height:100px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <span class="badge">Interactive product demo</span>
+      <h1>BookScan Live</h1>
+      <p class="muted">Pick a sample book or type its ISBN, then enter what you'd pay to see whether it's worth flipping. The demo uses fictional sample books and works offline; the real app looks books up live in Open Library and Google Books.</p>
+    </header>
+    <section class="panel">
+      <form id="scan" class="row">
+        <label class="field">ISBN<input id="isbn" inputmode="numeric" autocomplete="off" placeholder="9780000000017"></label>
+        <label class="field">Or try a sample<select id="sample"><option value="">Choose a book…</option></select></label>
+        <button>Look up</button>
+      </form>
+      <p id="error" class="message" role="alert"></p>
+    </section>
+    <section class="panel" id="result" hidden></section>
+    <section class="panel" id="list" hidden>
+      <h2>Scan list</h2>
+      <table><thead><tr><th>Title</th><th class="num">Paid</th><th class="num">Best offer</th><th class="num">Profit</th></tr></thead><tbody id="rows"></tbody></table>
+      <p class="total">Estimated total resale value: <span id="total">$0.00</span></p>
+    </section>
+    <section class="panel">
+      <p class="muted">Marketplace prices in BookScan Live are estimates built from the retail price and category, not live offers. A hook is included for your own approved marketplace API keys.</p>
+      <p><a href="/products.html#bookscan">Back to products</a></p>
+    </section>
+  </main>
+  <script>
+    const books = [
+      {isbn: "9780000000017", title: "Practical Database Design", author: "R. Example", category: "Computers", retail: 54.99, color: "#12567a"},
+      {isbn: "9780000000024", title: "Intro to Statistics, 4th ed.", author: "M. Sample", category: "Mathematics", retail: 89.50, color: "#5b3fa0"},
+      {isbn: "9780000000031", title: "The Lighthouse Keeper's Year", author: "J. Placeholder", category: "Fiction", retail: 16.99, color: "#9a5b00"},
+      {isbn: "9780000000048", title: "Small Business Bookkeeping", author: "T. Demo", category: "Business & Economics", retail: 29.95, color: "#0f6b3f"},
+      {isbn: "9780000000055", title: "Midnight on Harbor Street", author: "L. Fictional", category: "Mystery", retail: 9.99, color: "#8e2c25"},
+    ];
+    const $ = (id) => document.getElementById(id);
+    const money = (n) => "$" + n.toFixed(2);
+    const scanList = [];
+    books.forEach((b) => $("sample").append(new Option(b.title, b.isbn)));
+
+    // Same estimate as the product: tech and textbooks hold value, mass-market fiction floods the used market.
+    function offers(book) {
+      const factor = /computer|technolog|science|education|business|textbook|math/i.test(book.category) ? 0.62 : 0.38;
+      const used = +(book.retail * factor).toFixed(2);
+      return [
+        {market: "Amazon (used)", price: +(used * 1.15).toFixed(2), condition: "Very Good"},
+        {market: "AbeBooks", price: used, condition: "Good"},
+        {market: "eBay (used)", price: +(used * 0.88).toFixed(2), condition: "Good"},
+        {market: "BookScouter (buyback)", price: +(used * 0.28).toFixed(2), condition: "Buyback", buyback: true},
+      ];
+    }
+
+    function show(book) {
+      const list = offers(book);
+      const best = list.filter((o) => !o.buyback).reduce((a, b) => (b.price > a.price ? b : a));
+      const el = $("result");
+      el.innerHTML = `<div class="book"><div class="cover"></div><div><h2></h2><p class="muted meta"></p>
+        <p>Retail list price: <b>${money(book.retail)}</b></p></div></div>
+        <table><thead><tr><th>Marketplace (estimated)</th><th>Condition</th><th class="num">Price</th></tr></thead><tbody>
+        ${list.map((o) => `<tr class="${o === best ? "best" : ""}"><td>${o.market}${o === best ? " · best" : ""}</td><td>${o.condition}</td><td class="num">${money(o.price)}</td></tr>`).join("")}
+        </tbody></table>
+        <div class="cost"><label class="field">What would you pay? (USD)<input id="cost" type="number" min="0" max="10000" step="0.01" placeholder="2.00"></label>
+        <button type="button" id="add">Add to scan list</button></div>
+        <p id="profit" style="margin-top:12px"></p>`;
+      el.querySelector(".cover").style.background = book.color;
+      el.querySelector(".cover").textContent = book.title[0];
+      el.querySelector("h2").textContent = book.title;
+      el.querySelector(".meta").textContent = `${book.author} · ${book.category} · ISBN ${book.isbn}`;
+      el.hidden = false;
+      $("cost").addEventListener("input", () => {
+        const cost = Number($("cost").value);
+        const margin = best.price - cost;
+        $("profit").innerHTML = cost > 0 ? `<div class="profit ${margin > 0 ? "pos" : "neg"}">${margin > 0
+          ? `Potential profit ${money(margin)} on the best offer (${money(best.price)}). Worth flipping.`
+          : `Below cost by ${money(-margin)}. Skip it or take the buyback.`}</div>` : "";
+      });
+      $("add").addEventListener("click", () => {
+        const cost = Math.max(0, Number($("cost").value) || 0);
+        scanList.push({title: book.title, cost, best: best.price});
+        renderList();
+      });
+    }
+
+    function renderList() {
+      $("rows").replaceChildren(...scanList.map((i) => {
+        const tr = document.createElement("tr");
+        [i.title, money(i.cost), money(i.best), money(i.best - i.cost)].forEach((v, n) => {
+          const td = document.createElement("td");
+          td.textContent = v;
+          if (n) td.className = "num";
+          tr.append(td);
+        });
+        return tr;
+      }));
+      $("total").textContent = money(scanList.reduce((s, i) => s + i.best, 0));
+      $("list").hidden = !scanList.length;
+    }
+
+    $("sample").addEventListener("change", () => { if ($("sample").value) { $("isbn").value = $("sample").value; lookup(); } });
+    $("scan").addEventListener("submit", (e) => { e.preventDefault(); lookup(); });
+    function lookup() {
+      const isbn = $("isbn").value.replace(/[^0-9Xx]/g, "");
+      const book = books.find((b) => b.isbn === isbn);
+      $("error").textContent = book ? "" : isbn.length === 10 || isbn.length === 13
+        ? "That ISBN isn't in the demo's sample list. The real app looks up any ISBN live."
+        : "Enter a 10- or 13-digit ISBN, or choose a sample book.";
+      if (book) show(book);
+    }
+  </script>
+</body>
+</html>

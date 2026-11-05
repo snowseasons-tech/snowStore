@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Try the SaaS Financial Projection Engine's revenue model in your browser.">
+  <title>SaaS Financial Projection Engine Demo</title>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#1b2b3b;background:#eef3f8}
+    *{box-sizing:border-box}body{margin:0}.wrap{max-width:1100px;margin:auto;padding:24px}
+    header,.panel{background:#fff;border:1px solid #d5e0e8;border-radius:16px;padding:24px;margin:0 0 18px}
+    h1,h2,p{margin:0 0 12px}h1{font-size:clamp(1.7rem,5vw,2.4rem)}h2{font-size:1.15rem}
+    .muted{color:#506477}.badge{display:inline-block;background:#e5f4fb;color:#12567a;padding:3px 9px;border-radius:999px;font-size:.82rem;font-weight:650}
+    .field{display:grid;gap:5px;font-size:.92rem}.field input,select{font:inherit;padding:8px 10px;border:1px solid #9db1c1;border-radius:8px;background:#fffbe6;color:inherit}
+    a{color:#145987}.message{min-height:1.5em;color:#8e2c25}
+    .layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:20px;align-items:start}
+    .layout>*{min-width:0}.fields{display:grid;gap:10px}
+    .seg{display:flex;gap:6px}.seg button{flex:1;font:inherit;padding:8px;border:1px solid #9db1c1;border-radius:8px;background:#fff;cursor:pointer;font-weight:650;color:inherit}
+    .seg button[aria-pressed="true"]{background:#12567a;border-color:#12567a;color:#fff}
+    .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    .tile{background:#f5f9fc;border:1px solid #d5e0e8;border-radius:12px;padding:12px}.tile b{display:block;font-size:1.35rem;font-variant-numeric:tabular-nums}
+    .tile .good{color:#0f6b3f}.tile .warn{color:#9a5b00}
+    svg{width:100%;height:auto;display:block;margin:6px 0 14px}
+    .scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{padding:8px 6px;border-bottom:1px solid #e0e7ed;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}th:first-child,td:first-child{text-align:left}
+    @media(max-width:850px){.wrap{padding:14px}.panel{padding:16px}.layout{grid-template-columns:1fr}.tiles{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <span class="badge">Interactive product demo</span>
+      <h1>SaaS Financial Projection Engine</h1>
+      <p class="muted">The revenue side of the workbook, live in your browser. Pick a scenario or change the yellow inputs and the 5-year plan recalculates, month by month, with the same formulas the workbook uses. All numbers are illustrative samples.</p>
+    </header>
+    <section class="panel">
+      <div class="layout">
+        <form class="fields" id="form">
+          <h2>Assumptions</h2>
+          <div class="seg" role="group" aria-label="Scenario">
+            <button type="button" data-s="base" aria-pressed="true">Base</button>
+            <button type="button" data-s="upside" aria-pressed="false">Upside</button>
+            <button type="button" data-s="downside" aria-pressed="false">Downside</button>
+          </div>
+          <label class="field">New customers in month 1<input id="n1" type="number" min="0" max="100000" step="1"></label>
+          <label class="field">Monthly growth in new customers (%)<input id="g" type="number" min="-20" max="50" step="0.1"></label>
+          <label class="field">Monthly customer churn (%)<input id="c" type="number" min="0.1" max="50" step="0.1"></label>
+          <label class="field">ARPA, month 1 ($ per customer per month)<input id="arpa" type="number" min="1" max="100000" step="1"></label>
+          <label class="field">Monthly ARPA growth (%)<input id="ag" type="number" min="-10" max="10" step="0.1"></label>
+          <label class="field">Acquisition cost per new customer ($)<input id="cac" type="number" min="0" max="1000000" step="10"></label>
+          <label class="field">Customers at start<input id="start" type="number" min="0" max="1000000" step="1"></label>
+          <label class="field">COGS (% of revenue)<input id="cogs" type="number" min="0" max="100" step="1"></label>
+          <p id="error" class="message" role="alert"></p>
+        </form>
+        <div>
+          <div class="tiles">
+            <div class="tile"><span class="muted">Year 5 ARR</span><b id="t-arr"></b></div>
+            <div class="tile"><span class="muted">Year 5 customers</span><b id="t-cust"></b></div>
+            <div class="tile"><span class="muted">LTV : acquisition CAC</span><b id="t-ltv"></b></div>
+            <div class="tile"><span class="muted">Payback (months)</span><b id="t-pay"></b></div>
+          </div>
+          <h2>Ending ARR by year</h2>
+          <svg id="chart" viewBox="0 0 600 200" role="img" aria-label="Ending ARR for years 1 to 5"></svg>
+          <div class="scroll"><table>
+            <thead><tr><th>Metric</th><th>Year 1</th><th>Year 2</th><th>Year 3</th><th>Year 4</th><th>Year 5</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table></div>
+        </div>
+      </div>
+    </section>
+    <section class="panel">
+      <p class="muted">The full workbook adds headcount and payroll, operating costs, EBITDA and cash, fully loaded CAC, 12 monthly cohorts, a cap table across three rounds, sensitivity tables and an investor dashboard with six charts. It works in Excel, Google Sheets and LibreOffice. A planning template, not financial advice.</p>
+      <p><a href="/products.html#saas-financial-engine">Back to products</a></p>
+    </section>
+  </main>
+  <script>
+    // Scenario levers from the workbook's Assumptions sheet.
+    const scenarios = {
+      base: {n1: 12, g: 3.5, c: 2.5, arpa: 400, ag: 0.4, cac: 1500},
+      upside: {n1: 16, g: 4.5, c: 1.8, arpa: 450, ag: 0.6, cac: 1300},
+      downside: {n1: 8, g: 2, c: 3.5, arpa: 350, ag: 0.2, cac: 1800},
+    };
+    const ids = ["n1", "g", "c", "arpa", "ag", "cac", "start", "cogs"];
+    const $ = (id) => document.getElementById(id);
+    const usd = (n, d = 0) => new Intl.NumberFormat("en-US", {style: "currency", currency: "USD", maximumFractionDigits: d}).format(n);
+    const short = (n) => Math.abs(n) >= 1e6 ? usd(n / 1e6, 2).replace(/\.?0+$/, "") + "M" : Math.abs(n) >= 1e3 ? usd(n / 1e3, 0) + "K" : usd(n);
+
+    function setScenario(name) {
+      Object.entries(scenarios[name]).forEach(([k, v]) => { $(k).value = v; });
+      document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.s === name)));
+      run();
+    }
+
+    // Monthly engine, as on the workbook's Monthly sheet: new customers compound, churn comes off the
+    // beginning count, ARPA grows each month, and MRR = ending customers x ARPA.
+    function model(p) {
+      const years = [];
+      let customers = p.start;
+      for (let m = 1; m <= 60; m++) {
+        const added = p.n1 * (1 + p.g) ** (m - 1);
+        const lost = customers * p.c;
+        customers += added - lost;
+        const arpa = p.arpa * (1 + p.ag) ** (m - 1);
+        const mrr = customers * arpa;
+        const y = Math.ceil(m / 12) - 1;
+        years[y] ??= {added: 0, lost: 0, revenue: 0, acq: 0};
+        Object.assign(years[y], {customers, mrr, arpa, arr: mrr * 12});
+        years[y].added += added; years[y].lost += lost; years[y].revenue += mrr; years[y].acq += added * p.cac;
+      }
+      return years;
+    }
+
+    function run() {
+      const v = Object.fromEntries(ids.map((k) => [k, Number($(k).value)]));
+      const bad = ids.some((k) => $(k).value === "" || !$(k).checkValidity());
+      $("error").textContent = bad ? "Check the highlighted inputs: each needs a number inside its allowed range." : "";
+      if (bad) return;
+      const p = {n1: v.n1, g: v.g / 100, c: v.c / 100, arpa: v.arpa, ag: v.ag / 100, cac: v.cac, start: v.start, gm: 1 - v.cogs / 100};
+      const ys = model(p);
+      const y5 = ys[4];
+      // LTV = year-end ARPA x gross margin x expected lifetime (1 / churn), as on the Unit Economics sheet.
+      const ltv = y5.arpa * p.gm / p.c;
+      const ratio = p.cac ? ltv / p.cac : Infinity;
+      const payback = p.cac / (y5.arpa * p.gm);
+      $("t-arr").textContent = short(y5.arr);
+      $("t-cust").textContent = Math.round(y5.customers).toLocaleString("en-US");
+      $("t-ltv").innerHTML = `<span class="${ratio >= 3 ? "good" : "warn"}">${Number.isFinite(ratio) ? ratio.toFixed(1) + "x" : "n/a"}</span>`;
+      $("t-pay").textContent = payback.toFixed(1);
+      const rows = [
+        ["Ending customers", (y) => Math.round(y.customers).toLocaleString("en-US")],
+        ["New customers", (y) => Math.round(y.added).toLocaleString("en-US")],
+        ["Churned customers", (y) => Math.round(y.lost).toLocaleString("en-US")],
+        ["Ending MRR", (y) => usd(y.mrr)],
+        ["Ending ARR", (y) => usd(y.arr)],
+        ["Revenue", (y) => usd(y.revenue)],
+        ["Gross profit", (y) => usd(y.revenue * p.gm)],
+        ["Acquisition spend", (y) => usd(y.acq)],
+      ];
+      $("rows").replaceChildren(...rows.map(([label, f]) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${label}</td>` + ys.map((y) => `<td>${f(y)}</td>`).join("");
+        return tr;
+      }));
+      const max = Math.max(...ys.map((y) => y.arr), 1);
+      $("chart").innerHTML = ys.map((y, i) => {
+        const h = Math.max(2, (y.arr / max) * 150), x = 30 + i * 112;
+        return `<rect x="${x}" y="${170 - h}" width="76" height="${h}" rx="6" fill="#12567a"/>
+          <text x="${x + 38}" y="${164 - h}" text-anchor="middle" font-size="13" fill="#1b2b3b">${short(y.arr)}</text>
+          <text x="${x + 38}" y="192" text-anchor="middle" font-size="13" fill="#506477">Year ${i + 1}</text>`;
+      }).join("");
+    }
+
+    document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => setScenario(b.dataset.s)));
+    ids.forEach((k) => $(k).addEventListener("input", () => {
+      document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+      run();
+    }));
+    $("form").addEventListener("submit", (e) => e.preventDefault());
+    $("start").value = 20; $("cogs").value = 20;
+    setScenario("base");
+  </script>
+</body>
+</html>
