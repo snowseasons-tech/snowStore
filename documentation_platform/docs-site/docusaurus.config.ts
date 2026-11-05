@@ -11,7 +11,7 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://docs.snowseasonstech.net',
+  url: 'https://docs.snowseasonstech.store',
   baseUrl: '/',
 
   organizationName: 'snow-seasons-tech',
