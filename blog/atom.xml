@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="atom.xsl"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://docs.snowseasonstech.net/blog</id>
+    <id>https://docs.snowseasonstech.store/blog</id>
     <title>Snow Seasons Tech Blog</title>
     <updated>2026-10-29T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://docs.snowseasonstech.net/blog"/>
+    <link rel="alternate" href="https://docs.snowseasonstech.store/blog"/>
     <subtitle>Snow Seasons Tech Blog</subtitle>
-    <icon>https://docs.snowseasonstech.net/img/favicon.svg</icon>
+    <icon>https://docs.snowseasonstech.store/img/favicon.svg</icon>
     <entry>
         <title type="html"><![CDATA[Introducing the Snow Seasons Tech Documentation Center]]></title>
-        <id>https://docs.snowseasonstech.net/blog/2026/10/29/docs-platform-launch</id>
-        <link href="https://docs.snowseasonstech.net/blog/2026/10/29/docs-platform-launch"/>
+        <id>https://docs.snowseasonstech.store/blog/2026/10/29/docs-platform-launch</id>
+        <link href="https://docs.snowseasonstech.store/blog/2026/10/29/docs-platform-launch"/>
         <updated>2026-10-29T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[A new way to access our software guides and product sheets.]]></summary>
         <content type="html"><![CDATA[<p>We are thrilled to announce the launch of our centralized <strong>Documentation Platform</strong>. As we expand our suite of SaaS tools—from <strong>CDOT Stations</strong> to <strong>Lead Intelligence</strong>—we wanted to ensure that our customers have a world-class experience accessing the information they need.</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="whats-new">What's New?<a href="https://docs.snowseasonstech.net/blog/2026/10/29/docs-platform-launch#whats-new" class="hash-link" aria-label="Direct link to What's New?" title="Direct link to What's New?" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="whats-new">What's New?<a href="https://docs.snowseasonstech.store/blog/2026/10/29/docs-platform-launch#whats-new" class="hash-link" aria-label="Direct link to What's New?" title="Direct link to What's New?" translate="no">​</a></h2>
 <p>Our new system isn't just a collection of pages; it's a <strong>Docs-as-Code</strong> pipeline. This means:</p>
 <ul>
 <li class=""><strong>Always Up-to-Date</strong>: Documentation is generated directly from our product registries. When a feature is added to the software, it's added to the docs.</li>
 <li class=""><strong>Professional PDFs</strong>: Need a hard copy? Every guide now comes with a professional, branded PDF download.</li>
 <li class=""><strong>Secure Access</strong>: Via our Customer Portal, you only see the documentation for the products you are subscribed to.</li>
 </ul>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="how-to-get-started">How to get started<a href="https://docs.snowseasonstech.net/blog/2026/10/29/docs-platform-launch#how-to-get-started" class="hash-link" aria-label="Direct link to How to get started" title="Direct link to How to get started" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="how-to-get-started">How to get started<a href="https://docs.snowseasonstech.store/blog/2026/10/29/docs-platform-launch#how-to-get-started" class="hash-link" aria-label="Direct link to How to get started" title="Direct link to How to get started" translate="no">​</a></h2>
 <ol>
-<li class="">Visit our <a class="" href="https://docs.snowseasonstech.net/docs/intro">Documentation Center</a>.</li>
+<li class="">Visit our <a class="" href="https://docs.snowseasonstech.store/docs/intro">Documentation Center</a>.</li>
 <li class="">Sign in to the <a href="https://portal.snowseasonstech.net/" target="_blank" rel="noopener noreferrer" class="">Customer Portal</a> to access your private product sheets.</li>
 <li class="">Explore the a-z of our software capabilities.</li>
 </ol>
