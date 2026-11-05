@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'Snow Seasons Tech',
   tagline: 'Enterprise SaaS Documentation',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.svg',
 
   future: {
     v4: true,
@@ -30,7 +30,6 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/snow-seasons-tech/documentation_platform',
         },
         blog: {
           showReadingTime: true,
@@ -38,7 +37,6 @@ const config: Config = {
             type: ['rss', 'atom'],
             xslt: true,
           },
-          editUrl: 'https://github.com/snow-seasons-tech/documentation_platform',
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn',
@@ -51,7 +49,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/social-card.png',
     colorMode: {
       respectPrefersColorScheme: true,
     },
@@ -69,11 +67,6 @@ const config: Config = {
           label: 'Products',
         },
         {to: '/blog', label: 'Blog', position: 'left'},
-        {
-          href: 'https://github.com/snow-seasons-tech/documentation_platform',
-          label: 'GitHub',
-          position: 'right',
-        },
       ],
     },
     footer: {
@@ -93,7 +86,7 @@ const config: Config = {
           items: [
             {
               label: 'Store',
-              href: 'https://store.snowseasonstech.net',
+              href: 'https://snowseasonstech.store',
             },
             {
               label: 'Portal',
