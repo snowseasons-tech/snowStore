@@ -6,7 +6,7 @@
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://docs.snowseasonstech.net/blog"/>
     <subtitle>Snow Seasons Tech Blog</subtitle>
-    <icon>https://docs.snowseasonstech.net/img/favicon.ico</icon>
+    <icon>https://docs.snowseasonstech.net/img/favicon.svg</icon>
     <entry>
         <title type="html"><![CDATA[Introducing the Snow Seasons Tech Documentation Center]]></title>
         <id>https://docs.snowseasonstech.net/blog/2026/10/29/docs-platform-launch</id>
