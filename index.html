@@ -48,11 +48,13 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .price s{font-size:1rem;font-weight:400;color:var(--muted)}.sale{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.02em;color:#fff;background:var(--btn);border-radius:999px;padding:2px 9px;vertical-align:middle}.price{font-size:1.6rem;font-weight:700}.price small{font-size:.85rem;color:var(--muted);font-weight:400}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto}.soonc{opacity:.75}
 .flip{display:grid;perspective:1400px;cursor:pointer}
-.flip>.card{grid-area:1/1;-webkit-backface-visibility:hidden;backface-visibility:hidden;transition:rotate .6s cubic-bezier(.2,.7,.2,1),transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.flip>.card{grid-area:1/1;-webkit-backface-visibility:hidden;backface-visibility:hidden;transition:rotate .6s cubic-bezier(.2,.7,.2,1),opacity 0s linear .09s,transform .25s ease,box-shadow .25s ease,border-color .25s ease}
 .flip{position:relative}
 /* The back scrolls inside the card, so long feature lists do not stretch the whole grid row. */
 .flip>.back{rotate:y 180deg;position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain}
 .flip.flipped>.front{rotate:y -180deg}.flip.flipped>.back{rotate:y 0deg}
+/* Swap faces when the card is edge-on, so the far side can't ghost through the frosted glass. */
+.flip.flipped>.front,.flip:not(.flipped)>.back{opacity:0}
 .flip>[inert]{pointer-events:none}
 .thumb{display:block;width:calc(100% + 48px);max-width:none;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:top left;margin:-24px -24px 4px;border-radius:15px 15px 0 0;border-bottom:1px solid var(--glass-b);background:var(--sec)}.steps{list-style:none;counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:22px}.steps li{counter-increment:s;position:relative;padding-left:46px;display:flex;flex-direction:column}.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--btn);color:#fff;font-weight:700;box-shadow:0 0 14px -3px var(--glow)}.steps span{color:var(--muted);font-size:.95rem}.svc-price{font-size:1.15rem;font-weight:700;margin-top:auto}.svc-price small{display:block;font-size:.85rem;font-weight:400;color:var(--muted)}.svc-price+.actions{margin-top:0}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.svc-link{font-size:.9rem}.tagline{font-size:.92rem;font-weight:600;color:var(--primary)}.flip .hint{font-size:.8rem;color:var(--muted)}.flip .price{margin-top:auto}.period{display:block;margin-bottom:6px;padding:4px 8px;border:1px solid var(--b1);border-radius:8px;background:var(--sec);color:var(--text);font:inherit;font-size:.9rem;font-weight:400}.flip .actions{margin-top:0}

@@ -63,10 +63,12 @@ box-shadow:var(--shadow),inset 0 1px 0 var(--hi);transition:transform .25s ease,
 .card.flip-card:hover,.card.flip-card.member{border:0;box-shadow:none}
 .card-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.7,.2,1)}
 .card.is-flipped .card-inner{transform:rotateY(180deg)}
-.card-face{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;padding:24px;overflow:auto;border:1px solid var(--glass-b);border-radius:16px;background:var(--glass);box-shadow:var(--shadow),inset 0 1px 0 var(--hi);backface-visibility:hidden}
+.card-face{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;padding:24px;overflow:auto;border:1px solid var(--glass-b);border-radius:16px;background:var(--glass);box-shadow:var(--shadow),inset 0 1px 0 var(--hi);-webkit-backface-visibility:hidden;backface-visibility:hidden;transition:opacity 0s linear .08s}
 .card-face:hover{border-color:var(--glow);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow),0 14px 44px -10px var(--glow)}
 .card.member .card-face{border-color:var(--primary);box-shadow:var(--shadow),inset 0 1px 0 var(--hi),0 0 0 1px var(--glow)}
+/* Swap faces when the card is edge-on, so the far side can't ghost through the frosted glass. */
 .card-back{transform:rotateY(180deg)}
+.card.is-flipped .card-front,.card:not(.is-flipped) .card-back{opacity:0}
 .card-back h3{font-size:1.05rem}
 .flip-toggle{margin-top:auto}
 .card-back .flip-toggle{flex:none}
