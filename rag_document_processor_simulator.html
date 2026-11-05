@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise RAG Document & Automated Application Processor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f6ff',
+                            100: '#e0edff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                        darkbg: '#080c14',
+                        cardbg: '#0f172a',
+                        borderbg: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #080c14;
+            color: #e2e8f0;
+        }
+        code, pre {
+            font-family: 'Fira Code', monospace;
+        }
+        .chunk-highlight {
+            transition: all 0.2s ease;
+        }
+        .chunk-highlight:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .pipeline-node.active {
+            border-color: #3b82f6;
+            box-shadow: 0 0 18px rgba(59, 130, 246, 0.45);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-darkbg text-gray-100">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800 bg-cardbg/90 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 p-2 rounded-xl text-white shadow-lg shadow-blue-500/20">
+                    <i data-lucide="file-check-2" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Enterprise RAG & Application Processor</h1>
+                    <p class="text-xs text-slate-400">Applications • Invoices • Contracts • Forms • Automated Rules Engine</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <div class="hidden sm:flex items-center bg-slate-900 border border-slate-800 rounded-lg p-1 text-xs">
+                    <span class="text-slate-400 px-2">Preset Doc:</span>
+                    <button onclick="loadDocPreset('application')" id="btn-preset-application" class="px-2 py-1 rounded text-emerald-400 bg-emerald-950/60 font-medium border border-emerald-800/50">Loan App</button>
+                    <button onclick="loadDocPreset('job_app')" id="btn-preset-job_app" class="px-2 py-1 rounded text-slate-400 hover:text-slate-200">Job App</button>
+                    <button onclick="loadDocPreset('invoice')" id="btn-preset-invoice" class="px-2 py-1 rounded text-slate-400 hover:text-slate-200">Invoice</button>
+                    <button onclick="loadDocPreset('contract')" id="btn-preset-contract" class="px-2 py-1 rounded text-slate-400 hover:text-slate-200">Contract</button>
+                    <button onclick="loadDocPreset('form')" id="btn-preset-form" class="px-2 py-1 rounded text-slate-400 hover:text-slate-200">Tax Form</button>
+                </div>
+                <button onclick="resetAll()" class="text-xs bg-red-950/40 hover:bg-red-900/60 text-red-300 border border-red-800/50 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow space-y-6">
+
+        <!-- Top Flowchart Pipeline Animation Header -->
+        <section class="bg-cardbg border border-slate-800 rounded-xl p-4 shadow-xl overflow-x-auto">
+            <div class="flex items-center justify-between mb-3 px-1">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="workflow" class="w-4 h-4 text-blue-400"></i>
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Automated Enterprise Application & Document RAG Pipeline</h2>
+                </div>
+                <button onclick="runAutoPipelineAnimation()" class="text-xs bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-500/30 px-2.5 py-1 rounded flex items-center gap-1">
+                    <i data-lucide="play" class="w-3 h-3"></i> Simulate Workflow Execution
+                </button>
+            </div>
+
+            <div id="pipeline-steps" class="grid grid-cols-7 gap-2 min-w-[840px]">
+                <div id="step-doc" class="pipeline-node bg-slate-900/90 border border-slate-800 p-2.5 rounded-lg text-center relative">
+                    <div class="w-6 h-6 mx-auto mb-1 rounded-full bg-blue-950 text-blue-400 flex items-center justify-center text-xs font-bold">1</div>
+                    <div class="text-xs font-medium text-slate-200">Document Ingestion</div>
+                    <div class="text-[10px] text-slate-500" id="flow-doctype-label">Loan Application</div>
+                </div>
+                <div id="step-ocr" class="pipeline-node bg-slate-900/90 border border-slate-800 p-2.5 rounded-lg text-center relative">
+                    <div class="w-6 h-6 mx-auto mb-1 rounded-full bg-cyan-950 text-cyan-400 flex items-center justify-center text-xs font-bold">2</div>
+                    <div class="text-xs font-medium text-slate-200">OCR & Layout Parser</div>
+                    <div class="text-[10px] text-slate-500">KVPs & Tables</div>
+                </div>
+                <div id="step-chunk" class="pipeline-node bg-slate-900/90 border border-slate-800 p-2.5 rounded-lg text-center relative">
+                    <div class="w-6 h-6 mx-auto mb-1 rounded-full bg-indigo-950 text-indigo-400 flex items-center justify-center text-xs font-bold">3</div>
+                    <div class="text-xs font-medium text-slate-200">Semantic Chunking</div>
+                    <div class="text-[10px] text-slate-500" id="flow-chunk-label">Entity Aware</div>
+                </div>
+                <div id="step-vdb" class="pipeline-node bg-slate-900/90 border border-slate-800 p-2.5 rounded-lg text-center relative">
+                    <div class="w-6 h-6 mx-auto mb-1 rounded-full bg-purple-950 text-purple-400 flex items-center justify-center text-xs font-bold">4</div>
+                    <div class="text-xs font-medium text-slate-200">Vector & BM25 Store</div>
+                    <div class="text-[10px] text-slate-500" id="flow-vdb-label">Chroma / Hybrid</div>
+                </div>
+                <div id="step-rules" class="pipeline-node bg-slate-900/90 border border-slate-800 p-2.5 rounded-lg text-center relative">
+                    <div class="w-6 h-6 mx-auto mb-1 rounded-full bg-emerald-950 text-emerald-400 flex items-center justify-center text-xs font-bold">5</div>
+                    <div class="text-xs font-medium text-slate-200">Validation & Compliance</div>
+                    <div class="text-[10px] text-slate-500">Rules & Anomaly Audit</div>
+                </div>
+                <div id="step-retrieve" class="pipeline-node bg-slate-900/90 border border-slate-800 p-2.5 rounded-lg text-center relative">
+                    <div class="w-6 h-6 mx-auto mb-1 rounded-full bg-amber-950 text-amber-400 flex items-center justify-center text-xs font-bold">6</div>
+                    <div class="text-xs font-medium text-slate-200">Hybrid Search & Rank</div>
+                    <div class="text-[10px] text-slate-500">RRF Dense + BM25</div>
+                </div>
+                <div id="step-llm" class="pipeline-node bg-slate-900/90 border border-slate-800 p-2.5 rounded-lg text-center relative">
+                    <div class="w-6 h-6 mx-auto mb-1 rounded-full bg-rose-950 text-rose-400 flex items-center justify-center text-xs font-bold">7</div>
+                    <div class="text-xs font-medium text-slate-200">Automated Decision</div>
+                    <div class="text-[10px] text-slate-500">Approve / Reject Routing</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs for Modules -->
+        <div class="flex border-b border-slate-800 space-x-3 overflow-x-auto">
+            <button onclick="switchTab('tab-ingest')" id="btn-tab-ingest" class="tab-btn px-4 py-2 border-b-2 border-blue-500 text-blue-400 font-medium text-sm flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="upload-cloud" class="w-4 h-4"></i> 1. Document Ingestion
+            </button>
+            <button onclick="switchTab('tab-app-engine')" id="btn-tab-app-engine" class="tab-btn px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-sm flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="shield-check" class="w-4 h-4"></i> 2. Application Rules & Decision Engine
+            </button>
+            <button onclick="switchTab('tab-chunking')" id="btn-tab-chunking" class="tab-btn px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-sm flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="grid" class="w-4 h-4"></i> 3. Visual Chunking
+            </button>
+            <button onclick="switchTab('tab-vector')" id="btn-tab-vector" class="tab-btn px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-sm flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="database" class="w-4 h-4"></i> 4. Vector Embeddings Space
+            </button>
+            <button onclick="switchTab('tab-query')" id="btn-tab-query" class="tab-btn px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-sm flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="sparkles" class="w-4 h-4"></i> 5. RAG Chat & JSON Extractor
+            </button>
+            <button onclick="switchTab('tab-code')" id="btn-tab-code" class="tab-btn px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium text-sm flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="code" class="w-4 h-4"></i> 6. Code Exporter
+            </button>
+        </div>
+
+        <!-- TAB 1: Document Ingestion & Multimodal Parser -->
+        <div id="tab-ingest" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left Upload Dropzone & Preset Controls -->
+            <div class="lg:col-span-5 bg-cardbg border border-slate-800 rounded-xl p-5 space-y-4 shadow-lg">
+                <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <i data-lucide="file-up" class="w-4 h-4 text-blue-400"></i> Ingestion & Optical OCR Parser
+                </h3>
+
+                <!-- Upload Drag-and-Drop Area -->
+                <div id="dropzone" onclick="triggerFileSelect()" class="border-2 border-dashed border-slate-700 hover:border-blue-500 bg-slate-900/60 rounded-xl p-6 text-center cursor-pointer transition space-y-2">
+                    <input type="file" id="file-input" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.docx,.txt" onchange="handleFileSelect(event)">
+                    <div class="w-10 h-10 mx-auto rounded-full bg-blue-950/80 text-blue-400 flex items-center justify-center">
+                        <i data-lucide="upload" class="w-5 h-5"></i>
+                    </div>
+                    <p class="text-xs text-slate-300 font-medium">Drop application, invoice, or form here</p>
+                    <p class="text-[10px] text-slate-500">PDF, PNG, JPG, DOCX, TXT (Simulated Optical Layout Parsing)</p>
+                </div>
+
+                <!-- Document Type Auto Detection Badge -->
+                <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Detected Document Class:</span>
+                        <span id="badge-doc-type" class="bg-emerald-950 text-emerald-300 border border-emerald-800/50 px-2 py-0.5 rounded font-mono font-semibold">LOAN APPLICATION</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-400">OCR Parser Engine:</span>
+                        <span class="text-slate-300 font-mono">LayoutLMv3 / Donut</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Key-Value Pairs (KVPs):</span>
+                        <span id="stat-kvp-count" class="text-emerald-400 font-mono font-medium">8 Extracted</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Structured Data Tables:</span>
+                        <span id="stat-table-count" class="text-emerald-400 font-mono font-medium">1 Financial Table</span>
+                    </div>
+                </div>
+
+                <!-- Fast Preset Selectors -->
+                <div class="space-y-2 pt-1">
+                    <label class="block text-xs font-medium text-slate-400">Preset Sample Documents & Applications:</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="loadDocPreset('application')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs py-2 px-2 rounded text-slate-300 flex flex-col items-center gap-1">
+                            <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-emerald-400"></i>
+                            <span>Loan App</span>
+                        </button>
+                        <button onclick="loadDocPreset('job_app')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs py-2 px-2 rounded text-slate-300 flex flex-col items-center gap-1">
+                            <i data-lucide="briefcase" class="w-4 h-4 text-cyan-400"></i>
+                            <span>Job App</span>
+                        </button>
+                        <button onclick="loadDocPreset('invoice')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs py-2 px-2 rounded text-slate-300 flex flex-col items-center gap-1">
+                            <i data-lucide="receipt" class="w-4 h-4 text-blue-400"></i>
+                            <span>Invoice</span>
+                        </button>
+                        <button onclick="loadDocPreset('contract')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs py-2 px-2 rounded text-slate-300 flex flex-col items-center gap-1">
+                            <i data-lucide="file-signature" class="w-4 h-4 text-purple-400"></i>
+                            <span>Contract</span>
+                        </button>
+                        <button onclick="loadDocPreset('form')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs py-2 px-2 rounded text-slate-300 flex flex-col items-center gap-1">
+                            <i data-lucide="file-check" class="w-4 h-4 text-amber-400"></i>
+                            <span>Tax Form</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Raw Document Source -->
+            <div class="lg:col-span-7 bg-cardbg border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col justify-between">
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                        <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i> Raw Unstructured Source Content
+                        </h3>
+                        <span id="doc-char-count" class="text-xs text-slate-400 font-mono">0 chars</span>
+                    </div>
+
+                    <textarea id="raw-document" oninput="processDocumentParsing()" class="w-full h-80 bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs font-mono text-slate-300 focus:outline-none focus:border-blue-500 leading-relaxed resize-none" placeholder="Document content..."></textarea>
+                </div>
+
+                <div class="pt-3 flex justify-end">
+                    <button onclick="switchTab('tab-app-engine')" class="bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-4 rounded-lg text-xs flex items-center gap-2 shadow-lg shadow-blue-600/20">
+                        <span>Next: Run Rules & Application Engine</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Application Rules & Decision Engine -->
+        <div id="tab-app-engine" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left Rules & Threshold Controls -->
+            <div class="lg:col-span-5 bg-cardbg border border-slate-800 rounded-xl p-5 space-y-4 shadow-lg">
+                <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <i data-lucide="sliders" class="w-4 h-4 text-emerald-400"></i> Automated Policy Rules & Thresholds
+                </h3>
+
+                <!-- Dynamic Rule Controls -->
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Minimum Annual Income Threshold</span>
+                            <span id="val-income-req" class="text-emerald-400 font-mono font-medium">$60,000</span>
+                        </div>
+                        <input type="range" id="param-income-req" min="30000" max="150000" step="5000" value="60000" oninput="updateRuleParams()" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Minimum Credit / Risk Score</span>
+                            <span id="val-credit-req" class="text-emerald-400 font-mono font-medium">650</span>
+                        </div>
+                        <input type="range" id="param-credit-req" min="500" max="800" step="10" value="650" oninput="updateRuleParams()" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-800">
+                        <label class="block text-xs font-medium text-slate-300">Validation Checks Required:</label>
+                        <div class="space-y-1.5 text-xs">
+                            <label class="flex items-center gap-2 text-slate-400 cursor-pointer">
+                                <input type="checkbox" id="chk-ssn-valid" checked onchange="runApplicationRulesEngine()" class="accent-emerald-500 rounded">
+                                <span>Verify Tax ID / SSN Formatting</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-slate-400 cursor-pointer">
+                                <input type="checkbox" id="chk-sig-valid" checked onchange="runApplicationRulesEngine()" class="accent-emerald-500 rounded">
+                                <span>Verify Signature & Date Presence</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-slate-400 cursor-pointer">
+                                <input type="checkbox" id="chk-fraud-audit" checked onchange="runApplicationRulesEngine()" class="accent-emerald-500 rounded">
+                                <span>Fraud & Anomaly Red Flag Scan</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="runApplicationRulesEngine()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-600/20">
+                    <i data-lucide="play" class="w-4 h-4"></i> Evaluate Application Rules Engine
+                </button>
+            </div>
+
+            <!-- Right Automated Decision Audit Dashboard -->
+            <div class="lg:col-span-7 bg-cardbg border border-slate-800 rounded-xl p-5 shadow-lg space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="cpu" class="w-4 h-4 text-emerald-400"></i> Automated Decision & Compliance Results
+                    </h3>
+                    <div id="decision-badge" class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        STATUS: READY FOR AUDIT
+                    </div>
+                </div>
+
+                <!-- Application Policy Checks Matrix -->
+                <div class="space-y-3">
+                    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Automated Verification Audits</div>
+                    <div id="rules-matrix" class="space-y-2">
+                        <!-- Dynamic Rule Rows -->
+                    </div>
+                </div>
+
+                <!-- Anomaly & Fraud Risk Warning Box -->
+                <div id="anomaly-warning-box" class="bg-slate-900 border border-slate-800 rounded-lg p-3 text-xs space-y-2 hidden">
+                    <div class="flex items-center gap-2 font-semibold text-amber-400">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i> Fraud & Anomaly Audit Summary
+                    </div>
+                    <p id="anomaly-details" class="text-slate-300 font-mono text-[11px]"></p>
+                </div>
+
+                <!-- Automated Routing Recommendation -->
+                <div class="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
+                    <div class="text-xs font-semibold text-slate-400">Decision Engine Routing Summary:</div>
+                    <div id="decision-summary-text" class="text-xs text-slate-200 font-mono leading-relaxed">
+                        Click "Evaluate Application Rules Engine" to generate dynamic approval routing recommendations.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Visual Chunking Studio -->
+        <div id="tab-chunking" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left Chunking Settings -->
+            <div class="lg:col-span-4 bg-cardbg border border-slate-800 rounded-xl p-5 space-y-4 shadow-lg">
+                <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i> Chunking Strategy
+                </h3>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Strategy Algorithm</label>
+                    <select id="chunk-strategy" onchange="processDocumentParsing()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+                        <option value="entity">Entity & Form Block Grouping</option>
+                        <option value="recursive">Recursive Line Splitter</option>
+                        <option value="fixed">Fixed Character Chunking</option>
+                    </select>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-400">Target Chunk Size (Chars)</span>
+                        <span id="val-chunk-size" class="text-indigo-400 font-mono font-medium">300</span>
+                    </div>
+                    <input type="range" id="param-chunk-size" min="100" max="700" step="25" value="300" oninput="updateChunkParams()" class="w-full accent-indigo-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-400">Chunk Overlap (Chars)</span>
+                        <span id="val-chunk-overlap" class="text-indigo-400 font-mono font-medium">50</span>
+                    </div>
+                    <input type="range" id="param-chunk-overlap" min="0" max="150" step="10" value="50" oninput="updateChunkParams()" class="w-full accent-indigo-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-3 text-xs space-y-1.5 text-slate-400">
+                    <div class="text-slate-300 font-medium mb-1">Extracted Metadata Tags:</div>
+                    <div id="metadata-tags-list" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <button onclick="processDocumentParsing(true)" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-lg text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-indigo-600/20">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Re-Chunk Document
+                </button>
+            </div>
+
+            <!-- Right Visual Chunks Preview -->
+            <div class="lg:col-span-8 bg-cardbg border border-slate-800 rounded-xl p-5 shadow-lg space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+                        <h3 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Layout-Aware Chunks</h3>
+                    </div>
+                    <span id="chunk-count-badge" class="bg-indigo-950 text-indigo-300 text-[11px] font-mono px-2.5 py-0.5 rounded-full border border-indigo-800/50">0 Chunks</span>
+                </div>
+
+                <div id="chunks-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[460px] overflow-y-auto pr-1"></div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Embedding & Vector Database Visualizer -->
+        <div id="tab-vector" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-4 bg-cardbg border border-slate-800 rounded-xl p-5 space-y-4 shadow-lg">
+                <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <i data-lucide="database" class="w-4 h-4 text-purple-400"></i> Vector Index & Store Settings
+                </h3>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Vector Store Provider</label>
+                    <select id="vdb-provider" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none">
+                        <option value="chroma">ChromaDB (Local Persistent)</option>
+                        <option value="pinecone">Pinecone (Serverless Vector Index)</option>
+                        <option value="qdrant">Qdrant (Hybrid Search Engine)</option>
+                        <option value="faiss">FAISS (In-Memory IndexFlatIP)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Similarity Metric</label>
+                    <select id="sim-metric" onchange="renderVectorSpace()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none">
+                        <option value="cosine">Cosine Similarity</option>
+                        <option value="euclidean">Euclidean Distance</option>
+                        <option value="dot">Dot Product</option>
+                    </select>
+                </div>
+
+                <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs space-y-2 font-mono">
+                    <div class="text-slate-400 font-sans font-medium">Index Metadata:</div>
+                    <div class="flex justify-between text-slate-300"><span>Indexed Vectors:</span><span id="stat-vector-count">0</span></div>
+                    <div class="flex justify-between text-slate-300"><span>Vector Dims:</span><span>1536 (OpenAI text-embed-3)</span></div>
+                    <div class="flex justify-between text-slate-300"><span>Sparse BM25 Index:</span><span class="text-emerald-400">Active</span></div>
+                </div>
+            </div>
+
+            <!-- 2D Canvas Projection -->
+            <div class="lg:col-span-8 bg-cardbg border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="orbit" class="w-4 h-4 text-purple-400"></i> 2D Vector Embedding Projection
+                        </h3>
+                        <span class="text-[11px] text-slate-500">Hover node to inspect chunk text</span>
+                    </div>
+
+                    <div class="relative w-full bg-slate-950 border border-slate-800 rounded-xl h-80 flex items-center justify-center overflow-hidden">
+                        <canvas id="vector-canvas" class="w-full h-full cursor-crosshair"></canvas>
+                        <div id="vector-tooltip" class="absolute hidden bg-slate-900 border border-slate-700 text-slate-200 text-xs p-2 rounded shadow-2xl pointer-events-none max-w-xs z-20"></div>
+                    </div>
+                </div>
+
+                <div id="vector-detail-card" class="mt-4 p-3 bg-slate-900 border border-slate-800 rounded-lg text-xs hidden">
+                    <div class="flex justify-between font-mono text-purple-400 mb-1">
+                        <span id="vec-detail-id">Chunk #1</span>
+                        <span id="vec-detail-coords">[x: 0.00, y: 0.00]</span>
+                    </div>
+                    <p id="vec-detail-text" class="text-slate-300 line-clamp-2 font-mono"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: Automated Extraction & RAG Search -->
+        <div id="tab-query" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-5 space-y-4">
+                <div class="bg-cardbg border border-slate-800 rounded-xl p-5 shadow-lg space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="cpu" class="w-4 h-4 text-amber-400"></i> Auto Extraction & RAG Engine
+                        </h3>
+                    </div>
+
+                    <!-- Instant Automated Extraction Button -->
+                    <button onclick="executeAutoStructuredExtraction()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-600/20">
+                        <i data-lucide="file-json" class="w-4 h-4"></i> Auto Extract All Key Values & Tables
+                    </button>
+
+                    <div class="relative flex py-1 items-center">
+                        <div class="flex-grow border-t border-slate-800"></div>
+                        <span class="flex-shrink mx-2 text-[10px] text-slate-500 uppercase font-mono">OR Ask Search Question</span>
+                        <div class="flex-grow border-t border-slate-800"></div>
+                    </div>
+
+                    <!-- Custom Prompt Input -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">User Prompt / Question</label>
+                        <textarea id="user-query" class="w-full h-20 bg-slate-900 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-500 resize-none" placeholder="e.g., What is the total annual income and requesting credit amount?"></textarea>
+                    </div>
+
+                    <button onclick="executeRAGQuery()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-amber-600/20">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> Execute Hybrid RAG Query
+                    </button>
+                </div>
+
+                <!-- Retrieved Source Context -->
+                <div class="bg-cardbg border border-slate-800 rounded-xl p-4 shadow-lg space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="paperclip" class="w-4 h-4 text-emerald-400"></i> Retrieved Context Matches
+                        </h4>
+                        <span id="retrieved-count-tag" class="text-[10px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800/50">0 Matches</span>
+                    </div>
+
+                    <div id="retrieved-chunks-list" class="space-y-2 max-h-52 overflow-y-auto text-xs text-slate-400">
+                        <div class="text-center py-6 text-slate-600 italic">No query executed yet.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Output Display -->
+            <div class="lg:col-span-7 bg-cardbg border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col justify-between">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="bot" class="w-4 h-4 text-rose-400"></i> Grounded Extraction & Answer
+                        </h3>
+                        <div id="confidence-badge" class="hidden text-xs px-2.5 py-1 rounded-full border font-mono">
+                            Confidence: 0%
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 min-h-[220px] relative">
+                        <div id="response-spinner" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center rounded-xl z-10">
+                            <div class="flex items-center space-x-2 text-xs text-blue-400">
+                                <div class="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                <span>Synthesizing Context & Schema Validation...</span>
+                            </div>
+                        </div>
+
+                        <div id="rag-response-output" class="text-xs text-slate-200 leading-relaxed font-sans">
+                            <span class="text-slate-600 italic">Click "Auto Extract All" or enter a query to view results...</span>
+                        </div>
+                    </div>
+
+                    <div id="wrapper-guardrails" class="bg-slate-900 border border-slate-800 rounded-lg p-3 space-y-2 hidden">
+                        <div class="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i> Guardrails & Validation Audit</span>
+                            <span id="val-hallucination-score" class="text-[10px] font-mono bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800/50 font-medium">Hallucination Risk: Low</span>
+                        </div>
+                        <div id="guardrails-list" class="grid grid-cols-2 gap-2 text-[11px] font-mono text-slate-400"></div>
+                    </div>
+                </div>
+
+                <div id="citations-container" class="mt-4 pt-3 border-t border-slate-800 text-xs hidden">
+                    <div class="text-[11px] font-semibold text-slate-400 mb-2 uppercase tracking-wider">Citation Attribution</div>
+                    <div id="citations-list" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: Code Exporter -->
+        <div id="tab-code" class="tab-content hidden grid grid-cols-1 gap-6">
+            <div class="bg-cardbg border border-slate-800 rounded-xl p-5 shadow-lg space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div>
+                        <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="code" class="w-4 h-4 text-emerald-400"></i> Production Application Pipeline Code Exporter
+                        </h3>
+                        <p class="text-xs text-slate-400">Export Python code for automated application processing & RAG pipelines.</p>
+                    </div>
+
+                    <div class="flex gap-1.5 bg-slate-900 p-1 border border-slate-800 rounded-lg">
+                        <button onclick="setFramework('pydantic')" id="btn-framework-py" class="px-2.5 py-1 bg-blue-600 text-white rounded text-xs font-medium">Pydantic Pipeline</button>
+                        <button onclick="setFramework('langchain')" id="btn-framework-lc" class="px-2.5 py-1 text-slate-400 hover:text-white rounded text-xs font-medium">LangChain</button>
+                        <button onclick="setFramework('llamaindex')" id="btn-framework-li" class="px-2.5 py-1 text-slate-400 hover:text-white rounded text-xs font-medium">LlamaIndex</button>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <button onclick="copyCodeSnippet()" class="absolute top-3 right-3 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1 rounded text-xs flex items-center gap-1 z-10">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Code
+                    </button>
+                    <pre class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs font-mono text-blue-300 overflow-x-auto leading-relaxed" id="code-snippet-output"></pre>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-cardbg/50 py-3 mt-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-[11px] text-slate-500 flex justify-between items-center">
+            <span>Enterprise RAG & Automated Application Processing Simulator</span>
+            <span class="font-mono">Engine Status: Active</span>
+        </div>
+    </footer>
+
+    <!-- Script Logic Engine -->
+    <script>
+        // Document Samples (Applications, Invoices, Contracts, Forms)
+        const docPresets = {
+            application: {
+                type: "LOAN APPLICATION",
+                text: `COMMERCIAL LOAN APPLICATION
+Form ID: APP-2026-99201
+Submission Date: October 24, 2026
+
+1. APPLICANT INFORMATION:
+Primary Applicant: Sarah Jenkins
+SSN / Tax ID: XXX-XX-4892 (Verified)
+Current Employer: Nexus Cloud Technologies
+Position: Director of Engineering
+Annual Gross Income: $145,000.00
+Stated Credit Score: 740
+
+2. REQUESTED LOAN DETAILS:
+Requested Amount: $85,000.00
+Purpose: Business Expansion & Hardware Infrastructure
+Preferred Term: 60 Months
+
+3. FINANCIAL STATEMENT & DEBT OBLIGATIONS:
+Monthly Housing Payment: $2,800.00
+Existing Credit Debt: $4,500.00
+Liquid Assets: $52,000.00
+
+4. APPLICANT CERTIFICATION:
+I certify that all statements made in this application are true and complete.
+Signature: Sarah Jenkins (Electronically Signed)
+Date Signed: October 24, 2026`,
+                metadata: {
+                    "Application ID": "APP-2026-99201",
+                    "Applicant": "Sarah Jenkins",
+                    "Annual Income": "$145,000.00",
+                    "Requested Loan": "$85,000.00",
+                    "Credit Score": "740",
+                    "Signature Verified": "Yes"
+                },
+                extractedJson: {
+                    application_id: "APP-2026-99201",
+                    applicant_name: "Sarah Jenkins",
+                    tax_id_status: "Verified (XXX-XX-4892)",
+                    annual_gross_income: 145000.00,
+                    credit_score: 740,
+                    requested_amount: 85000.00,
+                    liquid_assets: 52000.00,
+                    signature_present: true,
+                    date_signed: "2026-10-24"
+                },
+                rules: {
+                    income: 145000,
+                    credit: 740,
+                    hasSignature: true,
+                    hasTaxId: true,
+                    anomalies: []
+                }
+            },
+            job_app: {
+                type: "JOB APPLICATION",
+                text: `EMPLOYMENT APPLICATION
+Form ID: JOB-2026-1102
+Position Applied: Senior Full Stack AI Engineer
+
+APPLICANT DETAILS:
+Name: David Miller
+Email: david.miller@example.com
+Phone: (555) 019-2831
+
+EDUCATION & WORK HISTORY:
+Degree: M.S. Computer Science, Stanford University
+Years of Relevant Experience: 7 Years
+Current Salary: $130,000.00
+Expected Salary: $160,000.00
+
+COMPLIANCE & BACKGROUND CHECK AUTHORIZATION:
+Authorized US Work Status: Yes (Citizen)
+Background Check Consent: Agreed
+Signature: David Miller
+Date Signed: October 28, 2026`,
+                metadata: {
+                    "Application ID": "JOB-2026-1102",
+                    "Applicant": "David Miller",
+                    "Position": "Senior AI Engineer",
+                    "Experience": "7 Years",
+                    "Degree": "M.S. Computer Science"
+                },
+                extractedJson: {
+                    application_id: "JOB-2026-1102",
+                    applicant_name: "David Miller",
+                    position: "Senior Full Stack AI Engineer",
+                    years_experience: 7,
+                    expected_salary: 160000.00,
+                    work_authorized: true,
+                    signature_present: true
+                },
+                rules: {
+                    income: 160000,
+                    credit: 700,
+                    hasSignature: true,
+                    hasTaxId: true,
+                    anomalies: []
+                }
+            },
+            invoice: {
+                type: "INVOICE",
+                text: `INVOICE #INV-2026-8891
+Date: October 14, 2026
+Due Date: November 14, 2026
+
+VENDOR INFORMATION:
+Apex Enterprise AI Solutions Inc.
+Tax ID: US-994810291
+
+BILL TO CLIENT:
+Acme Global Logistics LLC
+
+LINE ITEMS & SERVICES:
+Enterprise RAG Vector DB Setup: 1 x $12,500.00 = $12,500.00
+LayoutLM OCR Document Parser Setup: 1 x $8,000.00 = $8,000.00
+Monthly Cloud Hosting: 1 x $2,500.00 = $2,500.00
+
+SUBTOTAL: $23,000.00
+TAX (8.5%): $1,955.00
+TOTAL AMOUNT DUE: $24,955.00`,
+                metadata: {
+                    "Invoice ID": "INV-2026-8891",
+                    "Vendor": "Apex AI Solutions",
+                    "Total Amount": "$24,955.00"
+                },
+                extractedJson: {
+                    invoice_id: "INV-2026-8891",
+                    vendor: "Apex Enterprise AI Solutions Inc.",
+                    total_amount_due: 24955.00
+                },
+                rules: {
+                    income: 24955,
+                    credit: 720,
+                    hasSignature: true,
+                    hasTaxId: true,
+                    anomalies: []
+                }
+            },
+            contract: {
+                type: "CONTRACT",
+                text: `MASTER SERVICES AGREEMENT
+Contract Ref: MSA-2026-CORP-042
+Effective Date: October 1, 2026
+Parties: Titan Cloud Systems LLC and Vertex Financial Technologies Inc.
+
+Term: 12 months. Encrypted data storage (AES-256). Governing Law: Delaware.`,
+                metadata: {
+                    "Contract Ref": "MSA-2026-CORP-042",
+                    "Governing Law": "Delaware"
+                },
+                extractedJson: {
+                    contract_ref: "MSA-2026-CORP-042",
+                    governing_law: "Delaware"
+                },
+                rules: {
+                    income: 100000,
+                    credit: 750,
+                    hasSignature: true,
+                    hasTaxId: true,
+                    anomalies: []
+                }
+            },
+            form: {
+                type: "TAX FORM",
+                text: `TAX REGISTRATION FORM W-9
+Entity Legal Name: Nova Dynamics Robotics Corp
+EIN: 88-3920192
+Classification: C-Corporation
+Signatory: Dr. Marcus Vance, CTO`,
+                metadata: {
+                    "Form ID": "W-9-CORP-2026",
+                    "EIN": "88-3920192"
+                },
+                extractedJson: {
+                    entity_name: "Nova Dynamics Robotics Corp",
+                    ein: "88-3920192"
+                },
+                rules: {
+                    income: 90000,
+                    credit: 680,
+                    hasSignature: true,
+                    hasTaxId: true,
+                    anomalies: []
+                }
+            }
+        };
+
+        // State Store
+        const state = {
+            currentDocKey: 'application',
+            documentText: '',
+            docType: 'LOAN APPLICATION',
+            chunks: [],
+            vectors: [],
+            metadata: {},
+            extractedJson: {},
+            selectedFramework: 'pydantic',
+            params: {
+                chunkSize: 300,
+                chunkOverlap: 50,
+                strategy: 'entity',
+                minIncome: 60000,
+                minCredit: 650
+            }
+        };
+
+        window.onload = function() {
+            lucide.createIcons();
+            loadDocPreset('application');
+            initCanvas();
+            window.addEventListener('resize', renderVectorSpace);
+            updateCodeSnippet();
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-400');
+                btn.classList.add('border-transparent', 'text-slate-400');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-slate-400');
+                activeBtn.classList.add('border-blue-500', 'text-blue-400');
+            }
+
+            if (tabId === 'tab-vector') {
+                setTimeout(renderVectorSpace, 50);
+            }
+        }
+
+        function resetAll() {
+            document.getElementById('raw-document').value = '';
+            state.documentText = '';
+            state.chunks = [];
+            state.vectors = [];
+            state.metadata = {};
+            renderChunksUI();
+            renderVectorSpace();
+            document.getElementById('rag-response-output').innerHTML = '<span class="text-slate-600 italic">Click "Auto Extract All" or enter a query...</span>';
+            document.getElementById('retrieved-chunks-list').innerHTML = '<div class="text-center py-6 text-slate-600 italic">No query executed yet.</div>';
+            document.getElementById('citations-container').classList.add('hidden');
+            document.getElementById('confidence-badge').classList.add('hidden');
+            document.getElementById('wrapper-guardrails').classList.add('hidden');
+        }
+
+        function loadDocPreset(key) {
+            state.currentDocKey = key;
+            const doc = docPresets[key];
+            state.docType = doc.type;
+            state.metadata = doc.metadata;
+            state.extractedJson = doc.extractedJson;
+
+            ['application', 'job_app', 'invoice', 'contract', 'form'].forEach(k => {
+                const btn = document.getElementById(`btn-preset-${k}`);
+                if (btn) {
+                    btn.className = (k === key) 
+                        ? "px-2 py-1 rounded text-emerald-400 bg-emerald-950/60 font-medium border border-emerald-800/50 text-xs"
+                        : "px-2 py-1 rounded text-slate-400 hover:text-slate-200 text-xs";
+                }
+            });
+
+            document.getElementById('badge-doc-type').textContent = doc.type;
+            document.getElementById('flow-doctype-label').textContent = doc.type;
+            document.getElementById('raw-document').value = doc.text;
+
+            processDocumentParsing();
+            runApplicationRulesEngine();
+        }
+
+        function triggerFileSelect() {
+            document.getElementById('file-input').click();
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const text = evt.target.result;
+                document.getElementById('raw-document').value = text;
+                state.docType = "CUSTOM APPLICATION / DOC";
+                document.getElementById('badge-doc-type').textContent = state.docType;
+                processDocumentParsing();
+                runApplicationRulesEngine();
+            };
+            reader.readAsText(file);
+        }
+
+        function processDocumentParsing(triggerAnimation = false) {
+            const text = document.getElementById('raw-document').value;
+            state.documentText = text;
+            document.getElementById('doc-char-count').textContent = `${text.length} chars`;
+
+            if (!text.trim()) {
+                state.chunks = [];
+                state.vectors = [];
+                renderChunksUI();
+                renderVectorSpace();
+                return;
+            }
+
+            const rawSections = text.split(/\n\s*\n/);
+            state.chunks = rawSections.filter(s => s.trim().length > 0).map((sec, idx) => ({
+                id: `chunk-${idx + 1}`,
+                index: idx,
+                text: sec.trim(),
+                page: Math.floor(idx / 2) + 1,
+                charCount: sec.length,
+                isTable: sec.includes(':') || sec.includes('$')
+            }));
+
+            document.getElementById('stat-table-count').textContent = `1 Data Block`;
+            document.getElementById('stat-kvp-count').textContent = `${Object.keys(state.metadata).length || 6} Extracted KVPs`;
+
+            generateSimulatedVectors();
+            renderChunksUI();
+            renderMetadataTags();
+            renderVectorSpace();
+
+            if (triggerAnimation) {
+                highlightPipelineStep('step-chunk');
+            }
+        }
+
+        function updateChunkParams() {
+            state.params.chunkSize = parseInt(document.getElementById('param-chunk-size').value);
+            state.params.chunkOverlap = parseInt(document.getElementById('param-chunk-overlap').value);
+            document.getElementById('val-chunk-size').textContent = state.params.chunkSize;
+            document.getElementById('val-chunk-overlap').textContent = state.params.chunkOverlap;
+            processDocumentParsing();
+        }
+
+        function renderChunksUI() {
+            const container = document.getElementById('chunks-container');
+            document.getElementById('chunk-count-badge').textContent = `${state.chunks.length} Elements`;
+
+            if (state.chunks.length === 0) {
+                container.innerHTML = `<div class="col-span-2 text-center py-8 text-slate-600 text-xs italic">No document chunks generated.</div>`;
+                return;
+            }
+
+            container.innerHTML = state.chunks.map((chunk) => `
+                <div class="chunk-highlight border ${chunk.isTable ? 'border-amber-800/50 bg-amber-950/20' : 'border-slate-800 bg-slate-900/80'} p-3 rounded-lg space-y-2 text-xs">
+                    <div class="flex justify-between items-center font-mono text-[10px]">
+                        <span class="${chunk.isTable ? 'text-amber-400 font-semibold' : 'text-blue-400 font-medium'}">
+                            ${chunk.isTable ? '📊 Structured Block' : `Chunk #${chunk.index + 1}`} (Page ${chunk.page})
+                        </span>
+                        <span class="text-slate-500">${chunk.charCount} chars</span>
+                    </div>
+                    <pre class="text-slate-200 line-clamp-4 font-mono text-[11px] whitespace-pre-wrap leading-relaxed">${escapeHtml(chunk.text)}</pre>
+                </div>
+            `).join('');
+        }
+
+        function renderMetadataTags() {
+            const container = document.getElementById('metadata-tags-list');
+            if (Object.keys(state.metadata).length === 0) {
+                container.innerHTML = `<span class="text-slate-600">No metadata extracted</span>`;
+                return;
+            }
+
+            container.innerHTML = Object.entries(state.metadata).map(([k, v]) => `
+                <span class="bg-indigo-950/60 border border-indigo-800/40 text-indigo-300 text-[10px] px-2 py-0.5 rounded font-mono">
+                    <strong>${k}:</strong> ${v}
+                </span>
+            `).join('');
+        }
+
+        // Automated Application Rules Engine & Compliance Evaluator
+        function updateRuleParams() {
+            state.params.minIncome = parseInt(document.getElementById('param-income-req').value);
+            state.params.minCredit = parseInt(document.getElementById('param-credit-req').value);
+            document.getElementById('val-income-req').textContent = `$${state.params.minIncome.toLocaleString()}`;
+            document.getElementById('val-credit-req').textContent = state.params.minCredit;
+            runApplicationRulesEngine();
+        }
+
+        function runApplicationRulesEngine() {
+            highlightPipelineStep('step-rules');
+            const docRules = docPresets[state.currentDocKey]?.rules || { income: 100000, credit: 700, hasSignature: true, hasTaxId: true, anomalies: [] };
+
+            const chkSSN = document.getElementById('chk-ssn-valid').checked;
+            const chkSig = document.getElementById('chk-sig-valid').checked;
+            const chkFraud = document.getElementById('chk-fraud-audit').checked;
+
+            const incomePassed = docRules.income >= state.params.minIncome;
+            const creditPassed = docRules.credit >= state.params.minCredit;
+            const ssnPassed = !chkSSN || docRules.hasTaxId;
+            const sigPassed = !chkSig || docRules.hasSignature;
+
+            const allPassed = incomePassed && creditPassed && ssnPassed && sigPassed;
+
+            // Render Rules Matrix
+            const matrix = document.getElementById('rules-matrix');
+            matrix.innerHTML = `
+                <div class="flex justify-between items-center bg-slate-900 border border-slate-800 p-2.5 rounded-lg text-xs">
+                    <span class="text-slate-300 flex items-center gap-2">Income Validation Threshold ($${state.params.minIncome.toLocaleString()})</span>
+                    <span class="${incomePassed ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}">${incomePassed ? 'PASSED ($' + docRules.income.toLocaleString() + ')' : 'FAILED ($' + docRules.income.toLocaleString() + ')'}</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900 border border-slate-800 p-2.5 rounded-lg text-xs">
+                    <span class="text-slate-300 flex items-center gap-2">Credit Score Qualification (${state.params.minCredit})</span>
+                    <span class="${creditPassed ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}">${creditPassed ? 'PASSED (' + docRules.credit + ')' : 'FAILED (' + docRules.credit + ')'}</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900 border border-slate-800 p-2.5 rounded-lg text-xs">
+                    <span class="text-slate-300 flex items-center gap-2">Tax ID / SSN Format Check</span>
+                    <span class="${ssnPassed ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}">${ssnPassed ? 'VERIFIED' : 'MISSING / INVALID'}</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900 border border-slate-800 p-2.5 rounded-lg text-xs">
+                    <span class="text-slate-300 flex items-center gap-2">Applicant Signature Verification</span>
+                    <span class="${sigPassed ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}">${sigPassed ? 'VALID SIGNATURE' : 'NOT SIGNED'}</span>
+                </div>
+            `;
+
+            // Badge & Summary Routing
+            const badge = document.getElementById('decision-badge');
+            const summary = document.getElementById('decision-summary-text');
+            const warningBox = document.getElementById('anomaly-warning-box');
+
+            if (allPassed) {
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold font-mono bg-emerald-950 text-emerald-300 border border-emerald-800";
+                badge.textContent = "STATUS: AUTOMATED APPROVAL";
+                summary.innerHTML = `<span class="text-emerald-400 font-semibold">✅ RECOMMENDATION: AUTOMATED APPROVAL</span><br/>Application meets all policy requirements. Cleared for automated routing to fulfillment queue.`;
+                warningBox.classList.add('hidden');
+            } else {
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold font-mono bg-red-950 text-red-300 border border-red-800";
+                badge.textContent = "STATUS: MANUAL REVIEW / REJECT";
+                summary.innerHTML = `<span class="text-red-400 font-semibold">⚠️ RECOMMENDATION: ROUTE TO MANUAL UNDERWRITING</span><br/>Application failed one or more rule thresholds. Flagged for secondary human compliance audit.`;
+
+                if (chkFraud) {
+                    warningBox.classList.remove('hidden');
+                    document.getElementById('anomaly-details').textContent = "Flagged: Stated income or credit threshold does not meet minimum policy requirements.";
+                }
+            }
+        }
+
+        // Vector Space Projection
+        function generateSimulatedVectors() {
+            state.vectors = state.chunks.map((chunk) => {
+                let hash = 0;
+                for (let i = 0; i < chunk.text.length; i++) {
+                    hash = (hash << 5) - hash + chunk.text.charCodeAt(i);
+                    hash |= 0;
+                }
+                const x = Math.sin(hash) * 0.75;
+                const y = Math.cos(hash) * 0.75;
+
+                return {
+                    id: chunk.id,
+                    index: chunk.index,
+                    text: chunk.text,
+                    page: chunk.page,
+                    x: Math.max(-0.85, Math.min(0.85, x)),
+                    y: Math.max(-0.85, Math.min(0.85, y))
+                };
+            });
+            document.getElementById('stat-vector-count').textContent = state.vectors.length;
+        }
+
+        let canvas, ctx;
+        function initCanvas() {
+            canvas = document.getElementById('vector-canvas');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+            canvas.addEventListener('mousemove', handleCanvasHover);
+        }
+
+        function renderVectorSpace(queryPoint = null, matches = []) {
+            if (!canvas || !ctx) return;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const scale = Math.min(width, height) / 2.3;
+
+            ctx.clearRect(0, 0, width, height);
+
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY); ctx.lineTo(width, centerY);
+            ctx.moveTo(centerX, 0); ctx.lineTo(centerX, height);
+            ctx.stroke();
+
+            state.vectors.forEach((vec) => {
+                const px = centerX + vec.x * scale;
+                const py = centerY - vec.y * scale;
+
+                const isMatch = matches.some(m => m.id === vec.id);
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(px, py);
+                ctx.strokeStyle = isMatch ? 'rgba(59, 130, 246, 0.5)' : 'rgba(51, 65, 85, 0.2)';
+                ctx.lineWidth = isMatch ? 2 : 1;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(px, py, isMatch ? 8 : 5, 0, Math.PI * 2);
+                ctx.fillStyle = isMatch ? '#3b82f6' : '#a855f7';
+                ctx.fill();
+                ctx.strokeStyle = isMatch ? '#ffffff' : '#581c87';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.fillStyle = isMatch ? '#60a5fa' : '#94a3b8';
+                ctx.font = '10px Inter';
+                ctx.fillText(`C#${vec.index + 1}`, px + 8, py + 3);
+            });
+
+            if (queryPoint) {
+                const qx = centerX + queryPoint.x * scale;
+                const qy = centerY - queryPoint.y * scale;
+
+                ctx.beginPath();
+                ctx.arc(qx, qy, 9, 0, Math.PI * 2);
+                ctx.fillStyle = '#f59e0b';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        function handleCanvasHover(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const scale = Math.min(canvas.width, canvas.height) / 2.3;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            let found = null;
+            state.vectors.forEach(vec => {
+                const px = centerX + vec.x * scale;
+                const py = centerY - vec.y * scale;
+                if (Math.hypot(mouseX - px, mouseY - py) < 10) found = vec;
+            });
+
+            const tooltip = document.getElementById('vector-tooltip');
+            const card = document.getElementById('vector-detail-card');
+
+            if (found) {
+                tooltip.style.left = `${mouseX + 15}px`;
+                tooltip.style.top = `${mouseY + 15}px`;
+                tooltip.innerHTML = `<strong>Chunk #${found.index + 1} (Page ${found.page})</strong><br/>${escapeHtml(found.text.slice(0, 80))}...`;
+                tooltip.classList.remove('hidden');
+
+                card.classList.remove('hidden');
+                document.getElementById('vec-detail-id').textContent = `Chunk #${found.index + 1} (Page ${found.page})`;
+                document.getElementById('vec-detail-coords').textContent = `[x: ${found.x.toFixed(2)}, y: ${found.y.toFixed(2)}]`;
+                document.getElementById('vec-detail-text').textContent = found.text;
+            } else {
+                tooltip.classList.add('hidden');
+            }
+        }
+
+        // Automatic Structured Extraction
+        function executeAutoStructuredExtraction() {
+            highlightPipelineStep('step-prompt');
+            document.getElementById('response-spinner').classList.remove('hidden');
+
+            setTimeout(() => {
+                const jsonStr = JSON.stringify(state.extractedJson, null, 2);
+                
+                document.getElementById('rag-response-output').innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-xs font-semibold text-emerald-400 border-b border-slate-800 pb-2">
+                            <span>✅ Extracted Schema Output</span>
+                            <button onclick="copyExtractedJson()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded text-[10px]">Copy JSON</button>
+                        </div>
+                        <pre id="extracted-json-block" class="bg-black/50 p-3 rounded-lg text-emerald-300 font-mono text-[11px] overflow-x-auto max-h-60 whitespace-pre">${escapeHtml(jsonStr)}</pre>
+                    </div>
+                `;
+
+                renderGuardrailsAudit();
+                document.getElementById('response-spinner').classList.add('hidden');
+                highlightPipelineStep('step-llm');
+            }, 500);
+        }
+
+        function copyExtractedJson() {
+            const block = document.getElementById('extracted-json-block');
+            if (block) {
+                navigator.clipboard.writeText(block.textContent);
+                alert('Extracted JSON copied to clipboard!');
+            }
+        }
+
+        function executeRAGQuery() {
+            const query = document.getElementById('user-query').value.trim();
+            if (!query) {
+                alert('Please enter a user prompt or question.');
+                return;
+            }
+
+            highlightPipelineStep('step-retrieve');
+            document.getElementById('response-spinner').classList.remove('hidden');
+
+            setTimeout(() => {
+                let queryHash = 0;
+                for (let i = 0; i < query.length; i++) {
+                    queryHash = (queryHash << 5) - queryHash + query.charCodeAt(i);
+                    queryHash |= 0;
+                }
+                const queryVec = { x: Math.sin(queryHash) * 0.6, y: Math.cos(queryHash) * 0.6 };
+
+                const scored = state.vectors.map(vec => {
+                    const dot = (vec.x * queryVec.x) + (vec.y * queryVec.y);
+                    let denseSim = (dot / ((Math.hypot(vec.x, vec.y) || 1) * (Math.hypot(queryVec.x, queryVec.y) || 1)) + 1) / 2;
+
+                    const qWords = query.toLowerCase().split(/\s+/);
+                    let bm25Matches = 0;
+                    qWords.forEach(w => {
+                        if (w.length > 2 && vec.text.toLowerCase().includes(w)) bm25Matches++;
+                    });
+                    let bm25Score = bm25Matches / Math.max(1, qWords.length);
+
+                    let finalScore = (denseSim * 0.5) + (bm25Score * 0.5);
+
+                    return { ...vec, denseSim, bm25Score, score: finalScore };
+                });
+
+                scored.sort((a, b) => b.score - a.score);
+                const topMatches = scored.slice(0, 3);
+
+                renderVectorSpace(queryVec, topMatches);
+                renderRetrievedContext(topMatches);
+
+                let answer = `Based on extracted context from the ${state.docType} [Chunk #${topMatches[0].index + 1}]:\n\n`;
+                answer += `Regarding "${escapeHtml(query)}": ${topMatches[0].text}\n\n`;
+
+                document.getElementById('rag-response-output').innerHTML = answer;
+
+                const citationsList = document.getElementById('citations-list');
+                citationsList.innerHTML = topMatches.map(m => `
+                    <span class="bg-slate-900 border border-slate-700 text-slate-300 px-2 py-1 rounded text-[11px] font-mono">
+                        Page ${m.page} (Chunk #${m.index + 1}) - Score: ${(m.score * 100).toFixed(0)}%
+                    </span>
+                `).join('');
+                document.getElementById('citations-container').classList.remove('hidden');
+
+                const confBadge = document.getElementById('confidence-badge');
+                confBadge.classList.remove('hidden');
+                confBadge.className = "text-xs px-2.5 py-1 rounded-full border font-mono bg-emerald-950 text-emerald-400 border-emerald-800";
+                confBadge.textContent = `Confidence: ${(topMatches[0].score * 100).toFixed(0)}%`;
+
+                renderGuardrailsAudit();
+                document.getElementById('response-spinner').classList.add('hidden');
+                highlightPipelineStep('step-llm');
+            }, 600);
+        }
+
+        function renderRetrievedContext(matches) {
+            const container = document.getElementById('retrieved-chunks-list');
+            document.getElementById('retrieved-count-tag').textContent = `${matches.length} Matches`;
+
+            container.innerHTML = matches.map(m => `
+                <div class="bg-slate-900 border border-slate-800 p-2 rounded space-y-1">
+                    <div class="flex justify-between items-center text-[10px] font-mono">
+                        <span class="text-blue-400">Page ${m.page} (Chunk #${m.index + 1})</span>
+                        <span class="text-emerald-400">Score: ${(m.score * 100).toFixed(1)}%</span>
+                    </div>
+                    <p class="text-slate-300 text-[11px] font-mono line-clamp-2">${escapeHtml(m.text)}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderGuardrailsAudit() {
+            const wrapper = document.getElementById('wrapper-guardrails');
+            const list = document.getElementById('guardrails-list');
+            wrapper.classList.remove('hidden');
+
+            list.innerHTML = `
+                <div class="flex items-center gap-1.5 text-emerald-400"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Schema Strict Match</div>
+                <div class="flex items-center gap-1.5 text-emerald-400"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Null Field Check Clean</div>
+                <div class="flex items-center gap-1.5 text-emerald-400"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Policy Audit Score: 98%</div>
+                <div class="flex items-center gap-1.5 text-blue-400"><i data-lucide="info" class="w-3.5 h-3.5"></i> AES-256 Storage</div>
+            `;
+            lucide.createIcons();
+        }
+
+        // Framework Code Exporter
+        function setFramework(fw) {
+            state.selectedFramework = fw;
+            ['py', 'lc', 'li'].forEach(k => {
+                const btn = document.getElementById(`btn-framework-${k}`);
+                if (btn) {
+                    btn.className = (k === fw.slice(0, 2)) 
+                        ? "px-2.5 py-1 bg-blue-600 text-white rounded text-xs font-medium"
+                        : "px-2.5 py-1 text-slate-400 hover:text-white rounded text-xs font-medium";
+                }
+            });
+            updateCodeSnippet();
+        }
+
+        function updateCodeSnippet() {
+            const fw = state.selectedFramework;
+            let code = "";
+
+            if (fw === 'pydantic') {
+                code = `# Automated Application Processing Pipeline (Pydantic + Guidance)
+from pydantic import BaseModel, Field
+from typing import Optional, List
+
+class ApplicationData(BaseModel):
+    application_id: str
+    applicant_name: str
+    annual_income: float = Field(description="Gross annual income in USD")
+    credit_score: int = Field(ge=300, le=850)
+    signature_present: bool
+
+def process_application_policy(app: ApplicationData, min_income: float = ${state.params.minIncome}, min_credit: int = ${state.params.minCredit}):
+    if app.annual_income >= min_income and app.credit_score >= min_credit and app.signature_present:
+        return {"status": "APPROVED", "routing": "AUTOMATED_FULFILLMENT"}
+    return {"status": "MANUAL_REVIEW", "routing": "UNDERWRITER_QUEUE"}
+
+print("Pydantic Application Rules Pipeline Ready.")`;
+            } else if (fw === 'langchain') {
+                code = `# LangChain Document & Application Parser Engine
+from langchain_community.document_loaders import UnstructuredPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+loader = UnstructuredPDFLoader("application.pdf", strategy="hi_res")
+docs = loader.load()
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=${state.params.chunkSize}, chunk_overlap=${state.params.chunkOverlap})
+chunks = text_splitter.split_documents(docs)
+print(f"Split document into {len(chunks)} chunks.")`;
+            } else {
+                code = `# LlamaIndex Application RAG Engine
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+
+documents = SimpleDirectoryReader(input_files=["application.pdf"]).load_data()
+index = VectorStoreIndex.from_documents(documents)
+query_engine = index.as_query_engine()
+print("LlamaIndex Application Query Engine Online.")`;
+            }
+
+            document.getElementById('code-snippet-output').textContent = code;
+        }
+
+        function copyCodeSnippet() {
+            navigator.clipboard.writeText(document.getElementById('code-snippet-output').textContent);
+            alert('Python code snippet copied!');
+        }
+
+        function highlightPipelineStep(stepId) {
+            document.querySelectorAll('.pipeline-node').forEach(n => n.classList.remove('active'));
+            const target = document.getElementById(stepId);
+            if (target) target.classList.add('active');
+        }
+
+        function runAutoPipelineAnimation() {
+            const steps = ['step-doc', 'step-ocr', 'step-chunk', 'step-vdb', 'step-rules', 'step-retrieve', 'step-llm'];
+            let idx = 0;
+            const timer = setInterval(() => {
+                if (idx >= steps.length) {
+                    clearInterval(timer);
+                    return;
+                }
+                highlightPipelineStep(steps[idx]);
+                idx++;
+            }, 350);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

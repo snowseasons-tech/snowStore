@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnowSeasons Tech - Invoice & Biller</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            750: '#1e293b',
+                            850: '#0f172a',
+                            900: '#090d16',
+                        },
+                        cyan: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Printable Invoice Styles */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only-container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                background: white !important;
+                color: black !important;
+            }
+            .print-text-dark {
+                color: #0f172a !important;
+            }
+            .print-text-muted {
+                color: #475569 !important;
+            }
+            .print-border {
+                border-color: #cbd5e1 !important;
+            }
+            .print-bg-light {
+                background-color: #f8fafc !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-gradient-to-tr from-cyan-600 to-blue-600 rounded-xl shadow-lg shadow-cyan-500/20">
+                    <i data-lucide="receipt" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">SnowSeasons Tech</h1>
+                    <p class="text-xs text-slate-400">Invoice & Biller Pro</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button onclick="createNewInvoice()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-3 py-2 rounded-xl text-xs transition-all duration-200 border border-slate-700">
+                    <i data-lucide="file-plus" class="w-4 h-4 text-cyan-400"></i>
+                    <span>New Draft</span>
+                </button>
+                <button onclick="toggleHistoryModal()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-3 py-2 rounded-xl text-xs transition-all duration-200 border border-slate-700">
+                    <i data-lucide="history" class="w-4 h-4 text-cyan-400"></i>
+                    <span>Saved Invoices (<span id="savedCount">0</span>)</span>
+                </button>
+                <button onclick="window.print()" class="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-xs transition-all duration-200 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 active:scale-95">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Print / PDF</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- View Mode Switcher -->
+        <div class="no-print mb-6 flex justify-between items-center bg-slate-800/60 p-2 rounded-2xl border border-slate-700/60">
+            <div class="flex gap-2">
+                <button id="btnEditorTab" onclick="switchTab('editor')" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-500 text-slate-950 transition-all">
+                    <i data-lucide="edit-3" class="w-4 h-4"></i> Editor Mode
+                </button>
+                <button id="btnPreviewTab" onclick="switchTab('preview')" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-all">
+                    <i data-lucide="eye" class="w-4 h-4"></i> Live Print Preview
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="saveCurrentInvoice()" class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-xl text-xs font-medium transition-all">
+                    <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                    Save Draft
+                </button>
+            </div>
+        </div>
+
+        <!-- EDITOR VIEW MODE -->
+        <div id="editorView" class="no-print space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Left Section: Biller & Client Info -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Business Branding / Sender Info -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+                            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
+                                <i data-lucide="building-2" class="w-4 h-4 text-cyan-400"></i> Business / Sender Info
+                            </h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Company Name</label>
+                                <input type="text" id="companyName" value="SnowSeasons Tech Solutions" oninput="updateCalculations()" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Email / Phone</label>
+                                <input type="text" id="companyContact" value="support@snowseasonstech.store | +1 (800) 555-0199" oninput="updateCalculations()" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Address</label>
+                                <textarea id="companyAddress" rows="2" oninput="updateCalculations()" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">100 Alpine Way, Suite 400
+Denver, CO 80202</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Client Info -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+                            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
+                                <i data-lucide="user" class="w-4 h-4 text-cyan-400"></i> Bill To (Client Info)
+                            </h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Client Name / Company</label>
+                                <input type="text" id="clientName" value="Summit Ridge Lodge" oninput="updateCalculations()" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Client Email</label>
+                                <input type="email" id="clientEmail" value="billing@summitridge.com" oninput="updateCalculations()" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Client Address</label>
+                                <textarea id="clientAddress" rows="2" oninput="updateCalculations()" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">742 Evergreen Terrace
+Vail, CO 81657</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Meta Data Details -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+                            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
+                                <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> Invoice Meta Data
+                            </h3>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Invoice Number</label>
+                                <input type="text" id="invoiceNum" value="INV-2026-001" oninput="updateCalculations()" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Status</label>
+                                <select id="invoiceStatus" onchange="updateCalculations()" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">
+                                    <option value="UNPAID">UNPAID</option>
+                                    <option value="PAID">PAID</option>
+                                    <option value="DUE NOW">DUE NOW</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Invoice Date</label>
+                                <input type="date" id="invoiceDate" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Due Date</label>
+                                <input type="date" id="dueDate" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Section: Items & Financial Summary -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Invoice Items Table -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+                            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
+                                <i data-lucide="list-ordered" class="w-4 h-4 text-cyan-400"></i> Itemized Line Items
+                            </h3>
+                            <button onclick="addLineItem()" class="flex items-center gap-1.5 text-xs font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-3 py-1.5 rounded-xl hover:bg-cyan-500/20 transition-all">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Line Item
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="text-slate-400 uppercase border-b border-slate-700/60 text-[10px]">
+                                    <tr>
+                                        <th class="py-2 px-2">Description</th>
+                                        <th class="py-2 px-2 w-20 text-center">Qty</th>
+                                        <th class="py-2 px-2 w-28 text-right">Unit Price ($)</th>
+                                        <th class="py-2 px-2 w-28 text-right">Total ($)</th>
+                                        <th class="py-2 px-2 w-10 text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lineItemsContainer" class="divide-y divide-slate-700/40">
+                                    <!-- Dynamic Rows Generated via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tax, Discount, Shipping & Totals Calculator -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 space-y-4">
+                        <h3 class="font-bold text-sm text-slate-100 border-b border-slate-700/60 pb-3 flex items-center gap-2">
+                            <i data-lucide="calculator" class="w-4 h-4 text-cyan-400"></i> Financial Calculation & Adjustments
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-slate-700/60 pb-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Tax Rate (%)</label>
+                                <input type="number" step="0.1" min="0" id="taxRate" value="8.5" oninput="updateCalculations()" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Discount Rate (%)</label>
+                                <input type="number" step="0.5" min="0" max="100" id="discountRate" value="5.0" oninput="updateCalculations()" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Flat Shipping ($)</label>
+                                <input type="number" step="1" min="0" id="shippingCost" value="25.00" oninput="updateCalculations()" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Live Summary Box -->
+                        <div class="space-y-2 pt-2 max-w-xs ml-auto text-xs">
+                            <div class="flex justify-between text-slate-400">
+                                <span>Subtotal:</span>
+                                <span font-mono id="calcSubtotal" class="font-medium text-slate-200">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-400">
+                                <span>Discount:</span>
+                                <span font-mono id="calcDiscount" class="font-medium text-emerald-400">-$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-400">
+                                <span>Tax:</span>
+                                <span font-mono id="calcTax" class="font-medium text-slate-200">+$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-400">
+                                <span>Shipping:</span>
+                                <span font-mono id="calcShipping" class="font-medium text-slate-200">+$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm font-bold border-t border-slate-700 pt-2 text-white">
+                                <span>Grand Total:</span>
+                                <span font-mono id="calcTotal" class="text-cyan-400">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes & Payment Terms -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 space-y-3">
+                        <label class="block text-xs font-medium text-slate-300">Notes / Payment Terms</label>
+                        <textarea id="invoiceNotes" rows="2" oninput="updateCalculations()" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">Thank you for choosing SnowSeasons Tech! Please send payment via Wire or ACH within 14 days of invoice issuance.</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRINT PREVIEW & EXPORT VIEW (Responsive A4 Printable Page) -->
+        <div id="previewView" class="hidden max-w-3xl mx-auto">
+            <div id="printSheet" class="print-only-container bg-white text-slate-900 rounded-2xl p-8 sm:p-12 shadow-2xl border border-slate-200 text-sm space-y-8">
+                
+                <!-- Invoice Printable Header -->
+                <div class="flex justify-between items-start border-b pb-6 print-border">
+                    <div>
+                        <h2 id="prevCompName" class="text-2xl font-black text-slate-900 tracking-tight print-text-dark">SnowSeasons Tech Solutions</h2>
+                        <p id="prevCompContact" class="text-xs text-slate-500 mt-1 print-text-muted">support@snowseasonstech.store | +1 (800) 555-0199</p>
+                        <p id="prevCompAddress" class="text-xs text-slate-500 whitespace-pre-line mt-1 print-text-muted">100 Alpine Way, Suite 400&#10;Denver, CO 80202</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-800 uppercase tracking-widest border border-slate-300 mb-2" id="prevStatus">UNPAID</span>
+                        <h3 class="text-xl font-bold text-slate-800 font-mono" id="prevInvNum">INV-2026-001</h3>
+                        <p class="text-xs text-slate-500 mt-1">Date: <span id="prevInvDate">--</span></p>
+                        <p class="text-xs text-slate-500">Due Date: <span id="prevDueDate">--</span></p>
+                    </div>
+                </div>
+
+                <!-- Client Billing Address -->
+                <div class="grid grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-200 print-bg-light print-border">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Billed To:</span>
+                        <h4 id="prevClientName" class="font-bold text-slate-900 text-base mt-0.5">Summit Ridge Lodge</h4>
+                        <p id="prevClientEmail" class="text-xs text-slate-600">billing@summitridge.com</p>
+                        <p id="prevClientAddress" class="text-xs text-slate-600 whitespace-pre-line mt-1">742 Evergreen Terrace&#10;Vail, CO 81657</p>
+                    </div>
+                </div>
+
+                <!-- Itemized Print Table -->
+                <div>
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b-2 border-slate-200 text-slate-500 uppercase text-[10px]">
+                                <th class="py-3 px-2">Description</th>
+                                <th class="py-3 px-2 text-center w-16">Qty</th>
+                                <th class="py-3 px-2 text-right w-28">Price</th>
+                                <th class="py-3 px-2 text-right w-28">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prevTableBody" class="divide-y divide-slate-200">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Printable Summary Totals -->
+                <div class="flex justify-between items-end border-t pt-6 print-border">
+                    <div class="max-w-xs text-xs text-slate-500 space-y-1">
+                        <span class="font-bold uppercase text-[10px] text-slate-400">Notes / Terms:</span>
+                        <p id="prevNotes" class="italic whitespace-pre-line">Thank you for choosing SnowSeasons Tech!</p>
+                    </div>
+
+                    <div class="w-64 space-y-1.5 text-xs text-right">
+                        <div class="flex justify-between text-slate-600">
+                            <span>Subtotal:</span>
+                            <span id="prevSubtotal" class="font-mono">$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>Discount:</span>
+                            <span id="prevDiscount" class="font-mono">-$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>Tax:</span>
+                            <span id="prevTax" class="font-mono">+$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>Shipping:</span>
+                            <span id="prevShipping" class="font-mono">+$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm font-bold text-slate-900 border-t border-slate-200 pt-2 print-border">
+                            <span>Total Due:</span>
+                            <span id="prevTotal" class="font-mono text-cyan-600">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for Invoice History / Saved Drafts -->
+    <div id="historyModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm hidden no-print">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-850">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="history" class="w-5 h-5 text-cyan-400"></i>
+                    <h3 class="text-base font-semibold text-white">Saved Invoice History</h3>
+                </div>
+                <button onclick="toggleHistoryModal()" class="text-slate-400 hover:text-white p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="historyList" class="p-6 max-h-96 overflow-y-auto space-y-3">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none no-print"></div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Default Mock Line Items
+        let lineItems = [
+            { id: 1, description: "Smart Bluetooth Heated Gloves (Bulk order)", qty: 10, price: 79.99 },
+            { id: 2, name: "Portable Boot Dryer & Sanitizer", qty: 5, price: 45.00 },
+            { id: 3, description: "Software License: Inventory Tracker Standard", qty: 1, price: 149.00 }
+        ];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Set default dates
+            const today = new Date();
+            const in14Days = new Date(today);
+            in14Days.setDate(today.getDate() + 14);
+
+            document.getElementById('invoiceDate').value = today.toISOString().split('T')[0];
+            document.getElementById('dueDate').value = in14Days.toISOString().split('T')[0];
+
+            renderLineItems();
+            updateCalculations();
+            updateHistoryCount();
+            lucide.createIcons();
+        });
+
+        // Switch View Modes
+        function switchTab(mode) {
+            const editorView = document.getElementById('editorView');
+            const previewView = document.getElementById('previewView');
+            const btnEditor = document.getElementById('btnEditorTab');
+            const btnPreview = document.getElementById('btnPreviewTab');
+
+            if (mode === 'editor') {
+                editorView.classList.remove('hidden');
+                previewView.classList.add('hidden');
+
+                btnEditor.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-500 text-slate-950 transition-all";
+                btnPreview.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-all";
+            } else {
+                updateCalculations();
+                editorView.classList.add('hidden');
+                previewView.classList.remove('hidden');
+
+                btnPreview.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-500 text-slate-950 transition-all";
+                btnEditor.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-all";
+            }
+        }
+
+        // Render Item Inputs in Editor Mode
+        function renderLineItems() {
+            const container = document.getElementById('lineItemsContainer');
+            container.innerHTML = '';
+
+            lineItems.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40";
+                tr.innerHTML = `
+                    <td class="py-2 px-2">
+                        <input type="text" value="${escapeHtml(item.description || item.name || '')}" oninput="updateItem(${item.id}, 'description', this.value)" placeholder="Item description or service..." class="w-full px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-xs focus:border-cyan-500 focus:outline-none">
+                    </td>
+                    <td class="py-2 px-2">
+                        <input type="number" min="1" value="${item.qty}" oninput="updateItem(${item.id}, 'qty', this.value)" class="w-full text-center px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-xs focus:border-cyan-500 focus:outline-none">
+                    </td>
+                    <td class="py-2 px-2">
+                        <input type="number" step="0.01" min="0" value="${item.price}" oninput="updateItem(${item.id}, 'price', this.value)" class="w-full text-right px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-xs focus:border-cyan-500 focus:outline-none">
+                    </td>
+                    <td class="py-2 px-2 text-right font-mono font-medium text-slate-200">
+                        $${(item.qty * item.price).toFixed(2)}
+                    </td>
+                    <td class="py-2 px-2 text-center">
+                        <button onclick="removeLineItem(${item.id})" class="text-slate-500 hover:text-rose-400 p-1 transition-colors" title="Remove">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </td>
+                `;
+                container.appendChild(tr);
+            });
+
+            lucide.createIcons();
+        }
+
+        // Add New Line Item
+        function addLineItem() {
+            lineItems.push({
+                id: Date.now(),
+                description: "New Service / Gear",
+                qty: 1,
+                price: 0.00
+            });
+            renderLineItems();
+            updateCalculations();
+        }
+
+        // Remove Item
+        function removeLineItem(id) {
+            if (lineItems.length <= 1) {
+                showToast("Invoice must contain at least one line item.", "error");
+                return;
+            }
+            lineItems = lineItems.filter(item => item.id !== id);
+            renderLineItems();
+            updateCalculations();
+        }
+
+        // Update Item Value
+        function updateItem(id, field, value) {
+            const item = lineItems.find(i => i.id === id);
+            if (!item) return;
+
+            if (field === 'qty') item.qty = parseInt(value, 10) || 0;
+            else if (field === 'price') item.price = parseFloat(value) || 0;
+            else if (field === 'description') item.description = value;
+
+            updateCalculations();
+            
+            // Re-render only amount column directly for performance
+            renderLineItems();
+        }
+
+        // Recalculate Totals & Update Preview DOM
+        function updateCalculations() {
+            // Calculate financial variables
+            const subtotal = lineItems.reduce((sum, item) => sum + (item.qty * item.price), 0);
+            const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            const discountRate = parseFloat(document.getElementById('discountRate').value) || 0;
+            const shippingCost = parseFloat(document.getElementById('shippingCost').value) || 0;
+
+            const discountAmount = subtotal * (discountRate / 100);
+            const taxableAmount = subtotal - discountAmount;
+            const taxAmount = taxableAmount * (taxRate / 100);
+            const grandTotal = taxableAmount + taxAmount + shippingCost;
+
+            // Update Summary Cards (Editor View)
+            document.getElementById('calcSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('calcDiscount').textContent = `-$${discountAmount.toFixed(2)}`;
+            document.getElementById('calcTax').textContent = `+$${taxAmount.toFixed(2)}`;
+            document.getElementById('calcShipping').textContent = `+$${shippingCost.toFixed(2)}`;
+            document.getElementById('calcTotal').textContent = `$${grandTotal.toFixed(2)}`;
+
+            // Sync Preview Mode Elements
+            document.getElementById('prevCompName').textContent = document.getElementById('companyName').value || 'Business Name';
+            document.getElementById('prevCompContact').textContent = document.getElementById('companyContact').value || '';
+            document.getElementById('prevCompAddress').textContent = document.getElementById('companyAddress').value || '';
+
+            document.getElementById('prevClientName').textContent = document.getElementById('clientName').value || 'Client Name';
+            document.getElementById('prevClientEmail').textContent = document.getElementById('clientEmail').value || '';
+            document.getElementById('prevClientAddress').textContent = document.getElementById('clientAddress').value || '';
+
+            document.getElementById('prevInvNum').textContent = document.getElementById('invoiceNum').value || 'INV-001';
+            document.getElementById('prevInvDate').textContent = document.getElementById('invoiceDate').value || '';
+            document.getElementById('prevDueDate').textContent = document.getElementById('dueDate').value || '';
+            document.getElementById('prevStatus').textContent = document.getElementById('invoiceStatus').value;
+
+            document.getElementById('prevNotes').textContent = document.getElementById('invoiceNotes').value || '';
+
+            document.getElementById('prevSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('prevDiscount').textContent = `-$${discountAmount.toFixed(2)}`;
+            document.getElementById('prevTax').textContent = `+$${taxAmount.toFixed(2)}`;
+            document.getElementById('prevShipping').textContent = `+$${shippingCost.toFixed(2)}`;
+            document.getElementById('prevTotal').textContent = `$${grandTotal.toFixed(2)}`;
+
+            // Sync Printable Table Body
+            const prevTbody = document.getElementById('prevTableBody');
+            prevTbody.innerHTML = '';
+            lineItems.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="py-2.5 px-2 font-medium text-slate-800">${escapeHtml(item.description || item.name || '')}</td>
+                    <td class="py-2.5 px-2 text-center text-slate-600">${item.qty}</td>
+                    <td class="py-2.5 px-2 text-right text-slate-600 font-mono">$${item.price.toFixed(2)}</td>
+                    <td class="py-2.5 px-2 text-right font-mono font-semibold text-slate-900">$${(item.qty * item.price).toFixed(2)}</td>
+                `;
+                prevTbody.appendChild(tr);
+            });
+        }
+
+        // LocalStorage - Save Current Invoice
+        function saveCurrentInvoice() {
+            const invoiceData = {
+                id: Date.now(),
+                invoiceNum: document.getElementById('invoiceNum').value,
+                companyName: document.getElementById('companyName').value,
+                companyContact: document.getElementById('companyContact').value,
+                companyAddress: document.getElementById('companyAddress').value,
+                clientName: document.getElementById('clientName').value,
+                clientEmail: document.getElementById('clientEmail').value,
+                clientAddress: document.getElementById('clientAddress').value,
+                status: document.getElementById('invoiceStatus').value,
+                invoiceDate: document.getElementById('invoiceDate').value,
+                dueDate: document.getElementById('dueDate').value,
+                taxRate: document.getElementById('taxRate').value,
+                discountRate: document.getElementById('discountRate').value,
+                shippingCost: document.getElementById('shippingCost').value,
+                notes: document.getElementById('invoiceNotes').value,
+                items: lineItems
+            };
+
+            let saved = JSON.parse(localStorage.getItem('snt_invoices') || '[]');
+            // Replace if invoiceNum exists, else unshift
+            const existingIdx = saved.findIndex(inv => inv.invoiceNum === invoiceData.invoiceNum);
+            if (existingIdx >= 0) {
+                saved[existingIdx] = invoiceData;
+            } else {
+                saved.unshift(invoiceData);
+            }
+
+            localStorage.setItem('snt_invoices', JSON.stringify(saved));
+            updateHistoryCount();
+            showToast(`Invoice "${invoiceData.invoiceNum}" saved successfully!`, 'success');
+        }
+
+        // Update count tag
+        function updateHistoryCount() {
+            const saved = JSON.parse(localStorage.getItem('snt_invoices') || '[]');
+            document.getElementById('savedCount').textContent = saved.length;
+        }
+
+        // Modal History Toggle & Render
+        function toggleHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            if (modal.classList.contains('hidden')) {
+                renderHistoryList();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function renderHistoryList() {
+            const container = document.getElementById('historyList');
+            const saved = JSON.parse(localStorage.getItem('snt_invoices') || '[]');
+
+            container.innerHTML = '';
+            if (saved.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No saved invoices found in LocalStorage.</p>`;
+                return;
+            }
+
+            saved.forEach(inv => {
+                const subtotal = inv.items.reduce((sum, item) => sum + (item.qty * item.price), 0);
+
+                const div = document.createElement('div');
+                div.className = "bg-slate-900 border border-slate-700/80 p-3.5 rounded-xl flex items-center justify-between hover:border-cyan-500/50 transition-all";
+                div.innerHTML = `
+                    <div>
+                        <span class="text-xs font-mono font-bold text-cyan-400">${escapeHtml(inv.invoiceNum)}</span>
+                        <h4 class="text-xs font-semibold text-white mt-0.5">${escapeHtml(inv.clientName)}</h4>
+                        <p class="text-[10px] text-slate-400">Date: ${inv.invoiceDate} | Items: ${inv.items.length}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-mono font-bold text-slate-200">$${subtotal.toFixed(2)}</span>
+                        <button onclick="loadInvoice(${inv.id})" class="px-2.5 py-1 text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg hover:bg-cyan-500/20">Load</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Load Draft
+        function loadInvoice(id) {
+            const saved = JSON.parse(localStorage.getItem('snt_invoices') || '[]');
+            const inv = saved.find(i => i.id === id);
+            if (!inv) return;
+
+            document.getElementById('invoiceNum').value = inv.invoiceNum || '';
+            document.getElementById('companyName').value = inv.companyName || '';
+            document.getElementById('companyContact').value = inv.companyContact || '';
+            document.getElementById('companyAddress').value = inv.companyAddress || '';
+            document.getElementById('clientName').value = inv.clientName || '';
+            document.getElementById('clientEmail').value = inv.clientEmail || '';
+            document.getElementById('clientAddress').value = inv.clientAddress || '';
+            document.getElementById('invoiceStatus').value = inv.status || 'UNPAID';
+            document.getElementById('invoiceDate').value = inv.invoiceDate || '';
+            document.getElementById('dueDate').value = inv.dueDate || '';
+            document.getElementById('taxRate').value = inv.taxRate || 0;
+            document.getElementById('discountRate').value = inv.discountRate || 0;
+            document.getElementById('shippingCost').value = inv.shippingCost || 0;
+            document.getElementById('invoiceNotes').value = inv.notes || '';
+
+            lineItems = inv.items || [];
+            renderLineItems();
+            updateCalculations();
+            toggleHistoryModal();
+            showToast(`Loaded invoice "${inv.invoiceNum}"`, 'info');
+        }
+
+        // Reset & Create New Draft
+        function createNewInvoice() {
+            const randomNum = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('invoiceNum').value = `INV-2026-${randomNum}`;
+            document.getElementById('clientName').value = '';
+            document.getElementById('clientEmail').value = '';
+            document.getElementById('clientAddress').value = '';
+            
+            lineItems = [{ id: Date.now(), description: 'New Product / Service', qty: 1, price: 50.00 }];
+            renderLineItems();
+            updateCalculations();
+            showToast('Created new invoice draft.', 'info');
+        }
+
+        // Toast Messages
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+
+            let icon = 'info';
+            let colorClass = 'bg-slate-800 border-slate-700 text-slate-200';
+
+            if (type === 'success') {
+                icon = 'check-circle';
+                colorClass = 'bg-slate-800 border-emerald-500/40 text-emerald-400';
+            } else if (type === 'error') {
+                icon = 'alert-triangle';
+                colorClass = 'bg-slate-800 border-rose-500/40 text-rose-400';
+            }
+
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl text-xs font-medium pointer-events-auto transform translate-y-2 opacity-0 transition-all duration-300 ${colorClass}`;
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-4 h-4 shrink-0"></i>
+                <span>${escapeHtml(message)}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+    </script>
+</body>
+</html>
