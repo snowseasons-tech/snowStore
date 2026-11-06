@@ -1,6 +1,9 @@
 import hashlib
 from datetime import timedelta
 from fastapi import HTTPException
+from sqlalchemy import case
+from sqlalchemy.dialects.mysql import insert as mysql_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session as DBSession
 from .db import LoginThrottle, now
 
@@ -43,18 +46,27 @@ def check_allowed(db: DBSession, keys_and_limits):
 
 
 def record_failure(db: DBSession, keys):
+    # Increment in the database: loading a count into Python loses failures when
+    # multiple web workers write at once. Upsert also handles simultaneous first attempts.
+    timestamp = now()
     for key in keys:
-        row = _live(db, key)
-        if row is None:
-            row = db.get(LoginThrottle, key)
-            if row is None:
-                row = LoginThrottle(key=key)
-                db.add(row)
-            row.failures = 1
-            row.window_start = now()
+        expired = LoginThrottle.window_start <= timestamp - WINDOW
+        values = {
+            'failures': case((expired, 1), else_=LoginThrottle.failures + 1),
+            'window_start': case((expired, timestamp), else_=LoginThrottle.window_start),
+        }
+        if db.get_bind().dialect.name == 'mysql':
+            statement = mysql_insert(LoginThrottle).values(
+                key=key, failures=1, window_start=timestamp,
+            ).on_duplicate_key_update(**values)
         else:
-            row.failures += 1
+            statement = sqlite_insert(LoginThrottle).values(
+                key=key, failures=1, window_start=timestamp,
+            ).on_conflict_do_update(index_elements=['key'], set_=values)
+        db.execute(statement)
     db.commit()
+    # check_allowed may already have loaded these rows in this session.
+    db.expire_all()
 
 
 def clear_account(db: DBSession, email):

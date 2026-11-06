@@ -134,6 +134,12 @@ python3 -m venv .venv
 .venv/bin/python -m pytest
 ```
 
+With Node.js installed, run the browser-code regression tests too:
+
+```bash
+node --test tests/frontend.test.cjs
+```
+
 The tests use a temporary SQLite database and simulated Meta, Google and AI responses, so they need no accounts, Docker or internet access. They cover sign-up and invites, password resets (including a real SMTP delivery to a local test server), workspace isolation, roles, the approval and scheduling rules, the OAuth flow, the worker, and the provider calls.
 
 ## Known limitations
