@@ -8,6 +8,8 @@ module.exports = function fakeUpstash(other) {
     let result = null;
     if (op === 'GET') result = data.has(a[0]) ? data.get(a[0]) : null;
     else if (op === 'DEL') { data.delete(a[0]); result = 1; }
+    else if (op === 'SMEMBERS') result = JSON.parse(data.get(a[0]) || '[]');
+    else if (op === 'SADD') { const values = new Set(JSON.parse(data.get(a[0]) || '[]')); const before = values.size; values.add(a[1]); data.set(a[0], JSON.stringify([...values])); result = values.size - before; }
     else if (op === 'SET') {
       if (a.includes('NX') && data.has(a[0])) result = null;
       else { data.set(a[0], a[1]); result = 'OK'; }

@@ -84,3 +84,25 @@ Writes require a matching workspace revision and an atomic Redis compare-and-set
 The editor clears loaded data on navigation and session expiry, and revalidates when returning to a tab. Requests with missing sessions, uninvited accounts, cross-origin writes, malformed fields, stale revisions or oversized imports are rejected. No hosted deletion or automatic local SQLite migration is included; use reviewed CSV import to move sample records into a pilot.
 
 Verification: `npm run test:lead-workspace` covers local storage/CLI/HTTP tests plus hosted authentication, two-account isolation, CAS conflicts, import atomicity, request bounds and CSV exchange. Additional browser/API checks ran in Cloudflare's local runtime against a disposable real Redis 7 instance: simultaneous saves produced one HTTP 200 and one HTTP 409, foreign-record updates returned 404, and separate customer imports and exports remained isolated. Desktop/mobile layouts and stale-edit recovery were also checked. Production storage and authenticated pilot journeys still require validation with explicitly invited accounts before customer rollout.
+
+## Subscription lifecycle (phase 4)
+
+Billing enforcement is opt-in with `LEAD_WORKSPACE_BILLING_ENABLED=1`. Leave it unset or `0` for the existing explicitly invited free pilot. Other values fail closed on workspace access. No production billing or pilot setting was enabled during development. While the catalog entry remains a draft, even a valid subscription also requires the pilot allowlist; release review must happen before enabling general access.
+
+In billing mode, every hosted read/write and session availability check retrieves current subscription state from Stripe. A verified successful Checkout webhook links the normalized checkout email to its subscription/customer using an atomic Redis set. The portal account must use that email. Requests cannot select a different owner or substitute their own Stripe customer. Existing subscriptions without a received successful checkout event need verified linking before they can access this workspace; merely assigning a product to a portal account does not grant subscription access.
+
+Access policy:
+
+- Active subscriptions require the matching Lead Generation Pro Stripe product, customer, unexpired billing period and a paid or zero-amount latest invoice. Trials require an unexpired trial.
+- Past-due subscriptions receive the user-approved seven-day grace period. It starts at the invoice due date, or invoice finalization time for automatic collection. Payment retries do not extend it. Missing timing evidence denies grace rather than guessing.
+- Cancel-at-period-end access lasts until the scheduled end; immediate cancellation, unpaid, paused, incomplete and expired states deny access. Paused payment collection also denies access.
+- Denial leaves all lead records intact. Payment recovery or a newly completed subscription checkout can restore access to the same account workspace. No automatic deletion or retention deadline is introduced.
+- Stripe/store errors return an unavailable response and never bypass billing checks. Lookup timeout is five seconds per subscription; no automatic Stripe retry occurs in a workspace request. Accounts with more than 20 linked subscriptions require operator review.
+
+The account page shows current availability, grace timing and **Manage billing**, which opens Stripe's configured customer portal using only trusted checkout-linked customer IDs. The signed-in customer portal also links to the lead workspace. Stripe customer portal settings must be configured in the test/live account before using this action; development did not change those settings.
+
+Webhook delivery must include `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid` and `invoice.payment_failed`. Raw-body signature verification remains required. Invoice events are recorded idempotently for diagnostics; their snapshots never grant access. Subscription event snapshots remain available to existing download flows, while hosted lead access checks current Stripe state so delayed or same-second events cannot resurrect canceled access.
+
+Verification includes signed/unsigned webhook fixtures, duplicate/reordered events, trials, seven-day boundaries, cross-account/product mismatches, cancellation, recovery with preserved records, billing portal ownership, and provider failure. Browser tests use real application handlers with mocked Stripe responses for active → grace → expired → recovered → canceled transitions. No real charges, real subscriptions or Stripe account settings were changed. A full isolated Stripe sandbox checkout/portal lifecycle is still required during the end-to-end pilot before customer rollout. Tax configuration remains unchanged and belongs to release review.
+
+Reference: [Stripe subscription webhooks](https://docs.stripe.com/billing/subscriptions/webhooks).

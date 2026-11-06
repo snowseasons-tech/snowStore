@@ -66,3 +66,14 @@ async function count(key) {
   return Number((hasRemote() ? await cmd(['GET', key]) : memGet(key)) || 0);
 }
 module.exports = { claim, release, setJSON, getJSON, incr, count };
+
+// Atomic membership index for trusted checkout-to-account subscription links.
+async function addMember(key, member) {
+  requireStore();
+  if (hasRemote()) return cmd(['SADD', key, member]);
+  const values = new Set(JSON.parse(memGet(key) || '[]'));
+  const before = values.size; values.add(member);
+  mem.set(key, JSON.stringify([...values]));
+  return values.size - before;
+}
+module.exports.addMember = addMember;

@@ -1,19 +1,21 @@
+import { leadAccess } from '../../_lib/lead-access.js';
 import { leadSession } from '../../_lib/lead-session.js';
-import { pilotEnabled, readWorkspace, mutateWorkspace, score, workspaceKey, LeadError } from '../../_lib/lead-data.js';
+import { readWorkspace, mutateWorkspace, score, workspaceKey, LeadError } from '../../_lib/lead-data.js';
 import { send, methodNotAllowed } from '../../_lib/http.js';
 
 export const onRequest = methodNotAllowed('GET, POST');
 async function userFor(request, env) {
   const session = await leadSession(request, env);
   if (!session) throw new LeadError(401, 'Please sign in again.');
-  if (!pilotEnabled(session.email, env)) throw new LeadError(403, 'Hosted lead access is limited to invited pilot accounts.');
-  return session;
+  const access = await leadAccess(session, env);
+  if (!access.allowed) throw new LeadError(403, access.reason);
+  return { ...session, access };
 }
 export async function onRequestGet({ request, env }) {
   try {
     const user = await userFor(request, env);
     const { data } = await readWorkspace(user.email, env);
-    return send(200, { workspaceId: workspaceKey(user.email), expiresAt: user.expiresAt, revision: data.revision, leads: data.leads.map(lead => ({ ...lead, score: score(lead) })).sort((a, b) => b.score - a.score) });
+    return send(200, { workspaceId: workspaceKey(user.email), expiresAt: Math.min(user.expiresAt, user.access.validUntil || Infinity), access: user.access, revision: data.revision, leads: data.leads.map(lead => ({ ...lead, score: score(lead) })).sort((a, b) => b.score - a.score) });
   } catch (error) { return send(error.status || 503, { error: error.status ? error.message : 'Workspace unavailable. Please retry.' }); }
 }
 export async function onRequestPost({ request, env }) {

@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Lead workspace · Pilot</title><link rel="stylesheet" href="/storefront/lead-workspace-app.css"><script src="/storefront/lead-csv.js" defer></script><script src="/storefront/lead-workspace-app.js" defer></script></head>
 <body><main><header><p class="eyebrow">HOSTED LEAD WORKSPACE · PILOT</p><h1>A clearer next conversation.</h1><p>Import prospects, review their signals, and keep your follow-ups in one place.</p></header>
+<p id="billing-note" role="status"></p>
 <p id="message" role="status" aria-live="polite">Connecting to your workspace…</p>
 <div class="row"><button type="button" id="new-lead">Add lead</button> <button type="button" id="reload-queue" class="secondary">Reload queue</button> <a href="/storefront/lead-workspace">Account and sign out</a></div>
 <section aria-labelledby="import-title"><h2 id="import-title">Bring in your leads</h2><form id="import-form"><label>CSV file<input type="file" id="csv" accept=".csv,text/csv" required></label><label>Column mapping (optional JSON)<textarea id="mapping" rows="2" placeholder='{"name":"company_name","email":"contact_email"}'></textarea></label><p class="hint">Name is required. Standard columns: name, email, website, phone, stage, fit, intent, budget, notes. Exact name and email duplicates are skipped, ignoring case.</p><button>Import CSV</button></form></section>

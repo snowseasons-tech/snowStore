@@ -2,9 +2,11 @@ const defaultCatalog = require('./catalog');
 const { downloadsFor } = require('./entitlements');
 const store = require('./store');
 const mail = require('./mail');
+const { linkCheckout } = require('./lead-billing');
 
 const CHECKOUT_EVENTS = new Set(['checkout.session.completed', 'checkout.session.async_payment_succeeded']);
-const SUB_EVENTS = new Set(['customer.subscription.updated', 'customer.subscription.deleted']);
+const SUB_EVENTS = new Set(['customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted']);
+const INVOICE_EVENTS = new Set(['invoice.paid', 'invoice.payment_failed']);
 const DAY = 60 * 60 * 24;
 // A claim starts as a short lease and becomes a 90-day "done" marker only after the work succeeds. If the
 // function is killed or the release fails, the lease simply expires and a later Stripe retry does the work.
@@ -25,7 +27,7 @@ async function handleEvent(event, deps = {}) {
   const s = deps.store || store;
   const catalog = deps.catalog || defaultCatalog;
   const mailer = deps.mail || mail;
-  if (!CHECKOUT_EVENTS.has(event.type) && !SUB_EVENTS.has(event.type)) return 'ignored';
+  if (!CHECKOUT_EVENTS.has(event.type) && !SUB_EVENTS.has(event.type) && !INVOICE_EVENTS.has(event.type)) return 'ignored';
 
   const claimKey = `evt:${event.id}`;
   if ((await claimOnce(s, claimKey)) === DONE) return 'duplicate';
@@ -41,6 +43,11 @@ async function handleEvent(event, deps = {}) {
 
 async function processEvent(event, s, catalog, mailer) {
   if (SUB_EVENTS.has(event.type)) return applySubscription(event, s);
+  if (INVOICE_EVENTS.has(event.type)) {
+    const invoice = event.data.object;
+    await s.setJSON(`billing-notice:${event.id}`, { invoice: invoice.id, type: event.type, created: event.created }, 90 * DAY);
+    return 'invoice-recorded'; // Access is checked against current Stripe state, never this event snapshot.
+  }
 
   const session = event.data.object;
   // 'no_payment_required' covers free trials on subscriptions; async methods wait for async_payment_succeeded.
@@ -59,6 +66,8 @@ async function processEvent(event, s, catalog, mailer) {
     const existing = await s.getJSON(`sub:${session.subscription}`);
     await s.setJSON(`sub:${session.subscription}`, { status: 'active', productId, email, customer: session.customer || null, ...(existing || {}) });
   }
+
+  await linkCheckout(session, productId, s);
 
   // Email the order page link (it mints a fresh 5-minute download URL each visit). Sent once per order.
   let mailed = 'no-email';

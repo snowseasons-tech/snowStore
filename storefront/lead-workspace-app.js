@@ -9,6 +9,7 @@ const message = text => { $('message').textContent = text; };
 function clearWorkspace() {
   clearTimeout(expiryTimer); workspaceId = null;
   ++generation; records = []; loaded = false; selected = null; dirty = false; editRevision = revision;
+  $('billing-note').textContent = '';
   $('editor').reset(); $('editor').hidden = true;
   $('import-form').reset(); $('search').value = ''; $('due-by').value = ''; $('filter').value = ''; $('minimum').value = 0;
   render();
@@ -54,6 +55,7 @@ async function reload() {
   if (workspaceId && workspaceId !== result.workspaceId) clearWorkspace();
   workspaceId = result.workspaceId; records = result.leads; revision = result.revision; loaded = true;
   clearTimeout(expiryTimer); expiryTimer = setTimeout(() => { clearWorkspace(); location.replace('/storefront/lead-workspace'); }, Math.max(0, result.expiresAt - Date.now()));
+  $('billing-note').textContent = result.access?.status === 'past_due' ? 'Payment is past due. Grace ends ' + new Date(result.access.graceEndsAt).toLocaleString() + '. Update your payment method before then.' : '';
   render();
 }
 $('filter').onchange = render;

@@ -5,7 +5,7 @@ let generation = 0;
 function signedOut(text) {
   clearTimeout(expiryTimer);
   $('account').hidden = true; $('signin').hidden = false;
-  $('identity').textContent = ''; $('open-workspace').hidden = true; $('status').textContent = text;
+  $('identity').textContent = ''; $('open-workspace').hidden = true; $('manage-billing').hidden = true; $('status').textContent = text;
 }
 async function checkSession() {
   const current = ++generation;
@@ -19,8 +19,10 @@ async function checkSession() {
     $('signin').hidden = true; $('account').hidden = false;
     $('identity').textContent = body.email;
     $('open-workspace').hidden = !body.workspaceEnabled;
-    $('workspace-notice').textContent = body.workspaceEnabled ? 'Your pilot workspace is available. Records are stored separately for your account. Direct CRM synchronization is not available yet.' : 'Hosted lead access is limited to invited pilot accounts. No purchase is enabled by this page.';
-    $('status').textContent = body.workspaceEnabled ? 'Signed in. Your pilot workspace is ready.' : 'Signed in. Pilot access has not been enabled for this account.';
+    $('manage-billing').hidden = !body.billingEnabled;
+    $('workspace-notice').textContent = body.workspaceEnabled ? 'Your pilot workspace is available. Records are stored separately for your account. Direct CRM synchronization is not available yet.' : (body.access?.reason || 'Hosted lead access is limited to invited pilot accounts. No purchase is enabled by this page.');
+    $('status').textContent = body.workspaceEnabled ? (body.access?.status === 'past_due' ? 'Your workspace is available during the seven-day payment grace period.' : 'Signed in. Your workspace is ready.') : 'Signed in. Workspace access is currently unavailable.';
+    if (body.access?.graceEndsAt) $('workspace-notice').textContent += ' Payment grace ends ' + new Date(body.access.graceEndsAt).toLocaleString() + '.';
     expiryTimer = setTimeout(() => { ++generation; signedOut('Your session expired. Please sign in again.'); }, Math.max(0, body.expiresAt - Date.now()));
   } catch (error) {
     if (current === generation) signedOut(error.message);
@@ -46,6 +48,18 @@ $('logout').onclick = async () => {
     signedOut('Signed out.');
   } catch (error) { $('status').textContent = error.message; }
   finally { $('logout').disabled = false; }
+};
+$('manage-billing').onclick = async () => {
+  $('manage-billing').disabled = true;
+  try {
+    const response = await fetch('/api/lead-workspace/billing-portal', { method: 'POST', credentials: 'same-origin' });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || 'Billing management unavailable.');
+    const url = new URL(body.url);
+    if (url.protocol !== 'https:' || url.hostname !== 'billing.stripe.com') throw new Error('Invalid billing link.');
+    location.assign(url.href);
+  } catch (error) { $('status').textContent = error.message; }
+  finally { $('manage-billing').disabled = false; }
 };
 $('refresh').onclick = checkSession;
 window.addEventListener('pageshow', checkSession);

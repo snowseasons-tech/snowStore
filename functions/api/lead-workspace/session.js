@@ -1,4 +1,4 @@
-import { pilotEnabled } from '../../_lib/lead-data.js';
+import { leadAccess } from '../../_lib/lead-access.js';
 import { leadSession } from '../../_lib/lead-session.js';
 import { send, methodNotAllowed } from '../../_lib/http.js';
 
@@ -9,7 +9,8 @@ export async function onRequestGet({ request, env }) {
     const session = await leadSession(request, env);
     if (!session) return send(401, { error: 'Sign in to your customer account.' });
     // Identity only. Subscription access and tenant data are separate phases.
-    return send(200, { ...session, workspaceEnabled: pilotEnabled(session.email, env) });
+    const access = await leadAccess(session, env);
+    return send(200, { ...session, workspaceEnabled: access.allowed, billingEnabled: env.LEAD_WORKSPACE_BILLING_ENABLED === '1', access });
   } catch {
     return send(503, { error: 'Sign-in verification is temporarily unavailable. Please retry.' });
   }

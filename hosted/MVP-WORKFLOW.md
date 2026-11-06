@@ -83,7 +83,8 @@ For every completed phase record: commit, environment, exact checks, observed re
 | Phase 1: search, follow-ups and validation | Commit containing this workflow update; local clean-copy environments | `npm run test:lead-workspace`: 13 tests plus JS parsing passed; fresh/legacy browser workflows and shutdown persistence passed | Complete |
 | Phase 2: hosted authentication boundary | `94323c9`; local Cloudflare runtime and production HTTPS | Auth and browser checks passed; production entry HTTP 200 and signed-out session HTTP 401 | Complete; production customer login not exercised |
 | Phase 3: customer isolation | `f42a9fa`; Cloudflare local runtime + disposable Redis 7 | Two-account isolation, 200/409 simultaneous saves, 404 foreign edits, browser import/export and stale-edit recovery passed | Implemented and verified locally; production pilots disabled |
-| Subscription and CRM release | — | Entitlement lifecycle and CRM delivery remain unimplemented | Not started |
+| Phase 4: subscription lifecycle | Commit containing phase 4 changes; local fixtures | Signed/replayed webhooks, grace boundaries, provider failures, billing ownership and browser recovery passed | Implemented; real Stripe sandbox journey deferred to phase 7 |
+| CRM release | — | Direct CRM delivery remains unimplemented | Not started |
 
 ## Remaining bundle sequence
 
@@ -118,3 +119,16 @@ Customer isolation is implemented for an explicitly invited pilot, using the exi
 Phase 3 implementation and test-environment exit checks are complete. Next: phase 4 subscription lifecycle enforcement. Keep all bundles as drafts and production pilot access off until its intended accounts and operating policy are chosen.
 
 Production HTTPS verification after `f42a9fa`: `/storefront/lead-workspace-app` returned HTTP 200 with the hosted pilot editor; `/api/lead-workspace/leads` returned HTTP 401 when signed out. No production pilot allowlist was configured and no customer data was written during verification. Temporary Redis and local Pages test services were stopped.
+
+## Phase 4 implementation evidence
+
+Policy chosen by the user: seven days of past-due grace. Cancellation preserves records and ends access at the scheduled period end (or immediately when the subscription is actually canceled). There is no automatic record deletion.
+
+- Implemented `LEAD_WORKSPACE_BILLING_ENABLED=1` mode. Active/trial access, fixed invoice-based grace timing, cancellation, pause/unpaid denial and reactivation are checked on every hosted operation against current Stripe state. Draft plans still require an explicit pilot invitation.
+- Successful signature-verified checkout events build an atomic subscription/customer index for the account email. Event replay cannot duplicate links; invoice snapshots and delayed lifecycle updates cannot override the current-state access decision.
+- Added authenticated billing-portal launch using server-verified customer links, and a lead-workspace launch link in the signed-in customer portal. The browser shows grace/denial state and preserves server records when access stops.
+- Workspace suite: 13 Python tests and 11 Node tests passed, including billing policy, raw webhook signatures, event replay, ownership, provider errors and cancellation/reactivation with unchanged records. Browser fixture checks passed for active → grace → expired → recovered → canceled access; desktop/mobile screenshots inspected.
+- Provider boundary: Stripe responses and events were fixtures. No real subscription or charge was created; account settings were not changed. The real Stripe sandbox checkout, customer portal configuration, event delivery and recovery journey remain required in phase 7 before rollout.
+- Production pilot and billing enablement remain off. Code deployment does not enable sales or alter proposed prices. Stripe Tax remains unchanged for release review.
+
+Phase 4 implementation and fixture validation are complete. Next: phase 5, one CRM connector. Choose the provider and a test account before provider-specific integration; independent connector design can proceed first.
