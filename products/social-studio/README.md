@@ -1,5 +1,7 @@
 # Social Studio
 
+Try the [interactive offline demo](demo.html): preview team roles, edit a sample draft, approve it, schedule it, and simulate publishing. It connects to no accounts and saves nothing.
+
 A self-hosted social media content manager for agencies and small teams. Keep a separate workspace per client, draft posts (by hand or with an AI writer), send them through approval, schedule them, and let a background worker publish them to Facebook Pages, Instagram professional accounts and Google Business Profile.
 
 Runs on your own server with Docker: a FastAPI web app, a publishing worker and MySQL. No subscription, and your clients' account tokens stay in your database, encrypted.
