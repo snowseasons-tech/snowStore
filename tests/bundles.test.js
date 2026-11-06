@@ -65,6 +65,16 @@ test('createBundle makes one product with a monthly price', async () => {
   assert.deepStrictEqual(stripe.calls.prices[0], { product: 'prod_new', unit_amount: 14900, currency: 'usd', recurring: { interval: 'month' } });
 });
 
+test('bundle validation rejects unavailable downloads, duplicates and invalid MailHub limits', () => {
+  const errors = validateCatalog({
+    retired: { name: 'Old download', retired: true, fileKey: 'old.zip', filename: 'old.zip', sha256: 'a'.repeat(64) },
+    bundle: { name: 'Bundle', kind: 'subscription', draft: true, proposedMonthly: 100, includes: ['retired', 'retired'], mailhubSends: 0 },
+  });
+  assert.ok(errors.includes('bundle.includes: retired is retired'));
+  assert.ok(errors.includes('bundle.includes: retired is duplicated'));
+  assert.ok(errors.includes('bundle.mailhubSends: must be a positive whole number'));
+});
+
 test('createBundle reuses a product and refuses a different price', async () => {
   const existing = [{ id: 'prod_old', metadata: { bundle_id: 'b' } }];
   existing.prices = [{ product: 'prod_old', unit_amount: 9900, currency: 'usd', created: 1, recurring: { interval: 'month', interval_count: 1 } }];
@@ -72,4 +82,8 @@ test('createBundle reuses a product and refuses a different price', async () => 
   await assert.rejects(createBundle(stripe, { id: 'b', name: 'B', proposedMonthly: 14900 }), /different monthly price/);
   assert.strictEqual(await createBundle(stripe, { id: 'b', name: 'B', proposedMonthly: 9900 }), 'prod_old');
   assert.strictEqual(stripe.calls.products.length + stripe.calls.prices.length, 0);
+});
+
+test('createBundle refuses unfinished bundles before contacting Stripe', async () => {
+  await assert.rejects(createBundle({}, { id: 'unfinished', pending: ['CRM integration'] }), /unfinished components/);
 });

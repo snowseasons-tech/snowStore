@@ -15,6 +15,20 @@ test('new paying subscribers get a server and other plans do not', async () => {
     [{ type: 'create', id: subscriberId('sub_1'), limit: 3, email: 'a@example.com', subscription: 'sub_1' }]);
 });
 
+test('draft bundles cannot create, restart or resize servers but still stop canceled subscriptions', async () => {
+  const { decide, subscriberId } = await sync();
+  const catalog = { bundle: { draft: true, socialAccounts: 3, mailhubSends: 10000 } };
+  const active = sub('sub_1', 'active', 'bundle');
+  assert.deepStrictEqual(decide([active], {}, catalog, 0), []);
+  const social = subscriberId('sub_1'), mail = subscriberId('sub_1', 'm');
+  const stopped = { [social]: { running: false, limit: 1 }, [mail]: { running: false, limit: 1 } };
+  assert.deepStrictEqual(decide([active], stopped, catalog, 0), []);
+  const running = { [social]: { running: true, limit: 1 }, [mail]: { running: true, limit: 1 } };
+  assert.deepStrictEqual(decide([active], running, catalog, 0), []);
+  assert.deepStrictEqual(decide([sub('sub_1', 'canceled', 'bundle')], running, catalog, 0),
+    [{ type: 'stop', id: social }, { type: 'stop', id: mail }]);
+});
+
 test('a bundle gets one server per product from one subscription', async () => {
   const { decide, apply, sendWelcomes, subscriberId } = await sync();
   const catalog = { bundle: { socialAccounts: 3, mailhubSends: 10000 } };

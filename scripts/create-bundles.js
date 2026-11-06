@@ -9,6 +9,7 @@ const drafts = (catalog) => Object.entries(catalog).filter(([, p]) => p.draft).m
 const blocked = (bundle) => !!(bundle.pending && bundle.pending.length);
 
 async function createBundle(stripe, bundle) {
+  if (blocked(bundle)) throw new Error(`${bundle.id} has unfinished components: ${bundle.pending.join(', ')}`);
   const found = await stripe.products.list({ active: true, limit: 100 }).autoPagingToArray({ limit: 1000 });
   const product = found.find((p) => p.metadata && p.metadata.bundle_id === bundle.id)
     || await stripe.products.create({ name: bundle.name, description: bundle.blurb, metadata: { bundle_id: bundle.id } }, { idempotencyKey: `bundle-product-${bundle.id}` });

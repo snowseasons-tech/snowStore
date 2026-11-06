@@ -73,15 +73,23 @@ function validateCatalog(catalog) {
     if (product.socialAccounts !== undefined && (!Number.isInteger(product.socialAccounts) || product.socialAccounts <= 0)) {
       fail('socialAccounts', 'must be a positive whole number');
     }
+    if (product.mailhubSends !== undefined && (!Number.isInteger(product.mailhubSends) || product.mailhubSends <= 0)) {
+      fail('mailhubSends', 'must be a positive whole number');
+    }
 
     // A membership (includes) unlocks other products' downloads while its subscription is active.
     if (product.includes !== undefined) {
       if (!Array.isArray(product.includes) || !product.includes.length) {
         fail('includes', 'must be a non-empty list of product ids');
       } else {
+        const included = new Set();
         for (const inc of product.includes) {
+          if (included.has(inc)) fail('includes', `${inc} is duplicated`);
+          included.add(inc);
           if (typeof inc !== 'string' || !Object.prototype.hasOwnProperty.call(catalog, inc)) fail('includes', `${inc} is not in the catalog`);
           else if (!catalog[inc] || !catalog[inc].fileKey) fail('includes', `${inc} has no download`);
+          else if (!product.retired && catalog[inc].retired) fail('includes', `${inc} is retired`);
+          else if (catalog[inc].draft) fail('includes', `${inc} is a draft`);
           else if (catalog[inc].includes !== undefined) fail('includes', `${inc} is itself a membership`);
         }
       }

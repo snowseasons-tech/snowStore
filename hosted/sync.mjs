@@ -23,18 +23,19 @@ export function decide(subscriptions, state, catalog, nowMs) {
   const actions = [], seen = new Set();
   for (const sub of subscriptions) {
     for (const { limitKey, prefix, product } of PRODUCTS) {
-      const limit = catalog[sub.metadata && sub.metadata.product_id]?.[limitKey];
+      const plan = catalog[sub.metadata && sub.metadata.product_id];
+      const limit = plan?.[limitKey];
       if (!limit) continue;
       const id = subscriberId(sub.id, prefix), current = state[id];
       seen.add(id);
       const email = sub.customer && sub.customer.email;
       if (!current) {
-        if (RUNNING.has(sub.status)) actions.push({ type: 'create', id, limit, email, subscription: sub.id, ...(product && { product }) });
+        if (!plan.draft && RUNNING.has(sub.status)) actions.push({ type: 'create', id, limit, email, subscription: sub.id, ...(product && { product }) });
         continue;
       }
       if (current.running && STOPPED.has(sub.status)) actions.push({ type: 'stop', id });
-      else if (!current.running && RUNNING.has(sub.status)) actions.push({ type: 'start', id });
-      if (RUNNING.has(sub.status) && current.limit !== limit) actions.push({ type: 'limit', id, limit });
+      else if (!plan.draft && !current.running && RUNNING.has(sub.status)) actions.push({ type: 'start', id });
+      if (!plan.draft && RUNNING.has(sub.status) && current.limit !== limit) actions.push({ type: 'limit', id, limit });
     }
   }
   for (const [id, current] of Object.entries(state)) {
