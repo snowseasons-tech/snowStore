@@ -5,7 +5,7 @@ from pathlib import Path
 from urllib.parse import quote
 from zoneinfo import ZoneInfo,ZoneInfoNotFoundError
 import httpx
-from fastapi import BackgroundTasks,FastAPI,Depends,HTTPException,Response
+from fastapi import BackgroundTasks,FastAPI,Depends,HTTPException,Request,Response
 from fastapi.responses import FileResponse,RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel,EmailStr,Field,HttpUrl
@@ -15,6 +15,7 @@ from .db import init_db,Session,User,Client,Membership,Connection,Post,OAuthStat
 from .security import db_session,current_user,hasher,issue,encrypt,require_member,session_generation
 from .integrations import auth_url,exchange,discover_accounts
 from . import mail,passwords
+from .throttle import MAX_FAILURES_PER_ACCOUNT,MAX_FAILURES_PER_IP,account_key,check_allowed,clear_account,ip_key,record_failure
 logger=logging.getLogger(__name__)
 
 APP_NAME=os.getenv('APP_NAME','').strip() or 'Social Studio'
@@ -106,9 +107,17 @@ def register(data:RegisterIn,db:DBSession=Depends(db_session)):
             db.delete(inv)
     db.commit();return {'token':issue(u.id)}
 @app.post('/api/auth/login')
-def login(data:Credentials,db:DBSession=Depends(db_session)):
-    u=db.scalar(select(User).where(User.email==str(data.email).lower()))
-    if not u or not hasher.verify(data.password,u.password_hash): raise HTTPException(401,'Invalid credentials')
+def login(data:Credentials,request:Request,db:DBSession=Depends(db_session)):
+    email=str(data.email).lower()
+    # Checked before the password, so a locked account is not tested at all.
+    address=request.client.host if request.client else None
+    keys=[(account_key(email),MAX_FAILURES_PER_ACCOUNT),(ip_key(address),MAX_FAILURES_PER_IP)]
+    check_allowed(db,keys)
+    u=db.scalar(select(User).where(User.email==email))
+    if not u or not hasher.verify(data.password,u.password_hash):
+        record_failure(db,[key for key,_ in keys])
+        raise HTTPException(401,'Invalid credentials')
+    clear_account(db,email)
     return {'token':issue(u.id,session_generation(db,u.id))}
 @app.post('/api/auth/forgot')
 def forgot(data:ForgotIn,background:BackgroundTasks,db:DBSession=Depends(db_session)):
