@@ -113,7 +113,7 @@ Point `LLM_BASE_URL` at any OpenAI-compatible `/v1` endpoint and set `LLM_MODEL`
 | `ALLOW_REGISTRATION` | `0` = first account plus invites only (default), `1` = open sign-up |
 | `MAX_ACCOUNTS` | Connected social accounts allowed across the server, for example `3`. `0` = no limit (default) |
 | `SETUP_CODE` | Hosted servers: the first account must use this code, sent in the welcome link |
-| `SUBSCRIBER_ID`, `OAUTH_REDIRECT_URL` | Hosted servers: send OAuth through one shared address. See `hosted/README.md` |
+| `SUBSCRIBER_ID`, `OAUTH_REDIRECT_URL` | Hosted servers only: send OAuth through one shared address. Leave unset when you run it yourself |
 | `SECRET_KEY` | Signs login sessions. Changing it signs everyone out |
 | `FERNET_KEY` | Encrypts connected account tokens. Keep it safe and backed up |
 | `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD` | Database passwords used by Docker Compose |
@@ -127,6 +127,12 @@ Point `LLM_BASE_URL` at any OpenAI-compatible `/v1` endpoint and set `LLM_MODEL`
 
 - Back up the `mysqldata` Docker volume and your `.env` file. Without the same `FERNET_KEY`, restored account connections stop working and have to be reconnected.
 - The database tables are created automatically on first start. There's no migration tool yet, so before updating to a newer version, back up the database.
+
+### Release 0.5.2
+
+- First start on a new MySQL database no longer fails when the web app and the worker create tables at the same moment.
+- The app refuses to start with the placeholder or a short `SECRET_KEY`, so sign-in sessions can't be forged with the example value.
+- The download includes the offline demo (`demo.html`).
 
 ### Release 0.5.1
 

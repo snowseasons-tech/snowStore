@@ -12,6 +12,9 @@ from .db import Session, User, Membership, SessionCutoff, now
 hasher=PasswordHash.recommended()
 bearer=HTTPBearer(auto_error=False)
 SECRET=os.environ['SECRET_KEY']
+# Sessions signed with the key from .env.example could be forged by anyone who has read it.
+if len(SECRET)<32 or SECRET.startswith('REPLACE_WITH'):
+    raise RuntimeError('Set SECRET_KEY in .env to a random value of at least 32 characters (see README, Quick start)')
 crypto=Fernet(os.environ['FERNET_KEY'].encode())
 def encrypt(v): return crypto.encrypt(v.encode()).decode()
 def decrypt(v): return crypto.decrypt(v.encode()).decode()
