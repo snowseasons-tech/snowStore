@@ -92,3 +92,12 @@ For every completed phase record: commit, environment, exact checks, observed re
 6. Complete Business Suite: integrate only the completed services, then test one subscription across all of them.
 
 Keep each bundle hidden until its own promised workflows are implemented and verified. See BUNDLE-GAPS.md for the component-level inventory.
+
+## Phase 2 implementation evidence
+
+Implemented a separate hosted entry page at `/storefront/lead-workspace` and a protected identity endpoint at `/api/lead-workspace/session` using the existing portal identity system. The endpoint returns no lead records and reports `workspaceEnabled: false`; this is an authentication boundary, not a completed hosted lead service.
+
+- Authentication suites pass for portal login, invalid credentials, expiry, logout, password changes, missing bindings and store failure. Local startup tokens are rejected.
+- Local Cloudflare runtime browser checks pass for sign-in, wrong-password feedback, reload persistence and logout. Desktop/mobile screenshots were inspected; mobile has no horizontal overflow and no browser errors were reported.
+- The Pages allowlist build and lint pass. The entry page is published as a static shell; identity is fetched only from the authenticated, non-cacheable API endpoint.
+- Production HTTPS verification pending deployment. No production account was created for testing. Tenant storage remains phase 3 and subscription enforcement remains phase 4.

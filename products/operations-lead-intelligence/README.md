@@ -62,3 +62,11 @@ Open [demo.html](demo.html) or [try it on the store](https://snowseasonstech.sto
 Filter fictional prospects by stage and minimum score, review their signals, and adjust fit, intent, and budget readiness. The demo's explicit scoring rubric is 40% fit + 35% intent + 25% budget. Changing a stage updates the queue.
 
 This is an offline workflow preview. It does not enrich leads, contact prospects, predict conversion, or sync to a CRM. All changes reset on reload.
+
+## Hosted sign-in boundary (phase 2)
+
+`/storefront/lead-workspace` is a separate Cloudflare Pages entry page. It uses the existing customer portal sign-in and HttpOnly session cookie; the local Python startup token is never accepted. `/api/lead-workspace/session` checks the server-side session and returns only account email, expiry time and `workspaceEnabled: false`. A valid account does not yet grant hosted lead storage or paid subscription access.
+
+The new session reader uses request-scoped store bindings, rejects expired sessions and fails closed when storage is missing or unavailable. Logout and password changes invalidate access through the existing portal mechanisms. The page clears the password after login attempts and returns to sign-in when its session expires.
+
+Deployment uses the existing Pages build (`npm run build:pages`) and existing production store bindings. Do not run the Python development server on the public internet. Hosted customer records, isolation and subscription checks belong to later phases. Local Cloudflare browser validation uses the run-snowstore fake store and fictional accounts; it does not require creating production customers.

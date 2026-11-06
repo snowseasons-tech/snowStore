@@ -132,7 +132,7 @@ function clientIp(req) {
 }
 
 module.exports = {
-  normEmail, hashPassword, verifyPassword, checkCredentials, loginLimited, recordLoginFailure,
+  SESSION_TTL_SEC, normEmail, hashPassword, verifyPassword, checkCredentials, loginLimited, recordLoginFailure,
   createSession, getSession, destroySession, sessionCookie, clearCookie, clientIp,
   PASSWORD_MIN, RESET_TTL_SEC, INVITE_TTL_SEC, createPasswordLink, setPasswordFromLink, passwordLinkMail,
 };
