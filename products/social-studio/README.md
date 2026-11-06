@@ -140,11 +140,23 @@ With Node.js installed, run the browser-code regression tests too:
 node --test tests/frontend.test.cjs
 ```
 
-The tests use a temporary SQLite database and simulated Meta, Google and AI responses, so they need no accounts, Docker or internet access. They cover sign-up and invites, password resets (including a real SMTP delivery to a local test server), workspace isolation, roles, the approval and scheduling rules, the OAuth flow, the worker, and the provider calls.
+To run the same Python tests against MySQL 8.4, create a disposable database
+named `social_studio_test_*`, then run:
+
+```bash
+SOCIAL_STUDIO_TEST_DATABASE_URL='mysql+pymysql://studio:password@127.0.0.1:3306/social_studio_test_local' .venv/bin/python -m pytest
+```
+
+This deletes and recreates tables in the test database. The test runner refuses
+MySQL database names without that prefix and never uses the app's `DATABASE_URL`.
+CI runs the Python suite against MySQL 8.4 and runs the browser-code tests too.
+
+By default, the tests use a temporary SQLite database and simulated Meta, Google and AI responses, so they need no accounts, Docker or internet access. They cover sign-up and invites, password resets (including a real SMTP delivery to a local test server), workspace isolation, roles, the approval and scheduling rules, the OAuth flow, the worker, and the provider calls.
 
 ## Known limitations
 
 - The login session is a 12-hour token kept in the browser's local storage. Sign-in allows 5 failed attempts per email and 30 per client address in any 15-minute window; after that it returns 429 with a `Retry-After` header. There's no two-factor login yet, so use long passwords and keep the server behind HTTPS.
+- Sign-ins sharing an email or client address wait for the previous attempt's password check to finish. Database locks cover both the limit check and its result, so concurrent requests cannot bypass the limit. Successful sign-ins clear the email's failures; previous failures for the client address still count.
 - The per-address limit uses the address the app sees. Behind a reverse proxy that is the proxy's address, so every user shares one limit. Pass the real client address through the proxy before relying on this limit in production.
 - Real publishing hasn't been tested against live Meta or Google accounts by us. It depends on your app approvals, account eligibility and the providers' APIs, which change over time.
 - Images are referenced by public URL; there's no built-in image upload or media library.
