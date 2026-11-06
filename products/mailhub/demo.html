@@ -1,19 +1,347 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Interactive offline MailHub Marketing Intelligence demo using fictional data."><title>MailHub Marketing Intelligence · Interactive demo</title><style>
-:root{color-scheme:dark;font:16px/1.5 system-ui,sans-serif;--bg:#0b1220;--panel:#111e30;--edge:#2a3c53;--ink:#edf4ff;--muted:#a6b7cc;--cyan:#73ddda;--amber:#ffd08a;--bad:#ffb4ae}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}a{color:var(--cyan)}button,input,select,textarea{font:inherit}button,a.button{cursor:pointer;border:1px solid var(--cyan);background:var(--cyan);color:#092021;font-weight:700;padding:10px 16px;border-radius:9px;text-decoration:none;display:inline-block}button.secondary{background:transparent;color:var(--ink);border-color:var(--edge)}button:disabled{opacity:.45;cursor:not-allowed}button:hover:not(:disabled){filter:brightness(1.12)}:focus-visible{outline:3px solid var(--amber);outline-offset:3px}input,select,textarea{width:100%;min-width:0;border:1px solid #486079;border-radius:8px;background:#0b1625;color:var(--ink);padding:10px}input[type=range]{padding:0;accent-color:var(--cyan)}input[type=checkbox]{width:auto;accent-color:var(--cyan)}textarea{min-height:125px;resize:vertical}label{display:grid;gap:6px;color:var(--muted);font-size:.92rem}h1,h2,h3,p{margin:0 0 12px}h1{font-size:clamp(2rem,4vw,3.1rem);line-height:1.1;letter-spacing:-.035em}h2{font-size:1.2rem}h3{font-size:1rem}.layout{display:grid;grid-template-columns:224px minmax(0,1fr);min-height:100vh}.sidebar{padding:28px 18px;background:#0e1928;border-right:1px solid var(--edge)}.brand{font-weight:800;letter-spacing:.04em;font-size:.9rem;margin-bottom:28px}.sidebar nav{display:grid;gap:8px}.sidebar nav a{padding:10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:.92rem}.sidebar nav a[aria-current]{color:var(--cyan);background:#173539}.sidebar footer{font-size:.8rem;color:var(--muted);margin-top:30px}.main{padding:34px;max-width:1500px;width:100%;margin:auto}.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}.badge,.pill{border-radius:6px;font-size:.75rem;padding:4px 9px;background:#233545;color:var(--cyan);display:inline-block;font-weight:700;white-space:nowrap}.badge{background:#3b3021;color:var(--amber);letter-spacing:.08em;text-transform:uppercase}.intro{max-width:780px;color:var(--muted);margin:16px 0 25px}.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,1fr);gap:20px;align-items:start}.grid>*{min-width:0}.panel{border:1px solid var(--edge);border-radius:14px;background:var(--panel);padding:22px;margin-bottom:20px}.panel:last-child{margin-bottom:0}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:24px}.stat{border:1px solid var(--edge);border-radius:12px;background:var(--panel);padding:17px}.stat strong{display:block;font-size:1.9rem;letter-spacing:-.035em;color:var(--ink)}.stat span,.muted,small{color:var(--muted)}small{font-size:.82rem}.fields{display:grid;gap:16px}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.row>*{min-width:0}.row label{flex:1;min-width:125px}.row.between{justify-content:space-between}.scroll{overflow:auto;max-width:100%}table{border-collapse:collapse;width:100%;font-size:.9rem}th,td{padding:13px 9px;border-bottom:1px solid var(--edge);text-align:left;white-space:nowrap}th{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}td button{padding:5px 9px;font-size:.85rem}.notice{padding:12px 15px;background:#132a36;border-left:3px solid var(--cyan);border-radius:5px;color:var(--muted);font-size:.86rem;margin:20px 0}.message{color:var(--amber);min-height:24px;margin:16px 0}.meter{height:8px;background:#263b50;border-radius:8px;overflow:hidden}.meter i{display:block;height:100%;background:var(--cyan);border-radius:8px}.item{padding:13px 0;border-bottom:1px solid var(--edge)}.item:last-child{border-bottom:0}.item p{margin:4px 0}.empty{text-align:center;padding:26px;color:var(--muted)}.svgbox{width:100%;display:block;background:#0d1928;border:1px solid var(--edge);border-radius:10px}svg text{font-family:system-ui,sans-serif}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.tabs button[aria-pressed=true]{background:var(--cyan);color:#092021}.accent{color:var(--cyan)}.warn{color:var(--amber)}.bad{color:var(--bad)}.preview{background:#f8fafb;color:#172536;border-radius:10px;padding:24px;overflow-wrap:anywhere;white-space:pre-wrap}.preview h3{color:#172536}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.two>*{min-width:0}[hidden]{display:none!important}@media(max-width:1000px){.layout{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid var(--edge);padding:16px 20px}.brand{margin-bottom:12px}.sidebar nav{display:flex;gap:6px;overflow:auto}.sidebar nav a{white-space:nowrap}.sidebar footer{display:none}.main{padding:24px}.grid{grid-template-columns:1fr}.grid>aside{display:grid;gap:20px}.grid>aside .panel{margin:0}}@media(max-width:520px){.main{padding:18px 14px}.panel{padding:16px}.stats{gap:8px}.stat{padding:12px 9px;font-size:.8rem}.stat strong{font-size:1.5rem}.two{grid-template-columns:1fr}.topline{align-items:flex-start}.topline button{padding:7px 10px;font-size:.8rem}.sidebar nav a{font-size:.8rem;padding:6px}.row label{min-width:100px}}
-</style></head><body><div class="layout"><aside class="sidebar"><div class="brand">❄ SNOW SEASONS TECH</div><nav aria-label="Product demos"><a href="/demos/operations-lead-intelligence.html">Lead Intel</a><a href="/demos/mailhub-intelligence.html" aria-current="page">MailHub</a><a href="/demos/inspections-intelligence.html">dotTracker</a><a href="/demos/social-studio.html">Social Studio</a><a href="/demos/roadside-delay-planner.html">Roadside Delay</a></nav><footer>Explore a sample workspace.<br>No sign-in required.<br><br><a href="/products">Back to products →</a></footer></aside><main class="main"><div class="topline"><span class="badge">Interactive demo · fictional data</span><button class="secondary" id="reset" type="button">Reset demo</button></div><h1>MailHub Marketing Intelligence</h1><p class="intro">Build a sample audience, personalize a campaign, and see how suppressions protect unsubscribed contacts. Nothing is emailed.</p>
-<div class="stats"><div class="stat"><span>Sample contacts</span><strong id="contactsCount">0</strong></div><div class="stat"><span>Eligible audience</span><strong id="audienceCount">0</strong></div><div class="stat"><span>Suppressed</span><strong id="suppressedCount">0</strong></div></div>
-<div class="grid"><div><section class="panel"><h2>1. Choose your audience</h2><div class="row"><label>Match tags<select id="match"><option value="any">Any selected tag</option><option value="all">All selected tags</option></select></label><label>Audience<select id="tag"><option value="">Everyone</option><option value="newsletter">Newsletter</option><option value="vip">VIP</option><option value="newsletter,vip">Newsletter + VIP</option></select></label></div><div class="scroll"><table><thead><tr><th>Contact</th><th>Tags</th><th>Status</th><th>Simulate</th></tr></thead><tbody id="contacts"></tbody></table></div><p><small>Suppressions always win over segment rules. Reset the entire demo to restore its starting data.</small></p></section><section class="panel"><h2>2. Draft your campaign</h2><div class="fields"><label>Subject<input id="subject" maxlength="180" value="A seasonal update for {{first_name|there}}"></label><label>Message<textarea id="body" maxlength="5000">Hi {{first_name|there}},
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MailHub · Application demo</title><meta name="description" content="Try MailHub’s actual email-marketing interface with fictional contacts and simulated sending."><style>:root{font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif;background:#0c111b;color:#e9eef7;font-size:15px}*{box-sizing:border-box}body{margin:0;display:flex;min-height:100vh}aside{width:268px;background:#101927;border-right:1px solid #253249;padding:28px 18px;display:flex;flex-direction:column;gap:14px;position:sticky;top:0;height:100vh}.logo{font-size:19px;font-weight:800;color:#edf4ff}.logo .sub{display:block;color:#58b8fa;font-size:10px;letter-spacing:3px;margin-top:8px}.small,.eyebrow{font-size:11px;color:#8498b3;letter-spacing:1.8px;font-weight:800}nav{display:grid;gap:5px;margin-top:18px;flex:1}nav button{text-align:left;border:0;background:transparent;color:#bfcbdd;padding:14px;border-radius:9px;font-size:14px}nav button:hover{background:#1e3146}main{flex:1;min-width:0;padding:32px;max-width:1450px;margin:auto;width:100%}header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:28px}h1{font-size:32px;margin:6px 0}h2{font-size:19px;margin:0 0 16px}.badge{font-size:11px;color:#7aa9cd;background:#172b41;padding:9px;border-radius:20px}.panel,.tile,.post{background:#141f30;border:1px solid #29394d;border-radius:14px;padding:22px;margin:0 0 18px}.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.tile span{display:block;font-size:11px;letter-spacing:1px;color:#9cb0c8}.tile strong{display:block;font-size:37px;margin-top:14px;color:#d9efff}input:not([type=checkbox]),select,textarea{width:100%;background:#0d1725;border:1px solid #334761;border-radius:8px;color:#eef5ff;padding:12px;margin:8px 0 14px;font:inherit}textarea{min-height:110px;resize:vertical}button{cursor:pointer;background:#328ed5;color:white;border:1px solid #328ed5;border-radius:8px;padding:11px 16px;font-weight:650}button:hover{filter:brightness(1.12)}button.outline{background:transparent;border-color:#3d536c;color:#d1def0}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.row>label{white-space:nowrap}.row>input{flex:1;min-width:210px}.row>select{width:auto}.hidden{display:none!important}p{color:#a9bad0;line-height:1.6}#message{color:#f1c783;margin-bottom:12px;white-space:pre-wrap}.post{margin-top:12px;padding:18px}.post strong{font-size:15px}.post small{color:#95a7bf}.post p{white-space:pre-wrap;color:#d0dcec}.post .row{margin-top:14px}.post textarea{height:180px}.pill{background:#263c53;border-radius:8px;padding:5px 9px;color:#b5d5ea;font-size:11px}#identity{font-size:12px;overflow-wrap:anywhere;color:#8499b2}#generated{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}#generated .panel{margin:0}@media(max-width:850px){body{display:block}aside{width:auto;height:auto;position:relative}nav{display:flex;flex-wrap:wrap;margin:0}nav button{padding:8px}main{padding:16px}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}header .badge{display:none}}
+.invite{margin-top:14px;padding:12px 14px;border:1px solid #2f6f9e;border-radius:10px;background:#0f2235}.invite code{font-size:17px;letter-spacing:1px;color:#9fd6ff;user-select:all}
+@media(max-width:760px){body{flex-direction:column}aside{width:auto;height:auto;position:static;border-right:0;border-bottom:1px solid #253249}main{padding:18px}header{flex-wrap:wrap;gap:10px}}
+button.link{background:none;border:0;box-shadow:none;color:#9fd6ff;padding:6px 4px;text-decoration:underline;cursor:pointer}
 
-Here is this month’s workshop schedule. Reply if you would like to learn more.
+.demo-banner{padding:18px 20px;margin-bottom:24px;border:1px solid #386688;border-radius:12px;background:#10283b}.demo-banner strong{color:#9fd6ff}.demo-banner p{margin:8px 0 14px;font-size:14px}.demo-banner .row{gap:8px}.demo-banner a{color:#9fd6ff}.demo-banner button{padding:8px 12px}nav{align-content:start}nav [aria-current=page]{background:#1e3b53;color:#b8e4ff}#sKey,#sSecret{display:none!important}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #f1c783;outline-offset:3px}button:disabled{opacity:.5;cursor:not-allowed}iframe{max-width:100%}.demo-note{color:#8fc9ed;font-size:13px}@media(max-width:520px){aside{padding:18px 14px;gap:8px}nav{gap:0}nav button{padding:9px 7px;font-size:13px}main{padding:14px}.panel{padding:16px}.row>input{min-width:0;flex-basis:100%}.row>select{width:100%;min-width:0}.tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.tile{padding:12px}.tile strong{font-size:25px}.demo-banner{padding:14px}.small,code{overflow-wrap:anywhere}.row>label{white-space:normal}}
+</style></head>
+<body><aside><div class="logo"><span id="appName">MailHub</span><span class="sub">EMAIL MARKETING</span></div><nav><button data-tab="campaigns" onclick="tab('campaigns')">✉ Campaigns</button><button data-tab="contacts" onclick="tab('contacts')">♙ Contacts</button><button data-tab="segments" onclick="tab('segments')">◈ Segments</button><button data-tab="suppressed" onclick="tab('suppressed')">⊘ Suppressed</button><button data-tab="settings" onclick="tab('settings')">⚙ Settings</button></nav><div id="identity"></div><button class="outline" id="demoReset" onclick="resetDemo()">Reset demo</button><a href="/products" style="color:#9fd6ff">Back to products</a></aside>
+<main><div class="demo-banner"><strong>MAILHUB APPLICATION DEMO</strong><p>The same interface as the MailHub application, with fictional lists, contacts, campaigns, and sender settings. No sign-in, real credentials, or email delivery. Changes last only until reset or reload.</p><div class="row"><button class="outline" id="demoWorker" onclick="runDemoWorker()">Run simulated worker</button><button class="outline" onclick="downloadDemoCsv()">Download sample CSV</button></div></div><header><div><div class="eyebrow">EMAIL MARKETING</div><h1 id="heading">Campaigns</h1></div><span class="badge" id="planUsage"></span></header><div id="message" role="alert"></div>
+<section id="auth" class="hidden"></section>
 
-The Example Studio team</textarea></label><label><span><input type="checkbox" id="consent"> I confirm these sample recipients opted in.</span></label><button id="queue" type="button">Simulate campaign queue</button><p id="queued" class="muted" role="status"></p></div></section></div>
-<aside><section class="panel"><h2>Recipient preview</h2><label>Preview as<select id="recipient"></select></label><div class="preview" style="margin-top:16px"><h3 id="previewSubject"></h3><div id="previewBody"></div><hr><small>Example Studio · 123 Main St, Springfield<br>Unsubscribe link appears in real emails.</small></div></section><section class="panel"><h2>Example campaign report</h2><p class="muted">A separate, fixed sample of a past campaign.</p><div class="item"><div class="row between"><span>Sent</span><b>120</b></div></div><div class="item"><div class="row between"><span>Unique opens</span><b>42 · 35%</b></div><div class="meter"><i style="width:35%"></i></div></div><div class="item"><div class="row between"><span>Unique clicks</span><b>12 · 10%</b></div><div class="meter"><i style="width:10%"></i></div></div><small>Opens and clicks are approximate engagement signals; mail privacy features and scanners affect them.</small></section></aside></div>
-<p class="message" id="message" role="status" aria-live="polite"></p><div class="notice">Sample workspace only. No live accounts, external requests or saved changes. Reload or reset to start over.</div></main></div><script>'use strict';const $=id=>document.getElementById(id);const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const msg=text=>$('message').textContent=text;
-const seed=[{id:1,first:'Alex',email:'alex@example.com',tags:['newsletter','vip'],suppressed:false},{id:2,first:'Sam',email:'sam@example.com',tags:['newsletter'],suppressed:false},{id:3,first:'Jordan',email:'jordan@example.com',tags:['vip'],suppressed:false},{id:4,first:'Taylor',email:'taylor@example.com',tags:['newsletter','vip'],suppressed:true},{id:5,first:'Morgan',email:'morgan@example.com',tags:['newsletter'],suppressed:false},{id:6,first:'',email:'reader@example.com',tags:[],suppressed:false}];let contacts;
-function matches(c){const tags=$('tag').value.split(',').filter(Boolean);return !tags.length||($('match').value==='all'?tags.every(t=>c.tags.includes(t)):tags.some(t=>c.tags.includes(t)))}
-const eligible=()=>contacts.filter(c=>matches(c)&&!c.suppressed);
-function merge(text,c){return text.replace(/{{first_name(?:\|([^}]*))?}}/g,(_,fallback)=>c.first||fallback||'').replace(/{{email}}/g,c.email).replace(/{{last_name}}/g,'')}
-function preview(){const c=eligible().find(c=>String(c.id)===$('recipient').value);$('previewSubject').textContent=c?merge($('subject').value,c):'No eligible recipients';$('previewBody').textContent=c?merge($('body').value,c):'Choose another segment or reset the sample contacts.'}
-function render(){const list=contacts.filter(matches),audience=eligible(),previous=$('recipient').value;$('contactsCount').textContent=contacts.length;$('audienceCount').textContent=audience.length;$('suppressedCount').textContent=contacts.filter(c=>c.suppressed).length;$('contacts').innerHTML=list.length?list.map(c=>`<tr><td>${esc(c.first||'Reader')}<br><small>${esc(c.email)}</small></td><td>${esc(c.tags.join(', ')||'No tags')}</td><td><span class="${c.suppressed?'warn':'accent'}">${c.suppressed?'Suppressed':'Eligible'}</span></td><td>${c.suppressed?'Excluded':`<button class="secondary" type="button" data-suppress="${c.id}" aria-label="Simulate unsubscribe for ${esc(c.email)}">Unsubscribe</button>`}</td></tr>`).join(''):'<tr><td colspan="4">No contacts match this segment.</td></tr>';$('recipient').innerHTML=audience.map(c=>`<option value="${c.id}">${esc(c.email)}</option>`).join('');if(audience.some(c=>String(c.id)===previous))$('recipient').value=previous;$('queue').disabled=!audience.length;preview();$('queued').textContent=''}
-$('contacts').addEventListener('click',e=>{const b=e.target.closest('[data-suppress]');if(b){contacts.find(c=>c.id===Number(b.dataset.suppress)).suppressed=true;render();msg('Sample contact suppressed. It will be excluded even if its tags still match.')}});for(const id of ['match','tag'])$(id).addEventListener('change',render);$('recipient').addEventListener('change',preview);for(const id of ['subject','body'])$(id).addEventListener('input',()=>{preview();$('queued').textContent=''});$('queue').onclick=()=>{if(!$('consent').checked)return msg('Confirm opt-in for the sample recipients first.');if(!$('subject').value.trim()||!$('body').value.trim())return msg('Add a subject and message first.');const n=eligible().length;$('queued').textContent=`Queue preview: ${n} eligible recipient${n===1?'':'s'}. No emails were sent.`;msg('Campaign simulation complete.')};function reset(){contacts=structuredClone(seed);$('tag').value='';$('match').value='any';$('consent').checked=false;$('subject').value='A seasonal update for {{first_name|there}}';$('body').value='Hi {{first_name|there}},\n\nHere is this month’s workshop schedule. Reply if you would like to learn more.\n\nThe Example Studio team';msg('');render()}$('reset').onclick=reset;reset();
+<section id="campaigns" class="hidden"><div class="panel"><h2 id="editorTitle">New campaign</h2><input id="cName" placeholder="Campaign name (only you see this)" aria-label="Campaign name"><input id="cSubject" placeholder="Subject line" aria-label="Subject line"><div class="row"><select id="cList" aria-label="List"></select><select id="cSegment" aria-label="Segment"></select></div><label>Email body (HTML). You can use {{first_name|there}}. An unsubscribe link and your address are added to every email.<textarea id="cBody" rows="10"></textarea></label><div class="row"><button onclick="saveCampaign()">Save draft</button><button class="outline" onclick="previewDraft()">Preview</button><button class="outline" onclick="clearEditor()">Clear</button></div></div><div class="panel hidden" id="draftPreview"><h2>Preview · sample recipient Alex</h2><iframe id="draftFrame" sandbox="" title="Draft preview" style="width:100%;height:320px;border:0;border-radius:8px;background:#fff"></iframe></div><div class="panel"><h2>Your campaigns</h2><div id="campaignList"></div></div><div class="panel hidden" id="statsPanel"><h2 id="statsTitle">Stats</h2><div class="tiles" id="statTiles"></div><div id="statLinks"></div><h2>Preview · sample recipient Alex</h2><iframe id="preview" sandbox="" title="Email preview" style="width:100%;height:320px;border:0;border-radius:8px;background:#fff"></iframe></div></section>
+<section id="contacts" class="hidden"><div class="panel"><h2>Lists</h2><div class="row"><input id="listName" placeholder="New list name" aria-label="New list name"><button onclick="addList()">Add list</button></div><div id="listList"></div></div><div class="panel"><h2>Add a contact</h2><div class="row"><input id="newEmail" type="email" placeholder="Email" aria-label="Email"><input id="newFirst" placeholder="First name" aria-label="First name"><input id="newTags" placeholder="Tags, separated by commas" aria-label="Tags"><button onclick="addContact()">Add to selected list</button></div></div><div class="panel"><h2>Import a CSV</h2><p>Columns: email (required), first_name, last_name, tags (separated by ; or |). Addresses that unsubscribed stay suppressed.</p><div class="row"><select id="importList" aria-label="Import into list"></select><input id="csvFile" type="file" accept=".csv,text/csv" aria-label="CSV file"></div><label><input type="checkbox" id="consent"> These people agreed to get marketing email from me. I didn't buy or scrape this list.</label><div class="row"><button onclick="importCsv()">Import</button></div></div><div class="panel"><h2>Contacts <span id="contactTotal"></span></h2><input id="contactSearch" placeholder="Search by email" aria-label="Search contacts" oninput="loadContacts()"><div id="contactList"></div><div class="row"><button class="outline" onclick="pageContacts(-100)">Previous</button><button class="outline" onclick="pageContacts(100)">Next</button></div></div></section>
+<section id="segments" class="hidden"><div class="panel"><h2>New segment</h2><p>A segment is everyone with certain tags.</p><input id="segName" placeholder="Segment name" aria-label="Segment name"><input id="segTags" placeholder="Tags, separated by commas" aria-label="Tags"><div class="row"><select id="segMatch" aria-label="Match"><option value="any">Has any of these tags</option><option value="all">Has all of these tags</option></select><button onclick="addSegment()">Add segment</button></div><p id="tagHint"></p></div><div class="panel"><h2>Segments</h2><div id="segmentList"></div></div></section>
+<section id="suppressed" class="hidden"><div class="panel"><h2>Suppressed addresses</h2><p>MailHub never emails these, even if they're imported again. Unsubscribes, hard bounces and spam complaints land here automatically.</p><div class="row"><input id="suppressEmail" type="email" placeholder="Add an address" aria-label="Address to suppress"><button onclick="addSuppression()">Suppress</button></div><div id="suppressionList"></div></div></section>
+<section id="settings" class="hidden"><div class="panel"><h2>Sample sending setup</h2><p class="demo-note">Connection and DNS results are simulated. Do not enter real credentials or install the displayed sample DNS record.</p><div id="readiness"></div></div><div class="panel"><h2>Sender</h2><input id="sName" placeholder="From name" aria-label="From name"><input id="sEmail" type="email" placeholder="From address on your domain" aria-label="From address"><input id="sReply" type="email" placeholder="Reply-to address (optional)" aria-label="Reply-to"><input id="sAddress" placeholder="Postal address (required by anti-spam law)" aria-label="Postal address"><input disabled hidden id="sKey" type="password" placeholder="Resend API key (full access)" aria-label="Resend API key" autocomplete="off"><input disabled hidden id="sSecret" type="password" placeholder="Resend webhook signing secret" aria-label="Webhook secret" autocomplete="off"><p class="small">Point a Resend webhook at <code id="webhookUrl"></code> for email.delivered, email.bounced and email.complained events. <span id="webhookSeen"></span></p><button onclick="saveSettings()">Save</button></div><div class="panel"><h2>Sending domain</h2><div class="row"><input id="domain" placeholder="mail.yourbusiness.com" aria-label="Domain"><button onclick="addDomain()">Add domain</button><button class="outline" onclick="checkDomain()">Check DNS</button></div><p class="demo-note">Add domain and Check DNS only change this sample session. No DNS lookup is performed.</p><p id="domainStatus"></p><div id="domainRecords"></div></div></section>
+</main><script>/* In-memory responses for the real MailHub UI. No network or browser storage. */
+const mailhubDemo = (() => {
+  const copy = value => structuredClone(value);
+  const cleanTags = tags => [...new Set(tags.map(t => String(t).trim().toLowerCase().slice(0, 60)).filter(Boolean))].sort();
+  const email = value => {
+    const result = String(value || '').trim().toLowerCase();
+    if (result.length > 320 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(result)) throw Error('Enter a valid email address.');
+    return result;
+  };
+  const text = (value, label, max = 200) => {
+    const result = String(value || '').trim();
+    if (!result || result.length > max) throw Error(`${label} is required (up to ${max} characters).`);
+    return result;
+  };
+  let state;
+  function reset() {
+    state = {
+      next: 10, used: 120, limit: 1000,
+      lists: [{id: 'l1', name: 'Newsletter'}, {id: 'l2', name: 'Customers'}],
+      contacts: [
+        {id: 'p1', email: 'alex@example.com', first_name: 'Alex', last_name: 'Demo', tags: ['newsletter', 'vip'], lists: ['l1', 'l2']},
+        {id: 'p2', email: 'sam@example.com', first_name: 'Sam', last_name: 'Sample', tags: ['newsletter'], lists: ['l1']},
+        {id: 'p3', email: 'jordan@example.com', first_name: 'Jordan', last_name: 'Example', tags: ['vip'], lists: ['l2']},
+        {id: 'p4', email: 'taylor@example.com', first_name: 'Taylor', last_name: 'Demo', tags: ['newsletter', 'vip'], lists: ['l1']},
+        {id: 'p5', email: 'morgan@example.com', first_name: 'Morgan', last_name: 'Sample', tags: ['newsletter'], lists: ['l1']},
+        {id: 'p6', email: 'reader@example.com', first_name: '', last_name: '', tags: ['newsletter'], lists: ['l1']},
+      ],
+      segments: [{id: 's1', name: 'VIP readers', tags: ['newsletter', 'vip'], match: 'all'}],
+      suppressions: [{email: 'taylor@example.com', reason: 'unsubscribed'}],
+      campaigns: [
+        {id: 'c1', name: 'Workshop update', subject: 'This month at Example Studio, {{first_name|there}}', body_html: '<h1>A new season of workshops</h1><p>Hi {{first_name|there}},</p><p>Our fictional workshop schedule is ready. Reply if you would like to learn more.</p><p>The Example Studio team</p>', list_id: 'l1', segment_id: null, status: 'draft', last_error: '', send_at: null},
+        {id: 'c2', name: 'Previous sample newsletter', subject: 'Your monthly studio update', body_html: '<h1>Example Studio newsletter</h1><p>A fictional past campaign used to demonstrate the report screen.</p>', list_id: 'l1', segment_id: null, status: 'sent', last_error: '', send_at: null, historical: true},
+        {id: 'c3', name: 'Paused customer update', subject: 'A note for our customers', body_html: '<p>Hello {{first_name|there}},</p><p>This is a sample paused campaign.</p>', list_id: 'l2', segment_id: null, status: 'paused', last_error: 'Sample campaign paused for review.', send_at: null, recipients: [{email: 'alex@example.com', status: 'pending'}, {email: 'jordan@example.com', status: 'pending'}]},
+      ],
+      settings: {from_name: 'Example Studio', from_email: 'news@example.com', reply_to: '', postal_address: '123 Main St, Springfield', domain: 'example.com', domain_status: 'verified', domain_records: [], has_resend_key: true, key_from_server: true, has_webhook_secret: true, webhook_url: 'https://example.com/api/webhooks/resend', webhook_last_at: null},
+    };
+  }
+  const id = prefix => prefix + state.next++;
+  const need = (items, key, label) => {
+    const item = items.find(item => item.id === key);
+    if (!item) throw Error(label + ' not found.');
+    return item;
+  };
+  const suppressed = address => state.suppressions.some(s => s.email === address);
+  const contactView = c => ({...c, suppressed: suppressed(c.email), consent_source: 'Fictional demo data'});
+  function audience(campaign) {
+    const segment = campaign.segment_id ? need(state.segments, campaign.segment_id, 'Segment') : null;
+    return state.contacts.filter(c => !suppressed(c.email)
+      && (!campaign.list_id || c.lists.includes(campaign.list_id))
+      && (!segment || (segment.match === 'all' ? segment.tags.every(t => c.tags.includes(t)) : segment.tags.some(t => c.tags.includes(t)))))
+      .sort((a, b) => a.email.localeCompare(b.email));
+  }
+  function readiness() {
+    const s = state.settings, problems = [];
+    if (s.domain_status !== 'verified') problems.push('Verify your sample sending domain.');
+    if (!s.from_email || s.from_email.split('@')[1] !== s.domain) problems.push('Use a From address on the sample sending domain.');
+    if (!s.postal_address.trim()) problems.push('Add a sample postal address.');
+    return problems;
+  }
+  function ready() {
+    const problems = readiness();
+    if (problems.length) throw Error(problems.join(' '));
+  }
+  const settingsView = () => ({...state.settings, not_ready: readiness()});
+  function editable(campaign) {
+    if (campaign.status !== 'draft') throw Error('Only drafts can be changed.');
+    return campaign;
+  }
+  function campaignData(data) {
+    if (!data.list_id && !data.segment_id) throw Error('Choose a list or a segment.');
+    if (data.list_id) need(state.lists, data.list_id, 'List');
+    if (data.segment_id) need(state.segments, data.segment_id, 'Segment');
+    return {name: text(data.name, 'Campaign name'), subject: text(data.subject, 'Subject', 250), body_html: text(data.body_html, 'Email body', 1000000), list_id: data.list_id || null, segment_id: data.segment_id || null};
+  }
+  function csvRows(source) {
+    const rows = []; let row = [], cell = '', quoted = false;
+    source = source.replace(/^\uFEFF/, '');
+    for (let i = 0; i < source.length; i++) {
+      const c = source[i];
+      if (c === '"') {
+        if (quoted && source[i + 1] === '"') { cell += '"'; i++; }
+        else quoted = !quoted;
+      } else if (c === ',' && !quoted) { row.push(cell); cell = ''; }
+      else if ((c === '\n' || c === '\r') && !quoted) {
+        if (c === '\r' && source[i + 1] === '\n') i++;
+        row.push(cell); if (row.some(value => value.trim())) rows.push(row);
+        row = []; cell = '';
+      } else cell += c;
+    }
+    if (quoted) throw Error('The CSV contains an unclosed quoted field.');
+    row.push(cell); if (row.some(value => value.trim())) rows.push(row);
+    return rows;
+  }
+  async function importCsv(listId, form) {
+    need(state.lists, listId, 'List');
+    if (form.get('consent') !== 'true') throw Error('Confirm these people agreed to get email from you.');
+    const file = form.get('file');
+    if (!file || typeof file.text !== 'function') throw Error('Choose a CSV file.');
+    if (file.size > 20 * 1024 * 1024) throw Error('That file is over 20 MB.');
+    const rows = csvRows(await file.text());
+    const headers = (rows.shift() || []).map(h => h.trim().toLowerCase().replace(/ /g, '_'));
+    if (!headers.includes('email')) throw Error('The file needs an "email" column.');
+    const unique = new Map(); let invalid = 0;
+    for (const row of rows) {
+      const get = name => (row[headers.indexOf(name)] || '').trim();
+      try { unique.set(email(get('email')), {first_name: get('first_name').slice(0, 200), last_name: get('last_name').slice(0, 200), tags: cleanTags(get('tags').split(/[;,|]/))}); }
+      catch { invalid++; }
+    }
+    let added = 0, updated = 0, blocked = 0;
+    for (const [address, data] of unique) {
+      let c = state.contacts.find(c => c.email === address);
+      if (c) {
+        updated++;
+        c.first_name = data.first_name || c.first_name;
+        c.last_name = data.last_name || c.last_name;
+        c.tags = cleanTags([...c.tags, ...data.tags]);
+      } else {
+        c = {id: id('p'), email: address, ...data, lists: []};
+        state.contacts.push(c); added++;
+      }
+      if (!c.lists.includes(listId)) c.lists.push(listId);
+      if (suppressed(address)) blocked++;
+    }
+    return {added, updated, invalid, suppressed: blocked};
+  }
+  function report(c) {
+    if (c.historical) return {recipients: 120, sent: 120, delivered: 118, opened: 42, opens_total: 57, open_rate: 35, clicked: 12, clicks_total: 18, click_rate: 10, unsubscribed: 2, bounced: 2, complained: 0, failed: 0, links: [{url: 'https://example.com/workshops', clicks: 18}]};
+    const people = c.recipients || [], count = status => people.filter(p => p.status === status).length;
+    return {recipients: people.length, sent: count('sent'), pending: count('pending'), skipped: count('skipped'), canceled: count('canceled'), delivered: 0, opened: 0, opens_total: 0, open_rate: 0, clicked: 0, clicks_total: 0, click_rate: 0, unsubscribed: 0, bounced: 0, complained: 0, failed: 0, links: []};
+  }
+  async function handle(path, options = {}) {
+    const url = new URL(path, 'https://example.com'), parts = url.pathname.split('/').filter(Boolean);
+    const method = options.method || 'GET';
+    const data = typeof options.body === 'string' ? JSON.parse(options.body) : {};
+    const [resource, key, action] = parts;
+    if (resource === 'me' && method === 'GET') return {email: 'demo@example.com'};
+    if (resource === 'plan' && method === 'GET') return {used: state.used, limit: state.limit};
+    if (resource === 'lists') {
+      if (!key && method === 'GET') return state.lists.map(l => ({...l, contacts: state.contacts.filter(c => c.lists.includes(l.id)).length}));
+      if (!key && method === 'POST') {
+        const name = text(data.name, 'List name');
+        if (state.lists.some(l => l.name === name)) throw Error('A list with this name already exists.');
+        const l = {id: id('l'), name}; state.lists.push(l); return {...l, contacts: 0};
+      }
+      if (action === 'import' && method === 'POST') return importCsv(key, options.body);
+      if (key && method === 'DELETE') {
+        need(state.lists, key, 'List'); state.lists = state.lists.filter(l => l.id !== key);
+        for (const c of state.contacts) c.lists = c.lists.filter(l => l !== key);
+        for (const c of state.campaigns) if (c.list_id === key) c.list_id = null;
+        return {ok: true};
+      }
+    }
+    if (resource === 'contacts') {
+      if (!key && method === 'GET') {
+        const list = state.contacts.filter(c => c.email.includes((url.searchParams.get('q') || '').toLowerCase()));
+        const offset = Math.max(0, Number(url.searchParams.get('offset')) || 0);
+        return {total: list.length, contacts: list.slice(offset, offset + 100).map(contactView)};
+      }
+      if (!key && method === 'POST') {
+        const address = email(data.email);
+        if (state.contacts.some(c => c.email === address)) throw Error('Email already exists.');
+        if (data.list_id) need(state.lists, data.list_id, 'List');
+        const c = {id: id('p'), email: address, first_name: String(data.first_name || '').slice(0, 200), last_name: String(data.last_name || '').slice(0, 200), tags: cleanTags(data.tags || []), lists: data.list_id ? [data.list_id] : []};
+        state.contacts.push(c); return contactView(c);
+      }
+      if (key && action === 'tags' && method === 'PUT') { const c = need(state.contacts, key, 'Contact'); c.tags = cleanTags(data.tags || []); return contactView(c); }
+      if (key && method === 'DELETE') { need(state.contacts, key, 'Contact'); state.contacts = state.contacts.filter(c => c.id !== key); return {ok: true}; }
+    }
+    if (resource === 'tags' && method === 'GET') return cleanTags(state.contacts.flatMap(c => c.tags)).map(tag => ({tag, contacts: state.contacts.filter(c => c.tags.includes(tag)).length}));
+    if (resource === 'segments') {
+      if (!key && method === 'GET') return state.segments;
+      if (!key && method === 'POST') {
+        const tags = cleanTags(data.tags || []), name = text(data.name, 'Segment name');
+        if (!tags.length) throw Error('Choose at least one tag.');
+        if (!['any', 'all'].includes(data.match)) throw Error('Choose any or all matching.');
+        const s = {id: id('s'), name, tags, match: data.match}; state.segments.push(s); return s;
+      }
+      if (key && method === 'DELETE') {
+        need(state.segments, key, 'Segment'); state.segments = state.segments.filter(s => s.id !== key);
+        for (const c of state.campaigns) if (c.segment_id === key) c.segment_id = null;
+        return {ok: true};
+      }
+    }
+    if (resource === 'suppressions') {
+      if (method === 'GET') return state.suppressions;
+      if (method === 'POST') { const address = email(data.email); if (!suppressed(address)) state.suppressions.push({email: address, reason: 'manual'}); return {ok: true}; }
+    }
+    if (resource === 'settings') {
+      if (method === 'GET') return settingsView();
+      if (method === 'PUT') {
+        if ('resend_api_key' in data || 'webhook_secret' in data) throw Error('Credentials are not accepted by this demo.');
+        if (data.from_email) email(data.from_email);
+        if (data.reply_to) email(data.reply_to);
+        for (const field of ['from_name', 'from_email', 'reply_to', 'postal_address']) if (field in data) state.settings[field] = String(data[field] || '');
+        return settingsView();
+      }
+    }
+    if (resource === 'domain' && method === 'POST') {
+      if (key === 'check') { state.settings.domain_status = 'verified'; state.settings.domain_records.forEach(r => r.status = 'verified'); }
+      else {
+        const domain = String(data.domain || '').toLowerCase();
+        if (!/^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?\.[a-z]{2,}$/.test(domain)) throw Error('Enter a sample domain such as example.com.');
+        state.settings.domain = domain; state.settings.domain_status = 'pending';
+        state.settings.domain_records = [{type: 'TXT', name: '_demo.' + domain, value: 'DEMO_RECORD_ONLY_DO_NOT_INSTALL', status: 'pending'}];
+      }
+      return settingsView();
+    }
+    if (resource === 'campaigns') {
+      if (!key && method === 'GET') return [...state.campaigns].reverse();
+      if (!key && method === 'POST') {
+        const c = {id: id('c'), ...campaignData(data), status: 'draft', last_error: '', send_at: null}; state.campaigns.push(c); return c;
+      }
+      const c = need(state.campaigns, key, 'Campaign');
+      if (!action && method === 'PUT') { editable(c); Object.assign(c, campaignData(data)); return c; }
+      if (!action && method === 'DELETE') { editable(c); state.campaigns = state.campaigns.filter(c => c.id !== key); return {ok: true}; }
+      if (action === 'audience' && method === 'GET') return {recipients: audience(c).length};
+      if (action === 'stats' && method === 'GET') return report(c);
+      if (action === 'test' && method === 'POST') {
+        ready(); email(data.email);
+        if (state.used >= state.limit) throw Error('The sample monthly send limit is used up.');
+        state.used++; return {ok: true, simulated: true};
+      }
+      if (action === 'send' && method === 'POST') {
+        editable(c); ready(); const people = audience(c);
+        if (!people.length) throw Error('This campaign has no one to send to.');
+        if (data.send_at && (!Number.isFinite(Date.parse(data.send_at)) || Date.parse(data.send_at) <= Date.now())) throw Error('Schedule in the future.');
+        const reserved = state.campaigns.filter(c => ['queued', 'sending', 'paused'].includes(c.status)).reduce((sum, c) => sum + (c.recipients || []).filter(p => p.status === 'pending').length, 0);
+        if (people.length > Math.max(0, state.limit - state.used - reserved)) throw Error('This campaign exceeds the remaining sample send allowance.');
+        c.recipients = people.map(p => ({email: p.email, status: 'pending'})); c.status = 'queued'; c.send_at = data.send_at || null; return {...c, recipients: people.length};
+      }
+      if (action === 'resume' && method === 'POST') {
+        if (c.status !== 'paused') throw Error('Only paused campaigns can resume.');
+        if (state.used >= state.limit) throw Error('The sample monthly send limit is used up.');
+        c.status = 'queued'; c.last_error = ''; return c;
+      }
+      if (action === 'cancel' && method === 'POST') {
+        if (!['queued', 'sending', 'paused'].includes(c.status)) throw Error('This campaign is not sending.');
+        c.status = 'canceled'; for (const p of c.recipients || []) if (p.status === 'pending') p.status = 'canceled'; return c;
+      }
+    }
+    throw Error('This action is not available in the offline MailHub demo.');
+  }
+  function runWorker() {
+    let completed = 0;
+    ready();
+    for (const c of state.campaigns.filter(c => c.status === 'queued' && (!c.send_at || Date.parse(c.send_at) <= Date.now()))) {
+      for (const person of c.recipients || []) {
+        if (person.status !== 'pending') continue;
+        if (suppressed(person.email)) person.status = 'skipped';
+        else if (state.used < state.limit) { person.status = 'sent'; state.used++; }
+        else { c.status = 'paused'; c.last_error = 'Sample monthly send allowance used up.'; break; }
+      }
+      if (c.status !== 'paused') { c.status = 'sent'; completed++; }
+    }
+    return completed;
+  }
+  reset();
+  return {request: async (path, options) => copy(await handle(path, options)), reset, runWorker, inspect: () => copy(state)};
+})();
+
+function demoEmailPreview(body) {
+  const template = document.createElement('template');
+  template.innerHTML = String(body);
+  template.content.querySelectorAll('script,style,iframe,object,embed,link,meta,base,img,svg,math,form,input,button,textarea,select').forEach(e => e.remove());
+  for (const e of template.content.querySelectorAll('*')) for (const attribute of [...e.attributes]) e.removeAttribute(attribute.name);
+  const safe = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const values = {first_name: 'Alex', last_name: 'Demo', email: 'alex@example.com', unsubscribe_url: '#'};
+  const merged = template.innerHTML.replace(/\{\{\s*(\w+)\s*(?:\|([^}]*))?\}\}/g, (match, name, fallback) => name.toLowerCase() in values ? safe(values[name.toLowerCase()] || (fallback || '').trim()) : match);
+  const settings = mailhubDemo.inspect().settings;
+  return '<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; form-action \'none\'; base-uri \'none\'"><style>body{font:16px/1.6 system-ui,sans-serif;padding:24px;color:#172536;overflow-wrap:anywhere}footer{margin-top:32px;border-top:1px solid #ddd;padding-top:14px;font-size:12px;color:#536477}</style>' + merged + '<footer>' + safe(settings.from_name) + ' · ' + safe(settings.postal_address) + '<br>Unsubscribe · inert demo footer</footer>';
+}
+
+let contactOffset=0,token='demo',resetCode='',emailReset=false,editing=null,lists=[],segs=[],camps=[];
+const $=id=>document.getElementById(id);
+function msg(v){$('message').textContent=v||'';}
+async function api(path,opts={}){return mailhubDemo.request(path,opts)}
+const post=(path,body)=>api(path,{method:'POST',body:JSON.stringify(body||{})});
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+const guard=fn=>async(...a)=>{try{await fn(...a)}catch(e){msg(e.message)}};
+function logout(){resetDemo()}
+function tab(name){document.querySelectorAll('nav [data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===name?'page':'false'));for(const id of ['campaigns','contacts','segments','suppressed','settings'])$(id).classList.toggle('hidden',id!==name);$('heading').textContent={campaigns:'Campaigns',contacts:'Contacts',segments:'Segments',suppressed:'Suppressed',settings:'Settings'}[name];msg('');({campaigns:loadCampaigns,contacts:loadContactsTab,segments:loadSegments,suppressed:loadSuppressed,settings:loadSettings})[name]();}
+async function start(){const u=await api('/me');$('identity').textContent=u.email;$('auth').classList.add('hidden');tab('campaigns');}
+async function loadPlan(){const p=await api('/plan');$('planUsage').textContent=p.limit?`${p.used} of ${p.limit} sample sends`:`${p.used} sends this month`;}
+const loadCampaigns=guard(async()=>{[lists,segs,camps]=await Promise.all([api('/lists'),api('/segments'),api('/campaigns')]);const l=$('cList').value,s=$('cSegment').value;$('cList').innerHTML='<option value="">Choose a list</option>'+lists.map(x=>`<option value="${esc(x.id)}">${esc(x.name)} (${x.contacts})</option>`).join('');$('cSegment').innerHTML='<option value="">No segment</option>'+segs.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('');$('cList').value=l;$('cSegment').value=s;
+ $('campaignList').innerHTML=camps.length?camps.map(campaignHtml).join(''):'<p>No campaigns yet.</p>';await loadPlan();});
+function campaignHtml(c){const b=(label,fn,cls='outline')=>`<button class="${cls}" onclick="${fn}('${esc(c.id)}')">${label}</button>`;const draft=c.status==='draft',live=['queued','sending','paused'].includes(c.status);return `<div class="post"><strong>${esc(c.name)}</strong> <span class="pill">${esc(c.status)}</span><p>${esc(c.subject)}</p>${c.send_at&&c.status==='queued'?`<p>Scheduled for ${esc(new Date(c.send_at).toLocaleString())}</p>`:''}${c.last_error?`<p>${esc(c.last_error)}</p>`:''}<div class="row">${draft?b('Edit','editCampaign')+b('Simulate test','testCampaign')+b('Simulate send','sendCampaign','')+b('Delete','deleteCampaign'):b('Stats','showStats')}${c.status==='paused'?b('Resume','resumeCampaign',''):''}${live?b('Cancel','cancelCampaign'):''}</div></div>`;}
+const saveCampaign=guard(async()=>{const body={name:$('cName').value,subject:$('cSubject').value,body_html:$('cBody').value,list_id:$('cList').value||null,segment_id:$('cSegment').value||null};if(editing)await api('/campaigns/'+editing,{method:'PUT',body:JSON.stringify(body)});else await post('/campaigns',body);clearEditor();await loadCampaigns();msg('Draft saved.');});
+function clearEditor(){editing=null;$('editorTitle').textContent='New campaign';for(const id of ['cName','cSubject','cBody'])$(id).value='';}
+function editCampaign(id){const c=camps.find(x=>x.id===id);editing=id;$('editorTitle').textContent='Edit campaign';$('cName').value=c.name;$('cSubject').value=c.subject;$('cBody').value=c.body_html;$('cList').value=c.list_id||'';$('cSegment').value=c.segment_id||'';scrollTo(0,0);}
+const testCampaign=guard(async id=>{const email=prompt('Preview a test for this address (no email will be sent)', 'reader@example.com');if(!email)return;await post(`/campaigns/${id}/test`,{email});msg('Test simulated for '+email+'. No email was sent.');await loadPlan();});
+const sendCampaign=guard(async id=>{const a=await api(`/campaigns/${id}/audience`);const when=prompt(`This sample campaign reaches ${a.recipients} people. Leave empty to send now, or enter a date and time such as 2026-12-01 09:00.`,'');if(when===null)return;const at=when.trim()?new Date(when.trim().replace(' ','T')):null;if(at&&isNaN(at))return msg('That date was not understood.');if(!confirm(at?`Schedule for ${at.toLocaleString()}?`:`Simulate sending to ${a.recipients} people now? No email will be sent.`))return;await post(`/campaigns/${id}/send`,at?{send_at:at.toISOString()}:{});await loadCampaigns();msg(at?'Sample campaign scheduled. Nothing will be sent.':'Queued in this demo. Choose Run simulated worker to complete it; no email will be sent.');});
+function previewDraft(){$('draftFrame').srcdoc=demoEmailPreview($('cBody').value);$('draftPreview').classList.remove('hidden');}
+const deleteCampaign=guard(async id=>{if(!confirm('Delete this draft?'))return;await api('/campaigns/'+id,{method:'DELETE'});await loadCampaigns();});
+const resumeCampaign=guard(async id=>{await post(`/campaigns/${id}/resume`);await loadCampaigns();});
+const cancelCampaign=guard(async id=>{if(!confirm('Stop this campaign? Emails already sent stay sent.'))return;await post(`/campaigns/${id}/cancel`);await loadCampaigns();});
+const showStats=guard(async id=>{const s=await api(`/campaigns/${id}/stats`),c=camps.find(x=>x.id===id);$('statsTitle').textContent='Stats: '+c.name;$('statTiles').innerHTML=[['SENT',`${s.sent} of ${s.recipients}`],['DELIVERED',s.delivered],['OPENED',`${s.opened} (${s.open_rate}%)`],['CLICKED',`${s.clicked} (${s.click_rate}%)`],['UNSUBSCRIBED',s.unsubscribed],['BOUNCED',s.bounced],['COMPLAINTS',s.complained],['FAILED',s.failed]].map(([k,v])=>`<div class="tile"><span>${k}</span><strong>${esc(v)}</strong></div>`).join('');$('statLinks').innerHTML=s.links.map(l=>`<div class="post">${esc(l.url)} <span class="pill">${l.clicks} clicks</span></div>`).join('');$('preview').srcdoc=demoEmailPreview(c.body_html);$('statsPanel').classList.remove('hidden');$('statsPanel').scrollIntoView();});
+const loadContactsTab=guard(async()=>{lists=await api('/lists');$('listList').innerHTML=lists.map(l=>`<div class="post"><strong>${esc(l.name)}</strong> <span class="pill">${l.contacts}</span><div class="row"><button class="outline" onclick="removeList('${esc(l.id)}')">Delete list</button></div></div>`).join('');$('importList').innerHTML=lists.map(l=>`<option value="${esc(l.id)}">${esc(l.name)}</option>`).join('');await loadContacts();});
+const loadContacts=guard(async()=>{const d=await api(`/contacts?offset=${contactOffset}&q=`+encodeURIComponent($('contactSearch').value));if(contactOffset&&!d.contacts.length){contactOffset=Math.max(contactOffset-100,0);return loadContacts()}$('contactTotal').textContent=`(${d.total})`;$('contactList').innerHTML=d.contacts.map(c=>`<div class="post"><strong>${esc(c.email)}</strong> ${esc(c.first_name)} ${esc(c.last_name)} ${c.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join(' ')}${c.suppressed?' <span class="pill">suppressed</span>':''}<div class="row"><button class="outline" onclick="editTags('${esc(c.id)}','${esc(c.tags.join(', '))}')">Tags</button><button class="outline" onclick="removeContact('${esc(c.id)}')">Delete</button></div></div>`).join('');});
+function pageContacts(n){contactOffset=Math.max(contactOffset+n,0);loadContacts();}
+const removeList=guard(async id=>{if(!confirm('Delete this list? Its contacts stay in MailHub.'))return;await api('/lists/'+id,{method:'DELETE'});await loadContactsTab();});
+const addContact=guard(async()=>{await post('/contacts',{email:$('newEmail').value,first_name:$('newFirst').value,tags:$('newTags').value.split(','),list_id:$('importList').value||null});for(const id of ['newEmail','newFirst','newTags'])$(id).value='';await loadContactsTab();msg('Contact added.');});
+const addList=guard(async()=>{await post('/lists',{name:$('listName').value});$('listName').value='';await loadContactsTab();});
+const importCsv=guard(async()=>{const f=$('csvFile').files[0];if(!f)return msg('Choose a CSV file');const body=new FormData();body.append('file',f);body.append('consent',$('consent').checked);const r=await api(`/lists/${$('importList').value}/import`,{method:'POST',body});await loadContactsTab();msg(`${r.added} added, ${r.updated} updated, ${r.invalid} invalid, ${r.suppressed} suppressed and won't be emailed.`);});
+const editTags=guard(async(id,now)=>{const v=prompt('Tags, separated by commas',now);if(v===null)return;await api(`/contacts/${id}/tags`,{method:'PUT',body:JSON.stringify({tags:v.split(',')})});await loadContacts();});
+const removeContact=guard(async id=>{if(!confirm('Delete this contact?'))return;await api('/contacts/'+id,{method:'DELETE'});await loadContactsTab();});
+const loadSegments=guard(async()=>{const [s,t]=await Promise.all([api('/segments'),api('/tags')]);$('tagHint').textContent=t.length?'Your tags: '+t.map(x=>`${x.tag} (${x.contacts})`).join(', '):'';$('segmentList').innerHTML=s.map(x=>`<div class="post"><strong>${esc(x.name)}</strong> <span class="pill">${esc(x.match)}</span> ${x.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join(' ')}<div class="row"><button class="outline" onclick="removeSegment('${esc(x.id)}')">Delete</button></div></div>`).join('');});
+const addSegment=guard(async()=>{await post('/segments',{name:$('segName').value,tags:$('segTags').value.split(','),match:$('segMatch').value});$('segName').value=$('segTags').value='';await loadSegments();});
+const removeSegment=guard(async id=>{await api('/segments/'+id,{method:'DELETE'});await loadSegments();});
+const loadSuppressed=guard(async()=>{const r=await api('/suppressions');$('suppressionList').innerHTML=r.map(s=>`<div class="post">${esc(s.email)} <span class="pill">${esc(s.reason)}</span></div>`).join('');});
+const addSuppression=guard(async()=>{await post('/suppressions',{email:$('suppressEmail').value});$('suppressEmail').value='';await loadSuppressed();});
+function showSettings(s){$('sName').value=s.from_name;$('sEmail').value=s.from_email;$('sReply').value=s.reply_to;$('sAddress').value=s.postal_address;$('sKey').value='';$('sSecret').value='';$('sKey').placeholder=s.has_resend_key?'Resend API key saved. Type to replace':'Resend API key (full access)';$('sKey').classList.toggle('hidden',s.key_from_server);$('sSecret').placeholder=s.has_webhook_secret?'Webhook secret saved. Type to replace':'Resend webhook signing secret';$('webhookUrl').textContent=s.webhook_url;$('webhookSeen').textContent=s.webhook_last_at?'Last event: '+new Date(s.webhook_last_at).toLocaleString():'No events received yet.';$('domain').value=s.domain;$('domainStatus').textContent=s.domain?`${s.domain}: ${s.domain_status||'unknown'}`:'';$('domainRecords').innerHTML=s.domain_records.map(r=>`<div class="post"><span class="pill">${esc(r.type)}</span> <strong>${esc(r.name)}</strong> <span class="pill">${esc(r.status)}</span><p><code>${esc(r.value)}</code></p></div>`).join('');$('readiness').innerHTML=s.not_ready.length?s.not_ready.map(p=>`<p>• ${esc(p)}</p>`).join(''):'<p>Sample setup ready for simulated sending.</p>';}
+const loadSettings=guard(async()=>showSettings(await api('/settings')));
+const saveSettings=guard(async()=>{const body={from_name:$('sName').value,from_email:$('sEmail').value||null,reply_to:$('sReply').value||null,postal_address:$('sAddress').value};if($('sKey').value)body.resend_api_key=$('sKey').value;if($('sSecret').value)body.webhook_secret=$('sSecret').value;showSettings(await api('/settings',{method:'PUT',body:JSON.stringify(body)}));msg('Saved.');});
+const addDomain=guard(async()=>showSettings(await post('/domain',{domain:$('domain').value})));
+const checkDomain=guard(async()=>showSettings(await post('/domain/check')));
+
+async function resetDemo(){
+ mailhubDemo.reset();contactOffset=0;editing=null;lists=[];segs=[];camps=[];
+ for(const e of document.querySelectorAll('main input,main textarea')){if(e.type==='checkbox')e.checked=false;else e.value=''}
+ $('draftPreview').classList.add('hidden');$('statsPanel').classList.add('hidden');
+ await start();await loadCampaigns();editCampaign('c1');
+ msg('Sample draft loaded. Explore MailHub’s own screens; all changes reset when you reload.');
+}
+const runDemoWorker=guard(async()=>{const count=mailhubDemo.runWorker();await loadCampaigns();msg(count?`${count} sample campaign(s) completed in memory. No email was sent.`:'No queued campaigns are due. Scheduled campaigns wait for their selected time. No email was sent.')});
+function downloadDemoCsv(){
+ const csv='email,first_name,last_name,tags\r\nnew-reader@example.com,Casey,Example,newsletter|vip\r\ntaylor@example.com,Taylor,Demo,newsletter\r\n';
+ const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));const a=document.createElement('a');
+ a.href=url;a.download='mailhub-sample-contacts.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+const demoReady=resetDemo();
 </script></body></html>
