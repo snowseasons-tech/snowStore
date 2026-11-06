@@ -2,6 +2,8 @@
 
 A single-file dashboard for the numbers in your Google Business Profile: profile views by platform and device, searches, calls, website clicks, direction requests, messages and bookings, each compared with the previous period. Import the CSV you download from Google and it charts the numbers. No account, server, API key or build step is needed, and nothing leaves your browser.
 
+Try the [interactive offline demo](demo.html) first. It uses fictional data for three café locations and doesn't import or save anything.
+
 It opens with fictional sample data (three café locations, 12 months), so you can look around before importing anything.
 
 ## Files

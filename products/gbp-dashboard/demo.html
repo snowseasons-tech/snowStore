@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Try the Google Business Profile analytics dashboard on sample data in your browser.">
+  <title>GBP Analytics Dashboard Demo</title>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#1b2b3b;background:#eef3f8}
+    *{box-sizing:border-box}body{margin:0}.wrap{max-width:1100px;margin:auto;padding:24px}
+    header,.panel{background:#fff;border:1px solid #d5e0e8;border-radius:16px;padding:24px;margin:0 0 18px}
+    h1,h2,p{margin:0 0 12px}h1{font-size:clamp(1.7rem,5vw,2.4rem)}h2{font-size:1.15rem}
+    .muted{color:#506477}.badge{display:inline-block;background:#e5f4fb;color:#12567a;padding:3px 9px;border-radius:999px;font-size:.82rem;font-weight:650}
+    .field{display:grid;gap:5px}.field select{font:inherit;padding:8px 10px;border:1px solid #9db1c1;border-radius:8px;background:#fff;color:inherit}
+    a{color:#145987}
+    .filters{display:flex;flex-wrap:wrap;gap:14px;align-items:end}
+    .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .tile{background:#f5f9fc;border:1px solid #d5e0e8;border-radius:12px;padding:12px}.tile b{display:block;font-size:1.4rem;font-variant-numeric:tabular-nums}
+    .up{color:#0f6b3f}.down{color:#8e2c25}.chg{font-size:.85rem;font-weight:650}
+    .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.85rem;color:#506477;margin-bottom:6px}.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+    svg{width:100%;height:auto;display:block}
+    .scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{padding:9px 6px;border-bottom:1px solid #e0e7ed;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}th:first-child,td:first-child{text-align:left}
+    tbody tr{cursor:pointer}tbody tr:hover{background:#f5f9fc}tbody tr.sel{background:#e5f4fb}
+    button.link{font:inherit;background:none;border:0;color:#145987;text-decoration:underline;cursor:pointer;padding:0}
+    @media(max-width:800px){.wrap{padding:14px}.panel{padding:16px}.tiles{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <span class="badge">Interactive product demo</span>
+      <h1>GBP Analytics Dashboard</h1>
+      <p class="muted">Explore two years of fictional data for three café locations. Change the location or date range and every number is compared with the period before it. In the real dashboard you import the CSV reports you download from your Google Business Profile. Independently developed, not affiliated with Google.</p>
+    </header>
+    <section class="panel">
+      <div class="filters">
+        <label class="field">Location<select id="loc"><option value="">All locations</option></select></label>
+        <label class="field">Date range<select id="range"><option value="3">Last 3 months</option><option value="6">Last 6 months</option><option value="12" selected>Last 12 months</option></select></label>
+        <button type="button" class="link" id="reset" hidden>Show all locations</button>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Key numbers</h2>
+      <div class="tiles" id="tiles"></div>
+    </section>
+    <section class="panel">
+      <h2>Interactions over time</h2>
+      <div class="legend" id="legend"></div>
+      <svg id="chart" viewBox="0 0 640 230" role="img" aria-label="Monthly interactions by type"></svg>
+    </section>
+    <section class="panel">
+      <h2>Locations</h2>
+      <p class="muted">Click a row to filter the whole dashboard to that location.</p>
+      <div class="scroll"><table>
+        <thead><tr><th>Location</th><th>Views</th><th>Change</th><th>Calls</th><th>Website</th><th>Directions</th><th>Interaction rate</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </section>
+    <section class="panel">
+      <p class="muted">The full dashboard adds daily, weekly and monthly views by platform and device, searches, messages and bookings, top search terms, custom date ranges, side-by-side location comparison, and CSV export. Data stays in your browser.</p>
+      <p><a href="/products.html#gbp-analytics-dashboard">Back to products</a></p>
+    </section>
+  </main>
+  <script>
+    const types = [["calls", "Calls", "#12567a"], ["website", "Website clicks", "#3a9bd5"], ["directions", "Directions", "#9fd0ea"]];
+    const locations = [
+      {name: "Harbor Street Café", base: 4200, growth: 0.025},
+      {name: "Old Mill Café", base: 2900, growth: 0.012},
+      {name: "Union Square Café", base: 5100, growth: -0.004},
+    ];
+    // 24 months of deterministic sample data, ending November 2026, with a summer bump and some wobble.
+    const months = Array.from({length: 24}, (_, i) => new Date(Date.UTC(2024, 11 + i, 1)));
+    let seed = 7;
+    const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const data = locations.map((l) => months.map((d, i) => {
+      const season = 1 + 0.18 * Math.sin(((d.getUTCMonth() - 3) / 12) * 2 * Math.PI);
+      const views = Math.round(l.base * (1 + l.growth) ** i * season * (0.92 + rand() * 0.16));
+      return {views, calls: Math.round(views * (0.035 + rand() * 0.01)), website: Math.round(views * (0.05 + rand() * 0.015)), directions: Math.round(views * (0.06 + rand() * 0.015))};
+    }));
+    const $ = (id) => document.getElementById(id);
+    const fmt = (n) => Math.round(n).toLocaleString("en-US");
+    const monthName = (d) => d.toLocaleString("en-US", {month: "short", timeZone: "UTC"});
+    locations.forEach((l, i) => $("loc").append(new Option(l.name, i)));
+
+    const sum = (rows, from, to, key) => rows.reduce((t, r) => t + r.slice(from, to).reduce((s, m) => s + m[key], 0), 0);
+    const change = (now, before) => {
+      if (!before) return '<span class="chg muted">no earlier data</span>';
+      const pct = ((now - before) / before) * 100;
+      return `<span class="chg ${pct >= 0 ? "up" : "down"}">${pct >= 0 ? "▲" : "▼"} ${Math.abs(pct).toFixed(1)}%</span>`;
+    };
+
+    function render() {
+      const n = Number($("range").value), end = months.length, from = end - n, prev = from - n;
+      const sel = $("loc").value;
+      const rows = sel === "" ? data : [data[Number(sel)]];
+      $("reset").hidden = sel === "";
+      const keys = [["views", "Profile views"], ["calls", "Calls"], ["website", "Website clicks"], ["directions", "Directions"]];
+      $("tiles").innerHTML = keys.map(([k, label]) => {
+        const now = sum(rows, from, end, k), before = sum(rows, prev, from, k);
+        return `<div class="tile"><span class="muted">${label}</span><b>${fmt(now)}</b>${change(now, before)}</div>`;
+      }).join("");
+
+      $("legend").innerHTML = types.map(([, label, color]) => `<span><i style="background:${color}"></i>${label}</span>`).join("");
+      const series = months.slice(from).map((_, j) => types.map(([k]) => rows.reduce((t, r) => t + r[from + j][k], 0)));
+      const max = Math.max(...series.map((s) => s.reduce((a, b) => a + b, 0)));
+      const slot = 600 / n, w = Math.min(36, slot * 0.7);
+      $("chart").innerHTML = `<line x1="30" y1="200" x2="630" y2="200" stroke="#d5e0e8"/>` + series.map((s, j) => {
+        let y = 200;
+        const x = 30 + j * slot + (slot - w) / 2;
+        const bars = s.map((v, t) => {
+          const h = (v / max) * 180;
+          y -= h;
+          return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${types[t][2]}"><title>${monthName(months[from + j])}: ${fmt(v)} ${types[t][1].toLowerCase()}</title></rect>`;
+        }).join("");
+        return bars + `<text x="${x + w / 2}" y="220" text-anchor="middle" font-size="12" fill="#506477">${monthName(months[from + j])}</text>`;
+      }).join("");
+
+      $("rows").replaceChildren(...locations.map((l, i) => {
+        const r = [data[i]];
+        const views = sum(r, from, end, "views"), interactions = sum(r, from, end, "calls") + sum(r, from, end, "website") + sum(r, from, end, "directions");
+        const tr = document.createElement("tr");
+        if (String(i) === sel) tr.className = "sel";
+        tr.innerHTML = `<td></td><td>${fmt(views)}</td><td>${change(views, sum(r, prev, from, "views"))}</td><td>${fmt(sum(r, from, end, "calls"))}</td>
+          <td>${fmt(sum(r, from, end, "website"))}</td><td>${fmt(sum(r, from, end, "directions"))}</td><td>${((interactions / views) * 100).toFixed(1)}%</td>`;
+        tr.firstChild.textContent = l.name;
+        tr.tabIndex = 0;
+        const pick = () => { $("loc").value = String(i) === sel ? "" : i; render(); };
+        tr.addEventListener("click", pick);
+        tr.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+        return tr;
+      }));
+    }
+    $("loc").addEventListener("change", render);
+    $("range").addEventListener("change", render);
+    $("reset").addEventListener("click", () => { $("loc").value = ""; render(); });
+    render();
+  </script>
+</body>
+</html>

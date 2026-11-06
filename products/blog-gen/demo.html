@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Try building a weekly blog roundup from sample articles in your browser.">
+  <title>Auto Blogger Demo</title>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#1b2b3b;background:#eef3f8}
+    *{box-sizing:border-box}body{margin:0}.wrap{max-width:1100px;margin:auto;padding:24px}
+    header,.panel{background:#fff;border:1px solid #d5e0e8;border-radius:16px;padding:24px;margin:0 0 18px}
+    h1,h2,p{margin:0 0 12px}h1{font-size:clamp(1.7rem,5vw,2.4rem)}h2{font-size:1.15rem}
+    .muted{color:#506477}.badge{display:inline-block;background:#e5f4fb;color:#12567a;padding:3px 9px;border-radius:999px;font-size:.82rem;font-weight:650}
+    .field{display:grid;gap:5px}.field input,.field select,.field textarea{font:inherit;padding:9px 12px;border:1px solid #9db1c1;border-radius:8px;background:#fff;color:inherit}
+    textarea{min-height:90px;resize:vertical}
+    a{color:#145987}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:20px;align-items:start}
+    .fields{display:grid;gap:12px}
+    .src{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid #d5e0e8;border-radius:10px}
+    .src input{margin-top:5px}.src small{display:block;color:#506477}
+    .mode{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:#eef3f8;border-radius:6px;padding:1px 6px;margin-right:4px}
+    .tabs{display:flex;gap:6px;margin-bottom:10px}.tabs button{font:inherit;padding:7px 14px;border:1px solid #9db1c1;border-radius:8px;background:#fff;cursor:pointer;color:inherit;font-weight:650}
+    .tabs button[aria-selected="true"]{background:#12567a;border-color:#12567a;color:#fff}
+    pre{background:#0f1c2a;color:#d8e6f3;padding:16px;border-radius:12px;overflow:auto;max-height:640px;font-size:.82rem;white-space:pre-wrap;margin:0}
+    .post{border:1px solid #d5e0e8;border-radius:12px;padding:20px;max-height:640px;overflow:auto}
+    .post h1{font-size:1.5rem}.post h2{font-size:1.1rem;margin-top:18px}.post blockquote{margin:0 0 12px;padding-left:12px;border-left:3px solid #9fd0ea;color:#506477}
+    .post ul{margin:0 0 12px;padding-left:20px}.post hr{border:0;border-top:1px solid #e0e7ed;margin:18px 0}
+    .status{font-size:.9rem;padding:10px 12px;border-radius:10px;background:#e5f4fb;color:#12567a}
+    @media(max-width:850px){.wrap{padding:14px}.panel{padding:16px}.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <span class="badge">Interactive product demo</span>
+      <h1>Auto Blogger</h1>
+      <p class="muted">Pick which sample articles go into this week's roundup, add your own take, and watch the post build itself using the product's default template. The articles are fictional and nothing is fetched or published.</p>
+    </header>
+    <section class="panel">
+      <div class="layout">
+        <form class="fields" id="form">
+          <h2>This week's roundup</h2>
+          <label class="field">Topic name<input id="topic" value="Small Business Tech Weekly" maxlength="80"></label>
+          <label class="field">Tags (comma separated)<input id="tags" value="smallbusiness, tools" maxlength="120"></label>
+          <div class="field"><span>Articles found this week</span><div id="sources" class="fields"></div></div>
+          <label class="field">Your commentary (optional)<textarea id="commentary" maxlength="1200">Three quick wins this week. If you only try one, make it the inventory reorder rule.</textarea></label>
+          <label class="field">Publish to<select id="target"><option value="hugo">Hugo (writes a .md file)</option><option value="wordpress">WordPress</option><option value="ghost">Ghost</option></select></label>
+          <label><input type="checkbox" id="live"> Publish live instead of as a draft</label>
+          <p class="status" id="status"></p>
+        </form>
+        <div>
+          <div class="tabs" role="tablist">
+            <button type="button" role="tab" aria-selected="true" data-tab="preview">Preview</button>
+            <button type="button" role="tab" aria-selected="false" data-tab="markdown">Markdown</button>
+          </div>
+          <article class="post" id="preview"></article>
+          <pre id="markdown" hidden></pre>
+        </div>
+      </div>
+    </section>
+    <section class="panel">
+      <p class="muted">The real tool is a Node.js command-line app. It reads RSS feeds, blog index pages and single articles you list in <code>sources.json</code>, respects robots.txt and rate limits, skips items it has already used, and runs on a weekly schedule. Summaries are excerpts from the source, with attribution links.</p>
+      <p><a href="/products.html#blog-gen">Back to products</a></p>
+    </section>
+  </main>
+  <script>
+    const articles = [
+      {mode: "feed", site: "retailnotes.example", title: "Setting a reorder point that actually works", author: "Dana Example", date: "2026-12-01",
+        summary: ["A reorder point is daily sales times lead time, plus a small safety buffer.", "Review it monthly in busy seasons, quarterly otherwise.", "Low-stock alerts only help if someone owns acting on them."],
+        terms: ["inventory", "reorder"], url: "https://retailnotes.example/reorder-points"},
+      {mode: "index", site: "localgrowth.example", title: "Five minutes a week on your Google profile", author: "", date: "2026-12-02",
+        summary: ["Fresh photos and replies to reviews are the habits that stick.", "Set holiday hours early so Maps doesn't send people to a closed door."],
+        terms: ["local seo", "reviews"], url: "https://localgrowth.example/gbp-weekly"},
+      {mode: "page", site: "invoicing.example", title: "Why your invoices get paid late", author: "Sam Placeholder", date: "2026-11-28",
+        summary: ["Clear due dates and a single payment link cut the back-and-forth.", "A polite reminder three days after the due date recovers most late invoices.", "Numbered invoices make follow-up and bookkeeping simpler."],
+        terms: ["invoicing", "cash flow"], url: "https://invoicing.example/late-payments"},
+      {mode: "feed", site: "retailnotes.example", title: "A one-page holiday staffing plan", author: "Dana Example", date: "2026-11-30",
+        summary: ["List your peak hours first, then fill them, not the other way round.", "Keep one person on call for the busiest Saturday."],
+        terms: ["staffing", "holidays"], url: "https://retailnotes.example/holiday-staffing"},
+    ];
+    const $ = (id) => document.getElementById(id);
+    articles.forEach((a, i) => {
+      const row = document.createElement("label");
+      row.className = "src";
+      row.innerHTML = `<input type="checkbox" ${i < 3 ? "checked" : ""} data-i="${i}"><span><span class="mode"></span><strong></strong><small></small></span>`;
+      row.querySelector(".mode").textContent = a.mode;
+      row.querySelector("strong").textContent = a.title;
+      row.querySelector("small").textContent = a.site;
+      $("sources").append(row);
+    });
+    const md = (s) => s.replace(/([\\`*_[\]#>])/g, "\\$1");
+
+    // Mirrors renderPost() in blogen.mjs with the default template.
+    function build() {
+      const items = [...document.querySelectorAll("#sources input:checked")].map((c) => articles[c.dataset.i]);
+      const date = new Date().toISOString().slice(0, 10);
+      const live = $("live").checked;
+      const topic = $("topic").value.trim() || "Weekly Roundup";
+      const base = $("tags").value.split(",").map((t) => t.trim()).filter(Boolean);
+      const tags = [...new Set([...base, ...items.flatMap((i) => i.terms.slice(0, 2))])].slice(0, 8);
+      const fm = `---\ntitle: "${topic.replace(/"/g, "'")} — ${date}"\ndate: ${date}\ndraft: ${!live}\ntags: [${tags.join(", ")}]\nsources: ${items.length}\n---\n`;
+      const intro = items.length
+        ? `This edition covers ${items.length} recent ${items.length === 1 ? "piece" : "pieces"} from ${[...new Set(items.map((i) => md(i.site)))].join(", ")}. Each entry below is a short summary with a link to the original; read the source for the full story.\n`
+        : "No articles selected yet.\n";
+      const commentary = $("commentary").value.trim() ? `## Editor's take\n\n${$("commentary").value.trim()}\n` : "";
+      const sections = items.map((it, n) => [
+        `## ${n + 1}. ${md(it.title)}`,
+        `*${md(it.site)}${it.author ? ` · ${md(it.author)}` : ""} · ${it.date}*\n`,
+        `**Key points**\n\n${it.summary.map((s) => `- ${md(s)}`).join("\n")}\n`,
+        `Topics: ${it.terms.join(", ")}\n`,
+        `[Read the original at ${md(it.site)} →](${it.url})\n`,
+      ].join("\n"));
+      const sources = items.map((i) => `- [${md(i.title)}](${i.url}) (${md(i.site)})`).join("\n");
+      const out = `${fm}\n# ${md(topic)}\n\n${intro}\n${commentary}\n${sections.join("\n---\n\n")}\n\n## Sources\n\n${sources}\n`;
+      $("markdown").textContent = out;
+      $("preview").innerHTML = toHtml(out.replace(/^---[\s\S]*?---\n/, ""));
+      const where = {hugo: "a Markdown file in content/posts", wordpress: "your WordPress site", ghost: "your Ghost site"}[$("target").value];
+      $("status").textContent = items.length
+        ? `On a real run this would be sent to ${where} as ${live ? "a live post" : "a draft for you to review"}.`
+        : "Select at least one article to build a post.";
+    }
+
+    // Just enough Markdown for the preview: headings, lists, quotes, rules, bold, italics, links.
+    function toHtml(src) {
+      const esc = (s) => s.replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+      const inline = (s) => esc(s)
+        .replace(/\[([^\]]+)\]\((https:\/\/[^)\s]+)\)/g, '<a href="$2" rel="nofollow">$1</a>')
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/\*([^*]+)\*/g, "<em>$1</em>")
+        .replace(/\\([\\`*_[\]#>])/g, "$1");
+      let html = "", list = false;
+      for (const line of src.split("\n")) {
+        if (/^- /.test(line)) { if (!list) { html += "<ul>"; list = true; } html += `<li>${inline(line.slice(2))}</li>`; continue; }
+        if (list) { html += "</ul>"; list = false; }
+        if (/^# /.test(line)) html += `<h1>${inline(line.slice(2))}</h1>`;
+        else if (/^## /.test(line)) html += `<h2>${inline(line.slice(3))}</h2>`;
+        else if (/^> /.test(line)) html += `<blockquote>${inline(line.slice(2))}</blockquote>`;
+        else if (line === "---") html += "<hr>";
+        else if (line.trim()) html += `<p>${inline(line)}</p>`;
+      }
+      return html + (list ? "</ul>" : "");
+    }
+
+    document.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => {
+      document.querySelectorAll("[data-tab]").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+      $("preview").hidden = b.dataset.tab !== "preview";
+      $("markdown").hidden = b.dataset.tab !== "markdown";
+    }));
+    $("form").addEventListener("input", build);
+    $("form").addEventListener("submit", (e) => e.preventDefault());
+    build();
+  </script>
+</body>
+</html>

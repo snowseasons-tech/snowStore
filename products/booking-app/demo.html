@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Try the white-label weekly booking calendar in your browser.">
+  <title>Auto Scheduler Demo</title>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#1b2b3b;background:#eef3f8}
+    *{box-sizing:border-box}body{margin:0}.wrap{max-width:1100px;margin:auto;padding:24px}
+    header,.panel{background:#fff;border:1px solid #d5e0e8;border-radius:16px;padding:24px;margin:0 0 18px}
+    h1,h2,p{margin:0 0 12px}h1{font-size:clamp(1.7rem,5vw,2.4rem)}h2{font-size:1.15rem}
+    .muted{color:#506477}.badge{display:inline-block;background:#e5f4fb;color:#12567a;padding:3px 9px;border-radius:999px;font-size:.82rem;font-weight:650}
+    .field{display:grid;gap:5px}.field input,.field select,button{font:inherit;padding:9px 12px;border:1px solid #9db1c1;border-radius:8px;background:#fff;color:inherit}
+    button{cursor:pointer;background:#12567a;color:#fff;border-color:#12567a;font-weight:650}button:disabled{opacity:.45;cursor:not-allowed}
+    a{color:#145987}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+    .stat{background:#f5f9fc;border:1px solid #d5e0e8;border-radius:12px;padding:14px}.stat b{display:block;font-size:1.6rem}
+    .layout{display:grid;grid-template-columns:280px minmax(0,1fr);gap:20px;align-items:start}
+    form{display:grid;gap:12px}
+    .grid{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:8px;overflow-x:auto}
+    .day h3{font-size:.95rem;margin:0 0 8px;text-align:center}
+    .slot{min-height:64px;border-radius:10px;padding:8px;margin-bottom:8px;font-size:.85rem}
+    .slot.open{border:1.5px dashed #b8c8d6;color:#8a9cad;display:grid;place-items:center}
+    .slot.booked{background:#e5f4fb;border:1px solid #9fd0ea;position:relative}
+    .slot.booked strong{display:block}.slot .st{font-size:.75rem;color:#506477}
+    .slot .x{position:absolute;top:6px;right:6px;padding:2px 7px;font-size:.75rem;background:#8e2c25;border-color:#8e2c25}
+    @media(max-width:800px){.wrap{padding:14px}.panel{padding:16px}.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stat{padding:10px;font-size:.85rem}.stat b{font-size:1.2rem}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <span class="badge">Interactive product demo</span>
+      <h1>Auto Scheduler</h1>
+      <p class="muted">Book and cancel appointments on a sample week. Taken slots can't be double-booked, and the stats update as you go. Everything stays in this page and resets when you reload.</p>
+    </header>
+    <section class="panel">
+      <div class="stats">
+        <div class="stat"><span class="muted">Bookings this week</span><b id="s-total">0</b></div>
+        <div class="stat"><span class="muted">Confirmed</span><b id="s-confirmed">0</b></div>
+        <div class="stat"><span class="muted">Open slots</span><b id="s-open">0</b></div>
+      </div>
+      <div class="layout">
+        <form id="form">
+          <h2>New booking</h2>
+          <label class="field">Client name<input id="client" maxlength="60" placeholder="Jordan Smith"></label>
+          <label class="field">Email<input id="email" type="email" maxlength="80" placeholder="jordan@example.com"></label>
+          <label class="field">Service<select id="service"></select></label>
+          <label class="field">Day<select id="day"></select></label>
+          <label class="field">Time<select id="time"></select></label>
+          <button id="confirm" disabled>Confirm booking</button>
+        </form>
+        <div class="grid" id="grid" aria-label="Week of appointment slots"></div>
+      </div>
+    </section>
+    <section class="panel">
+      <p class="muted">The real product is a React + TypeScript component (Tailwind and shadcn/ui) that you drop into your own project and connect to your own API.</p>
+      <p><a href="/products.html#booking-app">Back to products</a></p>
+    </section>
+  </main>
+  <script>
+    const days = ["Mon 5", "Tue 6", "Wed 7", "Thu 8", "Fri 9"];
+    const times = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00"];
+    const services = ["Consultation", "Styling", "Follow-up", "Training", "Site review"];
+    let bookings = [
+      {id: 1, client: "Anna Lee", email: "anna@example.com", service: "Consultation", day: 0, time: "09:00", status: "Confirmed"},
+      {id: 2, client: "Marc Diaz", email: "marc@example.com", service: "Styling", day: 1, time: "11:00", status: "Confirmed"},
+      {id: 3, client: "Priya Patel", email: "priya@example.com", service: "Follow-up", day: 3, time: "14:00", status: "Pending"},
+    ];
+    let nextId = 4;
+    const $ = (id) => document.getElementById(id);
+    const taken = (day, time) => bookings.some((b) => b.day === day && b.time === time);
+    const opt = (value, label, disabled) => Object.assign(document.createElement("option"), {value, textContent: label, disabled});
+
+    services.forEach((s) => $("service").append(opt(s, s)));
+    days.forEach((d, i) => $("day").append(opt(i, d)));
+
+    function fillTimes() {
+      const day = Number($("day").value), keep = $("time").value;
+      $("time").replaceChildren(...times.map((t) => opt(t, taken(day, t) ? `${t} (taken)` : t, taken(day, t))));
+      const free = times.find((t) => !taken(day, t));
+      $("time").value = keep && !taken(day, keep) ? keep : free || "";
+    }
+    function validate() {
+      const ok = $("client").value.trim() && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("email").value.trim())
+        && $("time").value && !taken(Number($("day").value), $("time").value);
+      $("confirm").disabled = !ok;
+    }
+    function render() {
+      $("s-total").textContent = bookings.length;
+      $("s-confirmed").textContent = bookings.filter((b) => b.status === "Confirmed").length;
+      $("s-open").textContent = days.length * times.length - bookings.length;
+      $("grid").replaceChildren(...days.map((d, di) => {
+        const col = document.createElement("div");
+        col.className = "day";
+        col.append(Object.assign(document.createElement("h3"), {textContent: d}));
+        times.forEach((t) => {
+          const b = bookings.find((x) => x.day === di && x.time === t);
+          const slot = document.createElement("div");
+          if (!b) { slot.className = "slot open"; slot.textContent = t; }
+          else {
+            slot.className = "slot booked";
+            slot.append(Object.assign(document.createElement("strong"), {textContent: `${t} ${b.client}`}),
+              b.service, Object.assign(document.createElement("div"), {className: "st", textContent: b.status}));
+            const x = Object.assign(document.createElement("button"), {className: "x", type: "button", textContent: "Cancel"});
+            x.setAttribute("aria-label", `Cancel ${b.client} at ${t} on ${d}`);
+            x.onclick = () => { bookings = bookings.filter((y) => y !== b); fillTimes(); render(); validate(); };
+            slot.append(x);
+          }
+          col.append(slot);
+        });
+        return col;
+      }));
+    }
+    $("day").addEventListener("change", () => { fillTimes(); validate(); });
+    ["client", "email", "time"].forEach((id) => $(id).addEventListener("input", validate));
+    $("form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      if ($("confirm").disabled) return;
+      bookings.push({id: nextId++, client: $("client").value.trim(), email: $("email").value.trim(),
+        service: $("service").value, day: Number($("day").value), time: $("time").value, status: "Confirmed"});
+      $("client").value = $("email").value = "";
+      fillTimes(); render(); validate();
+    });
+    fillTimes(); render();
+  </script>
+</body>
+</html>

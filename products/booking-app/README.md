@@ -2,6 +2,8 @@
 
 A single-page, booking-only scheduling tool built as a white-label demo. It renders a weekly calendar of appointment slots and lets you create, view, and cancel bookings — all in client-side React state, with no backend.
 
+Try the [interactive offline demo](demo.html) first. It runs the same weekly calendar in plain HTML with sample bookings that reset on reload.
+
 > **Note:** This is a demo component. Bookings are seeded with sample data and persist only for the current session — nothing is sent to a server or saved between reloads.
 
 ## Features
