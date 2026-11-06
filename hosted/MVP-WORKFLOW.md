@@ -86,7 +86,7 @@ For every completed phase record: commit, environment, exact checks, observed re
 | Phase 3: customer isolation | `f42a9fa`; Cloudflare local runtime + disposable Redis 7 | Two-account isolation, 200/409 simultaneous saves, 404 foreign edits, browser import/export and stale-edit recovery passed | Implemented and verified locally; production pilots disabled |
 | Phase 4: subscription lifecycle | `4c23cd7`; local fixtures | Signed/replayed webhooks, grace boundaries, provider failures, billing ownership and browser recovery passed | Implemented; real Stripe sandbox journey deferred to phase 7 |
 | Phase 5: HubSpot connector | `32a675d`; fixture tests and Cloudflare runtime | Encryption, review, delivery IDs, duplicate/lost-response recovery, backoff, ownership and browser flow verified | Implemented; real HubSpot test-account check still required |
-| Phase 6: operations and recovery | Commit containing phase 6 changes; isolated Redis | Encrypted CLI snapshot, two-tenant restore, disarmed CRM, archived-code rollback/edit/roll-forward and sanitized failure signals verified | Tooling implemented; production offsite backups and external alert routing pending |
+| Phase 6: operations and recovery | `8a2c0ec`; isolated Redis | Encrypted CLI snapshot, two-tenant restore, disarmed CRM, archived-code rollback/edit/roll-forward and sanitized failure signals verified | Tooling implemented; production offsite backups and external alert routing pending |
 
 ## Remaining bundle sequence
 
@@ -163,3 +163,5 @@ Implemented encrypted, explicitly scoped backup/restore tooling; maintenance gua
 - Production backup scheduling/offsite storage and external alert delivery are not configured. Confirm a fictional failure reaches the chosen operator destination and run a target-environment restore before customer rollout. The real HubSpot and Stripe pilot checks remain pending.
 
 Phase 6 tooling and isolated recovery checks are implemented; live operations configuration is still a release prerequisite. Next independent work is phase 7 pilot preparation, with real provider execution awaiting test-account access.
+
+Phase 6 deployment evidence: `8a2c0ec` pushed to main. All 174 repository tests and 42 workspace tests passed; the disposable Redis drill verified restore/isolation plus rollback read/write and roll-forward against archived commit `32a675d`. Lint, catalog validation and Pages build passed. Production signed-out data access returned HTTP 401 with a matching support request reference/header. No production store, backup schedule, notification destination, maintenance flag or provider enablement was changed.
