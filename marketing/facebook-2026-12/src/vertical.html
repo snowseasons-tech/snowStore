@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Manrope'; src: url('../../../img/fonts/manrope-latin-variable.woff2') format('woff2'); font-weight: 400 800; }
+  @font-face { font-family: 'Source Sans 3'; src: url('../../../img/fonts/source-sans-3-latin-variable.woff2') format('woff2'); font-weight: 400 700; }
+  :root { --bg: #070d19; --card: #152035; --line: #34516d; --text: #edf4ff; --muted: #b4c3d5; --ice: #74dbff; --accent: #8adfff; --warm: #ffb547; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; }
+  body {
+    background: radial-gradient(circle at 85% 12%, #12385a 0%, transparent 40%), radial-gradient(circle at 10% 92%, #0f2b48 0%, transparent 38%), var(--bg);
+    color: var(--text); font-family: 'Source Sans 3', sans-serif; position: relative;
+  }
+  .dots { position: absolute; width: 144px; height: 144px; background-image: radial-gradient(#2c5a85 3px, transparent 3px); background-size: 28px 28px; opacity: .7; }
+  /* Reels and Stories cover the top ~250px and bottom ~420px with UI, and the right edge with buttons, so content stays inside this frame. */
+  .frame { position: absolute; top: 280px; bottom: 460px; left: 90px; right: 150px; display: flex; flex-direction: column; justify-content: center; }
+  .eyebrow { font-family: 'Manrope'; font-weight: 700; font-size: 34px; letter-spacing: .14em; text-transform: uppercase; color: var(--ice); margin-bottom: 30px; }
+  h1 { font-family: 'Manrope'; font-weight: 800; font-size: 104px; line-height: 1.02; letter-spacing: -.02em; }
+  h1 em { font-style: normal; color: var(--ice); }
+  .sub { font-size: 44px; line-height: 1.3; color: var(--muted); margin-top: 36px; }
+  .list { list-style: none; margin-top: 48px; display: grid; gap: 24px; }
+  .list li { display: flex; gap: 28px; align-items: center; background: rgba(21,32,53,.85); border: 2px solid var(--line); border-radius: 22px; padding: 26px 32px; font-size: 42px; font-weight: 600; }
+  .list li.off { visibility: hidden; }
+  .list li.now { border-color: var(--ice); box-shadow: 0 0 40px rgba(116,219,255,.25); }
+  .list .n { flex: none; width: 70px; height: 70px; border-radius: 18px; background: #0e2a44; color: var(--ice); font-family: 'Manrope'; font-weight: 800; font-size: 38px; display: grid; place-items: center; }
+  .list .box { flex: none; width: 52px; height: 52px; border: 4px solid var(--ice); border-radius: 12px; display: grid; place-items: center; color: var(--ice); font-size: 38px; font-weight: 800; }
+  .list small { display: block; font-size: 32px; font-weight: 400; color: var(--muted); margin-top: 4px; }
+  .big-n { font-family: 'Manrope'; font-weight: 800; font-size: 340px; line-height: .85; color: var(--ice); text-shadow: 0 0 90px rgba(116,219,255,.35); margin-bottom: 30px; }
+  .cta { margin-top: 56px; display: inline-flex; align-self: flex-start; background: var(--accent); color: #061223; font-family: 'Manrope'; font-weight: 800; font-size: 40px; padding: 26px 42px; border-radius: 20px; }
+  .footer { position: absolute; left: 0; right: 0; bottom: 380px; display: flex; justify-content: center; align-items: center; gap: 18px; font-family: 'Manrope'; font-weight: 600; font-size: 30px; letter-spacing: .24em; color: #7f9fc4; }
+  .footer svg { width: 46px; height: 46px; }
+  .big-mark { position: absolute; right: -120px; top: 300px; width: 700px; height: 700px; opacity: .12; }
+  .center { align-items: center; text-align: center; }
+  .center .cta { align-self: center; }
+  .poll-slot { height: 340px; } /* left empty: the Facebook poll sticker goes here */
+</style>
+</head>
+<body>
+<div class="dots" style="left:70px;top:150px"></div>
+<div class="dots" style="right:70px;bottom:520px"></div>
+<div id="root"></div>
+<div class="footer">
+  <svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#e5f4ff"/><path d="M20 7v26M9 13l22 14M9 27l22-14m-15-3 4 4 4-4m-8 20 4-4 4 4M9 18l5-1-1-5m18 10-5 1 1 5M9 22l5 1-1 5m18-10-5-1 1-5" stroke="#1466a1" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+  SNOW SEASONS TECH
+</div>
+<script>
+const mark = '<svg class="big-mark" viewBox="0 0 40 40"><path d="M20 7v26M9 13l22 14M9 27l22-14m-15-3 4 4 4-4m-8 20 4-4 4 4M9 18l5-1-1-5m18 10-5 1 1 5M9 22l5 1-1 5m18-10-5-1 1-5" stroke="#9bdcfc" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>';
+const cta = '<span class="cta">snowseasonstech.store</span>';
+
+// A list that reveals one item per step: items before `step` show, the item at `step` is highlighted, the rest are hidden.
+const reveal = (items, step, marker) => `<ul class="list">${items.map((it, i) =>
+  `<li class="${i > step ? 'off' : i === step ? 'now' : ''}">${marker(i)}<div>${it}</div></li>`).join('')}</ul>`;
+
+const automate = ['Invoices<small>Start from a template</small>', 'Bookings<small>Customers pick an open time</small>',
+  'Stock counts<small>Low-stock alerts, not surprises</small>', 'Social posts<small>Plan the month in one sitting</small>'];
+const gbp = ["Holiday &amp; New Year's hours", '3+ new photos from this year', 'Services &amp; description current',
+  'Every review has a reply', 'Phone &amp; website link tested'];
+
+const slides = {
+  // Reel 1: 4 things to automate before January
+  'automate-hook': `${mark}<div class="frame">
+    <div class="eyebrow">Before January</div>
+    <h1>Still doing these <em>by hand?</em></h1>
+    <p class="sub">4 chores worth automating this month.</p></div>`,
+  ...Object.fromEntries(automate.map((_, s) => [`automate-${s + 1}`, `<div class="frame">
+    <div class="eyebrow">Automate before January</div>
+    <h1 style="font-size:88px">${s + 1} of <em>4</em></h1>
+    ${reveal(automate, s, i => `<span class="n">${i + 1}</span>`)}</div>`])),
+  'automate-cta': `${mark}<div class="frame">
+    <div class="eyebrow">One a week</div>
+    <h1>Start 2027 with <em>4 fewer chores.</em></h1>
+    <p class="sub">Templates, trackers and dashboards that do the boring part.</p>
+    ${cta}</div>`,
+
+  // Reel 2: 10-minute Google Business Profile tune-up
+  'gbp-hook': `${mark}<div class="frame">
+    <div class="big-n">10</div>
+    <h1>minutes to fix your <em>Google profile</em> for 2027</h1></div>`,
+  ...Object.fromEntries(gbp.map((_, s) => [`gbp-${s + 1}`, `<div class="frame">
+    <div class="eyebrow">Year-end tune-up</div>
+    <h1 style="font-size:88px">Check <em>${s + 1}</em> of 5</h1>
+    ${reveal(gbp, s, i => `<span class="box">${i < s ? '✓' : ''}</span>`)}</div>`])),
+  'gbp-cta': `${mark}<div class="frame">
+    <div class="eyebrow">Then see what it earned you</div>
+    <h1>Calls, clicks and directions <em>on one chart.</em></h1>
+    <p class="sub">The GBP Analytics Dashboard reads your profile's CSV reports. Not affiliated with Google.</p>
+    ${cta}</div>`,
+
+  // Story: poll that pairs with the Dec 9 tip post
+  'story-poll': `${mark}<div class="frame center">
+    <div class="eyebrow">Quick question</div>
+    <h1 style="font-size:96px">Which would you <em>automate first?</em></h1>
+    <p class="sub">🧾 Invoices or 📱 social posts. Vote below.</p>
+    <div class="poll-slot"></div></div>`,
+};
+document.getElementById('root').innerHTML = slides[location.hash.slice(1)] || 'unknown slide';
+</script>
+</body>
+</html>
