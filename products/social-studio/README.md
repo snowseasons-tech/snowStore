@@ -126,6 +126,12 @@ Point `LLM_BASE_URL` at any OpenAI-compatible `/v1` endpoint and set `LLM_MODEL`
 - Back up the `mysqldata` Docker volume and your `.env` file. Without the same `FERNET_KEY`, restored account connections stop working and have to be reconnected.
 - The database tables are created automatically on first start. There's no migration tool yet, so before updating to a newer version, back up the database.
 
+### Release 0.5.1
+
+- Sign-in limits apply across concurrent requests and web workers, with a retry time when an email or client address is temporarily locked out.
+- Connected-account usage now loads correctly and reports request failures.
+- Regression tests cover concurrent sign-ins on MySQL 8.4 as well as SQLite.
+
 ## Running the tests
 
 ```bash
