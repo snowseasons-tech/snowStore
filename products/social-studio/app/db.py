@@ -107,6 +107,13 @@ class SessionCutoff(Base):
     __tablename__='session_cutoffs'
     user_id: Mapped[str]=mapped_column(ForeignKey('users.id',ondelete='CASCADE'),primary_key=True)
     generation: Mapped[int]=mapped_column(Integer,default=0)
+class LoginThrottle(Base):
+    # Failed sign-in counts per key ("acct:<hash of email>" or "ip:<address>"). Stored in the
+    # database so every worker sees the same counts; a new table, so upgrading needs no migration.
+    __tablename__='login_throttle'
+    key: Mapped[str]=mapped_column(String(100),primary_key=True)
+    failures: Mapped[int]=mapped_column(Integer,default=0)
+    window_start: Mapped[datetime]=mapped_column(UTCDateTime())
 
 # MVP bootstrapping. Switch to Alembic migrations before operating a production deployment.
 def init_db(): Base.metadata.create_all(engine)

@@ -134,11 +134,18 @@ python3 -m venv .venv
 .venv/bin/python -m pytest
 ```
 
+With Node.js installed, run the browser-code regression tests too:
+
+```bash
+node --test tests/frontend.test.cjs
+```
+
 The tests use a temporary SQLite database and simulated Meta, Google and AI responses, so they need no accounts, Docker or internet access. They cover sign-up and invites, password resets (including a real SMTP delivery to a local test server), workspace isolation, roles, the approval and scheduling rules, the OAuth flow, the worker, and the provider calls.
 
 ## Known limitations
 
-- The login session is a 12-hour token kept in the browser's local storage. There's no two-factor login or login rate limiting yet, so use long passwords and keep the server behind HTTPS.
+- The login session is a 12-hour token kept in the browser's local storage. Sign-in allows 5 failed attempts per email and 30 per client address in any 15-minute window; after that it returns 429 with a `Retry-After` header. There's no two-factor login yet, so use long passwords and keep the server behind HTTPS.
+- The per-address limit uses the address the app sees. Behind a reverse proxy that is the proxy's address, so every user shares one limit. Pass the real client address through the proxy before relying on this limit in production.
 - Real publishing hasn't been tested against live Meta or Google accounts by us. It depends on your app approvals, account eligibility and the providers' APIs, which change over time.
 - Images are referenced by public URL; there's no built-in image upload or media library.
 - With `MAX_ACCOUNTS` set, a Meta or Google sign-in adds accounts in the order the provider lists them until the limit is full, and there's no way yet to pick which ones. Reconnecting an existing account never counts against the limit.
