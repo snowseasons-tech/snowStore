@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / 'products/social-studio'
 EXCLUDED = {'.git', '.pytest_cache', '__pycache__', 'node_modules', '.venv', 'venv'}
 TOP_LEVEL = {
-    '.env.example', 'Dockerfile', 'README.md', 'docker-compose.yml',
+    '.env.example', 'Dockerfile', 'README.md', 'demo.html', 'docker-compose.yml',
     'requirements.txt', 'requirements.lock', 'requirements-dev.txt',
 }
 

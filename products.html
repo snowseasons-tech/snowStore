@@ -193,9 +193,9 @@ const DETAILS={
  "website-management-secondary":{icon:"website-secondary",category:"Website Management",blurb:"Maintenance and technical management for an additional site, such as a microsite or extra brand. Requires Primary."},
  "managed-database":{icon:"managed-database",category:"Infrastructure",blurb:"Snow Seasons Tech provides ongoing database administration, infrastructure maintenance, security oversight, and technical support for business-critical database environments.",
   more:{intro:"Our managed infrastructure service helps organizations maintain reliable database operations, protect business information, and support the applications and websites that depend on structured data.",title:"Services include",items:["Administration and maintenance of supported relational database systems, including PostgreSQL and MySQL.", "Monitoring of database availability, resource utilization, storage capacity, and operational health.", "Routine database maintenance, including appropriate indexing reviews, performance analysis, and query optimization recommendations.", "Database access management, including user permissions, role-based access controls, and credential security recommendations.", "Security configuration reviews, vulnerability assessments, and applicable database software updates.", "Backup configuration, scheduled backup monitoring, and periodic restoration verification where supported by the infrastructure.", "Database connectivity troubleshooting and support for existing application integrations.", "Monitoring of database errors, connection failures, and performance degradation.", "Schema maintenance assistance and review of database structure changes.", "Infrastructure configuration assistance for Docker-based deployments and supported hosting environments.", "Basic capacity planning and recommendations for storage, compute resources, and database scaling.", "Monthly database health and infrastructure status reviews."],coverage:"One designated database environment with an agreed resource and support scope.",notes:["New database architecture, major schema migrations, extensive data cleansing, custom ETL pipelines, application development, cloud hosting charges, third-party licensing, and significant infrastructure expansion are quoted separately.", "Database security and availability are managed using reasonable technical safeguards and established maintenance practices. Continuous availability, prevention of every security incident, and zero data loss cannot be guaranteed."]}},
- "operations-lead-intelligence":{release:"beta",icon:"operations-leads",category:"Business Intelligence",blurb:"Lead data organization, operational dashboards, reporting and automated business insights."},
- "mailhub-intelligence":{release:"beta",icon:"mailhub",category:"Business Intelligence",blurb:"Campaign management, contact segmentation, marketing analytics and email workflow automation."},
- "inspections-intelligence":{release:"beta",icon:"inspections",category:"Business Intelligence",blurb:"Inspection data management, reporting dashboards, workflow automation and operational analytics."},
+ "operations-lead-intelligence":{release:"beta",demoUrl:"/demos/operations-lead-intelligence.html",icon:"operations-leads",category:"Business Intelligence",blurb:"Lead data organization, operational dashboards, reporting and automated business insights."},
+ "mailhub-intelligence":{release:"beta",demoUrl:"/demos/mailhub-intelligence.html",icon:"mailhub",category:"Business Intelligence",blurb:"Campaign management, contact segmentation, marketing analytics and email workflow automation."},
+ "inspections-intelligence":{release:"beta",demoUrl:"/demos/inspections-intelligence.html",icon:"inspections",category:"Business Intelligence",blurb:"Fleet and asset tracking with position status, trip history, geofence alerts and visual observation pins."},
  "snowsocial":{icon:"snowsocial-candy",category:"Social Media",blurb:"Managed social publishing for one business brand, with up to 12 posts each month across five supported channels."},
  "managed-package":{icon:"managed-tech",category:"Managed Package",includes:[
   "Website Management: Keeps your site fast, secure, and fully updated with routine maintenance, speed optimization, and backups.",
@@ -354,8 +354,8 @@ function kitCard(){
 }
 // Early-access apps not on sale yet: listed in Founder's Early Access with no price or checkout, only a way to ask for access.
 const SOON=[
- {name:"Social Studio",release:"dev",icon:"social-media",status:"In development",blurb:"A self-hosted social media manager for agencies: client workspaces, team roles, approvals, a content calendar and scheduled publishing."},
- {name:"Roadside Delay Planner",release:"dev",icon:"inspections",status:"In research",blurb:"For trucking fleets: spot when a temporary roadside inspection site will delay a truck, then update ETAs and warn the receiver automatically."},
+ {name:"Social Studio",release:"dev",demoUrl:"/demos/social-studio.html",icon:"social-media",status:"In development",blurb:"A self-hosted social media manager for agencies: client workspaces, team roles, approvals, a content calendar and scheduled publishing."},
+ {name:"Roadside Delay Planner",release:"dev",demoUrl:"/demos/roadside-delay-planner.html",icon:"inspections",status:"In research",blurb:"For trucking fleets: spot when a temporary roadside inspection site will delay a truck, then update ETAs and warn the receiver automatically."},
 ];
 const EARLY_ACCESS="info@snowseasonstech.net";
 function soonCard(m){
@@ -363,6 +363,7 @@ function soonCard(m){
  art.append(cardTop(m.icon,"Coming soon"),relPill(m.release),el("h2",null,m.name),el("p",null,m.blurb),el("p","soon-status",m.status));
  const link=el("a","btn alt","Get early access");link.href=`mailto:${EARLY_ACCESS}?subject=${encodeURIComponent(`Early access: ${m.name}`)}`;
  art.append(el("div","actions"));art.lastChild.append(link);
+ if(m.demoUrl){const demo=el("a","btn alt",m.status==="In research"?"Try concept demo":"Try demo");demo.href=m.demoUrl;art.lastChild.append(demo)}
  return makeFlipCard(art);
 }
 // Products with a release label go in Founder's Early Access; everything else is Production.

@@ -1,5 +1,7 @@
 # MailHub
 
+Try the [interactive offline demo](demo.html): segment fictional contacts, preview personalized copy, simulate suppressions, and preview a campaign queue without sending email.
+
 Self-serve email marketing. Keep contact lists, tag people into segments, write a campaign, test it, send it, and see opens, clicks, unsubscribes and bounces per campaign. Email goes out through [Resend](https://resend.com) from your own verified domain.
 
 Runs with Docker: a FastAPI web app, a sending worker and MySQL. One server belongs to one business.

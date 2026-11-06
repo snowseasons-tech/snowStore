@@ -49,6 +49,11 @@ function build({ root = path.join(__dirname, '..'), out = path.join(root, 'dist'
     'blog-gen': 'products/blog-gen/demo.html',
     'bookscan': 'products/bookscan-live/demo.html',
     'saas-financial-engine': 'products/saas-financial-engine/demo.html',
+    'operations-lead-intelligence': 'products/operations-lead-intelligence/demo.html',
+    'mailhub-intelligence': 'products/mailhub/demo.html',
+    'inspections-intelligence': 'products/dottracker/demo.html',
+    'social-studio': 'products/social-studio/demo.html',
+    'roadside-delay-planner': 'products/roadside-delay-planner/demo.html',
     'documentation-platform-entitlements': 'documentation_platform/portal_api/entitlements-demo.html',
   };
   const demoOut = path.join(out, 'demos');

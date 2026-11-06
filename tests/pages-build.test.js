@@ -23,7 +23,12 @@ test('dist contains only the public site', () => {
     'demos/booking-app.html',
     'demos/blog-gen.html',
     'demos/bookscan.html',
-    'demos/saas-financial-engine.html']) assert.ok(files.includes(f), `${f} missing`);
+    'demos/saas-financial-engine.html',
+    'demos/operations-lead-intelligence.html',
+    'demos/mailhub-intelligence.html',
+    'demos/inspections-intelligence.html',
+    'demos/social-studio.html',
+    'demos/roadside-delay-planner.html']) assert.ok(files.includes(f), `${f} missing`);
   const article = fs.readFileSync(path.join(out, 'blog/how-to-create-a-successful-stripe-store/index.html'), 'utf8');
   assert.match(article, /<link rel="canonical" href="https:\/\/snowseasonstech\.net\/blog\/how-to-create-a-successful-stripe-store\/">/);
   assert.match(article, /Treat webhooks as the source of truth/);
@@ -36,7 +41,12 @@ test('dist contains only the public site', () => {
     '/demos/booking-app.html',
     '/demos/blog-gen.html',
     '/demos/bookscan.html',
-    '/demos/saas-financial-engine.html']) {
+    '/demos/saas-financial-engine.html',
+    '/demos/operations-lead-intelligence.html',
+    '/demos/mailhub-intelligence.html',
+    '/demos/inspections-intelligence.html',
+    '/demos/social-studio.html',
+    '/demos/roadside-delay-planner.html']) {
     assert.ok(products.includes(`demoUrl:"${demoUrl}"`), `${demoUrl} missing from product cards`);
   }
   const leaks = files.filter((f) => /^(api|functions|products\/|private-files|scripts|tests|node_modules|ecommerce-expert|\.)/.test(f) || /\.md$|\.env|package|vercel\.json/.test(f));
@@ -53,7 +63,12 @@ test('dist contains only the public site', () => {
     'demos/saas-financial-engine.html',
     'demos/small-business-project-cookbook.html',
     'demos/sql-for-small-business.html',
-  ]);
+    'demos/operations-lead-intelligence.html',
+    'demos/mailhub-intelligence.html',
+    'demos/inspections-intelligence.html',
+    'demos/social-studio.html',
+    'demos/roadside-delay-planner.html',
+  ].sort());
 });
 
 test('dist is rebuilt from scratch and fails on a missing index', () => {
