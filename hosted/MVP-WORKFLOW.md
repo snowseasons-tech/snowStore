@@ -84,7 +84,7 @@ For every completed phase record: commit, environment, exact checks, observed re
 | Phase 2: hosted authentication boundary | `94323c9`; local Cloudflare runtime and production HTTPS | Auth and browser checks passed; production entry HTTP 200 and signed-out session HTTP 401 | Complete; production customer login not exercised |
 | Phase 3: customer isolation | `f42a9fa`; Cloudflare local runtime + disposable Redis 7 | Two-account isolation, 200/409 simultaneous saves, 404 foreign edits, browser import/export and stale-edit recovery passed | Implemented and verified locally; production pilots disabled |
 | Phase 4: subscription lifecycle | `4c23cd7`; local fixtures | Signed/replayed webhooks, grace boundaries, provider failures, billing ownership and browser recovery passed | Implemented; real Stripe sandbox journey deferred to phase 7 |
-| Phase 5: HubSpot connector | Commit containing phase 5 changes; fixture tests and Cloudflare runtime | Encryption, review, delivery IDs, duplicate/lost-response recovery, backoff, ownership and browser flow verified | Implemented; real HubSpot test-account check still required |
+| Phase 5: HubSpot connector | `32a675d`; fixture tests and Cloudflare runtime | Encryption, review, delivery IDs, duplicate/lost-response recovery, backoff, ownership and browser flow verified | Implemented; real HubSpot test-account check still required |
 
 ## Remaining bundle sequence
 
@@ -146,3 +146,5 @@ HubSpot selected by the user. Implemented a service-key connection, reviewed con
 - Required exit check still pending: real HubSpot test-account connection, create/update, replay and verification of one contact with the same remote ID. No real provider credential or CRM record was used in the fixture checks. Phase 5 is not yet marked complete.
 
 Operator setup and the exact real-account verification steps are in the product README. Preserve the catalog's draft/pending flags until the provider and operational checks pass. Phase 6 recovery work may proceed independently while test-account access is arranged.
+
+Phase 5 deployment evidence: `32a675d` pushed to main. Production serves `/storefront/lead-workspace-crm` (HTTP 200) and rejects signed-out `/api/lead-workspace/crm` requests (HTTP 401). All 167 repository tests and the 35-test workspace suite passed, along with lint, catalog validation and Pages packaging. Production CRM, encryption and pilot settings were not changed. Local fixture runtime stopped. Real HubSpot test-account verification remains pending.
