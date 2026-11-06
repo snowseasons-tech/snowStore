@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -17,6 +18,24 @@ TOP_LEVEL = {
     '.env.example', 'Dockerfile', 'README.md', 'demo.html', 'docker-compose.yml',
     'requirements.txt', 'requirements.lock', 'requirements-dev.txt',
 }
+
+# The storefront copy of demo.html shares a sidebar with the other product demos. Buyers get it
+# on its own: no store brand and no links to store pages that don't exist inside the ZIP.
+DEMO_EDITS = [
+    (r'<div class="brand">[^<]*</div>', '<div class="brand">SOCIAL STUDIO</div>'),
+    (r'<nav aria-label="Product demos">.*?</nav>', ''),
+    (r'<br><br><a href="/products">[^<]*</a>', ''),
+]
+
+
+def customer_demo(html):
+    for pattern, replacement in DEMO_EDITS:
+        html, count = re.subn(pattern, replacement, html, flags=re.S)
+        if count != 1:
+            raise ValueError(f'demo.html changed; update DEMO_EDITS for {pattern!r}')
+    if 'href="/' in html:
+        raise ValueError('demo.html still links to a store page')
+    return html
 
 
 def package(output):
@@ -54,7 +73,10 @@ def package(output):
                 entry = zipfile.ZipInfo('social-studio/' + relative.as_posix(), (1980, 1, 1, 0, 0, 0))
                 entry.create_system = 3
                 entry.external_attr = 0o100644 << 16
-                archive.writestr(entry, path.read_bytes(), compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
+                data = path.read_bytes()
+                if relative.as_posix() == 'demo.html':
+                    data = customer_demo(data.decode()).encode()
+                archive.writestr(entry, data, compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
         with zipfile.ZipFile(staging) as archive:
             if bad := archive.testzip():
                 raise ValueError(f'Invalid archive entry: {bad}')
