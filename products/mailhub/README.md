@@ -1,6 +1,8 @@
 # MailHub
 
-Try the [interactive offline demo](demo.html): segment fictional contacts, preview personalized copy, simulate suppressions, and preview a campaign queue without sending email.
+Try the [MailHub application demo](demo.html). It uses this app's actual interface with sample lists, contacts, segments, campaign drafts, reports, suppressions and settings. Imports, scheduling and sending are simulated in memory; no login, real credentials, network services or email delivery are involved. Reset or reload to restore the samples.
+
+The standalone demo is generated from `static/index.html`, `static/style.css` and `static/app.js`, with an in-memory adapter in `demo/adapter.js`. From the store repository root, rebuild it with `python3 -I scripts/build-mailhub-demo.py`. The storefront tests check that the generated page stays in sync with the application.
 
 Self-serve email marketing. Keep contact lists, tag people into segments, write a campaign, test it, send it, and see opens, clicks, unsubscribes and bounces per campaign. Email goes out through [Resend](https://resend.com) from your own verified domain.
 
