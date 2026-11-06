@@ -11,6 +11,10 @@ module.exports = function fakeUpstash(other) {
     else if (op === 'SET') {
       if (a.includes('NX') && data.has(a[0])) result = null;
       else { data.set(a[0], a[1]); result = 'OK'; }
+    } else if (op === 'EVAL' && a[0].startsWith("local current = redis.call('GET'")) {
+      const [, , key, expected, next] = a;
+      result = (data.get(key) || '') === expected ? 1 : 0;
+      if (result) data.set(key, next);
     } else if (op === 'INCR' || op === 'EVAL') {
       const key = op === 'INCR' ? a[0] : a[2];
       result = Number(data.get(key) || 0) + 1;

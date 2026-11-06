@@ -82,7 +82,8 @@ For every completed phase record: commit, environment, exact checks, observed re
 | Foundation controls and local workspace | `03e2473`, `512adaf`; local | Bundle/hosted checks passed (26); workspace checks passed (9); browser create/reload verified | Implemented |
 | Phase 1: search, follow-ups and validation | Commit containing this workflow update; local clean-copy environments | `npm run test:lead-workspace`: 13 tests plus JS parsing passed; fresh/legacy browser workflows and shutdown persistence passed | Complete |
 | Phase 2: hosted authentication boundary | `94323c9`; local Cloudflare runtime and production HTTPS | Auth and browser checks passed; production entry HTTP 200 and signed-out session HTTP 401 | Complete; production customer login not exercised |
-| Hosted data and CRM release | — | Tenant records, entitlement enforcement and CRM delivery remain unimplemented | Not started |
+| Phase 3: customer isolation | Commit containing phase 3 changes; Cloudflare local runtime + disposable Redis 7 | Two-account isolation, 200/409 simultaneous saves, 404 foreign edits, browser import/export and stale-edit recovery passed | Implemented and verified locally; production pilots disabled |
+| Subscription and CRM release | — | Entitlement lifecycle and CRM delivery remain unimplemented | Not started |
 
 ## Remaining bundle sequence
 
@@ -103,3 +104,15 @@ Implemented a separate hosted entry page at `/storefront/lead-workspace` and a p
 - Local Cloudflare runtime browser checks pass for sign-in, wrong-password feedback, reload persistence and logout. Desktop/mobile screenshots were inspected; mobile has no horizontal overflow and no browser errors were reported.
 - The Pages allowlist build and lint pass. The entry page is published as a static shell; identity is fetched only from the authenticated, non-cacheable API endpoint.
 - Production HTTPS verified after deployment of `94323c9`: `/storefront/lead-workspace` returns HTTP 200 with the new page; `/api/lead-workspace/session` returns HTTP 401 when signed out. No production account was created and authenticated production login was not exercised. Tenant storage remains phase 3 and subscription enforcement remains phase 4.
+
+## Phase 3 implementation evidence
+
+Customer isolation is implemented for an explicitly invited pilot, using the existing Redis service and request-scoped portal sessions. Production pilot access is disabled unless `LEAD_WORKSPACE_PILOT_EMAILS` is configured. No subscription access is claimed.
+
+- Each account gets a separate server-derived workspace key; create, import, list and edit all recheck identity. Export operates on the authenticated list, filtered in the browser.
+- Writes use revision checks and atomic Redis compare-and-set. The editor keeps its original revision even when the queue is reloaded, so a stale form cannot silently overwrite newer edits. A workspace header rejects forms from a different signed-in account.
+- Automated checks: 13 Python tests and 6 hosted session/data/CSV tests passed, plus JavaScript syntax checks. Two-account tests cover read/edit/import isolation, forged ownership, stale revisions, simultaneous writes, malformed rows and bounded requests.
+- Real Redis 7 plus the Cloudflare local runtime: simultaneous saves returned 200/409, foreign lead edits returned 404, and imported records stayed with their owner. Browser checks verified customer switching, stale-edit preservation/recovery and filtered CSV export without other customers' records. Desktop/mobile screenshots were inspected.
+- Limits: 200 leads per workspace, 1 MB stored document, 256 KB API write body. Shared/team access and account-email migration are outside this pilot. Production authenticated storage and backup/restore remain unverified; recovery is phase 6.
+
+Phase 3 implementation and test-environment exit checks are complete. Next: phase 4 subscription lifecycle enforcement. Keep all bundles as drafts and production pilot access off until its intended accounts and operating policy are chosen.

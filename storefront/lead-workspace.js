@@ -5,7 +5,7 @@ let generation = 0;
 function signedOut(text) {
   clearTimeout(expiryTimer);
   $('account').hidden = true; $('signin').hidden = false;
-  $('identity').textContent = ''; $('status').textContent = text;
+  $('identity').textContent = ''; $('open-workspace').hidden = true; $('status').textContent = text;
 }
 async function checkSession() {
   const current = ++generation;
@@ -18,7 +18,9 @@ async function checkSession() {
     clearTimeout(expiryTimer);
     $('signin').hidden = true; $('account').hidden = false;
     $('identity').textContent = body.email;
-    $('status').textContent = 'Signed in. Hosted lead records are still in development.';
+    $('open-workspace').hidden = !body.workspaceEnabled;
+    $('workspace-notice').textContent = body.workspaceEnabled ? 'Your pilot workspace is available. Records are stored separately for your account. Direct CRM synchronization is not available yet.' : 'Hosted lead access is limited to invited pilot accounts. No purchase is enabled by this page.';
+    $('status').textContent = body.workspaceEnabled ? 'Signed in. Your pilot workspace is ready.' : 'Signed in. Pilot access has not been enabled for this account.';
     expiryTimer = setTimeout(() => { ++generation; signedOut('Your session expired. Please sign in again.'); }, Math.max(0, body.expiresAt - Date.now()));
   } catch (error) {
     if (current === generation) signedOut(error.message);
