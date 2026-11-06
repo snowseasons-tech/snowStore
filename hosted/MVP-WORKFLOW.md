@@ -18,7 +18,8 @@ Marketing Automation follows as a separate release. Website management, hosted d
 - [x] Search, follow-up dates and due-date export filters implemented locally.
 - [x] Twelve storage/HTTP tests pass; browser checks cover creation, persistence, search and date boundaries.
 - [x] Phase 1 local validation complete; search/follow-up changes included in this release commit.
-- [ ] Hosted customer access, subscription enforcement and direct CRM delivery.
+- [x] Hosted sign-in boundary implemented and HTTPS route verified.
+- [ ] Hosted customer records, subscription enforcement and direct CRM delivery.
 
 ## Work queue
 
@@ -80,7 +81,8 @@ For every completed phase record: commit, environment, exact checks, observed re
 | --- | --- | --- | --- |
 | Foundation controls and local workspace | `03e2473`, `512adaf`; local | Bundle/hosted checks passed (26); workspace checks passed (9); browser create/reload verified | Implemented |
 | Phase 1: search, follow-ups and validation | Commit containing this workflow update; local clean-copy environments | `npm run test:lead-workspace`: 13 tests plus JS parsing passed; fresh/legacy browser workflows and shutdown persistence passed | Complete |
-| Hosted release | — | No production customer-access or CRM evidence yet | Not started |
+| Phase 2: hosted authentication boundary | `94323c9`; local Cloudflare runtime and production HTTPS | Auth and browser checks passed; production entry HTTP 200 and signed-out session HTTP 401 | Complete; production customer login not exercised |
+| Hosted data and CRM release | — | Tenant records, entitlement enforcement and CRM delivery remain unimplemented | Not started |
 
 ## Remaining bundle sequence
 
@@ -100,4 +102,4 @@ Implemented a separate hosted entry page at `/storefront/lead-workspace` and a p
 - Authentication suites pass for portal login, invalid credentials, expiry, logout, password changes, missing bindings and store failure. Local startup tokens are rejected.
 - Local Cloudflare runtime browser checks pass for sign-in, wrong-password feedback, reload persistence and logout. Desktop/mobile screenshots were inspected; mobile has no horizontal overflow and no browser errors were reported.
 - The Pages allowlist build and lint pass. The entry page is published as a static shell; identity is fetched only from the authenticated, non-cacheable API endpoint.
-- Production HTTPS verification pending deployment. No production account was created for testing. Tenant storage remains phase 3 and subscription enforcement remains phase 4.
+- Production HTTPS verified after deployment of `94323c9`: `/storefront/lead-workspace` returns HTTP 200 with the new page; `/api/lead-workspace/session` returns HTTP 401 when signed out. No production account was created and authenticated production login was not exercised. Tenant storage remains phase 3 and subscription enforcement remains phase 4.
