@@ -55,7 +55,7 @@ Follow these phases in order. Finish and record the exit checks before moving to
 
 | Decision | Needed before | Working assumption until decided |
 | --- | --- | --- |
-| First supported CRM and test account | Phase 5 implementation | Design a provider boundary and delivery records; do not invent provider-specific behavior |
+| First supported CRM and test account | Phase 5 completion | HubSpot selected by user; real test-account access still pending |
 | Hosting target, domain and operating budget | Phase 2 deployment | Develop and test locally; use the existing hosting conventions where suitable |
 | Cancellation, past-due and data retention policy | Phase 4 completion | Preserve customer records; do not add automatic deletion |
 | Approved price and support scope | Phase 8 | Keep current proposed price and draft status |
@@ -84,7 +84,7 @@ For every completed phase record: commit, environment, exact checks, observed re
 | Phase 2: hosted authentication boundary | `94323c9`; local Cloudflare runtime and production HTTPS | Auth and browser checks passed; production entry HTTP 200 and signed-out session HTTP 401 | Complete; production customer login not exercised |
 | Phase 3: customer isolation | `f42a9fa`; Cloudflare local runtime + disposable Redis 7 | Two-account isolation, 200/409 simultaneous saves, 404 foreign edits, browser import/export and stale-edit recovery passed | Implemented and verified locally; production pilots disabled |
 | Phase 4: subscription lifecycle | `4c23cd7`; local fixtures | Signed/replayed webhooks, grace boundaries, provider failures, billing ownership and browser recovery passed | Implemented; real Stripe sandbox journey deferred to phase 7 |
-| CRM release | — | Direct CRM delivery remains unimplemented | Not started |
+| Phase 5: HubSpot connector | Commit containing phase 5 changes; fixture tests and Cloudflare runtime | Encryption, review, delivery IDs, duplicate/lost-response recovery, backoff, ownership and browser flow verified | Implemented; real HubSpot test-account check still required |
 
 ## Remaining bundle sequence
 
@@ -134,3 +134,15 @@ Policy chosen by the user: seven days of past-due grace. Cancellation preserves 
 Phase 4 implementation and fixture validation are complete. Next: phase 5, one CRM connector. Choose the provider and a test account before provider-specific integration; independent connector design can proceed first.
 
 Phase 4 deployment verification: `4c23cd7` pushed to main; production serves the updated account script (HTTP 200) and rejects signed-out billing-portal POSTs (HTTP 401). All 156 repository tests passed, plus the 24-test workspace suite, lint, catalog validation and Pages build. Billing enablement and pilot settings were not changed. The temporary billing-fixture server was stopped.
+
+## Phase 5 implementation evidence
+
+HubSpot selected by the user. Implemented a service-key connection, reviewed contact field mapping, explicit send, tenant-scoped encrypted credentials, durable delivery results, remote IDs and manual retry. Every CRM route reuses session/subscription, workspace identity, origin and bounded-body checks. Production CRM enablement remains off.
+
+- Eleven CRM tests cover encryption/tampering, mapping/ownership, duplicate emails, lost create responses, concurrent contact creation, durable attempts, delivery locks, rate limits, stale/expired previews, reconnect/disconnect and API boundaries.
+- Cloudflare runtime browser checks verify the actual encryption functions and UI with mocked HubSpot/Redis: connect → select → map → preview → send → lost-response recovery. The fixture reported exactly one contact and one create, with the confirmed remote ID persisted on retry. A second customer saw neither connection nor delivery history. Desktop/mobile screenshots were inspected.
+- Updated UI uses field selectors and readable contact values; changing a mapping invalidates the confirmation preview. No service key is returned to the browser or stored in plaintext in the CRM document.
+- The connector uses documented v3 contact lookup, create and update endpoints and current service-key authentication. It preserves unmapped fields and uses email uniqueness for recovery; it does not create company objects or send outreach.
+- Required exit check still pending: real HubSpot test-account connection, create/update, replay and verification of one contact with the same remote ID. No real provider credential or CRM record was used in the fixture checks. Phase 5 is not yet marked complete.
+
+Operator setup and the exact real-account verification steps are in the product README. Preserve the catalog's draft/pending flags until the provider and operational checks pass. Phase 6 recovery work may proceed independently while test-account access is arranged.

@@ -8,7 +8,7 @@ export class LeadError extends Error {
 }
 export const pilotEnabled = (email, env) => String(env.LEAD_WORKSPACE_PILOT_EMAILS || '').split(',').map(value => value.trim().toLowerCase()).filter(Boolean).includes(email);
 export const workspaceKey = email => 'lead-workspace:v1:' + createHash('sha256').update(email).digest('hex');
-async function command(env, args) {
+export async function command(env, args) {
   const response = await fetch(env.UPSTASH_REDIS_REST_URL, {
     method: 'POST', headers: { Authorization: `Bearer ${env.UPSTASH_REDIS_REST_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(args), signal: AbortSignal.timeout(10000),

@@ -65,7 +65,7 @@ This is an offline workflow preview. It does not enrich leads, contact prospects
 
 ## Hosted sign-in boundary (phase 2)
 
-`/storefront/lead-workspace` is a separate Cloudflare Pages entry page. It uses the existing customer portal sign-in and HttpOnly session cookie; the local Python startup token is never accepted. `/api/lead-workspace/session` checks the server-side session and returns only account email, expiry time and `workspaceEnabled: false`. A valid account does not yet grant hosted lead storage or paid subscription access.
+`/storefront/lead-workspace` is a separate Cloudflare Pages entry page. It uses the existing customer portal sign-in and HttpOnly session cookie; the local Python startup token is never accepted. `/api/lead-workspace/session` checks the server-side session and returns verified identity, session expiry and current workspace/billing availability. A portal account alone does not grant hosted lead access; pilot and subscription checks are enforced separately.
 
 The new session reader uses request-scoped store bindings, rejects expired sessions and fails closed when storage is missing or unavailable. Logout and password changes invalidate access through the existing portal mechanisms. The page clears the password after login attempts and returns to sign-in when its session expires.
 
@@ -106,3 +106,33 @@ Webhook delivery must include `checkout.session.completed`, `checkout.session.as
 Verification includes signed/unsigned webhook fixtures, duplicate/reordered events, trials, seven-day boundaries, cross-account/product mismatches, cancellation, recovery with preserved records, billing portal ownership, and provider failure. Browser tests use real application handlers with mocked Stripe responses for active → grace → expired → recovered → canceled transitions. No real charges, real subscriptions or Stripe account settings were changed. A full isolated Stripe sandbox checkout/portal lifecycle is still required during the end-to-end pilot before customer rollout. Tax configuration remains unchanged and belongs to release review.
 
 Reference: [Stripe subscription webhooks](https://docs.stripe.com/billing/subscriptions/webhooks).
+
+## HubSpot connector (phase 5)
+
+Open `/storefront/lead-workspace-crm` from the hosted editor. HubSpot was selected as the first CRM. The connector handles contact records; it does not synchronize HubSpot company objects, deals, notes, pipeline stages, follow-up tasks or marketing subscriptions.
+
+### Enable an isolated test
+
+1. Use an existing HubSpot developer test account. Create a **service key** with `crm.objects.contacts.read` and `crm.objects.contacts.write` scopes using HubSpot's Development → Keys → Service keys screen. New legacy private apps can no longer be created; service keys are the current simple-integration path.
+2. Configure the Pages secret `LEAD_CRM_ENCRYPTION_KEY` with a cryptographically random 32-byte key encoded as canonical base64. Keep it out of git and chat. Back up this key separately: changing or losing it makes stored CRM credentials unreadable until accounts reconnect. Key rotation and recovery belong to phase 6.
+3. Set `LEAD_CRM_ENABLED=1` only in the intended test environment, with the existing pilot/session/billing bindings. Production CRM access remains off unless explicitly enabled. Billing checks apply to every CRM request whenever billing mode is enabled.
+4. Sign in as the invited pilot account and enter the HubSpot service key in the connection form. It is verified with a read-only contact request, encrypted using AES-256-GCM with account-specific authenticated data, and never returned by the API or saved in browser storage. Write permissions are exercised during delivery. The destination is the HubSpot account owning that key; no account name or ID is inferred from a supplied label.
+5. Select up to ten leads, choose mappings and prepare a preview. Every selected lead needs a valid, distinct email. Review the exact values and explicitly confirm delivery.
+
+### Delivery behavior
+
+Supported HubSpot properties are email, company, phone and website. Defaults map local email → email, organization name → company, phone → phone and website → website. Empty and unmapped fields are omitted. Existing contacts are looked up by email, then updated by record ID without changing their primary email. Missing contacts are created; a concurrent create conflict is reconciled by another email lookup. If a create response is lost, retry looks up that email before creating again. Changing a local contact email changes the matching identity and may create a new HubSpot contact.
+
+Each preview snapshots the selected records, mapping, workspace revision and connection version. Changed records, expired reviews or replaced credentials require a new preview. Reviews expire after 15 minutes; at most twenty reviews are retained per account. A fresh preview of the same unchanged data reuses a still-valid review and its delivery results.
+
+A durable sixty-second delivery lease prevents overlapping sends for an account. Attempts are saved before remote writes; successful rows store the HubSpot contact ID and are skipped on retry. If a process dies after a remote write, an expired lease permits reconciliation by the same email. Retryable timeouts, 429 and 5xx responses preserve results and wait before another attempt. Provider `Retry-After` applies to the connection, including newly prepared reviews. Each row gets at most three attempts per review; permanent errors require correcting fields or credentials and preparing a new preview. Confirmed results are retained separately from lead data.
+
+Disconnect removes the stored encrypted credential and invalidates existing reviews. It does not revoke the HubSpot service key, delete remote contacts or erase delivery history; revoke the key in HubSpot when appropriate. The app sends no outreach, but existing automations in the chosen HubSpot account can still run on contact changes.
+
+### Verification status
+
+Automated tests cover encryption and tamper rejection, customer isolation, stale/invalid previews, duplicate emails, create conflicts, lost responses, delivery locks, interrupted attempts, retry limits and backoff, secret redaction, disconnect and reconnect. Cloudflare runtime browser checks verified AES encryption, field selectors, readable preview, preview invalidation, explicit delivery, recovery from a lost create response with one remote contact, per-record IDs, separate customer history and desktop/mobile layouts. HubSpot and Redis were fixtures for that browser run.
+
+A **real HubSpot test-account delivery is still required to complete phase 5**: connect a scoped test key, create one fictional contact, update it through a second reviewed delivery, retry the same review, and confirm the same HubSpot ID and a single contact. Record those results before rollout. No real HubSpot key or account was available during implementation, and no remote CRM records were created by these checks.
+
+Official references: [service keys](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/authentication/account-service-keys), [Contacts API](https://developers.hubspot.com/docs/api-reference/legacy/crm/objects/contacts/guide). Legacy v3 contact endpoints remain documented and are used by this MVP; the documented email batch-upsert limitation is avoided by individual lookup/update/create operations.
