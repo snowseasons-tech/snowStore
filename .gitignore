@@ -30,3 +30,6 @@ products/saas-financial-engine/SaaS_Financial_Engine.xlsx
 
 # SnowSocial is its own repository (snowseasons-tech/snowSocial), cloned here locally
 products/snowSocial/
+
+# Encrypted operations backups and private account lists
+backups/

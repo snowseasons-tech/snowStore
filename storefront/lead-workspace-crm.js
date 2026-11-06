@@ -10,7 +10,7 @@ async function crm(body) {
   const response = await fetch('/api/lead-workspace/crm', { method: body ? 'POST' : 'GET', credentials: 'same-origin', cache: 'no-store', headers: { ...(body && { 'Content-Type': 'application/json', 'X-Lead-Workspace': workspace?.workspaceId || '' }) }, ...(body && { body: JSON.stringify(body) }) });
   if (response.status === 401) { clear(); location.replace('/storefront/lead-workspace'); throw new Error('Please sign in again.'); }
   const result = await response.json();
-  if (!response.ok) throw new Error(result.error || 'CRM request failed.');
+  if (!response.ok) throw new Error((result.error || 'CRM request failed.') + (result.requestId ? ' Reference: ' + result.requestId : ''));
   return result;
 }
 function results(data) {

@@ -1,3 +1,4 @@
+import { leadFailure } from '../../_lib/lead-observability.js';
 import { workspaceUser, workspaceWrite, boundedJSON } from '../../_lib/lead-request.js';
 import { crmStatus, connectCRM, disconnectCRM, reviewCRM, sendCRM } from '../../_lib/lead-crm.js';
 import { send, methodNotAllowed } from '../../_lib/http.js';
@@ -11,7 +12,7 @@ async function userFor(request, env) {
 }
 export async function onRequestGet({ request, env }) {
   try { const user = await userFor(request, env); return send(200, await crmStatus(user.email, env)); }
-  catch (error) { return send(error.status || 503, { error: error.status ? error.message : 'CRM status unavailable.' }); }
+  catch (error) { return leadFailure('crm_read', error, 'CRM status unavailable.'); }
 }
 export async function onRequestPost({ request, env }) {
   try {
@@ -24,5 +25,5 @@ export async function onRequestPost({ request, env }) {
     if (body.action === 'review') return send(200, await reviewCRM(user.email, env, { revision: body.revision, selectedIds: body.selectedIds, mapping: body.mapping }));
     if (typeof body.reviewId !== 'string') throw new LeadError(400, 'Choose a reviewed delivery.');
     return send(200, await sendCRM(user.email, env, body.reviewId));
-  } catch (error) { return send(error.status || 503, { error: error.status ? error.message : 'CRM request could not be completed. Refresh the delivery status before retrying.' }); }
+  } catch (error) { return leadFailure('crm_write', error, 'CRM request could not be completed. Refresh the delivery status before retrying.'); }
 }

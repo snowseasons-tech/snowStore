@@ -19,7 +19,8 @@ Marketing Automation follows as a separate release. Website management, hosted d
 - [x] Twelve storage/HTTP tests pass; browser checks cover creation, persistence, search and date boundaries.
 - [x] Phase 1 local validation complete; search/follow-up changes included in this release commit.
 - [x] Hosted sign-in boundary implemented and HTTPS route verified.
-- [ ] Hosted customer records, subscription enforcement and direct CRM delivery.
+- [x] Hosted tenant records, subscription policy and reviewed HubSpot connector implemented and fixture-tested.
+- [ ] Real Stripe/HubSpot provider journeys and production operating setup verified before rollout.
 
 ## Work queue
 
@@ -85,6 +86,7 @@ For every completed phase record: commit, environment, exact checks, observed re
 | Phase 3: customer isolation | `f42a9fa`; Cloudflare local runtime + disposable Redis 7 | Two-account isolation, 200/409 simultaneous saves, 404 foreign edits, browser import/export and stale-edit recovery passed | Implemented and verified locally; production pilots disabled |
 | Phase 4: subscription lifecycle | `4c23cd7`; local fixtures | Signed/replayed webhooks, grace boundaries, provider failures, billing ownership and browser recovery passed | Implemented; real Stripe sandbox journey deferred to phase 7 |
 | Phase 5: HubSpot connector | `32a675d`; fixture tests and Cloudflare runtime | Encryption, review, delivery IDs, duplicate/lost-response recovery, backoff, ownership and browser flow verified | Implemented; real HubSpot test-account check still required |
+| Phase 6: operations and recovery | Commit containing phase 6 changes; isolated Redis | Encrypted CLI snapshot, two-tenant restore, disarmed CRM, archived-code rollback/edit/roll-forward and sanitized failure signals verified | Tooling implemented; production offsite backups and external alert routing pending |
 
 ## Remaining bundle sequence
 
@@ -148,3 +150,16 @@ HubSpot selected by the user. Implemented a service-key connection, reviewed con
 Operator setup and the exact real-account verification steps are in the product README. Preserve the catalog's draft/pending flags until the provider and operational checks pass. Phase 6 recovery work may proceed independently while test-account access is arranged.
 
 Phase 5 deployment evidence: `32a675d` pushed to main. Production serves `/storefront/lead-workspace-crm` (HTTP 200) and rejects signed-out `/api/lead-workspace/crm` requests (HTTP 401). All 167 repository tests and the 35-test workspace suite passed, along with lint, catalog validation and Pages packaging. Production CRM, encryption and pilot settings were not changed. Local fixture runtime stopped. Real HubSpot test-account verification remains pending.
+
+## Phase 6 implementation evidence
+
+Implemented encrypted, explicitly scoped backup/restore tooling; maintenance guards; failure request IDs; sanitized log signal extraction; and a deployment/recovery runbook in LEAD-OPERATIONS.md.
+
+- Backup reads each account's lead, CRM and billing-link data atomically and encrypts the document with a separate AES-256-GCM backup key. Files use mode 600 and exclusive creation. Passwords and sessions are excluded.
+- Restore defaults to dry run, preflights all target account keys and refuses overwrite. Each account's restore is atomic; partial multi-account recovery must stay isolated for inspection. CRM credentials are removed, previews expire and interrupted rows require reconciliation.
+- Disposable real Redis drill: CLI encrypted backup → dry-run restore with zero writes → actual restore of two accounts → authenticated API isolation checks → rejection of populated-target restore → previous committed API read/edit → current API read of that edit. No production database or deployment was touched.
+- Failure logging excludes raw exception messages, credentials and lead contents. Failed imports and CRM deliveries produce identifiable sanitized signals. Planned maintenance is tagged and filtered from alert output.
+- The operator runbook documents separate secret recovery, manifest completeness, provider replay after snapshot time, CRM reconnection, partial restore handling and code/schema compatibility.
+- Production backup scheduling/offsite storage and external alert delivery are not configured. Confirm a fictional failure reaches the chosen operator destination and run a target-environment restore before customer rollout. The real HubSpot and Stripe pilot checks remain pending.
+
+Phase 6 tooling and isolated recovery checks are implemented; live operations configuration is still a release prerequisite. Next independent work is phase 7 pilot preparation, with real provider execution awaiting test-account access.

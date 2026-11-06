@@ -136,3 +136,11 @@ Automated tests cover encryption and tamper rejection, customer isolation, stale
 A **real HubSpot test-account delivery is still required to complete phase 5**: connect a scoped test key, create one fictional contact, update it through a second reviewed delivery, retry the same review, and confirm the same HubSpot ID and a single contact. Record those results before rollout. No real HubSpot key or account was available during implementation, and no remote CRM records were created by these checks.
 
 Official references: [service keys](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/authentication/account-service-keys), [Contacts API](https://developers.hubspot.com/docs/api-reference/legacy/crm/objects/contacts/guide). Legacy v3 contact endpoints remain documented and are used by this MVP; the documented email batch-upsert limitation is avoided by individual lookup/update/create operations.
+
+## Operations and recovery (phase 6)
+
+See [the operations runbook](../../hosted/LEAD-OPERATIONS.md) for environment setup, encrypted backup/restore, maintenance, sanitized failure signals and code rollback. From the repository root, `npm run test:lead-recovery` runs an isolated real-Redis recovery drill with two fictional accounts and a previous application bundle; Docker is required. It does not read production credentials or switch production deployments.
+
+Backups use a separate `LEAD_BACKUP_KEY` and an explicit private account manifest. Restore defaults to a dry run and rejects any populated account target. Lead records and trusted billing links are recovered, while CRM connections are removed and prior delivery previews are expired. Passwords, sessions, complete order history and webhook claims must be recovered or reprovisioned separately. Provider event replay and a new pilot are required before restored data is exposed to customers.
+
+`LEAD_WORKSPACE_MAINTENANCE=1` stops authenticated lead and CRM operations while a snapshot or recovery is prepared. Structured failures include support request IDs without lead contents or credential values. `node scripts/lead-alerts.js` consumes exported NDJSON logs and returns a sanitized operator signal; external alert routing, offsite backup storage, scheduling and retention are not installed automatically.

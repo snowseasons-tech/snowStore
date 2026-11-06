@@ -1,3 +1,4 @@
+import { deliveryResult } from './lead-observability.js';
 import { randomUUID } from 'node:crypto';
 import { CAS, command, readWorkspace, workspaceKey, LeadError } from './lead-data.js';
 import { encryptCredential, decryptCredential } from './lead-crm-secrets.js';
@@ -70,7 +71,7 @@ export async function sendCRM(email, env, reviewId, adapter = {}) {
   await save(email, env, state); // Durable claim before any external write.
   for (const row of review.rows) {
     if (['succeeded', 'failed'].includes(row.status) || row.retryAt > Date.now()) continue;
-    if (row.attempts >= 3) { row.status = 'failed'; row.message = 'Retry limit reached. Review the contact in HubSpot before preparing another delivery.'; continue; }
+    if (row.attempts >= 3) { row.status = 'failed'; row.message = 'Retry limit reached. Review the contact in HubSpot before preparing another delivery.'; deliveryResult(review.reviewId, row); continue; }
     row.attempts++; row.status = 'inflight'; review.runningUntil = Date.now() + 60000;
     await save(email, env, state); // Preserve an attempt even if the process dies after HubSpot accepts it.
     try {
@@ -83,6 +84,7 @@ export async function sendCRM(email, env, reviewId, adapter = {}) {
       if (row.retryAt) state.data.connection.blockedUntil = Math.max(state.data.connection.blockedUntil || 0, row.retryAt);
     }
     await save(email, env, state);
+    deliveryResult(review.reviewId, row);
     if (row.status === 'retryable') break;
   }
   review.runningUntil = 0;

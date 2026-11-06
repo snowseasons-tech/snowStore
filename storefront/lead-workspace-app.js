@@ -21,7 +21,7 @@ async function api(body) {
     throw new Error('Please sign in with an invited pilot account.');
   }
   const result = await response.json();
-  if (!response.ok) throw new Error(result.error || 'Request failed.');
+  if (!response.ok) throw new Error((result.error || 'Request failed.') + (result.requestId ? ' Reference: ' + result.requestId : ''));
   return result;
 }
 function visible() {

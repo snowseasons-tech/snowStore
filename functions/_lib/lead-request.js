@@ -5,6 +5,7 @@ import { workspaceKey, LeadError } from './lead-data.js';
 export async function workspaceUser(request, env) {
   const session = await leadSession(request, env);
   if (!session) throw new LeadError(401, 'Please sign in again.');
+  if (env.LEAD_WORKSPACE_MAINTENANCE === '1') { const error = new LeadError(503, 'Workspace maintenance is in progress. Please retry later.'); error.code = 'maintenance'; throw error; }
   const access = await leadAccess(session, env);
   if (!access.allowed) throw new LeadError(403, access.reason);
   return { ...session, access };
