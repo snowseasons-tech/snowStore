@@ -7,6 +7,7 @@
   },
   "scripts": {
     "test": "node --test tests/*.test.js",
+    "test:lead-pilot": "node --test tests/lead-pilot.test.js",
     "test:lead-recovery": "node scripts/check-lead-recovery.js",
     "test:lead-workspace": "python3 -B -m unittest discover -s products/operations-lead-intelligence -p 'test_*.py' -v && node --check products/operations-lead-intelligence/workspace.js && node --check storefront/lead-workspace.js && node --check storefront/lead-workspace-app.js && node --check storefront/lead-csv.js && node --check storefront/lead-workspace-crm.js && node --test tests/lead-workspace-session.test.js tests/lead-workspace-data.test.js tests/lead-workspace-billing.test.js tests/lead-workspace-crm.test.js tests/lead-backup.test.js",
     "bloat": "node scripts/bloat-scan.js",

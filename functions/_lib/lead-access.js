@@ -1,6 +1,7 @@
 import CATALOG from '../../api/_lib/catalog.js';
 import billing from '../../api/_lib/lead-billing.js';
 import { stripeClient } from './stripe.js';
+import { billingProduct } from './lead-pilot.js';
 import { pilotEnabled } from './lead-data.js';
 
 const WEEK = 7 * 86400;
@@ -32,6 +33,7 @@ export function subscriptionAccess(sub, product, customer, now = Date.now() / 10
 }
 
 export async function leadAccess(session, env, deps = {}) {
+  if (env.LEAD_WORKSPACE_MAINTENANCE === '1') return { allowed: false, mode: 'maintenance', reason: 'Workspace maintenance is in progress. Please retry later.' };
   const pilot = pilotEnabled(session.email, env);
   const mode = env.LEAD_WORKSPACE_BILLING_ENABLED || '0';
   if (!['0', '1'].includes(mode)) throw new Error('Invalid billing mode');
@@ -48,7 +50,7 @@ export async function leadAccess(session, env, deps = {}) {
     try { subscription = await stripe.subscriptions.retrieve(link.subscription, { expand: ['latest_invoice'] }, { timeout: 5000, maxNetworkRetries: 0 }); }
     catch (error) { if (error.code === 'resource_missing') continue; throw error; }
     if (subscription.id !== link.subscription) throw new Error('Subscription lookup mismatch');
-    const access = subscriptionAccess(subscription, CATALOG['lead-generation-pro'].stripeProduct, link.customer);
+    const access = subscriptionAccess(subscription, billingProduct(env, CATALOG['lead-generation-pro'].stripeProduct), link.customer);
     if (access.allowed) return { ...access, customer: link.customer };
     fallback = { ...access, customer: link.customer };
   }

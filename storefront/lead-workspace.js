@@ -2,10 +2,11 @@
 const $ = id => document.getElementById(id);
 let expiryTimer;
 let generation = 0;
+let accountWorkspaceId = null, checkoutIntent = null;
 function signedOut(text) {
   clearTimeout(expiryTimer);
   $('account').hidden = true; $('signin').hidden = false;
-  $('identity').textContent = ''; $('open-workspace').hidden = true; $('manage-billing').hidden = true; $('status').textContent = text;
+  $('identity').textContent = ''; $('open-workspace').hidden = true; $('manage-billing').hidden = true; $('pilot-checkout').hidden = true; accountWorkspaceId = null; checkoutIntent = null; $('status').textContent = text;
 }
 async function checkSession() {
   const current = ++generation;
@@ -20,7 +21,9 @@ async function checkSession() {
     $('identity').textContent = body.email;
     $('open-workspace').hidden = !body.workspaceEnabled;
     $('manage-billing').hidden = !body.billingEnabled;
-    $('workspace-notice').textContent = body.workspaceEnabled ? 'Your pilot workspace is available. Records are stored separately for your account. Direct CRM synchronization is not available yet.' : (body.access?.reason || 'Hosted lead access is limited to invited pilot accounts. No purchase is enabled by this page.');
+    accountWorkspaceId = body.workspaceId;
+    $('pilot-checkout').hidden = !body.sandboxCheckoutAvailable || body.workspaceEnabled;
+    $('workspace-notice').textContent = body.workspaceEnabled ? 'Your workspace is available. Records are stored separately for your account. Open HubSpot delivery from the editor when it is enabled for your environment.' : (body.access?.reason || 'Hosted lead access is limited to invited pilot accounts. No purchase is enabled by this page.');
     $('status').textContent = body.workspaceEnabled ? (body.access?.status === 'past_due' ? 'Your workspace is available during the seven-day payment grace period.' : 'Signed in. Your workspace is ready.') : 'Signed in. Workspace access is currently unavailable.';
     if (body.access?.graceEndsAt) $('workspace-notice').textContent += ' Payment grace ends ' + new Date(body.access.graceEndsAt).toLocaleString() + '.';
     expiryTimer = setTimeout(() => { ++generation; signedOut('Your session expired. Please sign in again.'); }, Math.max(0, body.expiresAt - Date.now()));
@@ -48,6 +51,16 @@ $('logout').onclick = async () => {
     signedOut('Signed out.');
   } catch (error) { $('status').textContent = error.message; }
   finally { $('logout').disabled = false; }
+};
+$('pilot-checkout').onclick = async () => {
+  $('pilot-checkout').disabled = true; checkoutIntent ||= crypto.randomUUID();
+  try {
+    const response = await fetch('/api/lead-workspace/pilot-checkout', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-Lead-Workspace': accountWorkspaceId || '' }, body: JSON.stringify({ requestId: checkoutIntent }) });
+    const body = await response.json(); if (!response.ok) throw new Error(body.error || 'Sandbox checkout unavailable.');
+    const url = new URL(body.url); if (url.protocol !== 'https:' || url.hostname !== 'checkout.stripe.com') throw new Error('Invalid sandbox checkout link.');
+    checkoutIntent = null; location.assign(url.href);
+  } catch (error) { $('status').textContent = error.message; }
+  finally { $('pilot-checkout').disabled = false; }
 };
 $('manage-billing').onclick = async () => {
   $('manage-billing').disabled = true;

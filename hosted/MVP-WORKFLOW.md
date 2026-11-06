@@ -85,8 +85,9 @@ For every completed phase record: commit, environment, exact checks, observed re
 | Phase 2: hosted authentication boundary | `94323c9`; local Cloudflare runtime and production HTTPS | Auth and browser checks passed; production entry HTTP 200 and signed-out session HTTP 401 | Complete; production customer login not exercised |
 | Phase 3: customer isolation | `f42a9fa`; Cloudflare local runtime + disposable Redis 7 | Two-account isolation, 200/409 simultaneous saves, 404 foreign edits, browser import/export and stale-edit recovery passed | Implemented and verified locally; production pilots disabled |
 | Phase 4: subscription lifecycle | `4c23cd7`; local fixtures | Signed/replayed webhooks, grace boundaries, provider failures, billing ownership and browser recovery passed | Implemented; real Stripe sandbox journey deferred to phase 7 |
-| Phase 5: HubSpot connector | `32a675d`; fixture tests and Cloudflare runtime | Encryption, review, delivery IDs, duplicate/lost-response recovery, backoff, ownership and browser flow verified | Implemented; real HubSpot test-account check still required |
+| Phase 5: HubSpot connector | `32a675d`; fixture/runtime and connected-account checks | Fixture delivery verified; real dedicated-account contact create/update/replay returned one contact with the same ID | Application service-key transport still pending |
 | Phase 6: operations and recovery | `8a2c0ec`; isolated Redis | Encrypted CLI snapshot, two-tenant restore, disarmed CRM, archived-code rollback/edit/roll-forward and sanitized failure signals verified | Tooling implemented; production offsite backups and external alert routing pending |
+| Phase 7: end-to-end pilot | Commit containing phase 7 changes; application fixtures and real provider smoke | Complete mocked application journey; real HubSpot contact smoke; real Stripe test trial/cancel/new-trial and zero invoices | Hosted provider wiring and user walkthrough pending |
 
 ## Remaining bundle sequence
 
@@ -165,3 +166,17 @@ Implemented encrypted, explicitly scoped backup/restore tooling; maintenance gua
 Phase 6 tooling and isolated recovery checks are implemented; live operations configuration is still a release prerequisite. Next independent work is phase 7 pilot preparation, with real provider execution awaiting test-account access.
 
 Phase 6 deployment evidence: `8a2c0ec` pushed to main. All 174 repository tests and 42 workspace tests passed; the disposable Redis drill verified restore/isolation plus rollback read/write and roll-forward against archived commit `32a675d`. Lint, catalog validation and Pages build passed. Production signed-out data access returned HTTP 401 with a matching support request reference/header. No production store, backup schedule, notification destination, maintenance flag or provider enablement was changed.
+
+## Phase 7 implementation and provider evidence
+
+Added an explicit sandbox-only checkout path so the pilot can exercise real Stripe test purchases without opening the public draft bundle. It requires invited authenticated users, test keys, matching active test product/price, billing enforcement and an idempotent browser intent. Signed-in account hashes bind fulfillment independently of editable checkout email. Normal public draft checkout remains rejected.
+
+- `npm run test:lead-pilot` runs the complete application workflow using real handlers/SDK serialization and fixtures for external services. It covers signed webhook replay, import/follow-up, CRM preview and lost-response retry, cancellation/reactivation with retained data, second-user isolation and logout.
+- Browser fixture verifies the sandbox CTA, repeated failed intent with the same ID, allowed Stripe redirect, and hiding checkout after access becomes active. No real payment page was completed in that check.
+- User identified a dedicated HubSpot test account, connected it and explicitly approved one fictional contact. Actual connected-provider operations created it, changed company, repeated the same update and searched the exact email: one contact with the same ID. No outreach was sent.
+- User connected Stripe test mode. Created only a clearly named test product/price/customer, verified a no-card trial, scheduled cancellation, immediate cancellation and a new trial. Both subscriptions were then canceled. Retrieval confirmed zero due and zero paid on both invoices. Captured real objects also passed the application's pure access policy. No live Stripe operations or tax settings were changed.
+- Private provider IDs/URLs and captured test subscription objects are saved in the ignored `backups/phase7-*-evidence.json` files with mode 600. The public results sheet contains only scope/results, not account identities or API credentials.
+
+Remaining phase 7 exit checks: configure the application's test Stripe key/webhook and HubSpot service key in an isolated environment, complete a real test-mode Checkout payment and signed webhook delivery into that application, run direct CRM delivery from the app, and have a pilot user follow the written workflow. Connected tools do not reveal the application's required secret keys. Production access and catalog draft flags stay off until these and phase 8 review pass.
+
+Run sheet: LEAD-PILOT.md. Evidence levels/status: LEAD-PILOT-RESULTS.md. Phase 7 is not yet marked complete.

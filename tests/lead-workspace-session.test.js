@@ -25,7 +25,7 @@ test('lead workspace uses portal sessions and invalidates logout, expiry and pas
     assert.equal(body.email, 'person@example.com');
     assert.equal(body.workspaceEnabled, false);
     assert.ok(body.expiresAt > Date.now());
-    assert.deepEqual(Object.keys(body).sort(), ['access', 'billingEnabled', 'email', 'expiresAt', 'workspaceEnabled']);
+    assert.deepEqual(Object.keys(body).sort(), ['access', 'billingEnabled', 'email', 'expiresAt', 'sandboxCheckoutAvailable', 'workspaceEnabled', 'workspaceId']);
     const key = 'sess:' + crypto.createHash('sha256').update(cookie.split('=')[1]).digest('hex');
     const saved = up.data.get(key);
     up.data.set(key, JSON.stringify({ ...JSON.parse(saved), createdAt: Date.now() - auth.SESSION_TTL_SEC * 1000 - 1 }));
