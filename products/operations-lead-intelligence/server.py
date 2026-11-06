@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from leads import FIELDS, export_csv, import_csv, list_leads, update_lead, workspace
+from leads import FIELDS, create_lead, export_csv, import_csv, list_leads, update_lead, workspace
 
 MAX_BODY = 2 * 1024 * 1024
 
@@ -72,6 +72,8 @@ def make_handler(database, token):
                     raise ValueError('Expected a JSON object.')
                 route = urlsplit(self.path).path
                 with workspace(database) as db:
+                    if route == '/api/create':
+                        return self.reply(201, {'id': create_lead(db, body)})
                     if route == '/api/import':
                         if not isinstance(body.get('csv'), str):
                             raise ValueError('CSV text is required.')

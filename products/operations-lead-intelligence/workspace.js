@@ -32,6 +32,7 @@ function render() {
     button.onclick = () => {
       if (dirty && !confirm('Discard unsaved changes to the current lead?')) return;
       selected = row.id; dirty = false;
+      $('editor-title').textContent = 'Review lead';
       $('choose').hidden = true; $('editor').hidden = false;
       for (const input of $('editor').elements) if (input.name) input.value = row[input.name];
       message(`Reviewing ${row.name}.`);
@@ -43,12 +44,28 @@ async function reload() { records = await (await api('/api/leads')).json(); rend
 $('filter').onchange = render;
 $('minimum').oninput = render;
 $('editor').oninput = () => { dirty = true; };
+$('new-lead').onclick = () => {
+  if (dirty && !confirm('Discard unsaved changes to the current lead?')) return;
+  selected = null; dirty = false;
+  $('editor').reset(); $('editor').hidden = false; $('choose').hidden = true;
+  for (const name of ['fit', 'intent', 'budget']) $('editor').elements.namedItem(name).value = 0;
+  $('editor-title').textContent = 'Add lead';
+  $('editor').elements.namedItem('name').focus();
+  message('Enter a new lead, then save.');
+};
 window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
 $('editor').onsubmit = async event => {
   event.preventDefault();
   const button = event.submitter; button.disabled = true;
   try {
-    await api('/api/update', { id: selected, changes: Object.fromEntries(new FormData($('editor'))) });
+    const changes = Object.fromEntries(new FormData($('editor')));
+    if (selected === null) {
+      const result = await (await api('/api/create', changes)).json();
+      selected = result.id;
+    } else {
+      await api('/api/update', { id: selected, changes });
+    }
+    $('editor-title').textContent = 'Review lead';
     dirty = false; await reload(); message('Changes saved to your workspace.');
   } catch (error) { message(error.message); } finally { button.disabled = false; }
 };

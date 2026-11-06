@@ -88,6 +88,15 @@ def list_leads(db, stage=None, minimum=0):
     return sorted(rows, key=lambda row: (-row['score'], row['id']))
 
 
+def create_lead(db, values):
+    if not isinstance(values, dict) or any(key not in FIELDS for key in values):
+        raise ValueError('Invalid lead fields.')
+    row = normalize(values)
+    with db:
+        cursor = db.execute('INSERT INTO leads (' + ','.join(FIELDS) + ') VALUES (' + ','.join('?' for _ in FIELDS) + ')', [row[field] for field in FIELDS])
+    return cursor.lastrowid
+
+
 def update_lead(db, lead_id, changes):
     existing = db.execute('SELECT * FROM leads WHERE id=?', (lead_id,)).fetchone()
     if existing is None:

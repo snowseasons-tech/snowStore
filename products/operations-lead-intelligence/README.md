@@ -18,6 +18,8 @@ The browser and CLI below use the same database when given the same path. Browse
 
 ### Command-line interface
 
+In the browser, **Add lead** opens a blank record without requiring a CSV. Enter an organization name and optional contact details, signals and notes, then save. New records default to stage New and zero signals. Duplicate names and emails are rejected without overwriting the existing lead.
+
 `leads.py` is a working local workspace using Python 3.11+ and SQLite, with no additional packages. It saves records between runs, imports CSV files, tracks stages and notes, ranks leads, and exports a CSV for manual CRM import. It does not run enrichment, send outreach, authenticate users or connect directly to a CRM.
 
 Run from this directory after extracting or checking out the files:

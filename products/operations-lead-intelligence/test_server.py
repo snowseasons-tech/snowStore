@@ -56,6 +56,19 @@ class BrowserServerTests(unittest.TestCase):
         self.assertIn(b'Example Co', body)
         self.assertNotIn(b'Example Co', self.request('/api/export?stage=Won')[1])
 
+    def test_create_and_duplicate_conflict(self):
+        status, body, _ = self.request('/api/create', {'name': 'Sample Studio', 'email': 'studio@example.com', 'fit': 80})
+        self.assertEqual(status, 201)
+        self.assertEqual(json.loads(body)['id'], 2)
+        self.assertEqual(self.request('/api/create', {'name': 'sample studio', 'email': 'STUDIO@example.com'})[0], 409)
+        self.assertEqual(self.request('/api/create', {'name': ''})[0], 400)
+        self.assertEqual(self.request('/api/create', {'name': 'Bad', 'budget': 101})[0], 400)
+        self.assertEqual(self.request('/api/create', {'name': 'Bad', 'unknown': 'field'})[0], 400)
+        self.assertEqual(self.request('/api/create', {'name': 'No access'}, token='wrong')[0], 403)
+        rows = json.loads(self.request('/api/leads')[1])
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]['name'], 'Sample Studio')
+
     def test_validation_and_import(self):
         self.assertEqual(self.request('/api/import', {'csv': 'Company\nSample Co\n', 'mapping': {'name': 'Company'}})[0], 200)
         self.assertEqual(len(json.loads(self.request('/api/leads')[1])), 2)
