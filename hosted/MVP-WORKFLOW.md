@@ -82,7 +82,7 @@ For every completed phase record: commit, environment, exact checks, observed re
 | Foundation controls and local workspace | `03e2473`, `512adaf`; local | Bundle/hosted checks passed (26); workspace checks passed (9); browser create/reload verified | Implemented |
 | Phase 1: search, follow-ups and validation | Commit containing this workflow update; local clean-copy environments | `npm run test:lead-workspace`: 13 tests plus JS parsing passed; fresh/legacy browser workflows and shutdown persistence passed | Complete |
 | Phase 2: hosted authentication boundary | `94323c9`; local Cloudflare runtime and production HTTPS | Auth and browser checks passed; production entry HTTP 200 and signed-out session HTTP 401 | Complete; production customer login not exercised |
-| Phase 3: customer isolation | Commit containing phase 3 changes; Cloudflare local runtime + disposable Redis 7 | Two-account isolation, 200/409 simultaneous saves, 404 foreign edits, browser import/export and stale-edit recovery passed | Implemented and verified locally; production pilots disabled |
+| Phase 3: customer isolation | `f42a9fa`; Cloudflare local runtime + disposable Redis 7 | Two-account isolation, 200/409 simultaneous saves, 404 foreign edits, browser import/export and stale-edit recovery passed | Implemented and verified locally; production pilots disabled |
 | Subscription and CRM release | — | Entitlement lifecycle and CRM delivery remain unimplemented | Not started |
 
 ## Remaining bundle sequence
@@ -116,3 +116,5 @@ Customer isolation is implemented for an explicitly invited pilot, using the exi
 - Limits: 200 leads per workspace, 1 MB stored document, 256 KB API write body. Shared/team access and account-email migration are outside this pilot. Production authenticated storage and backup/restore remain unverified; recovery is phase 6.
 
 Phase 3 implementation and test-environment exit checks are complete. Next: phase 4 subscription lifecycle enforcement. Keep all bundles as drafts and production pilot access off until its intended accounts and operating policy are chosen.
+
+Production HTTPS verification after `f42a9fa`: `/storefront/lead-workspace-app` returned HTTP 200 with the hosted pilot editor; `/api/lead-workspace/leads` returned HTTP 401 when signed out. No production pilot allowlist was configured and no customer data was written during verification. Temporary Redis and local Pages test services were stopped.
