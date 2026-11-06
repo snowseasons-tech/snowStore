@@ -1,5 +1,9 @@
 import json
+import os
+import subprocess
+import sys
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 import httpx
@@ -490,3 +494,13 @@ def test_home_page_and_config(client):
     assert page.status_code == 200 and 'text/html' in page.headers['content-type']
     cfg = client.get('/api/config').json()
     assert cfg['name'] == 'Social Studio' and cfg['providers'] == {'google': True, 'meta': True}
+
+
+# --- Startup ----------------------------------------------------------------------------------------
+
+@pytest.mark.parametrize('key', ['REPLACE_WITH_64_HEX_CHAR_RANDOM_KEY', 'short'])
+def test_placeholder_or_short_secret_key_is_refused(key):
+    env = {**os.environ, 'SECRET_KEY': key, 'DATABASE_URL': 'sqlite://'}
+    result = subprocess.run([sys.executable, '-c', 'import app.security'], env=env,
+                            cwd=Path(__file__).resolve().parent.parent, capture_output=True, text=True)
+    assert result.returncode != 0 and 'Set SECRET_KEY' in result.stderr

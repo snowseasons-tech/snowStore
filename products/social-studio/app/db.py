@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timezone
 from uuid import uuid4
-from sqlalchemy import create_engine, String, DateTime, ForeignKey, Text, Boolean, Integer, UniqueConstraint, TypeDecorator
+from sqlalchemy import create_engine, text, String, DateTime, ForeignKey, Text, Boolean, Integer, UniqueConstraint, TypeDecorator
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 
@@ -116,4 +116,15 @@ class LoginThrottle(Base):
     window_start: Mapped[datetime]=mapped_column(UTCDateTime())
 
 # MVP bootstrapping. Switch to Alembic migrations before operating a production deployment.
-def init_db(): Base.metadata.create_all(engine)
+def init_db():
+    # The web app and the worker both start here. On a fresh MySQL database their CREATE TABLEs
+    # collide (error 1684), so take a named lock while creating tables.
+    with engine.connect() as conn:
+        mysql_db=conn.dialect.name=='mysql'
+        if mysql_db and conn.scalar(text("SELECT GET_LOCK('social_studio_init_db',60)"))!=1:
+            raise RuntimeError('Timed out waiting for another process to create the database tables')
+        try:
+            Base.metadata.create_all(conn)
+            conn.commit()
+        finally:
+            if mysql_db: conn.execute(text("SELECT RELEASE_LOCK('social_studio_init_db')"))

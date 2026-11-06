@@ -137,12 +137,12 @@ module.exports = {
   'social-studio': {
     name: 'Social Studio: Social Media Marketing Manager',
     retired: true,
-    fileKey: 'social-studio/releases/0.5.1/social-studio.zip',
+    fileKey: 'social-studio/releases/0.5.2/social-studio.zip',
     filename: 'social-studio.zip',
     category: 'utilities',
     blurb: 'A self-hosted social media manager for agencies: client workspaces, team roles, an AI writer, approvals, a content calendar and scheduled publishing to Facebook, Instagram and Google Business Profile.',
-    version: '0.5.1',
-    sha256: '10c394328266010febb01ccd97cab371485f7be2cb2ef07ebae1f5b93bf3afce',
+    version: '0.5.2',
+    sha256: '8a4aec7cdcc57158ca8a7a9a4abd1d1abbea76c2c6be6b988ecd74580645ae31',
   },
   'gbp-analytics-dashboard': {
     name: 'GBP Analytics Dashboard',

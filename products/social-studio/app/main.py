@@ -28,7 +28,7 @@ def account_limit():
 @asynccontextmanager
 async def lifespan(_app):
     account_limit();init_db();yield
-app=FastAPI(title=APP_NAME,version='0.5.1',lifespan=lifespan)
+app=FastAPI(title=APP_NAME,version='0.5.2',lifespan=lifespan)
 BASE=Path(__file__).resolve().parent.parent
 app.mount('/static',StaticFiles(directory=BASE/'static'),name='static')
 @app.get('/',include_in_schema=False)
