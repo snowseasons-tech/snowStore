@@ -83,7 +83,7 @@ For every completed phase record: commit, environment, exact checks, observed re
 | Phase 1: search, follow-ups and validation | Commit containing this workflow update; local clean-copy environments | `npm run test:lead-workspace`: 13 tests plus JS parsing passed; fresh/legacy browser workflows and shutdown persistence passed | Complete |
 | Phase 2: hosted authentication boundary | `94323c9`; local Cloudflare runtime and production HTTPS | Auth and browser checks passed; production entry HTTP 200 and signed-out session HTTP 401 | Complete; production customer login not exercised |
 | Phase 3: customer isolation | `f42a9fa`; Cloudflare local runtime + disposable Redis 7 | Two-account isolation, 200/409 simultaneous saves, 404 foreign edits, browser import/export and stale-edit recovery passed | Implemented and verified locally; production pilots disabled |
-| Phase 4: subscription lifecycle | Commit containing phase 4 changes; local fixtures | Signed/replayed webhooks, grace boundaries, provider failures, billing ownership and browser recovery passed | Implemented; real Stripe sandbox journey deferred to phase 7 |
+| Phase 4: subscription lifecycle | `4c23cd7`; local fixtures | Signed/replayed webhooks, grace boundaries, provider failures, billing ownership and browser recovery passed | Implemented; real Stripe sandbox journey deferred to phase 7 |
 | CRM release | — | Direct CRM delivery remains unimplemented | Not started |
 
 ## Remaining bundle sequence
@@ -132,3 +132,5 @@ Policy chosen by the user: seven days of past-due grace. Cancellation preserves 
 - Production pilot and billing enablement remain off. Code deployment does not enable sales or alter proposed prices. Stripe Tax remains unchanged for release review.
 
 Phase 4 implementation and fixture validation are complete. Next: phase 5, one CRM connector. Choose the provider and a test account before provider-specific integration; independent connector design can proceed first.
+
+Phase 4 deployment verification: `4c23cd7` pushed to main; production serves the updated account script (HTTP 200) and rejects signed-out billing-portal POSTs (HTTP 401). All 156 repository tests passed, plus the 24-test workspace suite, lint, catalog validation and Pages build. Billing enablement and pilot settings were not changed. The temporary billing-fixture server was stopped.
