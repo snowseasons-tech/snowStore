@@ -1,6 +1,7 @@
 import csv
 import io
 import tempfile
+import sqlite3
 import unittest
 from pathlib import Path
 
@@ -60,6 +61,30 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(row['name'], 'Example, Café')
             self.assertEqual(row['notes'], "'=SUM(1,2)")
             self.assertEqual(list_leads(db)[0]['notes'], '=SUM(1,2)')
+
+    def test_follow_up_search_and_export(self):
+        with workspace(self.path) as db:
+            import_csv(db, io.StringIO('name,stage,follow_up,notes\nExample One,New,2026-11-06,Call requested\nExample Two,Won,2026-11-01,Call completed\nExample Three,New,2026-12-01,Later\nExample Four,New,,Unscheduled\n'))
+            self.assertEqual([r['name'] for r in list_leads(db, search='CALL', due_by='2026-11-06')], ['Example One'])
+            output = io.StringIO()
+            self.assertEqual(export_csv(db, output, search='one', due_by='2026-11-06'), 1)
+            self.assertIn('2026-11-06', output.getvalue())
+            for value in ('2026-02-30', '20261106', 'next week'):
+                with self.assertRaises(ValueError):
+                    update_lead(db, 1, {'follow_up': value})
+            update_lead(db, 1, {'follow_up': ''})
+            self.assertEqual(list_leads(db, due_by='2026-11-06'), [])
+
+    def test_existing_database_migration_preserves_records(self):
+        with sqlite3.connect(self.path) as db:
+            db.execute("CREATE TABLE leads (id INTEGER PRIMARY KEY, name TEXT, email TEXT, website TEXT, phone TEXT, stage TEXT, fit INTEGER, intent INTEGER, budget INTEGER, notes TEXT, updated_at TEXT)")
+            db.execute("INSERT INTO leads VALUES (1,'Existing','a@example.com','','','New',80,70,60,'Keep me','2026-01-01')")
+        for _ in range(2):
+            with workspace(self.path) as db:
+                row = list_leads(db)[0]
+                self.assertEqual(row['notes'], 'Keep me')
+                self.assertEqual(row['follow_up'], '')
+                update_lead(db, 1, {'follow_up': ''})
 
 
 if __name__ == '__main__':

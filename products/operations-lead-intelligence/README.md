@@ -18,6 +18,12 @@ The browser and CLI below use the same database when given the same path. Browse
 
 ### Command-line interface
 
+Search matches organization, email, phone, website and notes without regard to case. Set **Next follow-up** on a lead, then use **Follow-ups due by** to show open leads scheduled on or before a date. Won, Lost and unscheduled records are excluded from this view. Clear the date filter to show them again. Export applies search, stage, score and due-date filters together.
+
+Existing databases automatically gain the optional `follow_up` column when opened; existing records and notes are preserved. CSV import/export supports this field as a `YYYY-MM-DD` date or an empty value. These dates are calendar dates, with no timezone conversion or automatic notifications.
+
+The CLI supports the same filters: `python3 leads.py --db workspace.sqlite3 list --search example --due-by 2026-11-06`. Use `update 1 --follow_up 2026-11-10` to set a date or `update 1 --follow_up ""` to clear it. The `export` command accepts `--search` and `--due-by` too.
+
 In the browser, **Add lead** opens a blank record without requiring a CSV. Enter an organization name and optional contact details, signals and notes, then save. New records default to stage New and zero signals. Duplicate names and emails are rejected without overwriting the existing lead.
 
 `leads.py` is a working local workspace using Python 3.11+ and SQLite, with no additional packages. It saves records between runs, imports CSV files, tracks stages and notes, ranks leads, and exports a CSV for manual CRM import. It does not run enrichment, send outreach, authenticate users or connect directly to a CRM.
@@ -41,7 +47,9 @@ Imports validate all rows before saving. A case-insensitive match on trimmed nam
 
 Exports include the internal record ID, lead fields, score and modification time. Review the destination CRM's import mapping and duplicate settings before importing. CSV cells beginning with spreadsheet formula characters are prefixed with an apostrophe; database values remain unchanged. Export refuses to overwrite an existing file, so choose a new filename for each attempt. This is a manual exchange workflow, not a synchronized CRM integration with remote retries or delivery status.
 
-Run the regression checks with:
+From the repository root, run `npm run test:lead-workspace` for all Python storage, CLI and HTTP checks plus JavaScript parsing. Requires Python 3.11+, Node.js and permission to open a loopback socket. No Python packages need installing.
+
+Or run the Python regression checks from this product directory with:
 
 ```sh
 python3 -B -m unittest discover -s . -p 'test_*.py' -v

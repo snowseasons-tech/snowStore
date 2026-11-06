@@ -4,6 +4,7 @@ import io
 import json
 import secrets
 import sqlite3
+from datetime import date
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
@@ -54,7 +55,10 @@ def make_handler(database, token):
                         if not 0 <= minimum <= 100:
                             raise ValueError('Minimum score must be 0–100.')
                         output = io.StringIO(newline='')
-                        export_csv(db, output, query.get('stage', [None])[0] or None, minimum)
+                        due_by = query.get('due_by', [None])[0]
+                        if due_by:
+                            due_by = date.fromisoformat(due_by).isoformat()
+                        export_csv(db, output, query.get('stage', [None])[0] or None, minimum, query.get('search', [''])[0], due_by or None)
                         return self.reply(200, output.getvalue().encode('utf-8'), 'text/csv; charset=utf-8')
                 self.reply(404, {'error': 'Unknown route.'})
             except (ValueError, sqlite3.Error):

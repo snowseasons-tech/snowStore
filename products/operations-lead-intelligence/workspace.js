@@ -15,7 +15,7 @@ async function api(path, body) {
   return response;
 }
 function visible() {
-  return records.filter(row => (!$('filter').value || row.stage === $('filter').value) && row.score >= Number($('minimum').value));
+  return records.filter(row => (!$('filter').value || row.stage === $('filter').value) && row.score >= Number($('minimum').value) && ['name','email','website','phone','notes'].some(key => row[key].toLocaleLowerCase().includes($('search').value.toLocaleLowerCase())) && (!$('due-by').value || (row.follow_up && row.follow_up <= $('due-by').value && !['Won','Lost'].includes(row.stage))));
 }
 function render() {
   const rows = visible();
@@ -24,7 +24,7 @@ function render() {
   $('empty').hidden = rows.length > 0;
   for (const row of rows) {
     const tr = document.createElement('tr');
-    for (const value of [row.name, String(row.score), row.stage]) {
+    for (const value of [row.name, String(row.score), row.stage, row.follow_up || '—']) {
       const td = document.createElement('td'); td.textContent = value; tr.append(td);
     }
     const td = document.createElement('td'), button = document.createElement('button');
@@ -43,6 +43,8 @@ function render() {
 async function reload() { records = await (await api('/api/leads')).json(); render(); }
 $('filter').onchange = render;
 $('minimum').oninput = render;
+$('search').oninput = render;
+$('due-by').oninput = render;
 $('editor').oninput = () => { dirty = true; };
 $('new-lead').onclick = () => {
   if (dirty && !confirm('Discard unsaved changes to the current lead?')) return;
@@ -83,7 +85,7 @@ $('import-form').onsubmit = async event => {
 $('export').onclick = async () => {
   try {
     if (!$('minimum').checkValidity()) throw new Error('Minimum score must be a whole number from 0 to 100.');
-    const query = new URLSearchParams({ stage: $('filter').value, minimum: $('minimum').value || '0' });
+    const query = new URLSearchParams({ stage: $('filter').value, minimum: $('minimum').value || '0', search: $('search').value, due_by: $('due-by').value });
     const response = await api('/api/export?' + query);
     const url = URL.createObjectURL(await response.blob()), link = document.createElement('a');
     link.href = url; link.download = 'leads-export.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);

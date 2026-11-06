@@ -1,5 +1,7 @@
 # Draft subscription bundle readiness
 
+The active delivery sequence and phase completion checks are in [MVP-WORKFLOW.md](MVP-WORKFLOW.md). It prioritizes finishing Lead Generation Pro before returning to the other draft bundles.
+
 Reviewed 2026-11-06 against the catalog, product source and hosted provisioning code. Source code is evidence of implementation, not proof of a working production service. All six bundles remain drafts; proposed prices are unchanged.
 
 | Bundle | Existing components | Remaining work |

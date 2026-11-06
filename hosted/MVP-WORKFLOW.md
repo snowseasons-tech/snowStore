@@ -1,0 +1,94 @@
+# Subscription bundle MVP workflow
+
+Updated: 2026-11-06. This is the implementation and release checklist, not a claim that the bundles are ready to sell.
+
+## Target outcome
+
+Finish Lead Generation Pro first, building on the persistent lead workspace already implemented. A customer with an active subscription can open their private workspace, import leads, prioritize them, record follow-ups and send reviewed records to one supported CRM. Subscription changes control access, and the operator can restore customer data from backup.
+
+Marketing Automation follows as a separate release. Website management, hosted databases, AI reporting and Complete Business Suite remain later milestones. Shipping the first bundle does not mark the other five complete. This focus supersedes the earlier suggestion in BUNDLE-GAPS.md to validate Marketing Automation first.
+
+## Current checkpoint
+
+- [x] Draft plans blocked from checkout and new hosted provisioning.
+- [x] Unfinished bundles blocked from direct Stripe product creation.
+- [x] Persistent SQLite lead records, mapped CSV import and duplicate handling.
+- [x] Local browser interface: create/edit, stages, signals and notes.
+- [x] Manual CRM CSV export with spreadsheet-safe escaping.
+- [x] Search, follow-up dates and due-date export filters implemented locally.
+- [x] Twelve storage/HTTP tests pass; browser checks cover creation, persistence, search and date boundaries.
+- [x] Phase 1 local validation complete; search/follow-up changes included in this release commit.
+- [ ] Hosted customer access, subscription enforcement and direct CRM delivery.
+
+## Work queue
+
+Follow these phases in order. Finish and record the exit checks before moving to the next phase. Keep each implementation change reviewable and commit after its checks pass.
+
+| Phase | Deliverable | Exit checks | Depends on |
+| --- | --- | --- | --- |
+| 1. Local foundation | Finish the local workspace release and add a repeatable test command | All workspace tests pass; a clean checkout can launch using README instructions; imports, edits, follow-ups and exports survive restart; latest changes committed | Current code |
+| 2. Hosted application boundary | Production application server and authenticated customer access | Server-side sessions, logout and expiry work; HTTPS deployment runs without exposing the local development server; no startup token grants hosted access | Phase 1 |
+| 3. Customer isolation | Separate customer workspaces and access checks on every data operation | Two test customers cannot read, edit, import or export each other's leads; workspace identifiers come from verified identity; concurrent updates cannot silently overwrite newer edits | Phase 2 |
+| 4. Subscription lifecycle | Entitlement checks and customer portal launch link | Active/trial access works; past-due policy is documented; canceled/unpaid access follows that policy; webhook duplicates and delayed events do not corrupt state; reactivation preserves data | Phase 3 |
+| 5. One CRM connector | Reviewed delivery to one chosen CRM | Field mapping, remote IDs, duplicate behavior, per-record results, retry and credential handling work against a test account; no duplicate remote records after repeated delivery | Phase 3; CRM selection |
+| 6. Operations and recovery | Deployment runbook, backups, restore and error visibility | Restore a backup into a fresh environment; prove customer isolation after restore; alerts identify failed imports/deliveries without exposing lead contents or tokens; rollback is exercised | Phases 4–5 |
+| 7. End-to-end pilot | One complete test subscription journey | Checkout → portal → workspace → import → follow-up → CRM delivery → cancellation → reactivation succeeds; a pilot user completes the core workflow from written instructions | Phase 6 |
+| 8. Release | Accurate listing and enabled Lead Generation Pro bundle | Product scope, recurring price and support policy approved; pending claims have evidence; catalog and checks pass; fulfillment verified after deployment | Phase 7 |
+
+## Phase 1 completed: local foundation
+
+1. Added `npm run test:lead-workspace`: Python storage, CLI and HTTP suites plus JavaScript parsing; all 13 tests passed. HTTP tests need loopback networking.
+2. CLI subprocess coverage verifies search, follow-up updates, filtered exports, process-to-process persistence, invalid dates, clearing dates and refusing export overwrite.
+3. Launched the README command from a clean temporary copy with both fresh and legacy databases. Browser checks verified lead creation, notes, follow-up dates, search, date boundaries and reload persistence. Data remained after server shutdown; migration retained existing notes.
+4. Release evidence is recorded in this file and included with the phase 1 commit. Next: phase 2, hosted application boundary. No hosted release is claimed.
+
+## Hosted design boundaries
+
+- The current `server.py` is a loopback development tool. Keep it useful locally; build a hosted entry point with production serving, authentication and authorization rather than exposing its token URL to the internet.
+- Reuse the existing storefront identity and subscription mechanisms where their verified identity can be securely passed to the application. Do not trust a customer ID or subscription ID supplied by the browser.
+- Choose one tenant storage model and test every route against it. Avoid adding team roles, shared workspaces or multiple CRM providers to this MVP.
+- Keep the downloadable lead pipeline as an existing entitlement. Validate and map its actual CSV output into the workspace; do not claim that manual imports are automatic enrichment.
+- CRM delivery is an explicit reviewed action. No automatic outreach, email sending or background prospect contact is required for this release.
+
+## Decisions needed before dependent work
+
+| Decision | Needed before | Working assumption until decided |
+| --- | --- | --- |
+| First supported CRM and test account | Phase 5 implementation | Design a provider boundary and delivery records; do not invent provider-specific behavior |
+| Hosting target, domain and operating budget | Phase 2 deployment | Develop and test locally; use the existing hosting conventions where suitable |
+| Cancellation, past-due and data retention policy | Phase 4 completion | Preserve customer records; do not add automatic deletion |
+| Approved price and support scope | Phase 8 | Keep current proposed price and draft status |
+
+These decisions do not block phase 1. Ask for each when it becomes necessary; continue independent implementation in the meantime.
+
+## Verification and evidence
+
+Current checks:
+
+```sh
+npm run test:lead-workspace
+node --test tests/bundles.test.js tests/hosted.test.js tests/validate-store-items.test.js
+npm run validate:store-items
+git diff --check
+```
+
+Workspace HTTP tests require a local socket. Hosted Compose checks require Docker. Passing unit checks does not establish hosted deployment or provider integration readiness.
+
+For every completed phase record: commit, environment, exact checks, observed result and remaining limitations. Use test data and keep credentials and customer records out of evidence files. Mark a phase complete only when its exit checks have passed.
+
+| Phase | Commit / environment | Evidence | Status |
+| --- | --- | --- | --- |
+| Foundation controls and local workspace | `03e2473`, `512adaf`; local | Bundle/hosted checks passed (26); workspace checks passed (9); browser create/reload verified | Implemented |
+| Phase 1: search, follow-ups and validation | Commit containing this workflow update; local clean-copy environments | `npm run test:lead-workspace`: 13 tests plus JS parsing passed; fresh/legacy browser workflows and shutdown persistence passed | Complete |
+| Hosted release | — | No production customer-access or CRM evidence yet | Not started |
+
+## Remaining bundle sequence
+
+1. Lead Generation Pro: finish phases 1–8 above.
+2. Marketing Automation: validate existing Social Studio and MailHub hosting, choose email allowance, test provider connections, quotas, lifecycle and recovery.
+3. Business Launch: implement website management, then integrate booking and invoicing access.
+4. Business Operations: implement isolated database provisioning and tested restore, then integrate existing tools.
+5. AI Business Intelligence: add verified data ingestion and attributable reports after the operational data services exist.
+6. Complete Business Suite: integrate only the completed services, then test one subscription across all of them.
+
+Keep each bundle hidden until its own promised workflows are implemented and verified. See BUNDLE-GAPS.md for the component-level inventory.

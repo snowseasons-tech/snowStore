@@ -79,6 +79,13 @@ class BrowserServerTests(unittest.TestCase):
         self.assertEqual(self.request('/api/export?minimum=101')[0], 400)
         self.assertEqual(self.request('/api/import', {'csv': 'name\nB\n'}, token='')[0], 403)
 
+    def test_follow_up_export_filters(self):
+        self.assertEqual(self.request('/api/update', {'id': 1, 'changes': {'follow_up': '2026-11-06'}})[0], 200)
+        self.assertIn(b'Example Co', self.request('/api/export?due_by=2026-11-06&search=EXAMPLE')[1])
+        self.assertNotIn(b'Example Co', self.request('/api/export?due_by=2026-11-05')[1])
+        self.assertNotIn(b'Example Co', self.request('/api/export?search=absent')[1])
+        self.assertEqual(self.request('/api/export?due_by=invalid')[0], 400)
+
 
 if __name__ == '__main__':
     unittest.main()

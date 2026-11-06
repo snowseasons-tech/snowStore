@@ -3,11 +3,12 @@ import argparse
 import csv
 import json
 import sqlite3
+from datetime import date
 from contextlib import contextmanager
 from pathlib import Path
 
 STAGES = ('New', 'Qualified', 'Contacted', 'Won', 'Lost')
-FIELDS = ('name', 'email', 'website', 'phone', 'stage', 'fit', 'intent', 'budget', 'notes')
+FIELDS = ('name', 'email', 'website', 'phone', 'stage', 'fit', 'intent', 'budget', 'notes', 'follow_up')
 
 
 @contextmanager
@@ -22,6 +23,10 @@ def workspace(path):
             intent INTEGER NOT NULL DEFAULT 0, budget INTEGER NOT NULL DEFAULT 0,
             notes TEXT NOT NULL DEFAULT '', updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(name COLLATE NOCASE, email COLLATE NOCASE))''')
+        columns = {row['name'] for row in db.execute('PRAGMA table_info(leads)')}
+        if 'follow_up' not in columns:
+            db.execute("ALTER TABLE leads ADD COLUMN follow_up TEXT NOT NULL DEFAULT ''")
+            db.commit()
         with db:
             yield db
     finally:
@@ -43,6 +48,13 @@ def normalize(row):
         result['stage'] = 'New'
     if result['stage'] not in STAGES:
         raise ValueError('unknown stage: ' + result['stage'])
+    if result['follow_up']:
+        try:
+            parsed = date.fromisoformat(result['follow_up'])
+        except ValueError as error:
+            raise ValueError('follow_up must be a valid YYYY-MM-DD date') from error
+        if parsed.isoformat() != result['follow_up']:
+            raise ValueError('follow_up must use YYYY-MM-DD')
     for field in ('fit', 'intent', 'budget'):
         result[field] = signal(result[field] or '0')
     return result
@@ -77,13 +89,15 @@ def import_csv(db, source, mapping=None):
     return {'added': added, 'duplicates_skipped': len(rows) - added}
 
 
-def list_leads(db, stage=None, minimum=0):
+def list_leads(db, stage=None, minimum=0, search='', due_by=None):
     rows = []
     for record in db.execute('SELECT * FROM leads ORDER BY id'):
         lead = dict(record)
         # Integer arithmetic gives conventional half-up rounding.
         lead['score'] = (lead['fit'] * 40 + lead['intent'] * 35 + lead['budget'] * 25 + 50) // 100
-        if (stage is None or lead['stage'] == stage) and lead['score'] >= minimum:
+        matches = search.casefold() in ' '.join(str(lead[key]) for key in ('name', 'email', 'phone', 'website', 'notes')).casefold()
+        due = due_by is None or (lead['follow_up'] and lead['follow_up'] <= due_by and lead['stage'] not in ('Won', 'Lost'))
+        if matches and due and (stage is None or lead['stage'] == stage) and lead['score'] >= minimum:
             rows.append(lead)
     return sorted(rows, key=lambda row: (-row['score'], row['id']))
 
@@ -108,11 +122,11 @@ def update_lead(db, lead_id, changes):
         db.execute('UPDATE leads SET ' + ','.join(field + '=?' for field in FIELDS) + ', updated_at=CURRENT_TIMESTAMP WHERE id=?', [row[field] for field in FIELDS] + [lead_id])
 
 
-def export_csv(db, target, stage=None, minimum=0):
+def export_csv(db, target, stage=None, minimum=0, search='', due_by=None):
     fields = ('id',) + FIELDS + ('score', 'updated_at')
     writer = csv.DictWriter(target, fieldnames=fields)
     writer.writeheader()
-    rows = list_leads(db, stage, minimum)
+    rows = list_leads(db, stage, minimum, search, due_by)
     for row in rows:
         # Spreadsheet-safe output; source records remain unchanged.
         writer.writerow({key: "'" + value if isinstance(value, str) and value.lstrip().startswith(('=', '+', '-', '@')) else value for key, value in row.items()})
@@ -132,6 +146,8 @@ def main():
     for command in (listing, exporting):
         command.add_argument('--stage', choices=STAGES)
         command.add_argument('--minimum', type=signal, default=0)
+        command.add_argument('--search', default='')
+        command.add_argument('--due-by', type=lambda value: date.fromisoformat(value).isoformat())
     edit = commands.add_parser('update')
     edit.add_argument('id', type=int)
     for field in FIELDS:
@@ -146,14 +162,14 @@ def main():
                 with args.csv.open(encoding='utf-8-sig', newline='') as source:
                     print(json.dumps(import_csv(db, source, mapping)))
             elif args.command == 'list':
-                print(json.dumps(list_leads(db, args.stage, args.minimum), indent=2))
+                print(json.dumps(list_leads(db, args.stage, args.minimum, args.search, args.due_by), indent=2))
             elif args.command == 'update':
                 update_lead(db, args.id, {field: getattr(args, field) for field in FIELDS if getattr(args, field) is not None})
                 print('Lead updated.')
             else:
                 # Refuse to overwrite a database, input file or prior export.
                 with args.csv.open('x', encoding='utf-8', newline='') as target:
-                    count = export_csv(db, target, args.stage, args.minimum)
+                    count = export_csv(db, target, args.stage, args.minimum, args.search, args.due_by)
                 print(f'Exported {count} leads.')
     except (ValueError, OSError, sqlite3.Error) as error:
         parser.exit(1, f'Error: {error}\n')
