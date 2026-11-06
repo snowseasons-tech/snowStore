@@ -10,11 +10,22 @@ from pathlib import Path
 
 import pytest
 from cryptography.fernet import Fernet
+from sqlalchemy.engine import make_url
 
-_fd, _db_path = tempfile.mkstemp(prefix='social-studio-test-', suffix='.db')
-os.close(_fd)
+_test_database_url = os.getenv('SOCIAL_STUDIO_TEST_DATABASE_URL')
+_db_path = None
+if _test_database_url:
+    # Tests drop and recreate tables. Only accept an explicitly named throwaway
+    # database, never an existing DATABASE_URL from someone's app environment.
+    _url = make_url(_test_database_url)
+    if _url.get_backend_name() != 'mysql' or not (_url.database or '').startswith('social_studio_test_'):
+        raise RuntimeError('Use a disposable MySQL database named social_studio_test_*')
+else:
+    _fd, _db_path = tempfile.mkstemp(prefix='social-studio-test-', suffix='.db')
+    os.close(_fd)
+    _test_database_url = f'sqlite:///{_db_path}'
 os.environ.update(
-    DATABASE_URL=f'sqlite:///{_db_path}',
+    DATABASE_URL=_test_database_url,
     SECRET_KEY=secrets.token_hex(32),
     FERNET_KEY=Fernet.generate_key().decode(),
     PUBLIC_URL='https://studio.example.com',
@@ -36,7 +47,8 @@ PASSWORD = 'correct-horse-battery'
 
 def pytest_sessionfinish(session, exitstatus):
     engine.dispose()
-    Path(_db_path).unlink(missing_ok=True)
+    if _db_path:
+        Path(_db_path).unlink(missing_ok=True)
 
 
 @pytest.fixture(autouse=True)

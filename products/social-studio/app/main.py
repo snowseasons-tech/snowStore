@@ -109,7 +109,8 @@ def register(data:RegisterIn,db:DBSession=Depends(db_session)):
 @app.post('/api/auth/login')
 def login(data:Credentials,request:Request,db:DBSession=Depends(db_session)):
     email=str(data.email).lower()
-    # Checked before the password, so a locked account is not tested at all.
+    # Locks stay held through password verification, serializing attempts that
+    # share an account or IP. A locked account's password is never tested.
     address=request.client.host if request.client else None
     keys=[(account_key(email),MAX_FAILURES_PER_ACCOUNT),(ip_key(address),MAX_FAILURES_PER_IP)]
     check_allowed(db,keys)

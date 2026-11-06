@@ -1,8 +1,14 @@
 from datetime import timedelta
 from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier, Lock
+from time import sleep
+from types import SimpleNamespace
 
-from app import throttle
-from app.db import LoginThrottle, Session
+import pytest
+from fastapi import HTTPException
+
+from app import main, throttle
+from app.db import LoginThrottle, Session, User
 from conftest import PASSWORD, register
 
 OWNER = 'owner@example.com'
@@ -96,3 +102,79 @@ def test_expired_counter_restarts_at_one(monkeypatch):
         row = db.get(LoginThrottle, key)
         assert row.failures == 1
         assert row.window_start == later
+
+
+def parallel_logins(client, emails):
+    start = Barrier(len(emails))
+
+    def attempt(email):
+        start.wait(timeout=10)
+        return login(client, email, 'wrong-password-123').status_code
+
+    with ThreadPoolExecutor(max_workers=len(emails)) as pool:
+        return list(pool.map(attempt, emails))
+
+
+def slow_password_check(monkeypatch):
+    # Widen the gap between checking the limit and recording a failure. Without
+    # the transaction lock, every waiting request can enter password verification.
+    calls = []
+    guard = Lock()
+    original = main.hasher.verify
+
+    def verify(password, password_hash):
+        with guard:
+            calls.append(1)
+        sleep(0.05)
+        return original(password, password_hash)
+
+    monkeypatch.setattr(main, 'hasher', SimpleNamespace(verify=verify))
+    return calls
+
+
+def test_parallel_requests_cannot_pass_account_limit(client, monkeypatch):
+    register(client, OWNER)
+    calls = slow_password_check(monkeypatch)
+    results = parallel_logins(client, [OWNER] * 12)
+    assert results.count(401) == throttle.MAX_FAILURES_PER_ACCOUNT
+    assert results.count(429) == 12 - throttle.MAX_FAILURES_PER_ACCOUNT
+    assert len(calls) == throttle.MAX_FAILURES_PER_ACCOUNT
+
+
+def test_parallel_requests_cannot_pass_ip_limit_across_accounts(client, monkeypatch):
+    password_hash = main.hasher.hash(PASSWORD)
+    emails = [f'parallel{i}@example.com' for i in range(12)]
+    with Session() as db:
+        db.add_all(User(email=email, password_hash=password_hash) for email in emails)
+        db.commit()
+    monkeypatch.setattr(main, 'MAX_FAILURES_PER_IP', 4)
+    calls = slow_password_check(monkeypatch)
+    results = parallel_logins(client, emails)
+    assert results.count(401) == 4
+    assert results.count(429) == 8
+    assert len(calls) == 4
+
+
+def test_rejected_attempt_releases_its_transaction():
+    key = throttle.account_key(OWNER)
+    with Session() as db:
+        for _ in range(throttle.MAX_FAILURES_PER_ACCOUNT):
+            throttle.record_failure(db, [key])
+        with pytest.raises(HTTPException) as error:
+            throttle.check_allowed(db, [(key, throttle.MAX_FAILURES_PER_ACCOUNT)])
+        assert error.value.status_code == 429
+        assert not db.in_transaction()
+
+
+def test_password_verification_error_releases_locks(client, monkeypatch):
+    register(client, OWNER)
+    original = main.hasher
+
+    def broken_verify(*_):
+        raise RuntimeError('Password verification interrupted')
+
+    monkeypatch.setattr(main, 'hasher', SimpleNamespace(verify=broken_verify))
+    with pytest.raises(RuntimeError, match='Password verification interrupted'):
+        login(client, OWNER, PASSWORD)
+    monkeypatch.setattr(main, 'hasher', original)
+    assert login(client, OWNER, PASSWORD).status_code == 200
