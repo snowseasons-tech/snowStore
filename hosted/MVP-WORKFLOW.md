@@ -87,7 +87,7 @@ For every completed phase record: commit, environment, exact checks, observed re
 | Phase 4: subscription lifecycle | `4c23cd7`; local fixtures | Signed/replayed webhooks, grace boundaries, provider failures, billing ownership and browser recovery passed | Implemented; real Stripe sandbox journey deferred to phase 7 |
 | Phase 5: HubSpot connector | `32a675d`; fixture/runtime and connected-account checks | Fixture delivery verified; real dedicated-account contact create/update/replay returned one contact with the same ID | Application service-key transport still pending |
 | Phase 6: operations and recovery | `8a2c0ec`; isolated Redis | Encrypted CLI snapshot, two-tenant restore, disarmed CRM, archived-code rollback/edit/roll-forward and sanitized failure signals verified | Tooling implemented; production offsite backups and external alert routing pending |
-| Phase 7: end-to-end pilot | Commit containing phase 7 changes; application fixtures and real provider smoke | Complete mocked application journey; real HubSpot contact smoke; real Stripe test trial/cancel/new-trial and zero invoices | Hosted provider wiring and user walkthrough pending |
+| Phase 7: end-to-end pilot | `f36b0c1`, merged as `ab8bae4`; application fixtures and real provider smoke | Complete mocked application journey; real HubSpot contact smoke; real Stripe test trial/cancel/new-trial and zero invoices | Hosted provider wiring and user walkthrough pending |
 
 ## Remaining bundle sequence
 
@@ -180,3 +180,5 @@ Added an explicit sandbox-only checkout path so the pilot can exercise real Stri
 Remaining phase 7 exit checks: configure the application's test Stripe key/webhook and HubSpot service key in an isolated environment, complete a real test-mode Checkout payment and signed webhook delivery into that application, run direct CRM delivery from the app, and have a pilot user follow the written workflow. Connected tools do not reveal the application's required secret keys. Production access and catalog draft flags stay off until these and phase 8 review pass.
 
 Run sheet: LEAD-PILOT.md. Evidence levels/status: LEAD-PILOT-RESULTS.md. Phase 7 is not yet marked complete.
+
+Phase 7 deployment evidence: pilot implementation `f36b0c1` integrated with the concurrent Social Studio release and pushed as `ab8bae4`. All 177 repository tests passed on the merged tree; the three-test unified pilot suite, workspace suite, lint, catalog validation and Pages build passed. Production account page returned HTTP 200 with the sandbox control, and signed-out pilot checkout returned HTTP 401. Production sandbox/CRM/billing bindings were not enabled. Real provider smoke results and cleanup are recorded in LEAD-PILOT-RESULTS.md; actual hosted credential/webhook wiring and pilot-user execution remain pending.
