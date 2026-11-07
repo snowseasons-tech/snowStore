@@ -26,7 +26,6 @@ export const APPS = [
   { id: 'gh-store', name: 'snowStore on GitHub', group: 'Accounts', status: 'private', url: 'https://github.com/snowseasons-tech/snowStore', note: 'Store, bundles and hosted setup', keys: 'code repo git' },
   { id: 'gh-site', name: 'American Tree on GitHub', group: 'Accounts', status: 'private', url: 'https://github.com/americantreeserviceco/website', note: 'Website code', keys: 'code repo git' },
 
-  { id: 'hosted-social', name: 'Hosted Social Studio', group: 'In progress', status: 'building', note: 'Needs a server, a domain, and Meta and Google approval', keys: 'social media manager' },
   { id: 'mailhub-sw', name: 'MailHub for customers', group: 'In progress', status: 'building', note: 'Not built as customer software yet', keys: 'email marketing' },
   { id: 'bundles', name: 'Six software bundles', group: 'In progress', status: 'building', note: 'Drafts on the product-bundles branch, waiting on missing software', keys: 'plans pricing marketing automation suite' },
 ];
