@@ -18,7 +18,7 @@ Runs with Docker: a FastAPI web app, a sending worker and MySQL. One server belo
 
 ## Anti-spam, built in
 
-- Every email, tests included, gets an unsubscribe link and your postal address. You can't send without an address on file.
+- Every email, tests included, gets an unsubscribe link and your postal address. You can't send without an address on file. A test email's unsubscribe link is a placeholder and changes nothing.
 - Every email carries `List-Unsubscribe` one-click headers, which Gmail and Yahoo require of bulk senders.
 - Opening the unsubscribe link only asks. The change happens on the button or the mail app's one-click POST, so link scanners can't unsubscribe people.
 - Unsubscribes, hard bounces and spam complaints go on a suppression list that outlives the contact. Re-importing an address doesn't bring it back, and nothing in the app removes it.

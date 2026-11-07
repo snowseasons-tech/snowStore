@@ -97,6 +97,9 @@ def run_once():
             row=sending.settings(db)
             links={l.url:l.id for l in db.scalars(select(CampaignLink).where(CampaignLink.campaign_id==c.id)).all()}
             r=db.get(Recipient,rid)
+            if db.get(Suppression,r.email):
+                # Unsubscribed or bounced after this batch was claimed. Its send was counted when claimed, so give it back.
+                r.status='skipped';sending.count_sends(db,-1);db.commit();continue
             carry_on=deliver(db,c,row,links,r)
             attempted+=1
             if not carry_on: release(db,ids[n+1:])

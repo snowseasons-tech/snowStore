@@ -9,6 +9,7 @@ import time
 import pytest
 
 import app.main as main
+import app.sending as sending
 import app.worker as worker
 from app.db import Campaign, Recipient, SendCounter, Session, Settings, Suppression
 from app.render import build, links_in
@@ -87,6 +88,12 @@ def test_csv_import_counts_and_tags(client, owner):
     assert contacts[0]['email'] == 'a@x.example.com' and contacts[0]['tags'] == ['fall', 'vip']
     assert upload(client, owner, lid, 'email,first_name\na@x.example.com,\n').json()['updated'] == 1
     assert client.get('/api/contacts', headers=owner).json()['contacts'][0]['first_name'] == 'Al'
+
+
+def test_csv_tags_split_on_semicolon_or_pipe_only(client, owner):
+    lid = make_list(client, owner)
+    upload(client, owner, lid, 'email,tags\na@x.example.com,"red, blue";vip|spring\n')
+    assert client.get('/api/contacts', headers=owner).json()['contacts'][0]['tags'] == ['red, blue', 'spring', 'vip']
 
 
 def test_csv_import_needs_consent_and_email_column(client, owner):
@@ -201,6 +208,26 @@ def test_address_suppressed_after_queueing_is_skipped(client, owner, ready, outb
     drain()
     assert [p['to'][0] for p in outbox] == ['b@x.example.com']
     assert stats(client, owner, cid)['skipped'] == 1
+
+
+def test_unsubscribe_mid_batch_stops_the_rest_of_the_batch(client, owner, ready, outbox, monkeypatch):
+    cid = sent_campaign(client, owner, emails=('a@x.example.com', 'b@x.example.com', 'c@x.example.com'))
+    real_deliver = worker.deliver
+
+    def deliver_then_unsubscribe_b(db, c, row, links, r):
+        result = real_deliver(db, c, row, links, r)
+        if r.email == 'a@x.example.com':
+            sending.suppress(db, 'b@x.example.com', 'unsubscribed')
+            db.commit()
+        return result
+
+    monkeypatch.setattr(worker, 'deliver', deliver_then_unsubscribe_b)
+    drain()
+    assert sorted(p['to'][0] for p in outbox) == ['a@x.example.com', 'c@x.example.com']
+    s = stats(client, owner, cid)
+    assert (s['sent'], s['skipped']) == (2, 1)
+    with Session() as db:
+        assert sending.used_this_month(db) == 2
 
 
 def test_temporary_failure_retries_without_losing_the_send_count(client, owner, ready, outbox):

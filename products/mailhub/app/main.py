@@ -232,7 +232,7 @@ async def import_csv(list_id:str,file:UploadFile=File(),consent:bool=Form(False)
         cell=lambda name:(row.get(columns.get(name)) or '').strip() if name in columns else ''
         try: email=validate_email(cell('email'),check_deliverability=False).normalized.lower()
         except EmailNotValidError: invalid+=1;continue
-        rows[email]={'first_name':cell('first_name')[:200],'last_name':cell('last_name')[:200],'tags':clean_tags(re.split('[;,|]',cell('tags')))}
+        rows[email]={'first_name':cell('first_name')[:200],'last_name':cell('last_name')[:200],'tags':clean_tags(re.split('[;|]',cell('tags')))}
     emails=list(rows);existing={};blocked=set()
     for i in range(0,len(emails),500):
         chunk=emails[i:i+500]
