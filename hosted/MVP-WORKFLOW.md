@@ -88,6 +88,7 @@ For every completed phase record: commit, environment, exact checks, observed re
 | Phase 5: HubSpot connector | `32a675d`; fixture/runtime and connected-account checks | Fixture delivery verified; real dedicated-account contact create/update/replay returned one contact with the same ID | Application service-key transport still pending |
 | Phase 6: operations and recovery | `8a2c0ec`; isolated Redis | Encrypted CLI snapshot, two-tenant restore, disarmed CRM, archived-code rollback/edit/roll-forward and sanitized failure signals verified | Tooling implemented; production offsite backups and external alert routing pending |
 | Phase 7: end-to-end pilot | `f36b0c1`, merged as `ab8bae4`; application fixtures and real provider smoke | Complete mocked application journey; real HubSpot contact smoke; real Stripe test trial/cancel/new-trial and zero invoices | Hosted provider wiring and user walkthrough pending |
+| Phase 8: release | [Release review](LEAD-RELEASE.md) | Proposed listing, commercial decisions and launch gates documented | Held pending hosted pilot, account setup verification, commercial approval and production operations |
 
 ## Remaining bundle sequence
 
