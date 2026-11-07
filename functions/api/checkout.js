@@ -12,6 +12,7 @@ export async function onRequestPost({ request, env }) {
     const product = Object.prototype.hasOwnProperty.call(CATALOG, body.productId) ? CATALOG[body.productId] : null;
     if (!product || product.retired) return send(400, { error: 'Unknown product' });
     if (product.draft || product.hidden) return send(503, { error: 'Product not available' });
+    if (env.LEAD_WORKSPACE_SANDBOX_CHECKOUT === '1') return send(503, { error: 'Storefront checkout is unavailable on the pilot site' });
     // period: '1w', '3m', '6m' or '12m' picks another billing period; default '1m' is the monthly (or one-time) price.
     const period = body.period || '1m';
     if (!prices.PERIODS.includes(period)) return send(400, { error: 'Unknown billing period' });

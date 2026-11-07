@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import CATALOG from '../../../api/_lib/catalog.js';
+import billing from '../../../api/_lib/lead-billing.js';
 import { leadSession } from '../../_lib/lead-session.js';
 import { workspaceWrite, boundedJSON } from '../../_lib/lead-request.js';
 import { pilotCheckoutEnabled } from '../../_lib/lead-pilot.js';
@@ -19,7 +20,7 @@ export async function onRequestPost({ request, env }) {
     const stripe = stripeClient(env);
     const price = await stripe.prices.retrieve(env.LEAD_WORKSPACE_SANDBOX_PRICE, { expand: ['product'] }, { timeout: 5000, maxNetworkRetries: 0 });
     if (price.livemode !== false || !price.active || price.product?.id !== env.LEAD_WORKSPACE_SANDBOX_PRODUCT || price.product?.livemode !== false || !price.product?.active || price.unit_amount !== CATALOG['lead-generation-pro'].proposedMonthly || price.currency !== 'usd' || price.recurring?.interval !== 'month' || (price.recurring.interval_count || 1) !== 1) throw new LeadError(503, 'The sandbox price does not match the pilot plan.');
-    const hash = createHash('sha256').update(user.email).digest('hex');
+    const hash = billing.accountHash(user.email);
     const metadata = { product_id: 'lead-generation-pro', lead_workspace_pilot: '1', lead_account_hash: hash };
     const suffix = [...createHash('sha256').update(hash + body.requestId).digest().subarray(0, 8)].map(value => String.fromCharCode(97 + value % 26)).join('');
     const origin = new URL(request.url).origin;
