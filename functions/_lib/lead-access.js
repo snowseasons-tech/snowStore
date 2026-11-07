@@ -7,10 +7,15 @@ import { pilotEnabled } from './lead-data.js';
 const WEEK = 7 * 86400;
 const denied = reason => ({ allowed: false, mode: 'subscription', reason });
 const idOf = value => typeof value === 'string' ? value : value?.id;
+// The Stripe product a workspace subscription must include, by catalog ID. Null for anything that unlocks no workspace.
+function workspaceProduct(productId, env) {
+  if (!billing.WORKSPACE_PRODUCTS.includes(productId)) return null;
+  return productId === 'lead-generation-pro' ? billingProduct(env, CATALOG[productId].stripeProduct) : CATALOG[productId].stripeProduct;
+}
 
 // Explicit access policy; invoice timestamps never move forward on another payment retry.
 export function subscriptionAccess(sub, product, customer, now = Date.now() / 1000) {
-  if (idOf(sub.customer) !== customer || sub.metadata?.product_id !== 'lead-generation-pro') return denied('Subscription does not match this account and product.');
+  if (idOf(sub.customer) !== customer || !billing.WORKSPACE_PRODUCTS.includes(sub.metadata?.product_id)) return denied('Subscription does not match this account and product.');
   const items = sub.items?.data || [];
   const matching = items.filter(item => idOf(item.price?.product) === product);
   if (matching.length !== 1 || sub.pause_collection) return denied('Subscription is paused or does not include this workspace.');
@@ -50,7 +55,7 @@ export async function leadAccess(session, env, deps = {}) {
     try { subscription = await stripe.subscriptions.retrieve(link.subscription, { expand: ['latest_invoice'] }, { timeout: 5000, maxNetworkRetries: 0 }); }
     catch (error) { if (error.code === 'resource_missing') continue; throw error; }
     if (subscription.id !== link.subscription) throw new Error('Subscription lookup mismatch');
-    const access = subscriptionAccess(subscription, billingProduct(env, CATALOG['lead-generation-pro'].stripeProduct), link.customer);
+    const access = subscriptionAccess(subscription, workspaceProduct(subscription.metadata?.product_id, env), link.customer);
     if (access.allowed) return { ...access, customer: link.customer };
     fallback = { ...access, customer: link.customer };
   }

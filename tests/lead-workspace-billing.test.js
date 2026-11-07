@@ -26,6 +26,12 @@ test('access policy covers paid, trial, grace boundaries, cancellation and inval
   assert.equal(access(sub({ pause_collection: { behavior: 'void' } }), product, 'cus_1', now).allowed, false);
   assert.equal(access(sub(), product, 'cus_other', now).allowed, false);
   assert.equal(access(sub(), 'prod_wrong', 'cus_1', now).allowed, false);
+  // Operations & Lead Intelligence subscriptions unlock the workspace through their own Stripe product.
+  const opsProduct = CATALOG['operations-lead-intelligence'].stripeProduct;
+  const opsSub = sub({ metadata: { product_id: 'operations-lead-intelligence' }, items: { data: [{ price: { product: opsProduct }, current_period_end: now + 30 * 86400 }] } });
+  assert.equal(access(opsSub, opsProduct, 'cus_1', now).allowed, true);
+  assert.equal(access(opsSub, product, 'cus_1', now).allowed, false);
+  assert.equal(access(sub({ metadata: { product_id: 'booking-app' } }), product, 'cus_1', now).allowed, false);
   assert.equal(access(sub({ latest_invoice: { status: 'open', amount_due: 24900 } }), product, 'cus_1', now).allowed, false);
   assert.equal(access(sub({ status: 'past_due', latest_invoice: { status: 'open' } }), product, 'cus_1', now).allowed, false);
   assert.equal(access(sub({ status: 'past_due', latest_invoice: { status: 'open', status_transitions: { finalized_at: now - 1 } } }), product, 'cus_1', now).allowed, true);
