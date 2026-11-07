@@ -19,7 +19,6 @@ export const APPS = [
   { id: 'atc-dash', name: 'Operations dashboard', group: 'American Tree', status: 'private', url: 'https://dash.americantreeserviceco.com', note: 'Jobs, estimates, leads and weather', keys: 'dash overview crew' },
   { id: 'atc-mail', name: 'Direct Mail Hub', group: 'American Tree', status: 'private', url: 'https://dash.americantreeserviceco.com/mailhub.html', note: 'Postcards and mailing lists', keys: 'mailhub mail campaign' },
   { id: 'stump', name: 'Stump Speech', group: 'American Tree', status: 'private', url: 'https://claude.ai/artifact/MA4n6qUvxmt1Fyv3pkZEht', note: 'Social post ideas and drafts', keys: 'social ideas inspiration posts' },
-  { id: 'yard', name: 'Yard Talk', group: 'American Tree', status: 'demo', url: 'https://claude.ai/artifact/Uka3ZAVVjHBdVqBcoqmYvx', note: 'Sales demo for a made-up landscaper', keys: 'stump speech demo landscaping' },
 
   { id: 'stripe', name: 'Stripe', group: 'Accounts', status: 'private', url: 'https://dashboard.stripe.com', note: 'Payments, subscriptions and prices', keys: 'billing payments' },
   { id: 'cloudflare', name: 'Cloudflare', group: 'Accounts', status: 'private', url: 'https://dash.cloudflare.com', note: 'Pages, Workers and DNS', keys: 'deploy hosting dns' },
