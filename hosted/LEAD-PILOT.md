@@ -5,7 +5,7 @@ Run the pilot in an isolated test environment. Catalog drafts remain closed. Use
 ## Operator preparation
 
 1. Use a dedicated HubSpot test account and Stripe test-mode account/sandbox. Existing connected-account access does not expose application API credentials. Configure scoped credentials directly through your secret manager and the CRM connection form, never in chat or git.
-2. Deploy the current code to a private test environment with its own empty Redis store, two portal accounts, and matching portal sessions. Use two distinct account emails. Do not copy production passwords or customer records into it.
+2. Deploy the current code to a separate HTTPS Pages project with an empty test Redis store. Restrict workspace access through the portal and pilot allowlist, and ensure Stripe can reach `/api/webhook` without an interactive login. Use two distinct fictional account emails and unique test passwords.
 3. Set these test bindings:
 
 | Binding | Test requirement |
@@ -24,9 +24,16 @@ Run the pilot in an isolated test environment. Catalog drafts remain closed. Use
 | `LEAD_CRM_ENCRYPTION_KEY` | Separate random 32-byte key encoded as base64 |
 | `LEAD_WORKSPACE_MAINTENANCE` | Unset or `0` |
 
-4. Configure the real Stripe test webhook for the event types listed in the product README. Verify raw-body signatures. Use Stripe's customer portal in the same test account. Do not enable or change live-mode webhook, tax or portal settings for this pilot.
-5. In HubSpot's intended test account, create a service key with contact read/write scopes. The ChatGPT HubSpot connection is separate from the application's service-key connection. Check any test-account automations before using fictional contacts.
-6. Run `npm run test:lead-pilot`, `npm run test:lead-workspace`, `npm run test:lead-recovery`, `npm test`, lint, catalog validation and the Pages build. Confirm source/catalog drafts remain unchanged.
+4. Load only the test Redis bindings into a local shell and verify the Redis hostname matches the dedicated test store before creating accounts. Run the commands below in a private terminal and enter a unique test password at each prompt. Put these same emails in the Pages allowlist. The product list is empty so the pilot must obtain access through Checkout. Each user gets a session by signing in through the hosted portal.
+
+   ```sh
+   node scripts/add-user.js lead-pilot-a@example.com
+   node scripts/add-user.js lead-pilot-b@example.com
+   ```
+
+5. In the Stripe test account, set the webhook destination to `<SITE_URL>/api/webhook`. Select the [billing webhook events](../products/operations-lead-intelligence/README.md#subscription-lifecycle-phase-4) and save the destination's signing secret as `STRIPE_WEBHOOK_SECRET` in the test Pages project. Configure the customer portal in the same Stripe test account. For each completed test Checkout, record the test event ID, delivery HTTP status and time in private evidence, then confirm the signed-in account gained access. An HTTP 200 alone does not verify that the event linked the subscription.
+6. In HubSpot's dedicated test account, create a service key with contact read/write scopes and enter it through **HubSpot delivery** during the walkthrough. The ChatGPT HubSpot connection is separate from the application's service-key connection. Check any test-account automations before using fictional contacts.
+7. Run `npm run test:lead-pilot`, `npm run test:lead-workspace`, `npm run test:lead-recovery`, `npm test`, lint, catalog validation and the Pages build. Confirm source/catalog drafts remain unchanged.
 
 The sandbox checkout endpoint refuses live keys, `ALLOW_LIVE=1`, uninvited users, wrong-mode prices, wrong product/amount/interval, maintenance and cross-origin requests. It uses the signed-in identity and does not accept customer emails or price IDs from the browser. Retries of one intent keep identical Stripe parameters and an account-bound idempotency key. The normal public checkout continues rejecting the draft bundle.
 
