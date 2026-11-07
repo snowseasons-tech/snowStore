@@ -48,6 +48,15 @@ async function getJSON(key) {
   const v = hasRemote() ? await cmd(['GET', key]) : memGet(key);
   return v ? JSON.parse(v) : null;
 }
+
+async function setJSONIfAbsent(key, val) {
+  requireStore();
+  const value = JSON.stringify(val);
+  if (hasRemote()) return (await cmd(['SET', key, value, 'NX'])) === 'OK';
+  if (memGet(key) !== undefined) return false;
+  mem.set(key, value);
+  return true;
+}
 // INCR, and give the key its TTL if it has none, in one atomic script so a counter can't be left without expiry.
 const INCR_TTL = "local n = redis.call('INCR', KEYS[1]) if redis.call('TTL', KEYS[1]) < 0 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end return n";
 
@@ -65,7 +74,7 @@ async function count(key) {
   requireStore();
   return Number((hasRemote() ? await cmd(['GET', key]) : memGet(key)) || 0);
 }
-module.exports = { claim, release, setJSON, getJSON, incr, count };
+module.exports = { claim, release, setJSON, setJSONIfAbsent, getJSON, incr, count };
 
 // Atomic membership index for trusted checkout-to-account subscription links.
 async function addMember(key, member) {

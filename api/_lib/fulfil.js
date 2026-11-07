@@ -67,7 +67,10 @@ async function processEvent(event, s, catalog, mailer) {
     await s.setJSON(`sub:${session.subscription}`, { status: 'active', productId, email, customer: session.customer || null, ...(existing || {}) });
   }
 
-  await linkCheckout(session, productId, s);
+  const leadLink = await linkCheckout(session, productId, s);
+  const leadPortal = leadLink && !leadLink.pilot && !product.draft && !product.hidden && !product.retired
+    && leadLink.email.includes('@') && leadLink.email.length <= 254;
+  if (leadPortal) await s.setJSONIfAbsent(`user:${leadLink.email}`, { hash: null, products: [] });
 
   // Email the order page link (it mints a fresh 5-minute download URL each visit). Sent once per order.
   let mailed = 'no-email';
@@ -75,11 +78,13 @@ async function processEvent(event, s, catalog, mailer) {
   if (email && (await claimOnce(s, mailKey)) === 'claimed') {
     try {
       mailed = await mailer.sendMail({
-        to: email,
+        to: leadPortal ? leadLink.email : email,
         subject: `Your ${product.name} purchase`,
         // Downloadable products and memberships get the order page; services get the getting-started form.
         text: downloadsFor(productId, catalog).length
-          ? `Thanks for your purchase of ${product.name}.\n\nGet your download${Array.isArray(product.includes) ? 's' : ''} or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nKeep this email: the link always gives you a fresh download.\n\nSnow Seasons Tech`
+          ? `Thanks for your purchase of ${product.name}.\n\nGet your download${Array.isArray(product.includes) ? 's' : ''} or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nKeep this email: the link always gives you a fresh download.`
+            + (leadPortal ? `\n\nOpen the customer portal at ${process.env.SITE_URL}/storefront/portal. Sign in with the email you used at Checkout. If you need to set a password, select Forgot password? and request a link at that email. After signing in, select Open lead workspace.` : '')
+            + '\n\nSnow Seasons Tech'
           : `Thanks for your purchase of ${product.name}.\n\nView or manage your order here:\n${process.env.SITE_URL}/success?session_id=${session.id}\n\nTo get started, tell us about your business here:\n${process.env.SITE_URL}/start?session_id=${session.id}\n\nWe'll be in touch shortly.\n\nSnow Seasons Tech`,
       });
     } catch (e) {
