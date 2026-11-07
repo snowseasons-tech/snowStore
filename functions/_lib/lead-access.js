@@ -1,7 +1,7 @@
 import CATALOG from '../../api/_lib/catalog.js';
 import billing from '../../api/_lib/lead-billing.js';
 import { stripeClient } from './stripe.js';
-import { billingProduct } from './lead-pilot.js';
+import { billingProduct, testStripeKey } from './lead-pilot.js';
 import { pilotEnabled } from './lead-data.js';
 
 const WEEK = 7 * 86400;
@@ -41,7 +41,9 @@ export async function leadAccess(session, env, deps = {}) {
   if (env.LEAD_WORKSPACE_MAINTENANCE === '1') return { allowed: false, mode: 'maintenance', reason: 'Workspace maintenance is in progress. Please retry later.' };
   const pilot = pilotEnabled(session.email, env);
   const mode = env.LEAD_WORKSPACE_BILLING_ENABLED || '0';
+  const sandbox = env.LEAD_WORKSPACE_SANDBOX_CHECKOUT === '1';
   if (!['0', '1'].includes(mode)) throw new Error('Invalid billing mode');
+  if (sandbox && (!pilot || mode !== '1' || !testStripeKey(env))) return denied('Sandbox billing access is unavailable for this account.');
   if (mode !== '1') return pilot ? { allowed: true, mode: 'pilot' } : { allowed: false, mode: 'pilot', reason: 'Hosted lead access is limited to invited pilot accounts.' };
   // A draft can only be exercised by explicitly invited pilots. No draft is put on sale here.
   if (CATALOG['lead-generation-pro'].draft && !pilot) return denied('This bundle is not available for general access yet.');
@@ -55,6 +57,11 @@ export async function leadAccess(session, env, deps = {}) {
     try { subscription = await stripe.subscriptions.retrieve(link.subscription, { expand: ['latest_invoice'] }, { timeout: 5000, maxNetworkRetries: 0 }); }
     catch (error) { if (error.code === 'resource_missing') continue; throw error; }
     if (subscription.id !== link.subscription) throw new Error('Subscription lookup mismatch');
+    if (sandbox && (
+      subscription.livemode !== false || subscription.metadata?.lead_workspace_pilot !== '1' ||
+      subscription.metadata?.product_id !== 'lead-generation-pro' ||
+      subscription.metadata?.lead_account_hash !== billing.accountHash(session.email)
+    )) continue;
     const access = subscriptionAccess(subscription, workspaceProduct(subscription.metadata?.product_id, env), link.customer);
     if (access.allowed) return { ...access, customer: link.customer };
     fallback = { ...access, customer: link.customer };

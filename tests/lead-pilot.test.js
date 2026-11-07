@@ -44,6 +44,7 @@ test('pilot journey: sandbox checkout -> signed webhook -> portal -> import/foll
     if (url.includes('/v1/subscriptions/')) return Response.json(subscriptions.get(new URL(url).pathname.split('/').pop()));
     if (url.endsWith('/v1/billing_portal/sessions')) { assert.equal(new URLSearchParams(init.body).get('customer'), 'cus_pilot2'); return Response.json({ url: 'https://billing.stripe.com/p/session/fixture' }); }
     if (url.startsWith('https://api.hubapi.com/')) {
+      assert.equal(new Headers(init.headers).get('Authorization'), 'Bearer fixture-hubspot-key');
       if (url.includes('?limit=1')) return Response.json({ results: [] });
       const properties = init.body ? JSON.parse(init.body).properties : null;
       if (init.method === 'POST') {
@@ -58,18 +59,26 @@ test('pilot journey: sandbox checkout -> signed webhook -> portal -> import/foll
   });
   const call = (route, cookie, body, workspaceId, bindings = env) => r[route][body === undefined ? 'onRequestGet' : 'onRequestPost']({ request: req(route, cookie, body, workspaceId), env: bindings });
   async function login(email) { const result = await call('login', '', { email, password: 'pilot-password-123' }); assert.equal(result.status, 200); return result.headers.get('set-cookie').split(';')[0]; }
-  async function event(event) {
-    const raw = JSON.stringify(event), stripe = new Stripe('sk_test_fixture');
+  async function event(event, { bindings = env, status = 200 } = {}) {
+    const raw = JSON.stringify({ livemode: false, ...event }), stripe = new Stripe('sk_test_fixture');
     const signature = stripe.webhooks.generateTestHeaderString({ payload: raw, secret: env.STRIPE_WEBHOOK_SECRET });
-    const response = await r.webhook.onRequestPost({ request: new Request(origin + '/api/webhook', { method: 'POST', headers: { 'stripe-signature': signature }, body: raw }), env });
-    assert.equal(response.status, 200); return response.json();
+    const response = await r.webhook.onRequestPost({ request: new Request(origin + '/api/webhook', { method: 'POST', headers: { 'stripe-signature': signature }, body: raw }), env: bindings });
+    assert.equal(response.status, status);
+    if (status === 200) return response.json();
   }
   async function checkout(cookie, workspaceId) {
     const response = await call('lead-workspace/pilot-checkout', cookie, { requestId: crypto.randomUUID() }, workspaceId);
     assert.equal(response.status, 200); assert.match((await response.json()).url, /^https:\/\/checkout.stripe.com/);
     assert.equal((await (await call('lead-workspace/session', cookie)).json()).workspaceEnabled, false); // Redirect/session creation never grants access.
     const payload = { id: 'evt_pilot' + checkouts.length, type: 'checkout.session.completed', created: Math.floor(Date.now()/1000), data: { object: checkouts.at(-1) } };
-    await event(payload); assert.equal((await event(payload)).result, 'duplicate');
+    await event({ ...payload, livemode: true }, { status: 400 });
+    assert.equal((await event(payload, { bindings: { ...env, LEAD_WORKSPACE_SANDBOX_CHECKOUT: '0' } })).result, 'ignored');
+    const session = payload.data.object;
+    assert.equal((await event({ ...payload, id: payload.id + 'malformed', data: { object: { ...session, metadata: { ...session.metadata, lead_account_hash: '' } } } })).result, 'ignored');
+    assert.ok(!up.data.has(billing.indexKey(session.customer_details.email)));
+    assert.equal((await event(payload)).result, 'pilot-linked');
+    assert.equal((await event(payload)).result, 'duplicate');
+    assert.ok(!up.data.has('order:' + session.id));
   }
   try {
     await seed(up, 'buyer@example.com'); await seed(up, 'other@example.com');
@@ -78,6 +87,10 @@ test('pilot journey: sandbox checkout -> signed webhook -> portal -> import/foll
     assert.equal((await call('checkout', cookie, { productId: 'lead-generation-pro' })).status, 503); // Public draft remains closed.
     let status = await (await call('lead-workspace/session', cookie)).json();
     assert.equal(status.workspaceEnabled, false); assert.equal(status.sandboxCheckoutAvailable, true);
+    const misconfigured = await (await call('lead-workspace/session', cookie, undefined, undefined, { ...env, LEAD_WORKSPACE_BILLING_ENABLED: '0' })).json();
+    assert.equal(misconfigured.workspaceEnabled, false);
+    const missingWebhook = await (await call('lead-workspace/session', cookie, undefined, undefined, { ...env, STRIPE_WEBHOOK_SECRET: '' })).json();
+    assert.equal(missingWebhook.sandboxCheckoutAvailable, false);
     await checkout(cookie, status.workspaceId);
     assert.ok(up.data.has(billing.indexKey('buyer@example.com'))); assert.ok(!up.data.has(billing.indexKey('edited-at-checkout@example.com')));
     status = await (await call('lead-workspace/session', cookie)).json(); assert.equal(status.workspaceEnabled, true);
@@ -86,7 +99,10 @@ test('pilot journey: sandbox checkout -> signed webhook -> portal -> import/foll
     data = await (await call('lead-workspace/leads', cookie)).json();
     assert.equal((await call('lead-workspace/leads', cookie, { action: 'update', revision: data.revision, id: data.leads[0].id, changes: { stage: 'Contacted', follow_up: '2026-11-10' } }, data.workspaceId)).status, 200);
     data = await (await call('lead-workspace/leads', cookie)).json(); assert.ok(csv.stringify(data.leads).includes('2026-11-10'));
-    assert.equal((await call('lead-workspace/crm', cookie, { action: 'connect', token: 'fixture-hubspot-key' }, data.workspaceId)).status, 200);
+    const connected = await call('lead-workspace/crm', cookie, { action: 'connect', token: 'fixture-hubspot-key' }, data.workspaceId);
+    assert.equal(connected.status, 200);
+    assert.deepEqual(await connected.json(), { connected: true });
+    assert.ok(!up.data.get(crmKey('buyer@example.com')).includes('fixture-hubspot-key'));
     const reviewed = await (await call('lead-workspace/crm', cookie, { action: 'review', revision: data.revision, selectedIds: [data.leads[0].id], mapping: { name: 'company', email: 'email' } }, data.workspaceId)).json(); assert.equal(reviewed.valid, true);
     let sent = await (await call('lead-workspace/crm', cookie, { action: 'send', reviewId: reviewed.reviewId }, data.workspaceId)).json(); assert.equal(sent.rows[0].status, 'retryable');
     const crmState = JSON.parse(up.data.get(crmKey('buyer@example.com'))); crmState.connection.blockedUntil = 0; crmState.reviews[0].rows[0].retryAt = 0; up.data.set(crmKey('buyer@example.com'), JSON.stringify(crmState));

@@ -21,3 +21,11 @@ Date: 2026-11-06. This sheet records evidence levels explicitly; it is not relea
 No live Stripe mode was changed. No real payment was collected. No CRM outreach was sent. Fictional HubSpot contact remains in the dedicated test account for inspection. Stripe test product/price/customer remain available for the reproducible app pilot; both test subscriptions were canceled.
 
 Phase 7 remains open until the pending real-application and user checks pass. Do not remove draft/pending catalog flags based on fixture or separate-provider results alone.
+
+## 2026-11-07 wiring verification
+
+The pilot fixture verified that signed test Checkout events link only the signed-in workspace, that replays are deduplicated, and that live events and malformed pilot metadata cannot link billing. It also verified that the encrypted per-workspace HubSpot credential is used as a bearer key for the contact API and is absent from the connect response and plaintext storage.
+
+The full test suite, lead workspace suite, isolated recovery drill, lint, catalog validation, static Pages build, Functions compilation and local Pages smoke checks passed. The local runtime used a fake store and dummy bindings. The real Checkout, webhook, HubSpot service-key delivery and pilot-user walkthrough are still pending in the separate hosted project.
+
+The updated Functions were deployed to the isolated Pages project. The hosted portal returned 200, the signed-out workspace endpoint returned 401, the unsigned webhook returned 400, and public draft checkout returned 503. The operator reported seeding both accounts. A subsequent deployment confirmed the Stripe API and webhook secret bindings are stored as encrypted secrets and the pilot still has `ALLOW_LIVE=0`. Hosted sign-in, Stripe credential validity, a completed test Checkout and signed webhook delivery remain pending verification.

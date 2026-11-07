@@ -17,6 +17,15 @@ export async function onRequestPost({ request, env }) {
   } catch {
     return send(400, 'Invalid signature');
   }
+  const pilot = env.LEAD_WORKSPACE_SANDBOX_CHECKOUT === '1';
+  if (pilot && event.livemode !== false) {
+    return send(400, 'Sandbox webhook requires a test-mode event');
+  }
+  if (event.type.startsWith('checkout.session.')) {
+    const session = event.data.object;
+    const tagged = session.metadata?.lead_workspace_pilot === '1';
+    if (pilot !== tagged) return send(200, { received: true, result: 'ignored' });
+  }
   if (!storeConfigured(env)) {
     console.error('webhook', event.id, 'persistent store not configured');
     return send(503, 'Store not configured'); // Stripe retries
