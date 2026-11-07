@@ -118,7 +118,7 @@ test('automatic tax collects the full billing address so Stripe can locate the c
  test('Founder checkout enforces published price and requires membership terms', async () => {
   const { onRequestPost } = await load();
   const founder = price('price_founder', 'prod_VWva1qZT0oarCt', { interval: 'month', interval_count: 1 });
-  founder.unit_amount = 2900;
+  founder.unit_amount = 2175;
   PRICES.push(founder);
   const s = fakeStripe();
   try {
@@ -133,7 +133,7 @@ test('automatic tax collects the full billing address so Stripe can locate the c
     s.calls.session = null;
     assert.strictEqual((await onRequestPost({ request: request(), env: ENV })).status, 503);
     assert.strictEqual(s.calls.session, null);
-    founder.unit_amount = 2900;
+    founder.unit_amount = 2175;
     founder.recurring = null;
     assert.strictEqual((await onRequestPost({ request: request(), env: ENV })).status, 503);
   } finally { s.restore(); PRICES.pop(); }
