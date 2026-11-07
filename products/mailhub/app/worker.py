@@ -86,6 +86,8 @@ def deliver(db,c,row,links,r):
 
 def run_once():
     """Send one batch. Returns how many emails were attempted."""
+    # A stopped subscription holds queued campaigns until it is renewed. They stay queued and resume afterwards.
+    if os.getenv('SUSPENDED')=='1': return 0
     with Session() as db: recover_stuck(db)
     with Session() as db: campaign_id,ids=claim(db)
     attempted=0
