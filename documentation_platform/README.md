@@ -17,8 +17,8 @@ Every product is defined by a YAML file containing its name, version, features, 
 ### 2. Documentation Engine (`/generator`)
 A Python-based engine that renders Markdown templates.
 - **Templates:** Located in `/templates`, using Jinja2 for dynamic content.
-- **PDF Export:** Integrated Pandoc support for professional PDF generation.
-- **Site Sync:** Direct integration with Docusaurus for public documentation.
+- **PDF Export:** Built in with `fpdf2`. Pandoc and WeasyPrint are not needed.
+- **Docs site:** The Docusaurus site lives in `docs-site/`. Generated files are not copied into it automatically. `.github/workflows/deploy-docs.yml` builds and publishes the site when files under `docs-site/` or `generator/` change.
 
 ### 3. Customer Portal API (`/portal_api`)
 A FastAPI backend that ensures customers only access documentation for products they have purchased.
@@ -30,39 +30,39 @@ A FastAPI backend that ensures customers only access documentation for products 
 
 ### Prerequisites
 - Python 3.10+
-- Node.js & npm (for the docs site)
-- Pandoc & WeasyPrint (for PDF export)
+- Node.js & npm (for the docs site only)
 
 ### Installation
+The generator and the portal API have different dependencies. There is no `requirements.txt`, so install them directly:
 ```bash
-pip install -r requirements.txt # or use poetry install
+python3 -m pip install pyyaml jinja2 pydantic fpdf2                       # generator
+python3 -m pip install fastapi uvicorn psycopg2-binary requests stripe    # portal API
 ```
 Set `DATABASE_URL` to your PostgreSQL connection string before starting the portal API.
 
 ### Basic Usage
+Run these from the `documentation_platform/` folder. The generator finds `products/` relative to the current folder.
 
-**1. Generate all documents for a product:**
+**1. Generate Markdown and PDF for a product** (written to `./build/<product>`):
 ```bash
-python3 documentation_platform/generator/main.py --product cdot-stations
+cd documentation_platform
+python3 -m generator.main --product cdot-stations
 ```
 
-**2. Generate and export to PDF:**
+**2. Generate Markdown only, into the repository's `build/` folder:**
 ```bash
-python3 documentation_platform/generator/main.py --product cdot-stations --pdf
+cd documentation_platform
+python3 -m generator.main --product cdot-stations --format markdown --out ../build
 ```
 
-**3. Sync to the Docusaurus website:**
+**3. Run the Portal API:**
 ```bash
-python3 documentation_platform/generator/main.py --product cdot-stations --sync
-```
-
-**4. Run the Portal API:**
-```bash
-uvicorn documentation_platform.portal_api.main:app --reload
+cd documentation_platform
+uvicorn portal_api.main:app --reload
 ```
 
 ## 🗺 Roadmap
 - [x] Phase 1: Documentation Engine (YAML $\rightarrow$ PDF/MD)
-- [x] Phase 2: Documentation Website (Docusaurus Sync)
+- [x] Phase 2: Documentation Website (Docusaurus)
 - [x] Phase 3: Customer Portal Integration (FastAPI + Entitlements)
 - [ ] Phase 4: AI-Assisted Drafting (llama.cpp integration)
