@@ -1,0 +1,23 @@
+{
+  "name": "Small Business Weekend 2026",
+  "slug": "small-business-weekend-2026",
+  "source": "../facebook-2026-11/posts.md",
+  "theme": "Shop small: 25% off every software download",
+  "dates": "Fri Nov 27 to Mon Nov 30, 2026",
+  "goal": "Software download sales over the Small Business Weekend",
+  "audience": "Small-business owners who buy or try tools for their business",
+  "offer": "SHOPSMALL25: 25% off software downloads, Sat Nov 28 to Mon Nov 30 (one use per customer). See sale-plan.md for setup.",
+  "cta": "Shop at snowseasonstech.store and use code SHOPSMALL25",
+  "message": "Small Business Weekend is a good time to try the tools we build for small businesses. We are a small business too, so this sale matters to us.",
+  "bio_link": "snowseasonstech.store",
+  "ig_hashtag_limit": 5,
+  "posts": [
+    {
+      "post": 9,
+      "role": "Teaser",
+      "ig_caption": "👀 Skipping the Black Friday crowds? Good. Our sale starts tomorrow.\n\nFor Small Business Weekend, every software download is 25% off, Saturday through Monday. That covers Local Launch, Page Builder, Lead Generation Pipeline, Auto Scheduler, Invoice & Biller and more.\n\nFollow us so you don't miss it. 🔔\n\n#SmallBusinessSaturday #ShopSmall #SmallBusinessTools"
+    },
+    { "post": 10, "role": "Launch" },
+    { "post": 11, "role": "Last day" }
+  ]
+}
