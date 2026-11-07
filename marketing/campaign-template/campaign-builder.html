@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campaign builder</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2330;--muted:#5d6675;--line:#d9dde5;--accent:#2f6fdb;--warn:#8a5200;--warnbg:#fff4df;--ok:#1e7a46}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15181e;--card:#1e232c;--text:#e7eaf0;--muted:#9aa3b2;--line:#323a47;--accent:#6ea2ff;--warn:#ffcf7a;--warnbg:#3a2f16;--ok:#6ed29a}}
+:root[data-theme="dark"]{--bg:#15181e;--card:#1e232c;--text:#e7eaf0;--muted:#9aa3b2;--line:#323a47;--accent:#6ea2ff;--warn:#ffcf7a;--warnbg:#3a2f16;--ok:#6ed29a}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1200px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+.grid{display:grid;grid-template-columns:1fr;gap:20px;align-items:start}
+@media (min-width:960px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}}
+.stack>*+*{margin-top:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.card h2{font-size:16px;margin:0 0 10px}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+input,textarea{width:100%;box-sizing:border-box;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px}
+input[type=checkbox]{width:auto;margin:4px 0 0}
+input[type=file]{padding:6px;font-size:14px}
+textarea{min-height:64px;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+button{font:inherit;padding:8px 12px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:disabled{opacity:.5;cursor:default}
+button.small{padding:2px 8px;font-size:13px}
+.post{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.post:first-child{border-top:0}
+.post .meta{font-size:13px;color:var(--muted)}
+.post label{margin-top:6px}
+.reorder{display:flex;flex-direction:column;gap:4px}
+details{margin-top:6px}
+summary{cursor:pointer;color:var(--muted);font-size:13px}
+.status{margin-top:12px;font-size:14px;min-height:20px}
+.status.err{color:var(--warn)}
+.meta{color:var(--muted);font-size:13px}
+.warn{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:8px 10px;font-size:13px;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
+pre{white-space:pre-wrap;word-wrap:break-word;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:6px 0 0}
+.block-head{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-weight:600}
+.post-out{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.post-out h3{font-size:15px;margin:0 0 4px}
+ul.checklist{padding-left:0;list-style:none}
+ul.checklist li{margin:4px 0}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Campaign builder</h1>
+  <p class="sub">Pick posts from a Facebook calendar and turn them into a themed campaign with Facebook and Instagram versions. Everything runs in your browser. Nothing is uploaded.</p>
+
+  <div class="grid">
+    <div class="stack">
+      <section class="card">
+        <h2>1 · Posts file</h2>
+        <label for="posts-file">Facebook posts.md (for example marketing/facebook-2026-11/posts.md)</label>
+        <input type="file" id="posts-file" accept=".md,.txt,text/markdown,text/plain">
+        <label for="source">Source path (written into the downloaded config, relative to the config file)</label>
+        <input type="text" id="source" value="../facebook-2026-11/posts.md">
+        <div class="row">
+          <button type="button" id="import-btn">Import campaign JSON…</button>
+          <input type="file" id="config-file" accept=".json,application/json" class="hidden">
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2 · Campaign details</h2>
+        <div id="fields"></div>
+      </section>
+
+      <section class="card">
+        <h2>3 · Posts <span id="count" class="meta"></span></h2>
+        <p class="meta" style="margin-top:0">Tick the posts to include, set each role, and move them into order. Open "Instagram override" only when the automatic Instagram caption needs rewriting.</p>
+        <div id="post-list"><p class="meta">Load a posts.md file to see its posts.</p></div>
+      </section>
+
+      <div class="row">
+        <button type="button" class="primary" id="generate">Build campaign</button>
+        <button type="button" id="dl-md" disabled>Download .md</button>
+        <button type="button" id="dl-json">Download config .json</button>
+      </div>
+      <div id="status" class="status" role="status"></div>
+    </div>
+
+    <div>
+      <section class="card" id="output">
+        <h2>Campaign preview</h2>
+        <p class="meta">Build the campaign to see the calendar and both versions of each post.</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+/* CORE:BEGIN — pure logic, mirrors campaign-template/build_campaign.py */
+const TEMPLATE = `# {{name}}
+
+**Theme:** {{theme}}
+**Dates:** {{dates}}
+**Goal:** {{goal}}
+**Audience:** {{audience}}
+**Offer:** {{offer}}
+**Main call to action:** {{cta}}
+**Channels:** Facebook and Instagram, same images, channel-specific captions
+
+## Core message
+
+{{message}}
+
+## Calendar
+
+{{calendar}}
+
+## Posts
+
+Facebook keeps the links and all hashtags. Instagram gets "Link in bio" in place of links, at most {{ig_hashtag_limit}} hashtags, and a check against the 2,200-character caption limit.
+
+{{posts}}
+
+## Before launch
+
+- [ ] Offer and any codes are live and tested (see the offer line above)
+- [ ] Every image is 1080×1080 and exists in the source folder
+- [ ] Instagram bio link points to {{bio_link}}
+- [ ] Multi-image posts are published as carousels on Instagram
+- [ ] Facebook posts go out 9–11am local time
+
+## After the campaign
+
+- [ ] Results checked against the goal: reach, link clicks, sales
+- [ ] Offer or code switched off if it was time-limited
+- [ ] Notes on what to repeat or change next time
+`;
+
+const IG_CAPTION_LIMIT = 2200;
+const DEFAULT_IG_HASHTAGS = 5;
+const FB_ONLY = [/\bthis Page\b/g, /\bour Page\b/g, /\bFacebook\b/g, /\bPage's\b/g];
+const LEAD_LINK_RE = /([\u{1F449}\u{1F517}])\s*(?:https?:\/\/)?snowseasonstech\.[a-z]+\S*/gu;
+const INLINE_LINK_RE = /(?:https?:\/\/)?snowseasonstech\.[a-z]+(?:\/\S*)?/g;
+const HEAD_RE = /^(\d+) · ([^·]+?) · (.+)$/;
+const IMAGE_RE = /`([^`]+\.(?:png|jpe?g|webp))`/g;
+
+function parsePosts(text) {
+  const posts = {};
+  for (const part of text.split(/^## /m).slice(1)) {
+    const nl = part.indexOf("\n");
+    const head = (nl < 0 ? part : part.slice(0, nl)).trim();
+    const body = nl < 0 ? "" : part.slice(nl + 1);
+    const m = HEAD_RE.exec(head);
+    if (!m) continue;
+    const images = [];
+    const kept = [];
+    for (const line of body.split("\n")) {
+      if (line.startsWith("**Image")) {
+        for (const x of line.matchAll(IMAGE_RE)) images.push(x[1]);
+      } else {
+        kept.push(line);
+      }
+    }
+    const block = kept.join("\n").trim().replace(/\n-{3,}\s*$/, "").trim();
+    const lines = block.split("\n");
+    let tags = [];
+    if (lines.length && lines[lines.length - 1].startsWith("#")) {
+      tags = lines.pop().split(/\s+/).filter(Boolean);
+    }
+    const num = parseInt(m[1], 10);
+    posts[num] = { num, date: m[2].trim(), title: m[3].trim(), images, caption: lines.join("\n").trim(), tags };
+  }
+  return posts;
+}
+
+function plain(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/(?<![\p{L}\p{N}_])\*(?!\s)(.+?)(?<!\s)\*(?![\p{L}\p{N}_])/gu, "$1");
+}
+
+function uniqueSorted(arr) {
+  return [...new Set(arr)].sort();
+}
+
+function fbVersion(post) {
+  const caption = (plain(post.caption) + "\n\n" + post.tags.join(" ")).trim();
+  return { caption, warnings: [] };
+}
+
+function igVersion(post, limit, override) {
+  let caption;
+  const warnings = [];
+  if (override !== null && override !== undefined) {
+    caption = override.trim();
+  } else {
+    let text = plain(post.caption).replace(LEAD_LINK_RE, (m, lead) => lead + " Link in bio");
+    text = text.replace(INLINE_LINK_RE, "our site (link in bio)");
+    if (post.tags.length > limit) {
+      warnings.push(`Hashtags trimmed from ${post.tags.length} to ${limit}; dropped ${post.tags.slice(limit).join(" ")}`);
+    }
+    caption = (text + "\n\n" + post.tags.slice(0, limit).join(" ")).trim();
+    for (const re of FB_ONLY) {
+      for (const hit of uniqueSorted(post.caption.match(re) || [])) {
+        warnings.push(`Facebook-only wording "${hit}" in the caption; add an "ig_caption" override for this post in the config`);
+      }
+    }
+  }
+  const n = [...caption].length;
+  if (n > IG_CAPTION_LIMIT) warnings.push(`Caption is ${n} characters; Instagram allows ${IG_CAPTION_LIMIT}`);
+  return { caption, warnings };
+}
+
+function buildViews(selected, limit) {
+  return selected.map((sel) => {
+    const fb = fbVersion(sel.post);
+    const ig = igVersion(sel.post, limit, sel.override);
+    return { sel, fb, ig, warnings: [...fb.warnings, ...ig.warnings] };
+  });
+}
+
+function fenced(text) {
+  return "```text\n" + text + "\n```";
+}
+
+function renderCalendar(views) {
+  const rows = ["| # | Date | Role | Post | Images |", "|---|---|---|---|---|"];
+  for (const v of views) {
+    const p = v.sel.post;
+    const imgs = p.images.map((i) => "`" + i + "`").join(", ") || "none listed";
+    rows.push(`| ${p.num} | ${p.date} | ${v.sel.role} | ${p.title} | ${imgs} |`);
+  }
+  return rows.join("\n");
+}
+
+function renderPosts(views) {
+  const out = [];
+  for (const v of views) {
+    const p = v.sel.post;
+    let img = p.images.length ? p.images.map((i) => "`" + i + "`").join(", ") : "_none listed_";
+    if (p.images.length > 1) img += " (Instagram: post as a carousel)";
+    out.push(`### ${v.sel.role} · Post ${p.num} · ${p.date}`, "", `**Source:** ${p.title}  `, `**Images:** ${img}`, "",
+      "#### Facebook", "", fenced(v.fb.caption), "", "#### Instagram", "", fenced(v.ig.caption));
+    if (v.warnings.length) {
+      out.push("");
+      for (const w of v.warnings) out.push(`> ⚠ ${w}`);
+    }
+    out.push("");
+  }
+  return out.join("\n").trimEnd();
+}
+
+function fill(tpl, values) {
+  const missing = new Set();
+  const result = tpl.replace(/\{\{\s*(\w+)\s*\}\}/g, (m, k) => {
+    if (!(k in values)) { missing.add(k); return m; }
+    return String(values[k]);
+  });
+  if (missing.size) throw new Error("Template placeholders with no value: " + [...missing].sort().join(", "));
+  return result;
+}
+
+function buildMarkdown(cfg, views) {
+  const values = {
+    ...cfg,
+    ig_hashtag_limit: cfg.ig_hashtag_limit ?? DEFAULT_IG_HASHTAGS,
+    calendar: renderCalendar(views),
+    posts: renderPosts(views),
+  };
+  return fill(TEMPLATE, values).trimEnd() + "\n";
+}
+/* CORE:END */
+
+const FIELDS = [
+  ["name", "Campaign name", "input"],
+  ["slug", "Slug (used for file names)", "input"],
+  ["theme", "Theme", "input"],
+  ["dates", "Dates", "input"],
+  ["goal", "Goal", "input"],
+  ["audience", "Audience", "input"],
+  ["offer", "Offer / code", "textarea"],
+  ["cta", "Main call to action", "input"],
+  ["message", "Core message", "textarea"],
+  ["bio_link", "Instagram bio link (shown in the checklist)", "input"],
+  ["ig_hashtag_limit", "Max hashtags on Instagram", "number"],
+];
+const REQUIRED = ["name", "slug", "theme", "dates", "goal", "audience", "offer", "cta", "message", "bio_link"];
+
+const state = { posts: null, entries: [], cfgPosts: null, md: null, views: null, cfg: null };
+const $ = (id) => document.getElementById(id);
+
+function el(tag, props = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (v === undefined || v === null || v === false) continue;
+    if (k === "class") n.className = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else if (k === "value") n.value = v;
+    else if (k === "checked") n.checked = !!v;
+    else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid === null || kid === undefined || kid === false) continue;
+    n.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return n;
+}
+
+function setStatus(msg, isErr = false) {
+  const s = $("status");
+  s.textContent = msg;
+  s.className = "status" + (isErr ? " err" : "");
+}
+
+function buildFields() {
+  const host = $("fields");
+  for (const [key, label, type] of FIELDS) {
+    const id = "f-" + key;
+    const input = type === "textarea" ? el("textarea", { id }) : el("input", { id, type: type === "number" ? "number" : "text", min: type === "number" ? "1" : undefined });
+    host.append(el("label", { for: id }, label), input);
+  }
+  $("f-ig_hashtag_limit").value = DEFAULT_IG_HASHTAGS;
+}
+
+function readForm() {
+  const cfg = {};
+  for (const [key] of FIELDS) cfg[key] = $("f-" + key).value.trim();
+  cfg.ig_hashtag_limit = parseInt(cfg.ig_hashtag_limit, 10) || DEFAULT_IG_HASHTAGS;
+  return cfg;
+}
+
+function setForm(cfg) {
+  for (const [key] of FIELDS) {
+    if (cfg[key] !== undefined) $("f-" + key).value = cfg[key];
+  }
+}
+
+function sortedNums() {
+  return Object.keys(state.posts).map(Number).sort((a, b) => a - b);
+}
+
+function rebuildEntries() {
+  const chosen = (state.cfgPosts || []).filter((p) => state.posts[p.post]);
+  const entries = chosen.map((p) => ({ num: p.post, role: p.role || "Post", include: true, override: p.ig_caption || "" }));
+  for (const n of sortedNums()) {
+    if (!chosen.some((p) => p.post === n)) entries.push({ num: n, role: "Post", include: false, override: "" });
+  }
+  state.entries = entries;
+  renderPostList();
+}
+
+function updateCount() {
+  const picked = state.entries.filter((e) => e.include).length;
+  $("count").textContent = state.posts ? `(${picked} of ${state.entries.length} selected)` : "";
+}
+
+function renderPostList() {
+  const list = $("post-list");
+  list.replaceChildren();
+  updateCount();
+  if (!state.posts) {
+    list.append(el("p", { class: "meta" }, "Load a posts.md file to see its posts."));
+    return;
+  }
+  state.entries.forEach((e, i) => {
+    const p = state.posts[e.num];
+    const check = el("input", { type: "checkbox", checked: e.include, onchange: (ev) => { e.include = ev.target.checked; updateCount(); } });
+    const roleInput = el("input", { type: "text", value: e.role, oninput: (ev) => { e.role = ev.target.value; } });
+    const override = el("textarea", { value: e.override, placeholder: "Leave empty to generate the Instagram caption automatically", oninput: (ev) => { e.override = ev.target.value; } });
+    const up = el("button", { type: "button", class: "small", disabled: i === 0, onclick: () => move(i, -1) }, "↑");
+    const down = el("button", { type: "button", class: "small", disabled: i === state.entries.length - 1, onclick: () => move(i, 1) }, "↓");
+    list.append(el("div", { class: "post" },
+      check,
+      el("div", {},
+        el("div", {}, el("strong", {}, `Post ${p.num}`), el("span", { class: "meta" }, ` · ${p.date}`)),
+        el("div", { class: "meta" }, p.title),
+        el("label", {}, "Role in campaign"), roleInput,
+        el("details", {}, el("summary", {}, "Instagram override"), override)),
+      el("div", { class: "reorder" }, up, down)));
+  });
+}
+
+function move(i, delta) {
+  const j = i + delta;
+  if (j < 0 || j >= state.entries.length) return;
+  [state.entries[i], state.entries[j]] = [state.entries[j], state.entries[i]];
+  renderPostList();
+}
+
+function loadPostsText(text) {
+  const posts = parsePosts(text);
+  if (!Object.keys(posts).length) {
+    state.posts = null;
+    renderPostList();
+    setStatus("No posts found. Expected headings like \"## 9 · Fri Nov 27 · Sale teaser\".", true);
+    return;
+  }
+  state.posts = posts;
+  rebuildEntries();
+  setStatus(`Loaded ${sortedNums().length} posts.`);
+}
+
+function buildConfig() {
+  const cfg = readForm();
+  cfg.source = $("source").value.trim();
+  const selected = state.entries.filter((e) => e.include);
+  cfg.posts = selected.map((e) => {
+    const item = { post: e.num, role: e.role.trim() || "Post" };
+    if (e.override.trim()) item.ig_caption = e.override.trim();
+    return item;
+  });
+  return cfg;
+}
+
+function download(name, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = el("a", { href: url, download: name });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function copyText(text, btn) {
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = "Copied";
+    setTimeout(() => (btn.textContent = "Copy"), 1200);
+  } catch (err) {
+    setStatus("The browser blocked copying. Select the text in the box and copy it.", true);
+  }
+}
+
+function generate() {
+  if (!state.posts) return setStatus("Load a posts.md file first.", true);
+  const cfg = readForm();
+  const missing = REQUIRED.filter((k) => !cfg[k]);
+  if (missing.length) return setStatus("Fill in: " + missing.join(", "), true);
+  const chosen = state.entries.filter((e) => e.include);
+  if (!chosen.length) return setStatus("Select at least one post.", true);
+  const selected = chosen.map((e) => ({
+    post: state.posts[e.num],
+    role: e.role.trim() || "Post",
+    override: e.override.trim() ? e.override.trim() : null,
+  }));
+  const views = buildViews(selected, cfg.ig_hashtag_limit);
+  state.cfg = cfg;
+  state.views = views;
+  state.md = buildMarkdown(cfg, views);
+  renderOutput(views, cfg);
+  $("dl-md").disabled = false;
+  const total = views.reduce((n, v) => n + v.warnings.length, 0);
+  setStatus(`Campaign built: ${views.length} posts, ${total} warning${total === 1 ? "" : "s"}.`);
+}
+
+function renderOutput(views, cfg) {
+  const out = $("output");
+  out.replaceChildren();
+  const total = views.reduce((n, v) => n + v.warnings.length, 0);
+  out.append(
+    el("h2", {}, cfg.name),
+    el("p", { class: "meta" }, `${cfg.dates} · ${views.length} posts · ${total} warning${total === 1 ? "" : "s"}`),
+    el("p", {}, el("strong", {}, "Theme: "), cfg.theme),
+    el("p", {}, el("strong", {}, "Goal: "), cfg.goal),
+    el("p", {}, el("strong", {}, "Offer: "), cfg.offer),
+    el("p", {}, el("strong", {}, "Call to action: "), cfg.cta),
+    el("h3", { style: "font-size:15px;margin:16px 0 6px" }, "Calendar"),
+    (() => {
+      const t = el("table", {}, el("thead", {}, el("tr", {}, ...["#", "Date", "Role", "Post", "Images"].map((h) => el("th", {}, h)))));
+      const tb = el("tbody", {});
+      for (const v of views) {
+        const p = v.sel.post;
+        tb.append(el("tr", {}, el("td", {}, p.num), el("td", {}, p.date), el("td", {}, v.sel.role), el("td", {}, p.title),
+          el("td", {}, p.images.join(", ") || "none listed")));
+      }
+      t.append(tb);
+      return el("div", { style: "overflow-x:auto" }, t);
+    })()
+  );
+
+  for (const v of views) {
+    const p = v.sel.post;
+    const block = (label, text) => el("div", {},
+      el("div", { class: "block-head" }, label,
+        el("button", { type: "button", class: "small", onclick: (ev) => copyText(text, ev.currentTarget) }, "Copy")),
+      el("pre", {}, text));
+    out.append(el("div", { class: "post-out" },
+      el("h3", {}, `${v.sel.role} · Post ${p.num} · ${p.date}`),
+      el("div", { class: "meta" }, `Source: ${p.title}`),
+      el("div", { class: "meta" }, `Images: ${p.images.join(", ") || "none listed"}${p.images.length > 1 ? " (Instagram: carousel)" : ""}`),
+      block("Facebook", v.fb.caption),
+      block("Instagram", v.ig.caption),
+      v.warnings.length ? el("div", {}, ...v.warnings.map((w) => el("div", { class: "warn" }, "⚠ " + w))) : null));
+  }
+
+  out.append(el("h3", { style: "font-size:15px;margin:18px 0 6px" }, "Before launch"),
+    el("ul", { class: "checklist" },
+      ...[
+        "Offer and any codes are live and tested",
+        "Every image is 1080×1080 and exists in the source folder",
+        `Instagram bio link points to ${cfg.bio_link}`,
+        "Multi-image posts are published as carousels on Instagram",
+        "Facebook posts go out 9–11am local time",
+      ].map((t) => el("li", {}, "☐ " + t))));
+}
+
+function importConfig(cfg) {
+  setForm(cfg);
+  if (cfg.source) $("source").value = cfg.source;
+  state.cfgPosts = cfg.posts || [];
+  if (state.posts) rebuildEntries();
+}
+
+function init() {
+  buildFields();
+  renderPostList();
+
+  $("posts-file").addEventListener("change", async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    loadPostsText(await f.text());
+  });
+
+  $("import-btn").addEventListener("click", () => $("config-file").click());
+  $("config-file").addEventListener("change", async (e) => {
+    const f = e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    try {
+      importConfig(JSON.parse(await f.text()));
+      setStatus(state.posts ? `Imported ${f.name}.` : `Imported ${f.name}. Now load the posts.md file.`);
+    } catch (err) {
+      setStatus("Could not read that JSON: " + err.message, true);
+    }
+  });
+
+  $("generate").addEventListener("click", generate);
+  $("dl-md").addEventListener("click", () => {
+    if (state.md) download(`${state.cfg.slug || "campaign"}.md`, state.md, "text/markdown");
+  });
+  $("dl-json").addEventListener("click", () => {
+    const cfg = buildConfig();
+    download(`${cfg.slug || "campaign"}.json`, JSON.stringify(cfg, null, 2) + "\n", "application/json");
+  });
+}
+
+init();
+</script>
+</body>
+</html>

@@ -7,11 +7,21 @@ Turns posts from a Facebook calendar (`marketing/facebook-*/posts.md`) into a th
 | File | What it is |
 |---|---|
 | `campaign.template.md` | The fill-in template. `{{placeholders}}` are filled from the config. |
+| `campaign-builder.html` | The same builder as a single page: open it in a browser, load `posts.md`, tick posts, and copy or download the result. Nothing is uploaded. |
 | `build_campaign.py` | Reads the config and the source `posts.md`, then writes the campaign. Standard library only. |
 | `../campaigns/<slug>.json` | One config per campaign: which posts, their roles, and the campaign details. |
 | `../campaigns/<slug>.md` | Generated output. Edit the config and rebuild, don't edit this file by hand. |
 
-## Make a campaign
+## Make a campaign in the browser
+
+1. Open `campaign-builder.html` in any browser.
+2. Load the calendar's `posts.md` file, then optionally import an existing campaign `.json`.
+3. Fill in the campaign details, tick the posts, set their roles and order, and click **Build campaign**.
+4. Copy the Facebook and Instagram text from the preview, or download the `.md` and config `.json`.
+
+The page and the script use the same rules, and the page's output is identical to the script's for the same inputs.
+
+## Make a campaign from the command line
 
 1. Copy `../campaigns/small-business-weekend-2026.json` to `../campaigns/<new-slug>.json`.
 2. Fill in the campaign fields (theme, dates, goal, audience, offer, call to action, message, bio link).
