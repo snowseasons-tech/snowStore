@@ -9,5 +9,6 @@ async function linkCheckout(session, productId, store) {
   const pilotHash = session.livemode === false && session.metadata?.lead_workspace_pilot === '1' && /^[a-f0-9]{64}$/.test(session.metadata?.lead_account_hash || '') ? session.metadata.lead_account_hash : null;
   if ((!email && !pilotHash) || !/^sub_[A-Za-z0-9]+$/.test(session.subscription) || !/^cus_[A-Za-z0-9]+$/.test(session.customer)) return;
   await store.addMember(pilotHash ? 'lead-billing:v1:' + pilotHash : indexKey(email), JSON.stringify({ subscription: session.subscription, customer: session.customer }));
+  return { email, pilot: Boolean(pilotHash) };
 }
 module.exports = { indexKey, linkCheckout };

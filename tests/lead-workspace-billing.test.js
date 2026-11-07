@@ -42,6 +42,7 @@ test('signed checkout processing links subscriptions idempotently; invoice/lifec
     const event = checkout('evt_link1');
     await handleEvent(event, deps);
     assert.equal(await handleEvent(event, deps), 'duplicate');
+    assert.equal(await store.getJSON('user:buyer@example.com'), null);
     await handleEvent(checkout('evt_link2', 'sub_2'), deps);
     const links = JSON.parse(up.data.get(billing.indexKey('buyer@example.com')));
     assert.equal(links.length, 2);
@@ -53,6 +54,60 @@ test('signed checkout processing links subscriptions idempotently; invoice/lifec
     await handleEvent(unpaid, deps);
     assert.equal(up.data.has(billing.indexKey('other@example.com')), false);
   } finally { up.restore(); }
+});
+
+test('released Checkout provisions a first-time portal buyer without changing an existing account', async () => {
+  const { onRequestPost: reset } = await import('../functions/api/password-reset.js');
+  const { onRequestPost: setPassword } = await import('../functions/api/password-set.js');
+  const auth = require('../api/_lib/auth');
+  const site = 'https://store.example.com';
+  const settings = { ...env, SITE_URL: site, RESEND_API_KEY: 'fixture', MAIL_FROM: 'store@example.com' };
+  const messages = [];
+  const up = fakeUpstash(async (url, init) => {
+    assert.equal(url, 'https://api.resend.com/emails');
+    messages.push(JSON.parse(init.body));
+    return new Response('{}');
+  });
+  Object.assign(process.env, settings);
+  const email = 'new-buyer@example.com';
+  const released = { ...CATALOG, 'lead-generation-pro': { ...CATALOG['lead-generation-pro'], draft: false } };
+  const fulfillment = { catalog: released, mail: { sendMail: async message => (messages.push(message), 'sent') } };
+  const post = (handler, path, body) => handler({
+    env: settings,
+    request: new Request(site + path, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    }),
+  });
+  try {
+    const event = checkout('evt_first_buyer', 'sub_new', ' New-Buyer@Example.com ');
+    await handleEvent(event, fulfillment);
+    assert.deepEqual(await store.getJSON(`user:${email}`), { hash: null, products: [] });
+    assert.deepEqual(JSON.parse(up.data.get(billing.indexKey(email))).map(JSON.parse), [{ subscription: 'sub_new', customer: 'cus_1' }]);
+    assert.equal(messages[0].to, email);
+    assert.match(messages[0].text, /Forgot password\?/);
+    assert.equal(await handleEvent(event, fulfillment), 'duplicate');
+    assert.equal(messages.length, 2); // Customer receipt and shop notice.
+
+    const mismatch = await post(reset, '/api/password-reset', { email: 'different@example.com' });
+    const resetResponse = await post(reset, '/api/password-reset', { email });
+    assert.deepEqual(await mismatch.json(), await resetResponse.json());
+    assert.equal(messages.length, 3);
+    assert.deepEqual(messages[2].to, [email]);
+    const token = messages[2].text.match(/#set-password=([\w-]+)/)[1];
+    const redeemed = await post(setPassword, '/api/password-set', { token, password: 'fixture-password-123' });
+    assert.equal(redeemed.status, 200);
+    const cookie = redeemed.headers.get('set-cookie').split(';')[0];
+    assert.equal((await auth.getSession({ headers: { cookie } })).email, email);
+
+    const account = { ...await store.getJSON(`user:${email}`), products: ['bookscan'] };
+    await store.setJSON(`user:${email}`, account);
+    await handleEvent(checkout('evt_repeat_buyer', 'sub_repeat', email), fulfillment);
+    assert.deepEqual(await store.getJSON(`user:${email}`), account);
+    assert.deepEqual(await auth.getSession({ headers: { cookie } }), { email, products: ['bookscan'] });
+  } finally {
+    up.restore();
+    for (const key of ['SITE_URL', 'RESEND_API_KEY', 'MAIL_FROM']) delete process.env[key];
+  }
 });
 
 test('every hosted operation uses current Stripe state, retains data after cancellation and restores access on new subscription', async () => {
