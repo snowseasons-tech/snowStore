@@ -311,6 +311,18 @@ def test_worker_pauses_at_the_limit(client, owner, ready, outbox, monkeypatch):
     assert s['status'] == 'paused' and s['pending'] == 1
 
 
+def test_suspended_server_holds_queued_campaigns_until_renewed(client, owner, ready, outbox, monkeypatch):
+    cid = sent_campaign(client, owner)
+    monkeypatch.setenv('SUSPENDED', '1')
+    drain()
+    assert outbox == []
+    with Session() as db:
+        assert db.get(Campaign, cid).status == 'queued'
+    monkeypatch.delenv('SUSPENDED')
+    drain()
+    assert len(outbox) == 2
+
+
 def test_limit_blocks_test_sends(client, owner, ready, outbox, monkeypatch):
     monkeypatch.setenv('MAX_MONTHLY_SENDS', '1')
     cid = make_campaign(client, owner, list_id=make_list(client, owner))

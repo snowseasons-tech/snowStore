@@ -77,7 +77,7 @@ Opens use a hidden image. Mail apps that block images undercount them, and Apple
 | `SEND_RATE_PER_SECOND` | Sending pace |
 | `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET` | Optional. Use these instead of the Settings page |
 | `RESEND_BASE_URL` | Points at a fake Resend for local testing |
-| `SUSPENDED` | 1 closes the app and API but keeps unsubscribe links, tracking and the webhook working. Hosted servers use this when a subscription ends |
+| `SUSPENDED` | 1 closes the app and API and stops the worker from sending, so queued campaigns wait. Unsubscribe links, tracking and the webhook keep working. Hosted servers use this when a subscription ends |
 | `SETUP_CODE` | Hosted servers: required to create the first account |
 | `ALLOW_REGISTRATION` | 1 lets anyone who can reach the server sign up |
 | `SMTP_*` | Password reset email. Otherwise: `docker compose exec web python -m app.reset_password you@example.com` |
