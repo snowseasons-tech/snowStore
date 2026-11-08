@@ -1,6 +1,6 @@
 # Gift certificates (stage 5)
 
-Status: **built end to end, not on sale.** Buyers can't reach the gift flow yet: there is no "Give as a gift" button on product pages, and gifts go through checkout only when called directly. The store's sales are otherwise unchanged.
+Status: **built end to end, with a buy button.** Products that can be given show a "Give as a gift" button on `products.html`, and on the homepage when a homepage product can be given. Today every homepage product is a service, so the button shows only on `products.html`, for Auto Scheduler and other one-time downloads. Gifts take real payments once the store is live, so check Stripe test mode first.
 
 ## How a gift works
 
@@ -32,7 +32,6 @@ Status: **built end to end, not on sale.** Buyers can't reach the gift flow yet:
 ## Known gaps
 
 - **Legacy `api/checkout.js`** has the same gift code as the Pages Function, but no test covers it. Only the Pages Function is tested.
-- **Buy button.** Product pages need a "Give as a gift" option that posts the `gift` object. Not built.
 - **Orphan certificate on a race.** If two deliveries of one session both create a certificate at the same moment, the loser's code is never sent. It stays unused and harmless.
 - **Access record.** `redeemGift` writes the access record after the marker. If that write fails, the code shows as used, but the download link fails until the access record is written. Repair by hand from the marker.
 - **Refunds.** A refunded gift still works. Stripe refund events aren't handled.

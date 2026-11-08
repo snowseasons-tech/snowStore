@@ -321,6 +321,7 @@ function renderPrice(el,p,o){const money=n=>new Intl.NumberFormat("en-US",{style
  if(o.interval&&(d.duration==="once"||d.duration==="repeating")){const span=d.duration==="repeating"&&d.months>1&&o.interval==="month"&&o.intervalCount===1?`first ${d.months} months`:firstSpan(o),then=document.createElement("small");then.style.display="block";then.textContent=`then ${money(o.amount)}${per}`;tag.textContent=`${off} your ${span}`;el.replaceChildren(`${money(d.amount)} ${span} `,then," ",tag);setup();return}
  const was=document.createElement("s");was.textContent=money(o.amount);tag.textContent=off+" launch price";el.replaceChildren(was," "+money(d.amount)+per+" ",tag);setup()}
 fetch("/api/products").then(r=>r.json()).then(d=>d.products.forEach(p=>{
+ if(p.gift)document.querySelectorAll('[data-buy="'+p.id+'"]').forEach(b=>{const g=document.createElement("button");g.type="button";g.className="btn alt";g.textContent="Give as a gift";g.dataset.gift=p.id;g.dataset.name=p.name;b.after(g)});
  const opts=[{period:"1m",amount:p.amount,interval:p.interval,intervalCount:1,discount:p.discount},...(p.periods||[])].sort((a,b)=>periodMonths(a)-periodMonths(b));
  const show=()=>{const o=opts.find(x=>x.period===(chosen[p.id]||"1m"))||opts[0];document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>renderPrice(el,p,o));document.querySelectorAll('select[data-period="'+p.id+'"]').forEach(s=>s.value=o.period)};
  if(opts.length>1)document.querySelectorAll('[data-price="'+p.id+'"]').forEach(el=>{const sel=document.createElement("select");sel.className="period";sel.dataset.period=p.id;sel.setAttribute("aria-label","Billing period for "+p.name);
@@ -449,4 +450,5 @@ syncToggle();
   });
   renderRoi();
 })();
-</script></body></html>
+</script>
+<script src="/gift-dialog.js" defer></script></body></html>

@@ -2,6 +2,9 @@ import CATALOG from '../../api/_lib/catalog.js';
 import prices from '../../api/_lib/prices.js';
 import { stripeClient, launchDiscount } from '../_lib/stripe.js';
 import { send, methodNotAllowed } from '../_lib/http.js';
+import gift from '../../api/_lib/gift.js';
+
+const { giftable } = gift;
 
 // amount stays the list price; discount (when a launch coupon is live) carries the percent and the price after it.
 // duration/months mirror the coupon: on a subscription, 'once' discounts only the first invoice.
@@ -21,7 +24,7 @@ export async function onRequestGet({ env }) {
       const found = byProduct[p.stripeProduct], base = found['1m'];
       // Other billing periods (weekly, 3, 6 or 12 months) offered alongside the monthly price.
       const periods = prices.PERIODS.filter((k) => k !== '1m' && found[k]).map((k) => card(found[k], k));
-      return { id, name: p.name, blurb: p.blurb || null, amount: base.unit_amount, currency: base.currency, interval: base.recurring ? base.recurring.interval : null, ...discounted(base.unit_amount, launch), ...(periods.length ? { periods } : {}) };
+      return { id, name: p.name, blurb: p.blurb || null, amount: base.unit_amount, currency: base.currency, interval: base.recurring ? base.recurring.interval : null, ...discounted(base.unit_amount, launch), ...(periods.length ? { periods } : {}), ...(giftable(p) && !base.recurring && !periods.length ? { gift: true } : {}) };
     });
     return send(200, { products }, { 'Cache-Control': 'public, max-age=60' });
   } catch (e) {

@@ -2,6 +2,7 @@ const CATALOG = require('./_lib/catalog');
 const prices = require('./_lib/prices');
 const { stripeClient, launchDiscount } = require('./_lib/stripe');
 const { send, allow } = require('./_lib/http');
+const { giftable } = require('./_lib/gift');
 
 // amount stays the list price; discount (when a launch coupon is live) carries the percent and the price after it.
 // duration/months mirror the coupon: on a subscription, 'once' discounts only the first invoice.
@@ -20,7 +21,7 @@ module.exports = async (req, res) => {
       const found = byProduct[p.stripeProduct], base = found['1m'] || found.once;
       // Other billing periods (weekly, 3, 6 or 12 months) offered alongside the monthly price.
       const periods = prices.PERIODS.filter((k) => k !== '1m' && found[k]).map((k) => card(found[k], k));
-      return { id, name: p.name, blurb: p.blurb || null, amount: base.unit_amount, currency: base.currency, interval: base.recurring ? base.recurring.interval : null, ...(id === 'snowsocial' && found.once ? { setupAmount: found.once.unit_amount, setupCurrency: found.once.currency } : {}), ...discounted(base.unit_amount, launch), ...(periods.length ? { periods } : {}) };
+      return { id, name: p.name, blurb: p.blurb || null, amount: base.unit_amount, currency: base.currency, interval: base.recurring ? base.recurring.interval : null, ...(id === 'snowsocial' && found.once ? { setupAmount: found.once.unit_amount, setupCurrency: found.once.currency } : {}), ...discounted(base.unit_amount, launch), ...(periods.length ? { periods } : {}), ...(giftable(p) && !base.recurring && !periods.length ? { gift: true } : {}) };
     });
     send(res, 200, { products }, { 'Cache-Control': 'public, max-age=60' });
   } catch (e) {

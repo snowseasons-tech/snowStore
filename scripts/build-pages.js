@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PUBLIC_DIRS = ['storefront', 'img', 'blog'];
-const PUBLIC_FILES = ['page.css', 'store-theme.css'];
+const PUBLIC_FILES = ['page.css', 'store-theme.css', 'gift-dialog.js'];
 const isPublic = (name) => !name.startsWith('.') && !name.endsWith('.md');
 
 function build({ root = path.join(__dirname, '..'), out = path.join(root, 'dist') } = {}) {

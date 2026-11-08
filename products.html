@@ -314,6 +314,7 @@ function buildCard(p){
  const buy=el("button","btn custom-btn",recurring?"Subscribe":p.amount===0?"Download free":"Buy now");buy.type="button";
  buy.addEventListener("click",()=>checkout(p.id,state.period,buy));
  art.append(el("div","actions"));art.lastChild.append(buy);
+ if(p.gift){const gift=el("button","btn alt","Give as a gift");gift.type="button";gift.dataset.gift=p.id;gift.dataset.name=p.name;art.lastChild.append(gift)}
  if(d.demoUrl){const demo=el("a","btn alt","Try demo");demo.href=d.demoUrl;art.lastChild.append(demo)}
  if(d.membership){
   const terms=el("p","terms","$21.75 USD/month + tax for new members, auto-renewing. Members continuously subscribed since before November 7, 2026 keep $29. Cancel at period end. 10 downloads/product; downloaded files remain usable. ");
@@ -406,4 +407,5 @@ const syncToggle=()=>{const d=isDark();tg.setAttribute("aria-pressed",String(d))
 tg.addEventListener("click",()=>{const next=isDark()?"light":"dark";root.dataset.theme=next;try{localStorage.setItem("theme",next)}catch(_){}syncToggle()});
 syncToggle();
 </script>
+<script src="/gift-dialog.js" defer></script>
 </body></html>

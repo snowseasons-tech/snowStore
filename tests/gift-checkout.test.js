@@ -74,3 +74,17 @@ test('a gift with a bad recipient is refused before any Stripe session is made',
     assert.strictEqual(s.calls.session, null);
   } finally { s.restore(); }
 });
+
+test('the products list offers "give as a gift" only for one-time products that can be given', async () => {
+  const s = fakeStripe();
+  try {
+    const products = await import('../functions/api/products.js');
+    const res = await products.onRequestGet({ request: new Request('https://x.test/api/products'), env: ENV });
+    const list = (await res.json()).products;
+    const booking = list.find((p) => p.id === 'booking-app');
+    assert.ok(booking, 'booking-app is listed');
+    assert.strictEqual(booking.gift, true);
+    const membership = list.find((p) => p.id === 'founders-membership');
+    if (membership) assert.ok(!membership.gift, 'subscriptions are never offered as gifts');
+  } finally { s.restore(); }
+});
