@@ -86,3 +86,11 @@ async function addMember(key, member) {
   return values.size - before;
 }
 module.exports.addMember = addMember;
+
+// Every member of an addMember() set.
+async function members(key) {
+  requireStore();
+  if (hasRemote()) return (await cmd(['SMEMBERS', key])) || [];
+  return JSON.parse(memGet(key) || '[]');
+}
+module.exports.members = members;

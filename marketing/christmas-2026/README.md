@@ -22,7 +22,7 @@ This folder is the campaign workspace. It holds planning and draft copy only. No
 | 3. Interactive tools | "Find your fit" quiz and admin-time calculator on the homepage | Done |
 | 4. Offers & checkout | One-time bundles B and C in the catalog, hidden with no Stripe product | Code done. Stripe products still to create; Bundle A blocked (see `bundle-readiness.md`) |
 | 5. Gift certificates | Codes, single-use redemption, expiry and certificate page (`api/_lib/gift.js`) | Code done, not for sale. Purchase, email and redeem endpoint still to build (see `gift-certificates.md`) |
-| 6. Post-purchase emails | Welcome series (immediate, +24h, +72h) | Not started: needs the email sender wired to order events |
+| 6. Post-purchase emails | Welcome series: email 1 is the existing purchase email; emails 2 (+24h) and 3 (+72h) are scheduled at purchase and sent by a runner | Built. Not sending until the runner is scheduled and `WELCOME_RUN_SECRET` is set (see `welcome-series.md`) |
 
 ## Stage 4: to finish before the bundles go on sale
 

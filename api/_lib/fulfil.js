@@ -3,6 +3,7 @@ const { downloadsFor } = require('./entitlements');
 const store = require('./store');
 const mail = require('./mail');
 const { linkCheckout } = require('./lead-billing');
+const welcome = require('./welcome');
 
 const CHECKOUT_EVENTS = new Set(['checkout.session.completed', 'checkout.session.async_payment_succeeded']);
 const SUB_EVENTS = new Set(['customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted']);
@@ -92,6 +93,16 @@ async function processEvent(event, s, catalog, mailer) {
       throw e;
     }
     await markDone(s, mailKey);
+  }
+
+  // Record the welcome series (emails 2 and 3, sent later by welcome-run). A problem here must not fail the purchase.
+  try {
+    await welcome.schedule(s, session.id, {
+      email: leadPortal ? leadLink.email : email, productId, productName: product.name, product, catalog,
+      siteUrl: process.env.SITE_URL, now: Date.now(),
+    });
+  } catch (e) {
+    console.error('welcome schedule', session.id, e.message);
   }
 
   // Tell the shop about the new order (see mail.notifyAddress). Sent once per order.
