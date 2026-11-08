@@ -46,7 +46,7 @@ test('the validator checks memberships', () => {
     m3: { name: 'M3', kind: 'subscription', stripeProduct: 'prod_m3', includes: [] },
     m4: { name: 'M4', kind: 'subscription', stripeProduct: 'prod_m4', includes: ['m2'] },
   });
-  assert.ok(errors.includes("m1.kind: must be 'subscription' for a membership"));
+  assert.ok(errors.includes("m1.kind: must be 'subscription' (membership) or 'one_time' (bundle)"));
   assert.ok(errors.includes('m2.includes: s has no download'));
   assert.ok(errors.includes('m2.includes: ghost is not in the catalog'));
   assert.ok(errors.includes('m3.includes: must be a non-empty list of product ids'));

@@ -34,8 +34,8 @@ function validateCatalog(catalog) {
       fail('stripeProduct', `duplicates ${product.stripeProduct}`);
     } else if (product.stripeProduct !== undefined) {
       stripeProducts.add(product.stripeProduct);
-    } else if (!product.retired && !product.draft) {
-      fail('stripeProduct', 'is required unless the product is retired or a draft');
+    } else if (!product.retired && !product.draft && !product.hidden) {
+      fail('stripeProduct', 'is required unless the product is retired, a draft or hidden');
     }
 
     if (product.kind !== undefined && !KINDS.has(product.kind)) {
@@ -93,8 +93,12 @@ function validateCatalog(catalog) {
           else if (catalog[inc].includes !== undefined) fail('includes', `${inc} is itself a membership`);
         }
       }
-      if (product.kind !== 'subscription') fail('kind', "must be 'subscription' for a membership");
-      if (product.fileKey !== undefined) fail('fileKey', 'a membership has no file of its own');
+      // 'subscription' = membership; 'one_time' = bundle sold once. Anything else, including no kind, is an error.
+      if (product.kind !== 'subscription' && product.kind !== 'one_time') fail('kind', "must be 'subscription' (membership) or 'one_time' (bundle)");
+      if (product.fileKey !== undefined) fail('fileKey', 'a bundle has no file of its own');
+      if (product.hidden && product.kind === 'one_time' && (!Number.isInteger(product.proposedPrice) || product.proposedPrice <= 0)) {
+        fail('proposedPrice', 'must be a price in cents for a hidden one-time bundle');
+      }
     }
 
     if (product.fileKey === undefined) {

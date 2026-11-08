@@ -8,6 +8,9 @@
 // includes (optional) = a membership: a subscription with no file of its own that unlocks the downloads of these
 // products while it is active (see api/_lib/entitlements.js).
 // draft: true = a bundle not on sale yet. A Stripe product may be linked while a bundle remains hidden from /api/products and checkout.
+// One-time bundle: kind 'one_time' with includes. It sells once and unlocks the files of its included products.
+// hidden + proposedPrice (cents) = a one-time bundle with no Stripe product yet. Hidden products are left out of
+// /api/products and checkout. Create the Stripe product and price, then set stripeProduct and remove hidden.
 // proposedMonthly = a draft's price in cents, used only by scripts/create-bundles.js. pending = software a bundle promises
 // that customers can't use yet; a bundle with pending parts can't be created in Stripe.
 // socialAccounts (optional) = this plan gets a hosted Social Studio server with this account limit (see hosted/README.md).
@@ -226,6 +229,24 @@ module.exports = {
     blurb: "Website tools, social media for five accounts, lead intelligence, MailHub, invoicing and a database.",
     includes: ['invoice-generator'],
     pending: ['Website management software', 'Social media software for 5 accounts', 'Operations & Lead Intelligence software', 'MailHub software', 'Hosted database software'],
+  },
+  // Christmas 2026 one-time bundles (marketing/christmas-2026). Hidden until a Stripe product exists; see the header comment.
+  // Bundle A (Outgrown Spreadsheets) is left out: its hero, the Store Inventory Tracker, is retired.
+  'christmas-solopreneur': {
+    name: 'The Solopreneur Salesperson Kit',
+    kind: 'one_time',
+    hidden: true,
+    proposedPrice: 24900,
+    blurb: 'Lead generation pipeline and auto blogger, together for the holidays.',
+    includes: ['lead-generator', 'blog-gen'],
+  },
+  'christmas-small-team': {
+    name: 'The Small But Growing Team Upgrade',
+    kind: 'one_time',
+    hidden: true,
+    proposedPrice: 39900,
+    blurb: 'Auto scheduler for small teams. Setup and training are sold separately.',
+    includes: ['booking-app'],
   },
   // Educational downloads use verified private bucket objects and free Stripe prices.
   'creator-code-cookbook': { name: 'Creator Code Cookbook', stripeProduct: 'prod_VYceWlPRJN0bnY', kind: 'one_time', fileKey: 'creator-code-cookbook/Creator_Code_Cookbook.zip', filename: 'Creator_Code_Cookbook.zip', sha256: 'c82e0026be11fa59905013bd239ea8738bb66070395dec93c18606688ffaacf9', blurb: 'Pilot edition with 12 creative beginner projects, commented source, sample data, instructions, outcomes, remix challenges and a master cheat sheet. No paid APIs or auto-publishing.' },

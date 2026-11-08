@@ -11,6 +11,7 @@ function downloadsFor(productId, catalog) {
     .map((id) => ({ id, name: catalog[id].name, fileKey: catalog[id].fileKey, filename: catalog[id].filename }));
 }
 
-const isMembership = (product) => !!product && Array.isArray(product.includes);
+// A membership is a subscription that includes other products. A one-time bundle also lists them but is not a subscription.
+const isMembership = (product) => !!product && Array.isArray(product.includes) && product.kind !== 'one_time';
 
 module.exports = { downloadsFor, isMembership };

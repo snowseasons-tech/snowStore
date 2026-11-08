@@ -18,14 +18,21 @@ This folder is the campaign workspace. It holds planning and draft copy only. No
 | Stage | Scope | State |
 |---|---|---|
 | 1. Plan & content | Calendar, bundle mapping, copy and scripts (this folder) | Done in this branch |
-| 2. Homepage banner | Campaign announcement bar on `index.html`, behind a single config switch, no prices | Next |
-| 3. Interactive tools | Workflow quiz and ROI calculator as static components on the homepage | After stage 2 |
-| 4. Offers & checkout | Bundle products in the catalog and Stripe, Phase 2 flash deals | Blocked: bundles are drafts with unfinished parts (see `bundle-readiness.md`) |
+| 2. Homepage banner | Campaign announcement bar on `index.html`, behind a single config switch, no prices | Done, switched off (`CAMPAIGN.active`) |
+| 3. Interactive tools | "Find your fit" quiz and admin-time calculator on the homepage | Done |
+| 4. Offers & checkout | One-time bundles B and C in the catalog, hidden with no Stripe product | Code done. Stripe products still to create; Bundle A blocked (see `bundle-readiness.md`) |
 | 5. Gift certificates | Custom PDF certificates with `SNOW-2027-XXXX` codes | Not started: needs a backend for code redemption |
 | 6. Post-purchase emails | Welcome series (immediate, +24h, +72h) | Not started: needs the email sender wired to order events |
 
-## Decisions needed before stage 4
+## Stage 4: to finish before the bundles go on sale
 
-1. Are bundles one-time downloads (playbook) or monthly subscriptions (the catalog's drafts)?
-2. Which Bundle C hero product is meant? The playbook's "React Auto Scheduler" isn't in the catalog.
+1. Create a Stripe product and a one-time price for each bundle, at the amounts in `api/_lib/catalog.js` (`proposedPrice`): Solopreneur $249, Small Team $399.
+2. Set `stripeProduct` on each entry and remove `hidden: true`. Check that `npm run validate:store-items` passes.
+3. Confirm `LAUNCH_COUPON` is unset, so the storewide discount doesn't stack.
+4. Test checkout and the download in Stripe test mode before going live.
+
+## Open decisions
+
+1. **Bundle A** (Outgrown Spreadsheets): its hero, the Store Inventory Tracker, is retired. Do you want it back on sale, or a bundle from the invoice generator alone?
+2. **Bundle C** is the Auto Scheduler alone. The 50% off setup and training is a service that isn't in the catalog, so it has to be sold separately.
 3. Does the Nov 28–30 Small Business Weekend sale run as planned, and does it stack with the playbook's Dec 12–23 flash deals?
