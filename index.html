@@ -86,9 +86,18 @@ header .logo img { flex:none; }
 #hero .btn.alt { background:transparent; color:var(--sst-frost); border-color:var(--sst-ice); }
 .card { border-radius:var(--sst-radius); }
 :where(a,button,input,summary):focus-visible { outline:3px solid var(--sst-focus); outline-offset:3px; }
+.campaign-banner{position:relative;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 12px;padding:10px 44px 10px 16px;background:#1f4e79;color:#fff;text-align:center;font-size:.95rem}
+.campaign-banner[hidden]{display:none}
+.campaign-banner p{margin:0}
+.campaign-banner a{color:#fff;font-weight:600}
+.campaign-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:#fff;font-size:1.4rem;line-height:1;cursor:pointer;padding:6px 10px}
 </style>  <link rel="stylesheet" href="/store-theme.css">
 </head>
 <body>
+<aside id="campaign-banner" class="campaign-banner" aria-label="Campaign announcement" hidden>
+<p><strong id="campaign-headline"></strong> <span id="campaign-text"></span> <a href="mailto:snowseasons@protonmail.com">snowseasons@protonmail.com</a></p>
+<button type="button" class="campaign-close" id="campaign-close" aria-label="Dismiss announcement">&times;</button>
+</aside>
 <header><nav class="container" aria-label="Main navigation">
 <a class="logo" href="#hero"><img src="/img/snow-mark.svg" width="42" height="42" alt="">Snow Seasons Tech</a>
 <ul class="nav-links"><li><a href="/products">Products</a></li><li><a href="#products">Services</a></li><li><a href="#kit">Website Kit</a></li><li><a href="/blog/">Blog</a></li><li><a href="#contact">Contact</a></li></ul>
@@ -290,4 +299,30 @@ const isDark=()=>root.dataset.theme?root.dataset.theme==="dark":matchMedia("(pre
 const syncToggle=()=>{const d=isDark();tg.setAttribute("aria-pressed",String(d));tg.textContent=d?"Light mode":"Dark mode"};
 tg.addEventListener("click",()=>{const next=isDark()?"light":"dark";root.dataset.theme=next;try{localStorage.setItem("theme",next)}catch(_){}syncToggle()});
 syncToggle();
+</script>
+<script>
+/* Holiday campaign banner. To show it, set active to true. Phase picks the copy:
+   1 = launch (Nov 25 to Dec 5), 2 = 12 Days (Dec 6 to Dec 24), 3 = New Year (Dec 26 to Dec 31).
+   Copy must not contain prices: the store loads prices live. */
+(function(){
+  var CAMPAIGN={active:false,phase:1};
+  var COPY={
+    1:["Gift your business a better workflow.","Tell us your biggest friction point and we'll point you to the right tool."],
+    2:["12 days of unmissable upgrades.","How to start 2027 stress-free."],
+    3:["New year, new workflow.","Get your tech ready for 2027 before the rush starts."]
+  };
+  var KEY="campaignBannerDismissed";
+  var banner=document.getElementById("campaign-banner");
+  if(!banner||!CAMPAIGN.active||!COPY[CAMPAIGN.phase])return;
+  var seen=null;
+  try{seen=sessionStorage.getItem(KEY)}catch(_){}
+  if(seen===String(CAMPAIGN.phase))return;
+  document.getElementById("campaign-headline").textContent=COPY[CAMPAIGN.phase][0];
+  document.getElementById("campaign-text").textContent=COPY[CAMPAIGN.phase][1];
+  banner.hidden=false;
+  document.getElementById("campaign-close").addEventListener("click",function(){
+    banner.hidden=true;
+    try{sessionStorage.setItem(KEY,String(CAMPAIGN.phase))}catch(_){}
+  });
+})();
 </script></body></html>
