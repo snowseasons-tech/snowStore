@@ -91,6 +91,19 @@ header .logo img { flex:none; }
 .campaign-banner p{margin:0}
 .campaign-banner a{color:#fff;font-weight:600}
 .campaign-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:#fff;font-size:1.4rem;line-height:1;cursor:pointer;padding:6px 10px}
+.tools-grid{align-items:start}
+.tools-grid fieldset{border:0;margin:0 0 18px;padding:0;min-width:0}
+.tools-grid legend{font-weight:600;margin-bottom:8px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:6px 0;cursor:pointer}
+.opt input{margin-top:5px;accent-color:var(--primary)}
+.roi{display:grid;gap:6px;margin-top:4px}
+.roi label{font-weight:600;font-size:.95rem;margin-top:8px}
+.roi input,.roi-note{font:inherit}
+.roi input{padding:10px 14px;border:1px solid var(--b1);border-radius:10px;background:var(--sec);color:var(--text);min-width:0}
+.result{margin-top:18px;padding:16px;border-radius:12px;background:var(--sec);border:1px solid var(--b1)}
+.result p{margin:0 0 8px}.result p:last-child{margin-bottom:0}
+.result ul{margin:6px 0 0 1.2rem;color:var(--muted)}
+.result a{color:var(--primary)}
 </style>  <link rel="stylesheet" href="/store-theme.css">
 </head>
 <body>
@@ -100,7 +113,7 @@ header .logo img { flex:none; }
 </aside>
 <header><nav class="container" aria-label="Main navigation">
 <a class="logo" href="#hero"><img src="/img/snow-mark.svg" width="42" height="42" alt="">Snow Seasons Tech</a>
-<ul class="nav-links"><li><a href="/products">Products</a></li><li><a href="#products">Services</a></li><li><a href="#kit">Website Kit</a></li><li><a href="/blog/">Blog</a></li><li><a href="#contact">Contact</a></li></ul>
+<ul class="nav-links"><li><a href="/products">Products</a></li><li><a href="#products">Services</a></li><li><a href="#kit">Website Kit</a></li><li><a href="#tools">Find your fit</a></li><li><a href="/blog/">Blog</a></li><li><a href="#contact">Contact</a></li></ul>
 <button class="btn btn-toggle" id="theme-toggle" type="button" aria-pressed="false">Toggle theme</button>
 </nav></header>
 <main>
@@ -142,6 +155,47 @@ header .logo img { flex:none; }
   --muted-color: #b0b0b0;
   --secondary-color: #2d2d2d;
 }</code></pre></div></div>
+</div></div></section>
+
+<section id="tools"><div class="container">
+<h2>Find your fit</h2>
+<p class="sub">Answer two questions to see where to start, then estimate what admin time costs you each year.</p>
+<div class="grid tools-grid">
+<div class="card">
+<h3>Which tools fit your work?</h3>
+<form id="quiz-form">
+<fieldset>
+<legend>Where does most of your admin time go?</legend>
+<label class="opt"><input type="radio" name="friction" value="stock" required> <span>Stock, orders and invoices</span></label>
+<label class="opt"><input type="radio" name="friction" value="leads"> <span>Finding and following up with leads</span></label>
+<label class="opt"><input type="radio" name="friction" value="content"> <span>Writing and posting content</span></label>
+<label class="opt"><input type="radio" name="friction" value="booking"> <span>Booking and scheduling appointments</span></label>
+</fieldset>
+<fieldset>
+<legend>How many people work in the business?</legend>
+<label class="opt"><input type="radio" name="team" value="solo" checked> <span>Just me</span></label>
+<label class="opt"><input type="radio" name="team" value="small"> <span>2 to 5</span></label>
+<label class="opt"><input type="radio" name="team" value="large"> <span>6 or more</span></label>
+</fieldset>
+<button class="btn" type="submit">See my fit</button>
+</form>
+<div id="quiz-result" class="result" role="status" aria-live="polite" hidden></div>
+</div>
+<div class="card">
+<h3>What is admin time costing you?</h3>
+<div class="roi">
+<label for="roi-hours">Hours a week on admin work</label>
+<input id="roi-hours" type="number" min="0" max="80" step="0.5" value="5" inputmode="decimal">
+<label for="roi-rate">Your hourly value (USD)</label>
+<input id="roi-rate" type="number" min="0" max="1000" step="1" value="40" inputmode="decimal">
+<label for="roi-save">Share of that time the tools would save (%)</label>
+<input id="roi-save" type="number" min="0" max="100" step="5" value="50" inputmode="decimal">
+<label for="roi-cost">Yearly cost of the tools (USD, optional)</label>
+<input id="roi-cost" type="number" min="0" max="100000" step="10" value="0" inputmode="decimal">
+</div>
+<div id="roi-result" class="result" role="status" aria-live="polite"></div>
+<p class="fine roi-note">An estimate from the numbers you enter, over 48 working weeks a year. It isn't a guarantee.</p>
+</div>
 </div></div></section>
 
 <section id="contact"><div class="container">
@@ -324,5 +378,75 @@ syncToggle();
     banner.hidden=true;
     try{sessionStorage.setItem(KEY,String(CAMPAIGN.phase))}catch(_){}
   });
+})();
+</script>
+<script>
+/* Find your fit: quiz and admin-time estimate. Runs in the browser only; nothing is sent or stored. */
+(function(){
+  var EMAIL="snowseasons@protonmail.com";
+  var PRODUCTS={
+    "inventory-tracker":"Store Inventory Tracker",
+    "invoice-generator":"Invoice & Biller",
+    "lead-generator":"Lead Generation Pipeline",
+    "blog-gen":"Auto Blogger",
+    "booking-app":"Auto Scheduler"
+  };
+  var PICKS={
+    stock:["inventory-tracker","invoice-generator"],
+    leads:["lead-generator"],
+    content:["blog-gen"],
+    booking:["booking-app"]
+  };
+  var money=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+  function num(id,min,max){
+    var v=parseFloat(document.getElementById(id).value);
+    if(isNaN(v))v=0;
+    return Math.min(max,Math.max(min,v));
+  }
+  function el(tag,text){var n=document.createElement(tag);if(text!=null)n.textContent=text;return n}
+
+  var quiz=document.getElementById("quiz-form");
+  var quizOut=document.getElementById("quiz-result");
+  quiz.addEventListener("submit",function(e){
+    e.preventDefault();
+    var f=quiz.elements.friction.value;
+    var team=quiz.elements.team.value;
+    if(!f)return;
+    quizOut.textContent="";
+    quizOut.appendChild(el("p","Start with:"));
+    var list=el("ul");
+    PICKS[f].forEach(function(id){list.appendChild(el("li",PRODUCTS[id]))});
+    quizOut.appendChild(list);
+    var all=el("p");
+    var a=el("a","See all products");a.href="/products";
+    all.appendChild(a);
+    quizOut.appendChild(all);
+    if(team==="large"){
+      quizOut.appendChild(el("p","For a team of six or more, we set up and train on the tools with you."));
+      var m=el("p");
+      var mail=el("a","Email us about setup");mail.href="mailto:"+EMAIL;
+      m.appendChild(mail);
+      quizOut.appendChild(m);
+    }
+    quizOut.hidden=false;
+  });
+
+  var roiOut=document.getElementById("roi-result");
+  function renderRoi(){
+    var hours=num("roi-hours",0,80),rate=num("roi-rate",0,1000),save=num("roi-save",0,100)/100,cost=num("roi-cost",0,100000);
+    var yearCost=hours*48*rate;
+    var yearSaved=yearCost*save;
+    var net=yearSaved-cost;
+    roiOut.textContent="";
+    roiOut.appendChild(el("p","Admin time costs about "+money.format(yearCost)+" a year."));
+    roiOut.appendChild(el("p","Saving "+Math.round(save*100)+"% of it is worth about "+money.format(yearSaved)+" a year."));
+    roiOut.appendChild(el("p",net>=0
+      ?"After tool costs, that leaves about "+money.format(net)+" a year."
+      :"At these numbers, tool costs are higher than the estimated saving by "+money.format(-net)+" a year."));
+  }
+  ["roi-hours","roi-rate","roi-save","roi-cost"].forEach(function(id){
+    document.getElementById(id).addEventListener("input",renderRoi);
+  });
+  renderRoi();
 })();
 </script></body></html>

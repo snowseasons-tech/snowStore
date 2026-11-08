@@ -8,7 +8,7 @@ Checked against `api/_lib/catalog.js` on branch `claude/upbeat-clarke-4ein8v`.
 |---|---|---|---|---|---|
 | A · Outgrown Spreadsheets | Store Inventory Tracker | Invoice Generator ($149) | $348 | $199 | `inventory-tracker` and `invoice-generator` are **live** as separate products. No bundle exists. |
 | B · Solopreneur Salesperson | Lead Generation Pipeline | Auto Blogger ($199) | $448 | $249 | `lead-generator` and `blog-gen` are **live**. No bundle exists. |
-| C · Small But Growing Team | React Auto Scheduler | 50% off setup and VIP training | $699 | $399 | **Not in the catalog.** `auto-scheduler` appears in the docs platform and in the sale plan, but has no catalog entry. The bonus (setup service at 50% off) isn't a product either. |
+| C · Small But Growing Team | React Auto Scheduler | 50% off setup and VIP training | $699 | $399 | The catalog's **Auto Scheduler** is `booking-app` and is **live**. It is probably the hero meant here, but the playbook says "React", so confirm. The 50% off setup and training is a service, not a product. |
 
 ## What's blocking a bundle sale
 
@@ -25,7 +25,7 @@ Checked against `api/_lib/catalog.js` on branch `claude/upbeat-clarke-4ein8v`.
 ## Decisions needed
 
 1. Are the Christmas bundles one-time packages, or do they follow the catalog's subscription model? Each option needs different Stripe setup.
-2. Is Bundle C's hero product real, and what is it? If it isn't ready, drop C from the Phase 2 offers.
+2. Is Bundle C's hero the catalog's Auto Scheduler (`booking-app`), or a different "React" product? If the Auto Scheduler, C is buildable from live products. If not, drop C from the Phase 2 offers.
 3. Should Bundles A and B be sold as one-time packages now, built from live products? If yes, this becomes stage 4.
 
 Until these are answered, the playbook's prices stay as placeholders in `email-sequence.md` and are not published.
