@@ -1,5 +1,6 @@
 const CATALOG = require('./_lib/catalog');
 const prices = require('./_lib/prices');
+const gift = require('./_lib/gift');
 const { stripeClient, launchDiscount } = require('./_lib/stripe');
 const { send, allow, readRaw } = require('./_lib/http');
 
@@ -14,6 +15,15 @@ module.exports = async (req, res) => {
     // period: '1w', '3m', '6m' or '12m' picks another billing period; default '1m' is the monthly (or one-time) price.
     const period = body.period || '1m';
     if (!prices.PERIODS.includes(period)) return send(res, 400, { error: 'Unknown billing period' });
+    // A gift: a one-time purchase of this product for someone else, who redeems a code (api/_lib/gift.js).
+    let giftMeta = null;
+    if (body.gift !== undefined) {
+      if (!gift.giftable(product) || product.kind === 'subscription' || period !== '1m') return send(res, 400, { error: 'This product cannot be given as a gift' });
+      try { giftMeta = gift.giftMetadata(body.productId, body.gift); } catch (e) {
+        if (e instanceof gift.GiftError) return send(res, 400, { error: e.message });
+        throw e;
+      }
+    }
     const site = process.env.SITE_URL;
     if (!site || !product.stripeProduct) return send(res, 503, { error: 'Checkout not configured' });
 
@@ -26,6 +36,7 @@ module.exports = async (req, res) => {
     }
     const price = chosen.id;
     const isSub = !!chosen.recurring; // checkout mode follows the price itself
+    if (giftMeta && isSub) return send(res, 400, { error: 'This product cannot be given as a gift' });
     let lineItems = [{ price, quantity: 1 }];
     if (body.productId === 'snowsocial') {
       const setup = available.once;
@@ -38,8 +49,8 @@ module.exports = async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       mode: isSub ? 'subscription' : 'payment',
       line_items: lineItems,
-      metadata: { product_id: body.productId, ...(period !== '1m' ? { period } : {}) },
-      success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
+      metadata: giftMeta || { product_id: body.productId, ...(period !== '1m' ? { period } : {}) },
+      success_url: giftMeta ? `${site}/gift.html?purchased=1` : `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/cancel`,
       ...(body.productId === 'founders-membership' ? {
         consent_collection: { terms_of_service: 'required' },

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Redeem a gift · Snow Seasons Tech</title>
+<meta name="description" content="Redeem a Snow Seasons Tech gift code and download your software.">
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--text:#101e39;--muted:#4a5568;--primary:#1f4e79;--line:#c9d6e5;--ok:#e6f4ea;--bad:#fde8e8}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0a0f15;--card:#121922;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--line:#2b3a4d;--ok:#16301f;--bad:#3a1717}}
+:root[data-theme="dark"]{--bg:#0a0f15;--card:#121922;--text:#eef2f7;--muted:#a1a9b5;--primary:#5ab0ea;--line:#2b3a4d;--ok:#16301f;--bad:#3a1717}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6;background-color:var(--bg);color-scheme:light dark}
+main{max-width:520px;margin:0 auto;padding:40px 16px}
+h1{font-size:1.6rem;margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px}
+label{display:block;font-weight:600;margin:14px 0 6px}
+input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.code{font-family:ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}
+button,.btn{display:inline-block;margin-top:18px;padding:10px 18px;border:0;border-radius:10px;background:var(--primary);color:#fff;font:inherit;font-weight:600;text-decoration:none;cursor:pointer}
+button:disabled{opacity:.6;cursor:default}
+.msg{margin-top:16px;padding:12px 14px;border-radius:10px}
+.msg.ok{background:var(--ok)}
+.msg.bad{background:var(--bad)}
+.files{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.fine{font-size:.9rem;color:var(--muted);margin-top:18px}
+a{color:var(--primary)}
+</style>
+</head>
+<body>
+<main>
+<h1>Redeem a gift</h1>
+<p style="color:var(--muted)">Enter the code from your gift email. Each code can be used once.</p>
+
+<div id="purchased" class="msg ok" hidden>Thank you. Your gift is paid for. The code has been emailed to the recipient and to you.</div>
+
+<section class="card">
+<form id="redeem" novalidate>
+<label for="code">Gift code</label>
+<input id="code" name="code" autocomplete="off" spellcheck="false" placeholder="SNOW-2027-XXXX" class="code" required>
+<label for="email">Your email</label>
+<input id="email" name="email" type="email" autocomplete="email" maxlength="254" required>
+<p class="fine">We use your email only to record who redeemed the code.</p>
+<button type="submit" id="go">Redeem</button>
+</form>
+<div id="out" aria-live="polite"></div>
+</section>
+
+<p class="fine"><a href="/">Snow Seasons Tech</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
+</main>
+
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  if (params.get("purchased") === "1") document.getElementById("purchased").hidden = false;
+  if (params.get("code")) document.getElementById("code").value = params.get("code");
+
+  var form = document.getElementById("redeem");
+  var out = document.getElementById("out");
+  var go = document.getElementById("go");
+
+  function show(kind, text) {
+    out.textContent = "";
+    var box = document.createElement("div");
+    box.className = "msg " + kind;
+    box.textContent = text;
+    out.appendChild(box);
+    return box;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var code = document.getElementById("code").value.trim();
+    var email = document.getElementById("email").value.trim();
+    if (!code || !email) return show("bad", "Enter your gift code and your email.");
+    go.disabled = true;
+    fetch("/api/gift-redeem", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: code, email: email })
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (data) { return { ok: r.ok, data: data }; });
+    }).then(function (res) {
+      go.disabled = false;
+      if (!res.ok) return show("bad", res.data.error || "Could not redeem this code. Try again.");
+      var box = show("ok", "Gift redeemed: " + res.data.productName + ". Download your files below.");
+      var list = document.createElement("div");
+      list.className = "files";
+      res.data.files.forEach(function (f) {
+        var a = document.createElement("a");
+        a.className = "btn";
+        a.href = "/api/gift-download?code=" + encodeURIComponent(res.data.code) + "&product=" + encodeURIComponent(f.id);
+        a.textContent = "Download " + f.name;
+        list.appendChild(a);
+      });
+      box.appendChild(list);
+      var note = document.createElement("p");
+      note.className = "fine";
+      note.textContent = "Keep this page or your code. You can download again from the same link while the download limit lasts.";
+      box.appendChild(note);
+    }).catch(function () {
+      go.disabled = false;
+      show("bad", "Something went wrong. Check your connection and try again.");
+    });
+  });
+})();
+</script>
+</body>
+</html>

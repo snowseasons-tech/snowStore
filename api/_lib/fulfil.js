@@ -4,6 +4,7 @@ const store = require('./store');
 const mail = require('./mail');
 const { linkCheckout } = require('./lead-billing');
 const welcome = require('./welcome');
+const gift = require('./gift');
 
 const CHECKOUT_EVENTS = new Set(['checkout.session.completed', 'checkout.session.async_payment_succeeded']);
 const SUB_EVENTS = new Set(['customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted']);
@@ -56,6 +57,11 @@ async function processEvent(event, s, catalog, mailer) {
   const productId = session.metadata && session.metadata.product_id;
   const product = Object.prototype.hasOwnProperty.call(catalog, productId) ? catalog[productId] : null;
   if (!product) throw new Error(`unknown product ${productId}`);
+
+  // A gift: the buyer gets no order or download. The recipient gets the code (see gift.fulfilGiftSession).
+  if (session.metadata && session.metadata.gift === 'true') {
+    return gift.fulfilGiftSession(session, { db: s, mailer, catalog, env: process.env });
+  }
 
   const email = (session.customer_details && session.customer_details.email) || null;
   await s.setJSON(`order:${session.id}`, {

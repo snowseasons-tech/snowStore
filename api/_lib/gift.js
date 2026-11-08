@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const CATALOG = require('./catalog');
 const store = require('./store');
 const { downloadsFor } = require('./entitlements');
+const mail = require('./mail');
 
 // Codes use no 0/O, 1/I or L, so they are easy to read aloud.
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -45,20 +46,44 @@ const email = (value, field) => {
   return v;
 };
 
+// Checks the buyer's details for a gift. Returns them trimmed; throws GiftError if anything is wrong.
+function validateGiftInput(input = {}) {
+  const message = input.message == null ? '' : String(input.message).trim();
+  if (message.length > 500) throw new GiftError('Message must be 500 characters or fewer');
+  return {
+    buyerName: text(input.buyerName, 100, 'Your name'),
+    buyerEmail: input.buyerEmail == null ? '' : email(input.buyerEmail, 'Your email'),
+    recipientEmail: email(input.recipientEmail, 'Recipient email'),
+    message,
+  };
+}
+
+// Stripe checkout metadata for a gift. The webhook reads these back (see fulfilGiftSession).
+// The buyer's email comes from Stripe, so it isn't sent here.
+function giftMetadata(productId, input) {
+  const g = validateGiftInput({ ...input, buyerEmail: 'buyer@example.com' });
+  return {
+    product_id: productId,
+    gift: 'true',
+    gift_buyer_name: g.buyerName,
+    gift_recipient_email: g.recipientEmail,
+    gift_message: g.message,
+  };
+}
+
 // Creates an unused certificate for one catalog product. Returns the stored record.
 async function createGift(input, { now = Date.now(), db = store, catalog = CATALOG } = {}) {
   if (now >= EXPIRES_AT) throw new GiftError('Gift certificates are no longer available');
   const product = Object.prototype.hasOwnProperty.call(catalog, input.productId) ? catalog[input.productId] : null;
   if (!giftable(product)) throw new GiftError('This product cannot be given as a gift');
-  const message = input.message == null ? '' : String(input.message).trim();
-  if (message.length > 500) throw new GiftError('Message must be 500 characters or fewer');
+  const checked = validateGiftInput(input);
   const record = {
     productId: input.productId,
     productName: product.name,
-    buyerName: text(input.buyerName, 100, 'Your name'),
+    buyerName: checked.buyerName,
     buyerEmail: email(input.buyerEmail, 'Your email'),
-    recipientEmail: email(input.recipientEmail, 'Recipient email'),
-    message,
+    recipientEmail: checked.recipientEmail,
+    message: checked.message,
     createdAt: new Date(now).toISOString(),
     expiresAt: new Date(EXPIRES_AT).toISOString(),
     redeemedAt: null,
@@ -107,7 +132,74 @@ async function redeemGift(code, redeemerEmail, { now = Date.now(), db = store, c
   const updated = { ...gift, redeemedAt: new Date(now).toISOString(), redeemedBy: who };
   delete updated.code;
   await db.setJSON(`gift:${gift.code}`, updated);
+  // Lets the redeemed code fetch its files later (see functions/api/gift-download.js). Keyed by code, so no one else can use it.
+  await db.setJSON(`gift-access:${gift.code}`, { productId: gift.productId, redeemedAt: updated.redeemedAt });
   return { gift: updated, downloads: downloadsFor(gift.productId, catalog) };
+}
+
+// Called by the Stripe webhook for a paid gift session. Creates the certificate once per session, then emails
+// the recipient the code and the buyer a copy. Throws if mail isn't configured or fails, so Stripe retries.
+async function fulfilGiftSession(session, { db = store, mailer = mail, env = process.env, now = Date.now(), catalog = CATALOG } = {}) {
+  const meta = session.metadata || {};
+  const claimKey = `gift-session:${session.id}`;
+  let rec = await db.getJSON(claimKey);
+  if (!rec) {
+    const created = await createGift({
+      productId: meta.product_id,
+      buyerName: meta.gift_buyer_name,
+      buyerEmail: (session.customer_details && session.customer_details.email) || '',
+      recipientEmail: meta.gift_recipient_email,
+      message: meta.gift_message,
+    }, { now, db, catalog });
+    rec = { code: created.code, productName: created.productName, buyerEmail: created.buyerEmail, recipientEmail: created.recipientEmail };
+    // Two deliveries of one session can race. The first record stored wins; the loser's code is never sent.
+    if (!(await db.setJSONIfAbsent(claimKey, rec))) rec = await db.getJSON(claimKey);
+  }
+  const siteUrl = env.SITE_URL || 'https://snowseasonstech.store';
+  const redeemUrl = `${siteUrl}/gift.html?code=${rec.code}`;
+  const sends = [
+    {
+      part: 'recipient', to: rec.recipientEmail,
+      subject: `A gift for you: ${rec.productName}`,
+      text: [
+        `${meta.gift_buyer_name || 'Someone'} sent you a gift: ${rec.productName}.`,
+        ...(meta.gift_message ? ['', meta.gift_message] : []),
+        '',
+        `Your code: ${rec.code}`,
+        `Redeem it here: ${redeemUrl}`,
+        `Valid through ${new Date(EXPIRES_AT).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}. One use.`,
+        '',
+        'Snow Seasons Tech',
+      ].join('\n'),
+    },
+    {
+      part: 'buyer', to: rec.buyerEmail,
+      subject: `Your gift certificate for ${rec.productName}`,
+      text: [
+        `Thanks for your gift of ${rec.productName} to ${rec.recipientEmail}.`,
+        '',
+        `The code is ${rec.code}. We've also emailed it to them.`,
+        `They can redeem it at: ${redeemUrl}`,
+        '',
+        'Snow Seasons Tech',
+      ].join('\n'),
+    },
+  ];
+  for (const m of sends) {
+    if (!m.to) continue;
+    const key = `gift-mail:${session.id}:${m.part}`;
+    if ((await db.getJSON(key)) === 'done') continue;
+    if (!(await db.claim(key, 10 * 60))) continue;
+    try {
+      const result = await mailer.sendMail({ to: m.to, subject: m.subject, text: m.text }, env);
+      if (result !== 'sent') throw new Error(`gift mail not sent (${result})`);
+      await db.setJSON(key, 'done', 400 * 24 * 60 * 60);
+    } catch (e) {
+      await db.release(key).catch(() => {});
+      throw e;
+    }
+  }
+  return 'gift';
 }
 
 // A standalone, printable certificate page. All user text is escaped.
@@ -137,4 +229,7 @@ ${message}
 </main></body></html>`;
 }
 
-module.exports = { GiftError, EXPIRES_AT, ALPHABET, giftable, newCode, normalize, createGift, getGift, checkGift, redeemGift, renderCertificate };
+module.exports = {
+  GiftError, EXPIRES_AT, ALPHABET, giftable, newCode, normalize, validateGiftInput, giftMetadata,
+  createGift, getGift, checkGift, redeemGift, fulfilGiftSession, renderCertificate,
+};

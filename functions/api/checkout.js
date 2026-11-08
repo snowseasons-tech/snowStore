@@ -1,5 +1,6 @@
 import CATALOG from '../../api/_lib/catalog.js';
 import prices from '../../api/_lib/prices.js';
+import gift from '../../api/_lib/gift.js';
 import { stripeClient, launchDiscount } from '../_lib/stripe.js';
 import { send, methodNotAllowed } from '../_lib/http.js';
 
@@ -15,6 +16,15 @@ export async function onRequestPost({ request, env }) {
     // period: '1w', '3m', '6m' or '12m' picks another billing period; default '1m' is the monthly (or one-time) price.
     const period = body.period || '1m';
     if (!prices.PERIODS.includes(period)) return send(400, { error: 'Unknown billing period' });
+    // A gift: a one-time purchase of this product for someone else, who redeems a code (api/_lib/gift.js).
+    let giftMeta = null;
+    if (body.gift !== undefined) {
+      if (!gift.giftable(product) || product.kind === 'subscription' || period !== '1m') return send(400, { error: 'This product cannot be given as a gift' });
+      try { giftMeta = gift.giftMetadata(body.productId, body.gift); } catch (e) {
+        if (e instanceof gift.GiftError) return send(400, { error: e.message });
+        throw e;
+      }
+    }
     const site = env.SITE_URL;
     if (!site || !product.stripeProduct) return send(503, { error: 'Checkout not configured' });
 
@@ -26,12 +36,13 @@ export async function onRequestPost({ request, env }) {
     }
     const price = chosen.id;
     const isSub = !!chosen.recurring; // checkout mode follows the price itself
+    if (giftMeta && isSub) return send(400, { error: 'This product cannot be given as a gift' });
     const launch = await launchDiscount(stripe, env);
     const session = await stripe.checkout.sessions.create({
       mode: isSub ? 'subscription' : 'payment',
       line_items: [{ price, quantity: 1 }],
-      metadata: { product_id: body.productId, ...(period !== '1m' ? { period } : {}) },
-      success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
+      metadata: giftMeta || { product_id: body.productId, ...(period !== '1m' ? { period } : {}) },
+      success_url: giftMeta ? `${site}/gift.html?purchased=1` : `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/cancel`,
       ...(body.productId === 'founders-membership' ? {
         consent_collection: { terms_of_service: 'required' },

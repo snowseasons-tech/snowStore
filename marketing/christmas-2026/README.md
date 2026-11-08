@@ -21,7 +21,7 @@ This folder is the campaign workspace. It holds planning and draft copy only. No
 | 2. Homepage banner | Campaign announcement bar on `index.html`, behind a single config switch, no prices | Done, switched off (`CAMPAIGN.active`) |
 | 3. Interactive tools | "Find your fit" quiz and admin-time calculator on the homepage | Done |
 | 4. Offers & checkout | One-time bundles B and C in the catalog, hidden with no Stripe product | Code done. Stripe products still to create; Bundle A blocked (see `bundle-readiness.md`) |
-| 5. Gift certificates | Codes, single-use redemption, expiry and certificate page (`api/_lib/gift.js`) | Code done, not for sale. Purchase, email and redeem endpoint still to build (see `gift-certificates.md`) |
+| 5. Gift certificates | Gift checkout, paid webhook that creates and emails the code, redeem page and signed downloads | Built end to end, not on sale. Still needs a "Give as a gift" button on product pages (see `gift-certificates.md`) |
 | 6. Post-purchase emails | Welcome series: email 1 is the existing purchase email; emails 2 (+24h) and 3 (+72h) are scheduled at purchase and sent by a runner | Built. Not sending until the runner is scheduled and `WELCOME_RUN_SECRET` is set (see `welcome-series.md`) |
 
 ## Stage 4: to finish before the bundles go on sale
