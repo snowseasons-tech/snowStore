@@ -80,9 +80,27 @@ header .logo { display:inline-flex; align-items:center; gap:.65rem; font-weight:
 header .logo img { flex:none; }
 #hero { background:linear-gradient(110deg,var(--sst-navy) 24%,var(--sst-deep-blue)); color:#f7fcff; }
 #hero::before { opacity:.22; }
-#hero h1 { color:inherit; text-shadow:none; letter-spacing:-.055em; }
-#hero p { color:#d0e2f1; }
+#hero { background:linear-gradient(110deg,#101B33 24%,#182747); }
+#hero .hero-title,
+#hero .hero-subtitle,
+#hero .hero-cta { animation:holiday-lights 2.4s steps(1,end) infinite; }
+#hero .hero-title { color:#edf4ff; text-shadow:none; letter-spacing:-.055em; }
+#hero .hero-subtitle { color:#e1e8f2; animation-duration:3.1s; animation-delay:.35s; }
+#hero .hero-cta { background:transparent; color:#FF4D5A; border:1px solid currentColor; animation-duration:1.9s; animation-delay:.7s; }
+#hero .hero-cta:hover { background:rgba(255,255,255,.08); color:inherit; }
+@keyframes holiday-lights {
+  0%,100% { color:#FF4D5A; }
+  33% { color:#56D68D; }
+  66% { color:#FFD166; }
+}
+@media(prefers-reduced-motion:reduce) {
+  #hero .hero-title,
+  #hero .hero-subtitle,
+  #hero .hero-cta { animation:none; color:#FF4D5A; }
+}
 #hero .btn { background:var(--sst-frost); color:var(--sst-navy); }
+#hero .btn.hero-cta { background:transparent; color:#FF4D5A; border:1px solid currentColor; }
+#hero .btn.hero-cta:hover { background:rgba(255,255,255,.08); }
 #hero .btn.alt { background:transparent; color:var(--sst-frost); border-color:var(--sst-ice); }
 .card { border-radius:var(--sst-radius); }
 :where(a,button,input,summary):focus-visible { outline:3px solid var(--sst-focus); outline-offset:3px; }
@@ -96,9 +114,9 @@ header .logo img { flex:none; }
 </nav></header>
 <main>
 <section id="hero"><div class="container">
-<h1>Technology &amp; Marketing Services</h1>
-<p>API integrations, website and social media management, managed databases and business intelligence, handled for you.</p>
-<a class="btn" href="#products">Browse services</a></div></section>
+<h1 class="hero-title">Technology &amp; Marketing Services</h1>
+<p class="hero-subtitle">API integrations, website and social media management, managed databases and business intelligence, handled for you.</p>
+<a class="btn hero-cta" href="#products">Browse services</a></div></section>
 
 <section id="products"><div class="container">
 <h2>Services</h2><p class="sub">One-time integration projects and monthly managed plans.</p>
