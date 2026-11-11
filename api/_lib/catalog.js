@@ -10,6 +10,8 @@
 // draft: true = a bundle not on sale yet. A Stripe product may be linked while a bundle remains hidden from /api/products and checkout.
 // proposedMonthly = a draft's price in cents, used only by scripts/create-bundles.js. pending = software a bundle promises
 // that customers can't use yet; a bundle with pending parts can't be created in Stripe.
+// avatarCredits (optional) = a paid order for this product can make this many avatars at /avatar (see functions/api/avatar.js).
+// pendingStripe: true = finished product with no Stripe product yet; it must also be hidden, so nothing is sold until stripeProduct is set.
 // socialAccounts (optional) = this plan gets a hosted Social Studio server with this account limit (see hosted/README.md).
 module.exports = {
   'local-seo-platform': {
@@ -257,5 +259,8 @@ module.exports = {
   'mailhub-intelligence': { name: 'MailHub Marketing Intelligence', kind: 'subscription', stripeProduct: 'prod_VWZoFAvBr0LCEz' },
   'inspections-intelligence': { name: 'dotTracker', kind: 'subscription', stripeProduct: 'prod_VWZrK0O24fEuqG' },
   'snowsocial': { name: 'SnowSocial — Social Content Planner', kind: 'subscription', stripeProduct: 'prod_VYnykaB2h3hxqb', blurb: 'Keep your brand active with up to 12 social posts per month, adapted captions and simple branded graphics. Review and approve content before scheduled publishing to up to five connected profiles, with monthly performance reporting.' },
+  // Photo Avatar Pack: code is live at /avatar, but the product stays hidden until its Stripe product exists. To start selling:
+  // create a one-time price in Stripe, set stripeProduct below, then delete the hidden and pendingStripe fields.
+  'photo-avatar-pack': { name: 'Photo Avatar Pack', hidden: true, pendingStripe: true, avatarCredits: 10, category: 'utilities', blurb: 'Turn your photos into cartoon or anime-style avatars and portraits: 10 AI-generated avatars to download, in your choice of six styles.' },
   'managed-package': { name: 'Managed Technology & Marketing Package', kind: 'subscription', stripeProduct: 'prod_VWazGQhLiTNtSu' },
 };

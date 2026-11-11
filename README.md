@@ -37,6 +37,7 @@ Storefront for [Snow Seasons Technologies](https://snowseasonstech.store): a sta
 | `/api/login`, `/api/logout`, `/api/me` | POST / POST / GET | Customer portal sign-in (JSON only, `HttpOnly; SameSite=Strict` cookie) |
 | `/api/password-reset`, `/api/password-set` | POST / POST | Forgotten password: emails a 1-hour set-password link; redeeming it saves the password and signs in |
 | `/api/app-download` | GET | `?product=` signed download for a signed-in, entitled account |
+| `/api/avatar` | GET / POST | Photo Avatar Pack. GET `?session_id=` returns styles and credits left; POST (multipart `session_id`, `style`, `photo`) returns `{ image, remaining }` for a paid order. Photo is never stored; a failed run gives its credit back |
 | `/api/kit` | POST | `{ email }` records the subscriber and returns a signed download URL for the free Landing Page Kit |
 
 ## Setup
@@ -64,6 +65,7 @@ Set these in Cloudflare Pages (Settings → Variables and Secrets; use test-mode
 | `LAUNCH_COUPON` | Optional: ID of a Stripe coupon with `percent_off` (e.g. 30). While valid, every product shows list price struck through with the discounted price, and Checkout applies the coupon (promo-code entry is hidden meanwhile, since Stripe can't combine them). Unset it or let the coupon expire to end the sale |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Order, session and rate-limit store. Required in production |
 | `S3_ENDPOINT`, `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Private bucket for deliverables (S3 or Cloudflare R2; region defaults to `auto`) |
+| `OPENAI_API_KEY` | Photo Avatar Pack image edits. Without it `/api/avatar` answers 503. Optional: `AVATAR_MODEL` (default `gpt-image-1`), `AVATAR_INPUT_FIDELITY` (e.g. `high`, passed through if set) |
 | `RESEND_API_KEY`, `MAIL_FROM` | Order and billing portal emails. Without them, emails are skipped and the billing portal link can't be sent |
 
 ### Stripe
@@ -72,6 +74,12 @@ Set these in Cloudflare Pages (Settings → Variables and Secrets; use test-mode
   `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `customer.subscription.updated`, `customer.subscription.deleted`.
 - Configure the customer (billing) portal in the Stripe dashboard before offering subscriptions.
 - Do everything in test mode first.
+
+## Photo Avatar Pack
+
+`/avatar?session_id=cs_...` lets a buyer turn a photo into a cartoon or anime-style avatar (`functions/api/avatar.js`, styles and prompts in `api/_lib/avatar.js`). Only a paid order for a catalog product with `avatarCredits` can use it; each run spends one credit and a failed run gives it back. Prompts come from the server-side style table, never from the browser.
+
+The catalog entry `photo-avatar-pack` ships hidden (`hidden` + `pendingStripe`), so nothing is sold yet. To launch: create a one-time price for a Stripe product, set `stripeProduct` on the entry, delete `hidden` and `pendingStripe`, add `OPENAI_API_KEY` as a Secret in Cloudflare Pages, and try a test-mode purchase end to end. The OpenAI call has been tested only against a stub; check one real avatar (and `AVATAR_INPUT_FIDELITY`) before charging for it.
 
 ## Adding a product
 

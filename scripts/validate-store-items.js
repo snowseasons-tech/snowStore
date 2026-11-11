@@ -34,8 +34,14 @@ function validateCatalog(catalog) {
       fail('stripeProduct', `duplicates ${product.stripeProduct}`);
     } else if (product.stripeProduct !== undefined) {
       stripeProducts.add(product.stripeProduct);
-    } else if (!product.retired && !product.draft) {
-      fail('stripeProduct', 'is required unless the product is retired or a draft');
+    } else if (!product.retired && !product.draft && !product.pendingStripe) {
+      fail('stripeProduct', 'is required unless the product is retired, a draft or pendingStripe');
+    }
+    if (product.pendingStripe !== undefined && (product.pendingStripe !== true || product.hidden !== true || product.stripeProduct !== undefined)) {
+      fail('pendingStripe', 'must be true, with hidden: true and no stripeProduct yet');
+    }
+    if (product.avatarCredits !== undefined && (!Number.isInteger(product.avatarCredits) || product.avatarCredits <= 0)) {
+      fail('avatarCredits', 'must be a positive whole number');
     }
 
     if (product.kind !== undefined && !KINDS.has(product.kind)) {
