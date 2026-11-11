@@ -183,11 +183,20 @@ def main():
     ap.add_argument("--days", type=int, default=7, help="ignore prices older than this")
     ap.add_argument("--host", help="only use hosts whose key matches this regex, e.g. t640 (tower) or 'r7|dl380'")
     ap.add_argument("--bom", type=Path, help="export the shown builds as a bill of materials (.csv or .md)")
+    ap.add_argument("--mariadb", action="store_true", help="read prices from MariaDB (hardware.prices) instead of SQLite")
     ap.add_argument("--db", type=Path, default=HERE / "output" / "history.db")
     a = ap.parse_args()
-    if not a.db.exists():
-        sys.exit("No history.db yet: run scraper.py first.")
-    rows = latest_rows(a.db, a.days)
+    if a.mariadb:
+        import mariadb_store, scraper
+        scraper.load_env()
+        cutoff = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() - a.days * 86400))
+        conn = mariadb_store.connect()
+        rows = mariadb_store.latest_rows(conn, cutoff)
+        conn.close()
+    else:
+        if not a.db.exists():
+            sys.exit("No history.db yet: run scraper.py first.")
+        rows = latest_rows(a.db, a.days)
     if not rows:
         sys.exit(f"No prices from the last {a.days} days: run scraper.py first.")
     plans = []

@@ -160,3 +160,12 @@ def test_part_words_filtered(monkeypatch):
     r = scraper.scrape([{"name": "S", "type": "api", "api": "shopify", "domain": "d"}],
                        [{"q": "Lenovo ThinkSystem SR630", "category": "server"}], Fake())
     assert [x.price for x in r] == [394.99]
+
+
+def test_mariadb_failure_never_raises(monkeypatch, capsys):
+    import mariadb_store
+    def boom(): raise RuntimeError("server down")
+    monkeypatch.setattr(mariadb_store, "connect", boom)
+    li = scraper.Listing("S", "q", "gpu", "t", 1.0, "u")
+    scraper.mirror_to_mariadb([li], "2026-01-01 00:00:00")      # must not raise
+    assert "MariaDB mirror skipped" in capsys.readouterr().err

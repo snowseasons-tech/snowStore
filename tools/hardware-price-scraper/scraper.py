@@ -325,6 +325,22 @@ def save(results, out: Path):
     db.executemany(f"INSERT INTO prices({cols}) VALUES ({marks})",
                    [(stamp, *(asdict(r)[k] for k in fields)) for r in results])
     db.commit()
+    return stamp
+
+
+def mirror_to_mariadb(results, stamp: str):
+    """Best-effort copy into MariaDB; any failure is reported but never loses the SQLite data."""
+    try:
+        import mariadb_store
+        conn = mariadb_store.connect()
+        try:
+            mariadb_store.ensure_schema(conn)
+            n = mariadb_store.insert(conn, stamp, [asdict(r) for r in results])
+        finally:
+            conn.close()
+        print(f"MariaDB: inserted {n} rows into hardware.prices")
+    except Exception as e:  # missing driver, server down, auth: keep going
+        print(f"! MariaDB mirror skipped ({type(e).__name__}: {e}); data is safe in SQLite", file=sys.stderr)
 
 
 def report(results, top=5):
@@ -353,6 +369,7 @@ def main():
     ap.add_argument("--delay", type=float, default=3.0, help="seconds between requests per host")
     ap.add_argument("--top", type=int, default=5)
     ap.add_argument("--no-cache", action="store_true")
+    ap.add_argument("--no-mariadb", action="store_true", help="skip the MariaDB mirror (SQLite only)")
     ap.add_argument("--out", type=Path, default=HERE / "output")
     a = ap.parse_args()
     load_env()
@@ -367,7 +384,9 @@ def main():
     if not results:
         print("\nNo listings found. Selectors may be stale or sites blocked the request; see README.")
         return 1
-    save(results, a.out)
+    stamp = save(results, a.out)
+    if not a.no_mariadb:
+        mirror_to_mariadb(results, stamp)
     report(results, a.top)
     print(f"\nSaved {len(results)} rows to {a.out}/latest.csv and history.db")
     return 0

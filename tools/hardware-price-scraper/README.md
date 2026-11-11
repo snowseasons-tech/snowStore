@@ -4,7 +4,7 @@ Finds the cheapest prices for server and LLM-capable hardware (GPUs, GPU servers
 GPUs are ranked by **$ per GB of VRAM**, the number that decides what models you can run.
 
 ```bash
-python3 -m pip install -r requirements.txt
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # then use .venv/bin/python (or activate it)
 python3 scraper.py                                   # everything in queries.json
 python3 scraper.py -q "RTX 4090 24GB" --site Newegg  # ad hoc
 python3 scraper.py -q "R740" --category server --delay 5
@@ -37,7 +37,7 @@ A source without its key is skipped with a notice. eBay carries most used server
 - Results mix new, used and refurbished listings; the condition is shown where the API provides it.
 
 ## Scheduled runs
-`systemd/` holds a user timer that runs the scraper daily at ~07:15 (`Persistent=true`, so a missed run catches up after sleep). Paths in the service file are absolute; edit them if the repo moves.
+`systemd/` holds a user timer (it runs `.venv/bin/python`, so create the venv first) that runs the scraper daily at ~07:15 (`Persistent=true`, so a missed run catches up after sleep). Paths in the service file are absolute; edit them if the repo moves.
 ```bash
 cp systemd/hardware-price-scraper.* ~/.config/systemd/user/
 systemctl --user daemon-reload && systemctl --user enable --now hardware-price-scraper.timer
@@ -45,6 +45,16 @@ systemctl --user list-timers hardware-price-scraper.timer   # next run
 journalctl --user -u hardware-price-scraper.service         # last run's output
 ```
 Query history: `sqlite3 output/history.db "select ts, price, title from prices where title like '%L40S%' order by ts"`.
+
+## MariaDB mirror
+Every run writes to both SQLite (`output/history.db`) and MariaDB (`hardware.prices`). If MariaDB is down or the driver is missing, the scraper prints a warning and keeps the SQLite data; skip the mirror with `--no-mariadb`.
+Connection defaults to your OS user over the unix socket with no password; override with `MARIADB_USER`, `MARIADB_PASSWORD`, `MARIADB_DATABASE`, `MARIADB_SOCKET` or `MARIADB_HOST`/`MARIADB_PORT` (env or `.env`). One-time setup (admin rights needed):
+```bash
+sudo mariadb -e "CREATE DATABASE IF NOT EXISTS hardware CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; GRANT ALL PRIVILEGES ON hardware.* TO 'youruser'@'localhost';"
+.venv/bin/python mariadb_store.py --import-sqlite output/history.db   # copy existing history (safe to repeat)
+.venv/bin/python builder.py --mariadb                                  # plan builds from MariaDB
+```
+`condition` is stored as `item_condition` (reserved word). Latest price per product: `SELECT p.* FROM prices p JOIN (SELECT url, MAX(ts) ts FROM prices GROUP BY url) m ON p.url=m.url AND p.ts=m.ts;`
 
 ## Build planner
 `builder.py` turns the latest prices in `history.db` into complete LLM machines for several VRAM targets (24 / 48 / 96 / 128 GB): GPUs + a host that can hold them + ECC RAM + NVMe, plus turnkey options (8-GPU servers, unified-memory mini PCs).

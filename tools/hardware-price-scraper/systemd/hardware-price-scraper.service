@@ -4,5 +4,5 @@ Description=Hardware price scraper (server / LLM hardware)
 [Service]
 Type=oneshot
 WorkingDirectory=/home/uselesse/Documents/snowStore/tools/hardware-price-scraper
-ExecStart=/usr/bin/python3 /home/uselesse/Documents/snowStore/tools/hardware-price-scraper/scraper.py --delay 4 --top 3
+ExecStart=/home/uselesse/Documents/snowStore/tools/hardware-price-scraper/.venv/bin/python /home/uselesse/Documents/snowStore/tools/hardware-price-scraper/scraper.py --delay 4 --top 3
 TimeoutStartSec=30min
