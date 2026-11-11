@@ -111,6 +111,10 @@ def build_options(rows, target_vram: int, top: int = 3, only_host: str | None = 
              item("nvme", nvme)],
             [host["note"]] + (["passive card: needs server airflow"] if "passive" in g["title"].lower() or "tesla" in g["title"].lower() else []))
 
+    if only_host:  # a host filter means 'build me one on this host', so skip turnkey systems
+        options.sort(key=lambda o: o["total"])
+        return options[:top]
+
     # 2) Turnkey: servers that ship with 8 GPUs (title says "8x Quadro P5000" = 8 x 16GB)
     for r in rows:
         if r["category"] == "server" and re.search(r"8x quadro p5000", r["title"], re.I) and target_vram <= 128:

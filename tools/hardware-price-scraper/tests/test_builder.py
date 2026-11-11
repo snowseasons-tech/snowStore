@@ -87,4 +87,4 @@ def test_host_filter():
             row("ram", "32GB DDR4 RDIMM ECC", 209, ram_gb=32), row("storage", "3.84TB NVMe", 689)]
     assert builder.build_options(rows, 32)[0]["items"][0]["unit_price"] == 300
     assert builder.build_options(rows, 32, only_host="t640")[0]["items"][0]["unit_price"] == 2544
-    assert builder.build_options(rows, 32, only_host="dl380") == []
+    assert builder.build_options(rows + [row("minipc", "Beelink", 100, ram_gb=128)], 32, only_host="dl380") == []  # no turnkey with a host filter
