@@ -45,3 +45,12 @@ systemctl --user list-timers hardware-price-scraper.timer   # next run
 journalctl --user -u hardware-price-scraper.service         # last run's output
 ```
 Query history: `sqlite3 output/history.db "select ts, price, title from prices where title like '%L40S%' order by ts"`.
+
+## Build planner
+`builder.py` turns the latest prices in `history.db` into complete LLM machines for several VRAM targets (24 / 48 / 96 / 128 GB): GPUs + a host that can hold them + ECC RAM + NVMe, plus turnkey options (8-GPU servers, unified-memory mini PCs).
+```bash
+python scraper.py                      # refresh prices first
+python builder.py                      # default targets
+python builder.py --targets 48 --budget 4000 --top 5
+```
+Compatibility is a coarse heuristic: the `HOSTS` table in `builder.py` lists how many double-width GPUs each known server takes (R740 and DL380 Gen10: 3). Host prices are often a base chassis (CPUs, PSUs and risers may be extra), SXM modules are excluded (they need a baseboard), and prices older than `--days` (7) are ignored. Treat the output as a shortlist and confirm risers, power and cooling with the seller.
