@@ -42,3 +42,49 @@ def test_minipc_unified_memory():
 def test_missing_parts_yield_nothing():
     assert builder.build_options([r for r in ROWS if r["category"] != "ram"], 24) == [
         x for x in builder.build_options([r for r in ROWS if r["category"] != "ram"], 24) if x["kind"] != "assembled"]
+
+
+def test_new_hosts_and_xd_exclusion():
+    rows = [row("gpu", "NVIDIA Tesla V100 32GB PCIe", 919, vram_gb=32),
+            row("server", "Dell PowerEdge R730xd 24x2.5 Server", 300),
+            row("server", "Dell PER730-2.5-12HDD Poweredge R730 8x2.5 CTO server", 520),
+            row("server", "Dell PowerEdge T640", 2544),
+            row("ram", "32GB DDR4 RDIMM ECC", 209, ram_gb=32),
+            row("storage", "3.84TB NVMe", 689)]
+    two = builder.build_options(rows, 64, top=5)[0]                    # 2 GPUs: R730 ok, xd must be ignored
+    assert two["items"][0]["unit_price"] == 520
+    four = builder.build_options(rows, 128, top=5)[0]                  # 4 GPUs: only the T640 tower fits
+    assert four["items"][0]["unit_price"] == 2544 and four["items"][1]["qty"] == 4
+
+def test_bom_export(tmp_path):
+    plans = [(48, builder.build_options(ROWS, 48, top=2))]
+    csv_path, md_path = tmp_path / "b.csv", tmp_path / "b.md"
+    builder.write_bom(csv_path, plans); builder.write_bom(md_path, plans)
+    import csv
+    rows = list(csv.DictReader(open(csv_path)))
+    first = [r for r in rows if r["build"] == "48GB-#1"]
+    assert [r["role"] for r in first] == ["host", "gpu", "ram", "nvme", "TOTAL"]
+    parts_sum = sum(float(r["line_total"]) for r in first if r["role"] != "TOTAL")
+    assert parts_sum == float(first[-1]["line_total"]) == plans[0][1][0]["total"]
+    assert float(first[1]["unit_price"]) * int(first[1]["qty"]) == float(first[1]["line_total"])
+    md = md_path.read_text()
+    assert "## 48GB-#1" in md and "**Total**" in md
+
+
+def test_parts_are_never_hosts():
+    rows = [row("gpu", "NVIDIA Tesla V100 32GB PCIe", 919, vram_gb=32),
+            row("server", "Dell 0Y26KX PowerEdge R730 1100W Power Supply", 24.99),
+            row("server", "Dell PowerEdge R740 GPU Riser 2", 120),
+            row("ram", "32GB DDR4 RDIMM ECC", 209, ram_gb=32),
+            row("storage", "3.84TB NVMe", 689)]
+    assert builder.build_options(rows, 32) == []                      # no real chassis -> no build
+
+
+def test_host_filter():
+    rows = [row("gpu", "NVIDIA Tesla V100 32GB PCIe", 919, vram_gb=32),
+            row("server", "Dell PER730-2.5-8HDD PowerEdge R730 8x2.5 Server", 300),
+            row("server", "Dell PowerEdge T640", 2544),
+            row("ram", "32GB DDR4 RDIMM ECC", 209, ram_gb=32), row("storage", "3.84TB NVMe", 689)]
+    assert builder.build_options(rows, 32)[0]["items"][0]["unit_price"] == 300
+    assert builder.build_options(rows, 32, only_host="t640")[0]["items"][0]["unit_price"] == 2544
+    assert builder.build_options(rows, 32, only_host="dl380") == []

@@ -83,6 +83,18 @@
     {
       "q": "Lenovo ThinkSystem SR630",
       "category": "server"
+    },
+    {
+      "q": "Dell PowerEdge T640",
+      "category": "server"
+    },
+    {
+      "q": "Dell PowerEdge T630",
+      "category": "server"
+    },
+    {
+      "q": "Dell PowerEdge R730",
+      "category": "server"
     }
   ]
 }
