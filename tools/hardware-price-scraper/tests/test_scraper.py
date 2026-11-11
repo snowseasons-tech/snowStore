@@ -146,3 +146,17 @@ def test_variants_stop_after_429(monkeypatch):
     st = a.ShopifyStore(S(), "x.com")
     assert st.variants("https://x.com/products/a") == [] and st.variants("https://x.com/products/b") == []
     assert len(calls) == 1
+
+def test_part_words_filtered(monkeypatch):
+    import api_sources as a
+    class Fake:
+        s, delay, last = None, 0, {}
+    class FakeStore:
+        def __init__(self, s, d): pass
+        def search(self, q): return [("Lenovo SR630 THINKSYSTEM SERVER", 394.99, "u", None, ""),
+                                     ("Lenovo 01KP697 FAN FOR THINKSYSTEM SR630", 44.95, "v", None, ""),
+                                     ("Lenovo 01GV283 ThinkSystem SR650 Backplane", 50.0, "w", None, "")]
+    monkeypatch.setitem(a.API_CLASSES, "shopify", FakeStore)
+    r = scraper.scrape([{"name": "S", "type": "api", "api": "shopify", "domain": "d"}],
+                       [{"q": "Lenovo ThinkSystem SR630", "category": "server"}], Fake())
+    assert [x.price for x in r] == [394.99]

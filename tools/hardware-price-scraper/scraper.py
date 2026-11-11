@@ -279,7 +279,7 @@ def scrape(sites, queries, fetcher, max_per=15, min_price=20.0):
             for title, price, link, cond, *rest in candidates(site, q, fetcher, apis):
                 if price < min_price or not relevant(title, q["q"]):
                     continue
-                if re.search(r"\b(for parts|not working|box only|case only|water ?block|bracket|cooler|upgrade kit|replacement|docking|adapter)\b", title, re.I):
+                if re.search(r"\b(for parts|not working|box only|case only|water ?block|bracket|cooler|upgrade kit|replacement|docking|adapter|fans?|backplane|heatsink|motherboard|planar)\b", title, re.I):
                     continue
                 text = rest[0] if rest else ""
                 entries = [(title, price, extract_specs(title, q["category"], text))]

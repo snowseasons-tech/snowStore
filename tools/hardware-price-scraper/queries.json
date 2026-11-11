@@ -75,6 +75,14 @@
     {
       "q": "GMKtec EVO",
       "category": "minipc"
+    },
+    {
+      "q": "HPE ProLiant DL380",
+      "category": "server"
+    },
+    {
+      "q": "Lenovo ThinkSystem SR630",
+      "category": "server"
     }
   ]
 }
