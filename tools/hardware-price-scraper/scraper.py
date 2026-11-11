@@ -46,6 +46,7 @@ class Listing:
     ram_gb: int | None = None
     usd_per_gb_vram: float | None = None
     condition: str | None = None
+    usd_per_gb_ram: float | None = None
 
 
 def parse_price(text: str) -> float | None:
@@ -54,7 +55,10 @@ def parse_price(text: str) -> float | None:
     return float(m.group(1).replace(",", "")) if m else None
 
 
-def extract_specs(title: str, category: str) -> dict:
+RAM_SIZES = {8, 16, 24, 32, 48, 64, 96, 128, 192, 256, 512}
+
+
+def extract_specs(title: str, category: str, text: str = "") -> dict:
     t = title.upper()
     out = {}
     gb = [int(x) for x in re.findall(r"(\d{1,3})\s*GB", t)]
@@ -62,7 +66,22 @@ def extract_specs(title: str, category: str) -> dict:
         out["vram_gb"] = max(gb)
     elif category in ("server", "ram") and gb:
         out["ram_gb"] = max(gb)
+    elif category == "minipc":
+        # Mini PC titles rarely state RAM; the description does ("128GB LPDDR5X").
+        src = f"{title} {text}".upper()
+        sizes = [int(x) for x in re.findall(r"(\d{1,3})\s*GB\s*(?:OF\s+)?(?:LPDDR\w*|DDR\w*|RAM|UNIFIED|MEMORY)", src)]
+        sizes = [x for x in sizes if x in RAM_SIZES]
+        if sizes:
+            out["ram_gb"] = max(sizes)
     return out
+
+
+def variant_ram(vtitle: str) -> int | None:
+    """RAM from a variant title like '64GB+1TB' or '32GB / 512GB' (RAM is listed first)."""
+    for x in re.findall(r"(\d{1,3})\s*GB", vtitle.upper()):
+        if int(x) in RAM_SIZES:
+            return int(x)
+    return None
 
 
 def relevant(title: str, query: str) -> bool:
@@ -252,19 +271,35 @@ def scrape(sites, queries, fetcher, max_per=15, min_price=20.0):
         for site in sites:
             if site.get("enabled", True) is False:
                 continue
+            cats = site.get("categories")
+            if (cats and q["category"] not in cats) or (not cats and q["category"] == "minipc"):
+                continue
             print(f"[{site['name']}] {q['q']}")
             n = 0
-            for title, price, link, cond in candidates(site, q, fetcher, apis):
+            for title, price, link, cond, *rest in candidates(site, q, fetcher, apis):
                 if price < min_price or not relevant(title, q["q"]):
                     continue
-                if re.search(r"\b(for parts|not working|box only|case only|water ?block|bracket|cooler)\b", title, re.I):
+                if re.search(r"\b(for parts|not working|box only|case only|water ?block|bracket|cooler|upgrade kit|replacement|docking|adapter)\b", title, re.I):
                     continue
-                specs = extract_specs(title, q["category"])
-                li = Listing(site["name"], q["q"], q["category"], title[:140], price, link, condition=cond, **specs)
-                if li.vram_gb:
-                    li.usd_per_gb_vram = round(price / li.vram_gb, 2)
-                results.append(li)
-                n += 1
+                text = rest[0] if rest else ""
+                entries = [(title, price, extract_specs(title, q["category"], text))]
+                if q["category"] == "minipc" and site.get("api") == "shopify":
+                    # Listing price is only the base variant: expand to every in-stock variant.
+                    time.sleep(fetcher.delay)
+                    vs = [(vt, vp) for vt, vp, ok in apis[site["name"]].variants(link) if ok and vp >= min_price]
+                    if vs:
+                        entries = [(f"{title} [{vt}]" if vt and vt != "Default Title" else title, vp,
+                                    {"ram_gb": variant_ram(vt) or extract_specs(title, "minipc", text).get("ram_gb")})
+                                   for vt, vp in vs]
+                for t, p, specs in entries:
+                    specs = {k: v for k, v in specs.items() if v}
+                    li = Listing(site["name"], q["q"], q["category"], t[:140], p, link, condition=cond, **specs)
+                    if li.vram_gb:
+                        li.usd_per_gb_vram = round(p / li.vram_gb, 2)
+                    if q["category"] == "minipc" and li.ram_gb:
+                        li.usd_per_gb_ram = round(p / li.ram_gb, 2)
+                    results.append(li)
+                    n += 1
                 if n >= max_per:
                     break
             print(f"  {n} matching listings")
@@ -274,26 +309,39 @@ def scrape(sites, queries, fetcher, max_per=15, min_price=20.0):
 def save(results, out: Path):
     out.mkdir(exist_ok=True)
     stamp = time.strftime("%Y-%m-%d %H:%M:%S")
+    fields = list(Listing.__dataclass_fields__)
     with open(out / "latest.csv", "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(Listing.__dataclass_fields__))
+        w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
         w.writerows(asdict(r) for r in results)
     db = sqlite3.connect(out / "history.db")
     db.execute("""CREATE TABLE IF NOT EXISTS prices(ts TEXT, site TEXT, query TEXT, category TEXT,
                   title TEXT, price REAL, url TEXT, vram_gb INT, ram_gb INT, usd_per_gb_vram REAL, condition TEXT)""")
-    db.executemany("INSERT INTO prices VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                   [(stamp, *asdict(r).values()) for r in results])
+    have = {r[1] for r in db.execute("PRAGMA table_info(prices)")}
+    if "usd_per_gb_ram" not in have:  # migrate history created before mini PC support
+        db.execute("ALTER TABLE prices ADD COLUMN usd_per_gb_ram REAL")
+    cols = ", ".join(["ts"] + fields)
+    marks = ", ".join("?" * (len(fields) + 1))
+    db.executemany(f"INSERT INTO prices({cols}) VALUES ({marks})",
+                   [(stamp, *(asdict(r)[k] for k in fields)) for r in results])
     db.commit()
 
 
 def report(results, top=5):
     for q in dict.fromkeys(r.query for r in results):
         rows = [r for r in results if r.query == q]
-        key = (lambda r: r.usd_per_gb_vram) if rows[0].category == "gpu" and all(r.usd_per_gb_vram for r in rows) else (lambda r: r.price)
-        rows.sort(key=key)
+        metric = next((m for m in ("usd_per_gb_vram", "usd_per_gb_ram")
+                       if all(getattr(r, m) for r in rows)), None)
+        rows.sort(key=lambda r: getattr(r, metric) if metric else r.price)
         print(f"\n== {q} ({len(rows)} listings) ==")
         for r in rows[:top]:
-            extra = (f"  ${r.usd_per_gb_vram}/GB VRAM" if r.usd_per_gb_vram else "") + (f"  [{r.condition}]" if r.condition else "")
+            extra = ""
+            if r.usd_per_gb_vram:
+                extra += f"  ${r.usd_per_gb_vram}/GB VRAM"
+            if r.usd_per_gb_ram:
+                extra += f"  {r.ram_gb}GB RAM, ${r.usd_per_gb_ram}/GB"
+            if r.condition:
+                extra += f"  [{r.condition}]"
             print(f"  ${r.price:>9,.2f}  {r.site:<18} {r.title[:60]}{extra}\n             {r.url}")
 
 

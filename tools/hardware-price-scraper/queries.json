@@ -59,6 +59,22 @@
     {
       "q": "NVMe SSD 3.84TB enterprise",
       "category": "storage"
+    },
+    {
+      "q": "Beelink GTR",
+      "category": "minipc"
+    },
+    {
+      "q": "Ryzen AI Max 395",
+      "category": "minipc"
+    },
+    {
+      "q": "MS-S1 MAX",
+      "category": "minipc"
+    },
+    {
+      "q": "GMKtec EVO",
+      "category": "minipc"
     }
   ]
 }

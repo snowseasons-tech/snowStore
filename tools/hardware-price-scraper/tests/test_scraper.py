@@ -58,7 +58,7 @@ def test_shopify_parser_and_disabled_sources():
     j = {"resources": {"results": {"products": [
         {"title": "64GB DDR4 RDIMM", "price": "359.00", "url": "/products/x?_pos=1", "available": True},
         {"title": "sold out", "price": "10", "url": "/products/y", "available": False}]}}}
-    assert a.parse_shopify(j, "https://s.com") == [("64GB DDR4 RDIMM", 359.0, "https://s.com/products/x", None)]
+    assert a.parse_shopify(j, "https://s.com") == [("64GB DDR4 RDIMM", 359.0, "https://s.com/products/x", None, "")]
     assert scraper.scrape([{"name": "eBay", "type": "api", "api": "ebay", "enabled": False}],
                           [{"q": "x", "category": "gpu"}], None) == []
 
@@ -88,3 +88,61 @@ def test_relevance_tightened():
     assert r("Samsung PM9A3 3.84TB NVMe SSD U.2", "NVMe SSD 3.84TB enterprise")
     assert r("Dell PowerEdge R740XD 24x2.5\" Server", "Dell PowerEdge R740 server")
     assert not r("RTX 3090 124GB", "RTX 3090 24GB")
+
+def test_minipc_specs():
+    body = "Packed with 128GB LPDDR5X-8000 RAM and dual M.2 slots up to 16TB, 2TB SSD, 512GB cache"
+    assert scraper.extract_specs("Beelink GTR9 Pro", "minipc", body) == {"ram_gb": 128}
+    assert scraper.extract_specs("Mini PC 32GB DDR5 512GB SSD", "minipc") == {"ram_gb": 32}
+    assert scraper.extract_specs("Mini PC", "minipc") == {}
+
+def test_minipc_routing(monkeypatch):
+    import api_sources as a
+    class Fake:
+        s, delay, last = None, 0, {}
+    class FakeStore:
+        def __init__(self, s, d): pass
+        def search(self, q): return [("Beelink GTR9 Pro Ryzen AI Max+ 395", 4199.0, "u", None, "128GB LPDDR5X"),
+                                     ("Beelink SSD Upgrade Kit GTR", 189.0, "v", None, "")]
+        def variants(self, url): return []
+    monkeypatch.setitem(a.API_CLASSES, "shopify", FakeStore)
+    sites = [{"name": "B", "type": "api", "api": "shopify", "domain": "d", "categories": ["minipc"]},
+             {"name": "G", "type": "api", "api": "shopify", "domain": "d"}]
+    r = scraper.scrape(sites, [{"q": "Beelink GTR", "category": "minipc"}], Fake())
+    assert [x.site for x in r] == ["B"] and r[0].ram_gb == 128 and r[0].usd_per_gb_ram == round(4199 / 128, 2)
+    assert [x.site for x in scraper.scrape(sites, [{"q": "Beelink GTR", "category": "gpu"}], Fake())] == ["G"]
+
+def test_variants_expand_minipc(monkeypatch):
+    import api_sources as a
+    assert a.parse_variants({"variants": [{"title": "64GB+1TB", "price": 219999, "available": True},
+                                          {"title": "128GB+2TB", "price": 349999, "available": False}]}) == \
+        [("64GB+1TB", 2199.99, True), ("128GB+2TB", 3499.99, False)]
+    assert scraper.variant_ram("64GB+1TB") == 64 and scraper.variant_ram("32GB / 512GB") == 32
+    assert scraper.variant_ram("Default Title") is None
+    class Fake:
+        s, delay, last = None, 0, {}
+    class FakeStore:
+        def __init__(self, s, d): pass
+        def search(self, q): return [("GMKtec EVO-X2 Ryzen AI Max+ 395 Mini PC", 2199.99, "u", None, "")]
+        def variants(self, url): return [("64GB+1TB", 2199.99, True), ("128GB+2TB", 2999.0, True), ("96GB", 2500.0, False)]
+    monkeypatch.setitem(a.API_CLASSES, "shopify", FakeStore)
+    r = scraper.scrape([{"name": "G", "type": "api", "api": "shopify", "domain": "d", "categories": ["minipc"]}],
+                       [{"q": "Ryzen AI Max 395", "category": "minipc"}], Fake())
+    assert [(x.ram_gb, x.price, x.usd_per_gb_ram) for x in r] == [(64, 2199.99, 34.37), (128, 2999.0, 23.43)]
+
+def test_variants_dedupe_regions():
+    import api_sources as a
+    got = a.parse_variants({"variants": [{"title": "64GB RAM + 1TB SSD / US", "price": 219999},
+                                         {"title": "64GB RAM + 1TB SSD / EU", "price": 219999},
+                                         {"title": "128GB RAM + 1TB SSD / US", "price": 349999}]})
+    assert got == [("64GB RAM + 1TB SSD", 2199.99, True), ("128GB RAM + 1TB SSD", 3499.99, True)]
+
+def test_variants_stop_after_429(monkeypatch):
+    import api_sources as a
+    calls = []
+    class R:
+        status_code, headers, ok = 429, {"retry-after": "60"}, False
+    class S:
+        def get(self, url, **kw): calls.append(url); return R()
+    st = a.ShopifyStore(S(), "x.com")
+    assert st.variants("https://x.com/products/a") == [] and st.variants("https://x.com/products/b") == []
+    assert len(calls) == 1

@@ -14,6 +14,33 @@
       "domain": "altatechnologies.com"
     },
     {
+      "name": "Minisforum",
+      "type": "api",
+      "api": "shopify",
+      "domain": "www.minisforum.com",
+      "categories": [
+        "minipc"
+      ]
+    },
+    {
+      "name": "GMKtec",
+      "type": "api",
+      "api": "shopify",
+      "domain": "www.gmktec.com",
+      "categories": [
+        "minipc"
+      ]
+    },
+    {
+      "name": "Beelink",
+      "type": "api",
+      "api": "shopify",
+      "domain": "www.bee-link.com",
+      "categories": [
+        "minipc"
+      ]
+    },
+    {
       "name": "Watchlist",
       "type": "watchlist",
       "file": "watchlist.json"
