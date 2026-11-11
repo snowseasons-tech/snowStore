@@ -1,0 +1,13 @@
+{
+  "_note": "type=api sources use official APIs (set credentials via env vars, see README). HTML sources need CSS selectors and are disabled by default: Newegg and ServerMonkey return 403 to bots, and eBay's robots.txt disallows search pages.",
+  "sites": [
+    {"name": "eBay", "type": "api", "api": "ebay"},
+    {"name": "Best Buy", "type": "api", "api": "bestbuy"},
+    {
+      "name": "Newegg", "enabled": false,
+      "search_url": "https://www.newegg.com/p/pl?d={q}",
+      "item": "div.item-cell", "title": "a.item-title",
+      "price": "li.price-current", "link": "a.item-title"
+    }
+  ]
+}

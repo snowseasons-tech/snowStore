@@ -1,0 +1,81 @@
+"""Official-API price sources. Each returns [(title, price, url, condition)]."""
+import base64, os, re, time
+
+import requests
+
+EBAY_TOKEN_URL = "https://api.ebay.com/identity/v1/oauth2/token"
+EBAY_SEARCH_URL = "https://api.ebay.com/buy/browse/v1/item_summary/search"
+BESTBUY_URL = "https://api.bestbuy.com/v1/products"
+
+
+class MissingCredentials(Exception):
+    pass
+
+
+class EbayAPI:
+    """Browse API, client-credentials flow. Needs EBAY_CLIENT_ID / EBAY_CLIENT_SECRET."""
+
+    def __init__(self, session: requests.Session):
+        self.s = session
+        self.token, self.expires = None, 0.0
+
+    def _auth(self):
+        if self.token and time.time() < self.expires - 60:
+            return
+        cid, secret = os.environ.get("EBAY_CLIENT_ID"), os.environ.get("EBAY_CLIENT_SECRET")
+        if not (cid and secret):
+            raise MissingCredentials("set EBAY_CLIENT_ID and EBAY_CLIENT_SECRET")
+        basic = base64.b64encode(f"{cid}:{secret}".encode()).decode()
+        r = self.s.post(EBAY_TOKEN_URL, timeout=20,
+                        headers={"Authorization": f"Basic {basic}"},
+                        data={"grant_type": "client_credentials",
+                              "scope": "https://api.ebay.com/oauth/api_scope"})
+        r.raise_for_status()
+        j = r.json()
+        self.token, self.expires = j["access_token"], time.time() + int(j.get("expires_in", 7200))
+
+    def search(self, q: str, limit: int = 50):
+        self._auth()
+        r = self.s.get(EBAY_SEARCH_URL, timeout=20, params={
+            "q": q, "limit": limit, "sort": "price",
+            "filter": "buyingOptions:{FIXED_PRICE},priceCurrency:USD,price:[20..]",
+        }, headers={"Authorization": f"Bearer {self.token}",
+                    "X-EBAY-C-MARKETPLACE-ID": "EBAY_US"})
+        r.raise_for_status()
+        return parse_ebay(r.json())
+
+
+def parse_ebay(j: dict):
+    out = []
+    for it in j.get("itemSummaries", []):
+        p = it.get("price") or {}
+        if p.get("currency") == "USD" and p.get("value"):
+            out.append((it.get("title", ""), float(p["value"]), it.get("itemWebUrl", ""), it.get("condition")))
+    return out
+
+
+class BestBuyAPI:
+    """Products API. Needs BESTBUY_API_KEY."""
+
+    def __init__(self, session: requests.Session):
+        self.s = session
+
+    def search(self, q: str, limit: int = 25):
+        key = os.environ.get("BESTBUY_API_KEY")
+        if not key:
+            raise MissingCredentials("set BESTBUY_API_KEY")
+        terms = "&".join(f"search={w}" for w in re.findall(r"[A-Za-z0-9]+", q))
+        r = self.s.get(f"{BESTBUY_URL}(({terms}))", timeout=20, params={
+            "apiKey": key, "format": "json", "pageSize": limit, "sort": "salePrice.asc",
+            "show": "name,salePrice,url,condition",
+        })
+        r.raise_for_status()
+        return parse_bestbuy(r.json())
+
+
+def parse_bestbuy(j: dict):
+    return [(p["name"], float(p["salePrice"]), p.get("url", ""), p.get("condition"))
+            for p in j.get("products", []) if p.get("name") and p.get("salePrice")]
+
+
+API_CLASSES = {"ebay": EbayAPI, "bestbuy": BestBuyAPI}
