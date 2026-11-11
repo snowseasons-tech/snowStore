@@ -77,3 +77,14 @@ def test_watchlist_skips_non_usd(tmp_path, monkeypatch):
         def get(self, u): return ITC if u == "u1" else BS
     out = scraper.watchlist_items({"name": "W", "file": "w.json"}, F(), {})
     assert [i[1] for i in out] == [11995.0]
+
+def test_relevance_tightened():
+    r = scraper.relevant
+    gpu_srv = "Supermicro GPU server 4U"
+    assert r("Supermicro AS-4124GS-TNR 4U GPU Server 8x A100", gpu_srv)
+    assert not r("Supermicro 1000W 80 PLUS Titanium 1U Rackmount Power Supply", gpu_srv)
+    assert not r("SuperMicro CSE-815 CTO 1U 4x 3.5\" Server", gpu_srv)
+    assert not r("Dell 3.84TB SSD SAS 2.5 12G RI", "NVMe SSD 3.84TB enterprise")
+    assert r("Samsung PM9A3 3.84TB NVMe SSD U.2", "NVMe SSD 3.84TB enterprise")
+    assert r("Dell PowerEdge R740XD 24x2.5\" Server", "Dell PowerEdge R740 server")
+    assert not r("RTX 3090 124GB", "RTX 3090 24GB")

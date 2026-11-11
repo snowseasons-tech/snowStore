@@ -66,11 +66,15 @@ def extract_specs(title: str, category: str) -> dict:
 
 
 def relevant(title: str, query: str) -> bool:
-    """Every alphanumeric token of the query (ignoring filler) must appear in the title."""
-    stop = {"server", "gpu", "4u", "enterprise", "ssd", "nvme"}
+    """Every query token must start a word in the title (so '24gb' won't match '124GB').
+
+    Only generic filler is ignored; spec words like gpu, 4u, nvme and ssd must be present.
+    The right edge stays open so 'r740' still matches 'R740XD'.
+    """
+    stop = {"server", "enterprise"}
     toks = [w for w in re.findall(r"[a-z0-9]+", query.lower()) if w not in stop]
     low = title.lower()
-    return all(w in low for w in toks)
+    return all(re.search(r"(?<![a-z0-9])" + re.escape(w), low) for w in toks)
 
 
 class Fetcher:
