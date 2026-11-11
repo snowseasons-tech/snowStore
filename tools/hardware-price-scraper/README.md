@@ -35,3 +35,13 @@ A source without its key is skipped with a notice. eBay carries most used server
 ## Caveats
 - HTML scraping is off by default: Newegg and ServerMonkey return 403 to bots and eBay's robots.txt disallows search pages. The HTML path (robots.txt-aware, rate-limited) remains for sites that permit it; add them in `sites.json`.
 - Results mix new, used and refurbished listings; the condition is shown where the API provides it.
+
+## Scheduled runs
+`systemd/` holds a user timer that runs the scraper daily at ~07:15 (`Persistent=true`, so a missed run catches up after sleep). Paths in the service file are absolute; edit them if the repo moves.
+```bash
+cp systemd/hardware-price-scraper.* ~/.config/systemd/user/
+systemctl --user daemon-reload && systemctl --user enable --now hardware-price-scraper.timer
+systemctl --user list-timers hardware-price-scraper.timer   # next run
+journalctl --user -u hardware-price-scraper.service         # last run's output
+```
+Query history: `sqlite3 output/history.db "select ts, price, title from prices where title like '%L40S%' order by ts"`.
