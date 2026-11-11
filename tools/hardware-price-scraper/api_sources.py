@@ -78,4 +78,31 @@ def parse_bestbuy(j: dict):
             for p in j.get("products", []) if p.get("name") and p.get("salePrice")]
 
 
-API_CLASSES = {"ebay": EbayAPI, "bestbuy": BestBuyAPI}
+class ShopifyStore:
+    """Any Shopify storefront via its public /search/suggest.json (no key, max 10 hits).
+
+    Built for polite use: the caller rate-limits and the endpoint is allowed by robots.txt
+    on the stores configured in sites.json (verify before adding another).
+    """
+
+    def __init__(self, session: requests.Session, domain: str):
+        self.s, self.base = session, f"https://{domain}"
+
+    def search(self, q: str, limit: int = 10):
+        r = self.s.get(f"{self.base}/search/suggest.json", timeout=20, params={
+            "q": q, "resources[type]": "product", "resources[limit]": min(limit, 10)})
+        if r.status_code == 429:
+            raise requests.RequestException("rate limited (HTTP 429), try a larger --delay")
+        r.raise_for_status()
+        return parse_shopify(r.json(), self.base)
+
+
+def parse_shopify(j: dict, base: str):
+    out = []
+    for p in j.get("resources", {}).get("results", {}).get("products", []):
+        if p.get("title") and p.get("price") and p.get("available", True):
+            out.append((p["title"], float(p["price"]), base + p.get("url", "").split("?")[0], None))
+    return out
+
+
+API_CLASSES = {"ebay": EbayAPI, "bestbuy": BestBuyAPI, "shopify": ShopifyStore}

@@ -164,7 +164,12 @@ def parse_page(html: str, site: dict, base: str):
 def candidates(site, q, fetcher, apis):
     """Yield (title, price, url, condition) from an API or HTML source; [] if unavailable."""
     if site.get("type") == "api":
-        api = apis.setdefault(site["api"], api_sources.API_CLASSES[site["api"]](fetcher.s))
+        cls, args = api_sources.API_CLASSES[site["api"]], ([site["domain"]] if site["api"] == "shopify" else [])
+        api = apis.setdefault(site["name"], cls(fetcher.s, *args))
+        wait = fetcher.delay - (time.time() - fetcher.last.get(site["name"], 0))
+        if wait > 0:
+            time.sleep(wait)
+        fetcher.last[site["name"]] = time.time()
         try:
             return api.search(q["q"])
         except api_sources.MissingCredentials as e:

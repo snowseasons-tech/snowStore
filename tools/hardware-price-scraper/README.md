@@ -13,7 +13,10 @@ python -m pytest tests                              # offline parser tests
 
 Output: ranked table in the terminal, `output/latest.csv`, and `output/history.db` (SQLite, one row per listing per run, for price tracking).
 
-## API keys (free)
+## Sources
+Out of the box: **ServerPartDeals** (Shopify public search endpoint, no key; storage and RAM, no GPUs). eBay and Best Buy are included but disabled (`"enabled": false` in `sites.json`). Any other Shopify-based reseller can be added as `{"name":..., "type":"api", "api":"shopify", "domain":...}` after checking its robots.txt.
+
+## API keys (optional, free)
 ```bash
 export EBAY_CLIENT_ID=...  EBAY_CLIENT_SECRET=...   # developer.ebay.com, production keyset
 export BESTBUY_API_KEY=...                           # developer.bestbuy.com

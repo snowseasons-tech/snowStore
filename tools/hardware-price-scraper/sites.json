@@ -1,8 +1,9 @@
 {
-  "_note": "type=api sources use official APIs (set credentials via env vars, see README). HTML sources need CSS selectors and are disabled by default: Newegg and ServerMonkey return 403 to bots, and eBay's robots.txt disallows search pages.",
+  "_note": "type=api sources use official or public JSON endpoints. eBay and Best Buy need keys and are disabled for now (set enabled:true plus env vars to use). Newegg/ServerMonkey return 403 to bots; eBay's robots.txt disallows search pages.",
   "sites": [
-    {"name": "eBay", "type": "api", "api": "ebay"},
-    {"name": "Best Buy", "type": "api", "api": "bestbuy"},
+    {"name": "ServerPartDeals", "type": "api", "api": "shopify", "domain": "serverpartdeals.com"},
+    {"name": "eBay", "type": "api", "api": "ebay", "enabled": false},
+    {"name": "Best Buy", "type": "api", "api": "bestbuy", "enabled": false},
     {
       "name": "Newegg", "enabled": false,
       "search_url": "https://www.newegg.com/p/pl?d={q}",

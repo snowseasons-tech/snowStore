@@ -34,7 +34,7 @@ def test_api_parsers():
 
 def test_pipeline_with_fake_api(monkeypatch):
     class Fake:
-        s = None
+        s, delay, last = None, 0, {}
     import api_sources as a
     class FakeAPI:
         def __init__(self, s): pass
@@ -52,3 +52,12 @@ def test_load_env(tmp_path, monkeypatch):
     import os
     assert os.environ["EBAY_CLIENT_ID"] == "abc" and os.environ["BESTBUY_API_KEY"] == "real"
     monkeypatch.delenv("EBAY_CLIENT_ID")
+
+def test_shopify_parser_and_disabled_sources():
+    import api_sources as a
+    j = {"resources": {"results": {"products": [
+        {"title": "64GB DDR4 RDIMM", "price": "359.00", "url": "/products/x?_pos=1", "available": True},
+        {"title": "sold out", "price": "10", "url": "/products/y", "available": False}]}}}
+    assert a.parse_shopify(j, "https://s.com") == [("64GB DDR4 RDIMM", 359.0, "https://s.com/products/x", None)]
+    assert scraper.scrape([{"name": "eBay", "type": "api", "api": "ebay", "enabled": False}],
+                          [{"q": "x", "category": "gpu"}], None) == []
