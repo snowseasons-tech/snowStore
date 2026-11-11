@@ -37,6 +37,10 @@
       "category": "gpu"
     },
     {
+      "q": "Supermicro SYS-4029GP",
+      "category": "server"
+    },
+    {
       "q": "NVIDIA Tesla T4 16GB",
       "category": "gpu"
     },
