@@ -1,0 +1,85 @@
+{
+  "_note": "type=api sources use official or public JSON endpoints. eBay and Best Buy need keys and are disabled for now (set enabled:true plus env vars to use). Newegg/ServerMonkey return 403 to bots; eBay's robots.txt disallows search pages.",
+  "sites": [
+    {
+      "name": "ServerPartDeals",
+      "type": "api",
+      "api": "shopify",
+      "domain": "serverpartdeals.com"
+    },
+    {
+      "name": "The Server Store",
+      "type": "api",
+      "api": "shopify",
+      "domain": "parts.theserverstore.com"
+    },
+    {
+      "name": "Computer Overhauls",
+      "type": "api",
+      "api": "shopify",
+      "domain": "shop.computeroverhauls.com",
+      "categories": [
+        "gpu"
+      ]
+    },
+    {
+      "name": "Alta Technologies",
+      "type": "api",
+      "api": "shopify",
+      "domain": "altatechnologies.com"
+    },
+    {
+      "name": "Minisforum",
+      "type": "api",
+      "api": "shopify",
+      "domain": "www.minisforum.com",
+      "categories": [
+        "minipc"
+      ]
+    },
+    {
+      "name": "GMKtec",
+      "type": "api",
+      "api": "shopify",
+      "domain": "www.gmktec.com",
+      "categories": [
+        "minipc"
+      ]
+    },
+    {
+      "name": "Beelink",
+      "type": "api",
+      "api": "shopify",
+      "domain": "www.bee-link.com",
+      "categories": [
+        "minipc"
+      ]
+    },
+    {
+      "name": "Watchlist",
+      "type": "watchlist",
+      "file": "watchlist.json"
+    },
+    {
+      "name": "eBay",
+      "type": "api",
+      "api": "ebay",
+      "enabled": false
+    },
+    {
+      "name": "Best Buy",
+      "type": "api",
+      "api": "bestbuy",
+      "enabled": false
+    },
+    {
+      "name": "Newegg",
+      "enabled": false,
+      "search_url": "https://www.newegg.com/p/pl?d={q}",
+      "item": "div.item-cell",
+      "title": "a.item-title",
+      "price": "li.price-current",
+      "link": "a.item-title"
+    }
+  ]
+}

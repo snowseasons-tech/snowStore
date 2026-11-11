@@ -1,0 +1,100 @@
+{
+  "queries": [
+    {
+      "q": "NVIDIA RTX 4090 24GB",
+      "category": "gpu"
+    },
+    {
+      "q": "NVIDIA RTX 3090 24GB",
+      "category": "gpu"
+    },
+    {
+      "q": "NVIDIA RTX 5090 32GB",
+      "category": "gpu"
+    },
+    {
+      "q": "NVIDIA A100 80GB",
+      "category": "gpu"
+    },
+    {
+      "q": "NVIDIA H100 80GB",
+      "category": "gpu"
+    },
+    {
+      "q": "NVIDIA L40S 48GB",
+      "category": "gpu"
+    },
+    {
+      "q": "NVIDIA Tesla P40 24GB",
+      "category": "gpu"
+    },
+    {
+      "q": "NVIDIA Tesla V100 32GB",
+      "category": "gpu"
+    },
+    {
+      "q": "NVIDIA Tesla P100 16GB",
+      "category": "gpu"
+    },
+    {
+      "q": "Supermicro SYS-4029GP",
+      "category": "server"
+    },
+    {
+      "q": "NVIDIA Tesla T4 16GB",
+      "category": "gpu"
+    },
+    {
+      "q": "Dell PowerEdge R740 server",
+      "category": "server"
+    },
+    {
+      "q": "Supermicro GPU server 4U",
+      "category": "server"
+    },
+    {
+      "q": "DDR5 ECC RDIMM 64GB",
+      "category": "ram"
+    },
+    {
+      "q": "NVMe SSD 3.84TB enterprise",
+      "category": "storage"
+    },
+    {
+      "q": "Beelink GTR",
+      "category": "minipc"
+    },
+    {
+      "q": "Ryzen AI Max 395",
+      "category": "minipc"
+    },
+    {
+      "q": "MS-S1 MAX",
+      "category": "minipc"
+    },
+    {
+      "q": "GMKtec EVO",
+      "category": "minipc"
+    },
+    {
+      "q": "HPE ProLiant DL380",
+      "category": "server"
+    },
+    {
+      "q": "Lenovo ThinkSystem SR630",
+      "category": "server"
+    },
+    {
+      "q": "Dell PowerEdge T640",
+      "category": "server"
+    },
+    {
+      "q": "Dell PowerEdge T630",
+      "category": "server"
+    },
+    {
+      "q": "Dell PowerEdge R730",
+      "category": "server"
+    }
+  ]
+}
