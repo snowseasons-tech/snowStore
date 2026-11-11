@@ -1,6 +1,7 @@
 import { leadSession } from '../../_lib/lead-session.js';
 import { billingLinks, leadAccess } from '../../_lib/lead-access.js';
 import { stripeClient } from '../../_lib/stripe.js';
+import { pilotEnabled } from '../../_lib/lead-data.js';
 import { send, methodNotAllowed } from '../../_lib/http.js';
 
 export const onRequest = methodNotAllowed('POST');
@@ -9,6 +10,7 @@ export async function onRequestPost({ request, env }) {
     const session = await leadSession(request, env);
     if (!session) return send(401, { error: 'Please sign in again.' });
     if (env.LEAD_WORKSPACE_BILLING_ENABLED !== '1') return send(403, { error: 'Subscription billing access is not enabled.' });
+    if (env.LEAD_WORKSPACE_SANDBOX_CHECKOUT === '1' && !pilotEnabled(session.email, env)) return send(403, { error: 'Sandbox billing access is unavailable for this account.' });
     const origin = new URL(request.url).origin;
     if (request.headers.get('Origin') !== origin) return send(403, { error: 'Open billing from this site.' });
     const links = await billingLinks(session, env);

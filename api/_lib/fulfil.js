@@ -53,6 +53,10 @@ async function processEvent(event, s, catalog, mailer) {
   // 'no_payment_required' covers free trials on subscriptions; async methods wait for async_payment_succeeded.
   if (!['paid', 'no_payment_required'].includes(session.payment_status)) return 'unpaid';
   const productId = session.metadata && session.metadata.product_id;
+  // A pilot checkout only links workspace billing. It has no storefront order or purchase email.
+  if (session.metadata?.lead_workspace_pilot === '1') {
+    return await linkCheckout(session, productId, s) ? 'pilot-linked' : 'ignored';
+  }
   const product = Object.prototype.hasOwnProperty.call(catalog, productId) ? catalog[productId] : null;
   if (!product) throw new Error(`unknown product ${productId}`);
 
@@ -68,7 +72,7 @@ async function processEvent(event, s, catalog, mailer) {
   }
 
   const leadLink = await linkCheckout(session, productId, s);
-  const leadPortal = leadLink && !leadLink.pilot && !product.draft && !product.hidden && !product.retired
+  const leadPortal = leadLink && !product.draft && !product.hidden && !product.retired
     && leadLink.email.includes('@') && leadLink.email.length <= 254;
   if (leadPortal) await s.setJSONIfAbsent(`user:${leadLink.email}`, { hash: null, products: [] });
 

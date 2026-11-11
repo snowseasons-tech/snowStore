@@ -44,7 +44,10 @@ def generate(url: str, model: str, prompt: str, timeout: float, temperature: flo
                                  headers={"Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as res:
-            return json.load(res).get("response") or ""
+            payload = json.load(res)
+            if not isinstance(payload, dict) or not isinstance(payload.get("response"), str):
+                raise OllamaError("Unexpected response from Ollama.")
+            return payload["response"]
     except (OSError, ValueError) as e:  # URLError and timeouts are OSErrors
         raise OllamaError(str(e)) from e
 
@@ -54,17 +57,26 @@ def clean(text: str) -> str:
     return c.safe_text(re.sub(r"<[^>]*>", "", text))[:MAX_CHARS]
 
 
+def ollama_settings() -> dict | None:
+    model = os.environ.get("LEAD_SUMMARY_MODEL") or "qwen2.5:latest"
+    if model.endswith((":cloud", "-cloud")) and os.environ.get("OLLAMA_ALLOW_CLOUD") != "1":
+        c.log(f"summarize: {model} runs off this machine; set OLLAMA_ALLOW_CLOUD=1 to allow it. Skipping")
+        return None
+    return {
+        "url": os.environ.get("OLLAMA_URL") or "http://127.0.0.1:11434",
+        "model": model,
+        "timeout": float(os.environ.get("OLLAMA_TIMEOUT") or 180),
+        "temperature": float(os.environ.get("OLLAMA_TEMPERATURE") or 0.1),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--limit", type=int, default=25)
     args = ap.parse_args(argv)
 
-    url = os.environ.get("OLLAMA_URL") or "http://127.0.0.1:11434"
-    model = os.environ.get("LEAD_SUMMARY_MODEL") or "qwen2.5:latest"
-    timeout = float(os.environ.get("OLLAMA_TIMEOUT") or 180)
-    temperature = float(os.environ.get("OLLAMA_TEMPERATURE") or 0.1)
-    if model.endswith(":cloud") and os.environ.get("OLLAMA_ALLOW_CLOUD") != "1":
-        c.log(f"summarize: {model} runs off this machine; set OLLAMA_ALLOW_CLOUD=1 to allow it. Skipping")
+    settings = ollama_settings()
+    if settings is None:
         return 0
 
     leads = c.read_csv(c.LEADS)
@@ -73,7 +85,7 @@ def main(argv: list[str] | None = None) -> int:
     done = 0
     for lead in todo[:args.limit]:
         try:
-            summary = clean(generate(url, model, prompt_for(lead, counts[c.company_key(lead["company"])]), timeout, temperature))
+            summary = clean(generate(prompt=prompt_for(lead, counts[c.company_key(lead["company"])]), **settings))
         except OllamaError as e:
             c.log(f"summarize: Ollama unavailable ({e}); {len(todo) - done} lead(s) left for the next run")
             return 0

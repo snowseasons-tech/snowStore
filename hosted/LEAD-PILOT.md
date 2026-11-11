@@ -5,7 +5,7 @@ Run the pilot in an isolated test environment. Catalog drafts remain closed. Use
 ## Operator preparation
 
 1. Use a dedicated HubSpot test account and Stripe test-mode account/sandbox. Existing connected-account access does not expose application API credentials. Configure scoped credentials directly through your secret manager and the CRM connection form, never in chat or git.
-2. Deploy the current code to a separate HTTPS Pages project with an empty test Redis store. Restrict workspace access through the portal and pilot allowlist, and ensure Stripe can reach `/api/webhook` without an interactive login. Use two distinct fictional account emails and unique test passwords.
+2. Create a separate HTTPS Pages project with an empty test Redis store. In a dedicated pilot checkout of the repo, set the Wrangler project name to the pilot project and retain `pages_build_output_dir = "dist"` and `nodejs_compat`. Build with `npm run build:pages` and deploy the assets and `functions/` together to that project. Keep the pilot project separate from the storefront's production and preview environments. Restrict workspace access through the portal and pilot allowlist, and ensure Stripe can reach `/api/webhook` without an interactive login. Use two distinct fictional account emails and unique test passwords.
 3. Set these test bindings:
 
 | Binding | Test requirement |
@@ -24,6 +24,10 @@ Run the pilot in an isolated test environment. Catalog drafts remain closed. Use
 | `LEAD_CRM_ENCRYPTION_KEY` | Separate random 32-byte key encoded as base64 |
 | `LEAD_WORKSPACE_MAINTENANCE` | Unset or `0` |
 
+   Enter secret values as encrypted Pages secrets for the pilot deployment. Generate the CRM encryption key with `openssl rand -base64 32` in a private terminal and retain it securely for recovery. Keep mail, fulfillment bucket and live Stripe credentials out of the pilot project. If using a restricted Stripe key, grant the permissions needed to read the price and expanded product, create Checkout Sessions, retrieve subscriptions with expanded latest invoices, and create Billing Portal Sessions. Use the sandbox that owns the pilot product and price.
+
+   When deploying with Wrangler, keep all plain-text pilot variables in the dedicated checkout's `[vars]`. A Wrangler deploy can replace plain-text dashboard variables with those in its config. Keep encrypted secrets in the Pages project and verify the binding names after deployment.
+
 4. Load only the test Redis bindings into a local shell and verify the Redis hostname matches the dedicated test store before creating accounts. Run the commands below in a private terminal and enter a unique test password at each prompt. Put these same emails in the Pages allowlist. The product list is empty so the pilot must obtain access through Checkout. Each user gets a session by signing in through the hosted portal.
 
    ```sh
@@ -31,13 +35,13 @@ Run the pilot in an isolated test environment. Catalog drafts remain closed. Use
    node scripts/add-user.js lead-pilot-b@example.com
    ```
 
-5. In the Stripe test account, set the webhook destination to `<SITE_URL>/api/webhook`. Select the [billing webhook events](../products/operations-lead-intelligence/README.md#subscription-lifecycle-phase-4) and save the destination's signing secret as `STRIPE_WEBHOOK_SECRET` in the test Pages project. Configure the customer portal in the same Stripe test account. For each completed test Checkout, record the test event ID, delivery HTTP status and time in private evidence, then confirm the signed-in account gained access. An HTTP 200 alone does not verify that the event linked the subscription.
-6. In HubSpot's dedicated test account, create a service key with contact read/write scopes and enter it through **HubSpot delivery** during the walkthrough. The ChatGPT HubSpot connection is separate from the application's service-key connection. Check any test-account automations before using fictional contacts.
+5. In the Stripe test account, set the webhook destination to `<SITE_URL>/api/webhook` and select events from that sandbox account. Select the [billing webhook events](../products/operations-lead-intelligence/README.md#subscription-lifecycle-phase-4) and save the destination's signing secret as `STRIPE_WEBHOOK_SECRET` in the test Pages project. Configure cancellation in the customer portal in the same Stripe test account. For each completed test Checkout, record the test event ID, delivery HTTP status, response result and time in private evidence. The first successful delivery should return `pilot-linked` and a replay should return `duplicate`. Confirm the signed-in account gained access.
+6. In HubSpot's dedicated test account, open **Development → Keys → Service keys** as a super admin or a user with Developer tools access. Create a service key scoped to `crm.objects.contacts.read` and `crm.objects.contacts.write`. Enter it through **HubSpot delivery** while signed in as the pilot user. The application stores it encrypted for that workspace and checks read access on connect. Verify write access by sending the reviewed fictional contact. Confirm the selected account and its automations before connecting. The ChatGPT HubSpot connection is separate from the application's service-key connection.
 7. Run `npm run test:lead-pilot`, `npm run test:lead-workspace`, `npm run test:lead-recovery`, `npm test`, lint, catalog validation and the Pages build. Confirm source/catalog drafts remain unchanged.
 
 The sandbox checkout endpoint refuses live keys, `ALLOW_LIVE=1`, uninvited users, wrong-mode prices, wrong product/amount/interval, maintenance and cross-origin requests. It uses the signed-in identity and does not accept customer emails or price IDs from the browser. Retries of one intent keep identical Stripe parameters and an account-bound idempotency key. The normal public checkout continues rejecting the draft bundle.
 
-Successful test checkout binds the billing index to the signed-in account hash stored by the server, not an editable checkout email. Only signature-verified successful events create links. Return-page query parameters and Checkout Session creation do not grant access.
+Successful test checkout binds the billing index to the signed-in account hash stored by the server. The pilot webhook requires a signed test-mode event and valid pilot Checkout metadata. Pilot fulfillment only writes a billing link, so no storefront order or purchase email is created. On each workspace access check, the current test subscription must match the pilot product and account hash. Return-page query parameters and Checkout Session creation do not grant access.
 
 ## Pilot user workflow
 
