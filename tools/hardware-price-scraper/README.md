@@ -4,11 +4,11 @@ Finds the cheapest prices for server and LLM-capable hardware (GPUs, GPU servers
 GPUs are ranked by **$ per GB of VRAM**, the number that decides what models you can run.
 
 ```bash
-pip install -r requirements.txt
-python scraper.py                                   # everything in queries.json
-python scraper.py -q "RTX 4090 24GB" --site Newegg  # ad hoc
-python scraper.py -q "R740" --category server --delay 5
-python -m pytest tests                              # offline parser tests
+python3 -m pip install -r requirements.txt
+python3 scraper.py                                   # everything in queries.json
+python3 scraper.py -q "RTX 4090 24GB" --site Newegg  # ad hoc
+python3 scraper.py -q "R740" --category server --delay 5
+python3 -m pytest tests                              # offline parser tests
 ```
 
 Output: ranked table in the terminal, `output/latest.csv`, and `output/history.db` (SQLite, one row per listing per run, for price tracking).
@@ -49,9 +49,9 @@ Query history: `sqlite3 output/history.db "select ts, price, title from prices w
 ## Build planner
 `builder.py` turns the latest prices in `history.db` into complete LLM machines for several VRAM targets (24 / 48 / 96 / 128 GB): GPUs + a host that can hold them + ECC RAM + NVMe, plus turnkey options (8-GPU servers, unified-memory mini PCs).
 ```bash
-python scraper.py                      # refresh prices first
-python builder.py                      # default targets
-python builder.py --targets 48 --budget 4000 --top 5
+python3 scraper.py                      # refresh prices first
+python3 builder.py                      # default targets
+python3 builder.py --targets 48 --budget 4000 --top 5
 ```
 Add `--host t640` to force a specific host (the T640 is a tower, for desktop-style builds) and `--bom parts.csv` (or `.md`) to export the builds shown as a bill of materials: one row per part with qty, unit price, line total, source and URL, closed by a `TOTAL` row per build (filter that role out before summing a column).
 Compatibility is a coarse heuristic: the `HOSTS` table in `builder.py` lists how many double-width GPUs each known server takes (R740 and DL380 Gen10: 3, R730: 2, T640 tower: 4, T630 tower: 2 assumed; the R730xd is excluded since it has no internal GPU support). Host prices are often a base chassis (CPUs, PSUs and risers may be extra), SXM modules are excluded (they need a baseboard), and prices older than `--days` (7) are ignored. Treat the output as a shortlist and confirm risers, power and cooling with the seller.
