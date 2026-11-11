@@ -17,6 +17,10 @@
       "category": "gpu"
     },
     {
+      "q": "NVIDIA H100 80GB",
+      "category": "gpu"
+    },
+    {
       "q": "NVIDIA L40S 48GB",
       "category": "gpu"
     },

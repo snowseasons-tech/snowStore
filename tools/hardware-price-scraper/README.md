@@ -16,6 +16,9 @@ Output: ranked table in the terminal, `output/latest.csv`, and `output/history.d
 ## Sources
 Out of the box: **ServerPartDeals** (Shopify public search endpoint, no key; storage and RAM, no GPUs). eBay and Best Buy are included but disabled (`"enabled": false` in `sites.json`). Any other Shopify-based reseller can be added as `{"name":..., "type":"api", "api":"shopify", "domain":...}` after checking its robots.txt.
 
+**Watchlist** (`watchlist.json`): product-page URLs fetched politely (robots.txt, rate limit, cache) and read from schema.org data; USD only, other currencies are skipped. Seeded with IT Creations GPU pages (A100, H100, L40S, V100). IT Creations has no crawlable search, so add pages by hand; a dead page just logs a warning. Re-running builds price history in `history.db`.
+Bytestock was evaluated and skipped: it prices in GBP only and its robots.txt forbids search pages.
+
 ## API keys (optional, free)
 ```bash
 export EBAY_CLIENT_ID=...  EBAY_CLIENT_SECRET=...   # developer.ebay.com, production keyset

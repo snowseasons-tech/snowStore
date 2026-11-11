@@ -1,0 +1,18 @@
+{
+  "_note": "Product-page URLs to track. Any page with schema.org Product data works (USD only). Add pages found by browsing or searching; IT Creations product URLs are numeric so they can't be discovered by keyword.",
+  "urls": [
+    "https://www.itcreations.com/product/146130",
+    "https://www.itcreations.com/product/132310",
+    "https://www.itcreations.com/product/137796",
+    "https://www.itcreations.com/product/149050",
+    "https://www.itcreations.com/product/139048",
+    "https://www.itcreations.com/product/139045",
+    "https://www.itcreations.com/product/140386",
+    "https://www.itcreations.com/product/137789",
+    "https://www.itcreations.com/product/139868",
+    "https://www.itcreations.com/product/139042",
+    "https://www.itcreations.com/product/139865",
+    "https://www.itcreations.com/product/141629",
+    "https://www.itcreations.com/product/122759"
+  ]
+}

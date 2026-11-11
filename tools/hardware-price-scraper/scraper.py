@@ -161,8 +161,67 @@ def parse_page(html: str, site: dict, base: str):
     return found or list(parse_jsonld(soup, base))
 
 
+def parse_product_page(html: str):
+    """Single product page -> dict(title, price, currency, condition) or None.
+
+    Reads schema.org Product JSON-LD, falling back to product:price:* meta tags.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+
+    def products(node):
+        if isinstance(node, list):
+            for n in node:
+                yield from products(n)
+        elif isinstance(node, dict):
+            if node.get("@type") == "Product":
+                yield node
+            for v in node.values():
+                if isinstance(v, (dict, list)):
+                    yield from products(v)
+
+    for tag in soup.find_all("script", type="application/ld+json"):
+        try:
+            data = json.loads(tag.string or "")
+        except (ValueError, TypeError):
+            continue
+        for p in products(data):
+            offers = p.get("offers") or {}
+            offers = offers[0] if isinstance(offers, list) and offers else offers
+            price = offers.get("price") or offers.get("lowPrice") if isinstance(offers, dict) else None
+            if p.get("name") and price:
+                cond = str(offers.get("itemCondition", "")).rsplit("/", 1)[-1].replace("Condition", "") or None
+                return {"title": p["name"], "price": float(str(price).replace(",", "")),
+                        "currency": offers.get("priceCurrency", "USD"), "condition": cond}
+    meta = lambda n: (soup.find("meta", property=n) or {}).get("content")
+    if meta("product:price:amount"):
+        title = meta("og:title") or (soup.title.string if soup.title else "")
+        return {"title": title.strip(), "price": float(meta("product:price:amount")),
+                "currency": meta("product:price:currency") or "USD", "condition": None}
+    return None
+
+
+def watchlist_items(site, fetcher, cache: dict):
+    """Fetch every URL in the site's watchlist file once per run (robots/rate-limit aware)."""
+    if site["name"] not in cache:
+        entries = json.loads((HERE / site["file"]).read_text())["urls"]
+        items = []
+        for url in entries:
+            html = fetcher.get(url)
+            info = parse_product_page(html) if html else None
+            if not info:
+                print(f"  ! no product data at {url}", file=sys.stderr)
+            elif info["currency"] != "USD":
+                print(f"  - skipped {info['currency']} price at {url}")
+            else:
+                items.append((info["title"], info["price"], url, info["condition"]))
+        cache[site["name"]] = items
+    return cache[site["name"]]
+
+
 def candidates(site, q, fetcher, apis):
     """Yield (title, price, url, condition) from an API or HTML source; [] if unavailable."""
+    if site.get("type") == "watchlist":
+        return watchlist_items(site, fetcher, apis)
     if site.get("type") == "api":
         cls, args = api_sources.API_CLASSES[site["api"]], ([site["domain"]] if site["api"] == "shopify" else [])
         api = apis.setdefault(site["name"], cls(fetcher.s, *args))

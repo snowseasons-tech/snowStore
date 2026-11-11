@@ -61,3 +61,19 @@ def test_shopify_parser_and_disabled_sources():
     assert a.parse_shopify(j, "https://s.com") == [("64GB DDR4 RDIMM", 359.0, "https://s.com/products/x", None)]
     assert scraper.scrape([{"name": "eBay", "type": "api", "api": "ebay", "enabled": False}],
                           [{"q": "x", "category": "gpu"}], None) == []
+
+ITC = '<script type="application/ld+json">{"@type":"Product","name":"NVIDIA L40S 48GB","offers":{"@type":"Offer","priceCurrency":"USD","price":11995,"itemCondition":"https://schema.org/RefurbishedCondition"}}</script>'
+BS = '<meta property="product:price:amount" content="16250"/><meta property="product:price:currency" content="GBP"/><meta property="og:title" content="A100 80GB"/>'
+
+def test_product_page():
+    assert scraper.parse_product_page(ITC) == {"title": "NVIDIA L40S 48GB", "price": 11995.0, "currency": "USD", "condition": "Refurbished"}
+    assert scraper.parse_product_page(BS)["currency"] == "GBP"
+    assert scraper.parse_product_page("<html></html>") is None
+
+def test_watchlist_skips_non_usd(tmp_path, monkeypatch):
+    (tmp_path / "w.json").write_text('{"urls":["u1","u2"]}')
+    monkeypatch.setattr(scraper, "HERE", tmp_path)
+    class F:
+        def get(self, u): return ITC if u == "u1" else BS
+    out = scraper.watchlist_items({"name": "W", "file": "w.json"}, F(), {})
+    assert [i[1] for i in out] == [11995.0]
