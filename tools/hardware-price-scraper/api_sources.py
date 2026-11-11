@@ -8,6 +8,9 @@ EBAY_SEARCH_URL = "https://api.ebay.com/buy/browse/v1/item_summary/search"
 BESTBUY_URL = "https://api.bestbuy.com/v1/products"
 
 
+MAX_BACKOFF = 90  # seconds to wait on HTTP 429 before one retry
+
+
 class MissingCredentials(Exception):
     pass
 
@@ -107,9 +110,14 @@ class ShopifyStore:
             return []
         try:
             r = self.s.get(url + ".js", timeout=20)
+            if r.status_code == 429:  # honour Retry-After once (capped), then give up for this run
+                wait = min(int(r.headers.get("retry-after", 30) or 30), MAX_BACKOFF)
+                print(f"  - {self.base} asked us to slow down; waiting {wait}s")
+                time.sleep(wait)
+                r = self.s.get(url + ".js", timeout=20)
             if r.status_code == 429:
                 self.rate_limited = True
-                print(f"  ! {self.base} rate-limited variant lookups (Retry-After {r.headers.get('retry-after', '?')}s); using base prices")
+                print(f"  ! {self.base} still rate-limiting variant lookups; using base prices")
                 return []
             return parse_variants(r.json()) if r.ok else []
         except (requests.RequestException, ValueError):

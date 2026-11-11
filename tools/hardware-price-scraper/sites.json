@@ -8,6 +8,21 @@
       "domain": "serverpartdeals.com"
     },
     {
+      "name": "The Server Store",
+      "type": "api",
+      "api": "shopify",
+      "domain": "parts.theserverstore.com"
+    },
+    {
+      "name": "Computer Overhauls",
+      "type": "api",
+      "api": "shopify",
+      "domain": "shop.computeroverhauls.com",
+      "categories": [
+        "gpu"
+      ]
+    },
+    {
       "name": "Alta Technologies",
       "type": "api",
       "api": "shopify",

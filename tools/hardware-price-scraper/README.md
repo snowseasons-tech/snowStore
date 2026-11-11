@@ -14,10 +14,12 @@ python3 -m pytest tests                              # offline parser tests
 Output: ranked table in the terminal, `output/latest.csv`, and `output/history.db` (SQLite, one row per listing per run, for price tracking).
 
 ## Sources
-Out of the box: **ServerPartDeals** (Shopify public search endpoint, no key; storage and RAM, no GPUs). eBay and Best Buy are included but disabled (`"enabled": false` in `sites.json`). Any other Shopify-based reseller can be added as `{"name":..., "type":"api", "api":"shopify", "domain":...}` after checking its robots.txt.
+Out of the box: **ServerPartDeals** (Shopify public search endpoint, no key; storage, RAM and a few GPUs). also **The Server Store** (datacenter GPUs, RAM, NVMe) and **Computer Overhauls** (consumer GPUs), both via the same Shopify endpoint. eBay and Best Buy are included but disabled (`"enabled": false` in `sites.json`). Any other Shopify-based reseller can be added as `{"name":..., "type":"api", "api":"shopify", "domain":...}` after checking its robots.txt.
 
 **Watchlist** (`watchlist.json`): product-page URLs fetched politely (robots.txt, rate limit, cache) and read from schema.org data; USD only, other currencies are skipped. Seeded with IT Creations GPU pages (A100, H100, L40S, V100). IT Creations has no crawlable search, so add pages by hand; a dead page just logs a warning. Re-running builds price history in `history.db`.
 Bytestock was evaluated and skipped: it prices in GBP only and its robots.txt forbids search pages.
+
+Mini PC variant prices come from each store's product `.js` endpoint, which rate-limits (HTTP 429): the scraper waits out `Retry-After` (max 90 s) once, then falls back to the base price for the rest of the run.
 
 ## API keys (optional, free)
 ```bash

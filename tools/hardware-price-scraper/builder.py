@@ -17,11 +17,11 @@ HERE = Path(__file__).parent
 # (max double-width GPUs, note). Slot counts are conservative and come from vendor/reseller
 # documentation; verify the exact config before buying.
 HOSTS = [
-    ("r740", 3, "Dell R740/R740xd 2U; GPU risers + 1100W+ PSUs needed, price may be a base chassis"),
-    ("dl380 gen10", 3, "HPE DL380 Gen10 2U; GPU riser/power kit needed, price may be a base chassis"),
-    (r"r730(?!\s?xd)", 2, "Dell R730 2U (the R730xd does NOT support internal GPUs); GPU riser kit + 1100W PSUs needed"),
-    ("t640", 4, "Dell T640 tower, desktop-style; up to 4 double-width 300W GPUs, GPU config needs 30C ambient or below"),
-    ("t630", 2, "Dell T630 tower; Dell cites up to 4x 300W accelerators but double-width support is unclear, so 2 assumed"),
+    ("r740", 3, "Dell R740 2U: up to 3 double-width 300W GPUs per reseller/Dell guides (R740xd: GPUs only on the 24x2.5\" chassis); GPU kit + 1100W PSUs needed"),
+    ("dl380 gen10", 2, "HPE DL380 Gen10 2U: 1 double-width GPU per GPU riser, so 2 with two risers (only 1 with NVMe drives, HPE QuickSpecs); needs riser/heatsink kits"),
+    (r"r730(?!\s?xd)", 2, "Dell R730 2U: 2 double-width 300W GPUs (Dell tech guide) but needs optional riser 3, GPU kit, redundant 1100W PSUs, CPUs <=120W, <=30C ambient; the R730xd has no GPU support"),
+    ("t640", 4, "Dell T640 tower, desktop-style: 4 double-width 300W GPUs (reseller/Dell community), GPU config needs <=30C ambient"),
+    ("t630", 2, "Dell T630 tower: 4 double-width 300W GPUs need two CPUs and two 1100W PSUs; 2 with one CPU or NVMe (Dell owner's manual), so 2 assumed; <=30C ambient"),
 ]
 TARGETS = {24: "13B FP16 or ~30B Q4", 48: "70B Q4", 96: "70B Q8 or ~120B Q4", 128: "180B-class Q4"}
 DIMM_SIZES = (16, 32, 64)
@@ -57,7 +57,8 @@ def pick_ram(rows, need_gb: int):
     return {"part": best, "count": n, "cost": n * best["price"], "label": f"{n}x {best['ram_gb']}GB DDR4 ECC"}
 
 
-PART_WORDS = re.compile(r"power supply|\bpsu\b|riser|bezel|\brails?\b|backplane|heatsink|\bfans?\b|cable|controller|raid|nic\b", re.I)
+PART_WORDS = re.compile(r"power supply|\bpsu\b|80 plus|\bepp\b|riser|bezel|\brails?\b|backplane|heatsink|\bfans?\b|cable|controller|raid|nic\b"
+                        r"|memory|ddr[2-5]|rdimm|\bssd\b|system ?board|mainboard", re.I)
 MIN_HOST_PRICE = 250  # anything cheaper is a part, not a chassis
 
 

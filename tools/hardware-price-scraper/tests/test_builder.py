@@ -88,3 +88,12 @@ def test_host_filter():
     assert builder.build_options(rows, 32)[0]["items"][0]["unit_price"] == 300
     assert builder.build_options(rows, 32, only_host="t640")[0]["items"][0]["unit_price"] == 2544
     assert builder.build_options(rows + [row("minipc", "Beelink", 100, ram_gb=128)], 32, only_host="dl380") == []  # no turnkey with a host filter
+
+
+def test_memory_kits_and_boards_are_not_hosts():
+    rows = [row("gpu", "NVIDIA Tesla P100 16GB", 161, vram_gb=16),
+            row("server", "96GB (12x8GB) PC4-17000R DDR4 ECC Registered Memory for Dell PowerEdge T630", 987),
+            row("server", "HPE ProLiant DL380 Gen10 809455-002 System Board", 400),
+            row("server", "Dell PowerEdge R730 750W EPP 80 Plus Power Supply", 300),
+            row("ram", "32GB DDR4 RDIMM ECC", 209, ram_gb=32), row("storage", "3.84TB NVMe", 689)]
+    assert builder.build_options(rows, 16) == []

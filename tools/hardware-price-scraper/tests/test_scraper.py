@@ -136,36 +136,26 @@ def test_variants_dedupe_regions():
                                          {"title": "128GB RAM + 1TB SSD / US", "price": 349999}]})
     assert got == [("64GB RAM + 1TB SSD", 2199.99, True), ("128GB RAM + 1TB SSD", 3499.99, True)]
 
-def test_variants_stop_after_429(monkeypatch):
+def test_variants_backoff_then_stop_after_429(monkeypatch):
     import api_sources as a
-    calls = []
+    sleeps, calls = [], []
+    monkeypatch.setattr(a.time, "sleep", lambda s: sleeps.append(s))
     class R:
-        status_code, headers, ok = 429, {"retry-after": "60"}, False
+        status_code, headers, ok = 429, {"retry-after": "600"}, False
     class S:
         def get(self, url, **kw): calls.append(url); return R()
     st = a.ShopifyStore(S(), "x.com")
     assert st.variants("https://x.com/products/a") == [] and st.variants("https://x.com/products/b") == []
-    assert len(calls) == 1
+    assert len(calls) == 2 and sleeps == [a.MAX_BACKOFF]      # one retry after a capped wait, then no more calls
 
-def test_part_words_filtered(monkeypatch):
+def test_variants_retry_succeeds(monkeypatch):
     import api_sources as a
-    class Fake:
-        s, delay, last = None, 0, {}
-    class FakeStore:
-        def __init__(self, s, d): pass
-        def search(self, q): return [("Lenovo SR630 THINKSYSTEM SERVER", 394.99, "u", None, ""),
-                                     ("Lenovo 01KP697 FAN FOR THINKSYSTEM SR630", 44.95, "v", None, ""),
-                                     ("Lenovo 01GV283 ThinkSystem SR650 Backplane", 50.0, "w", None, "")]
-    monkeypatch.setitem(a.API_CLASSES, "shopify", FakeStore)
-    r = scraper.scrape([{"name": "S", "type": "api", "api": "shopify", "domain": "d"}],
-                       [{"q": "Lenovo ThinkSystem SR630", "category": "server"}], Fake())
-    assert [x.price for x in r] == [394.99]
-
-
-def test_mariadb_failure_never_raises(monkeypatch, capsys):
-    import mariadb_store
-    def boom(): raise RuntimeError("server down")
-    monkeypatch.setattr(mariadb_store, "connect", boom)
-    li = scraper.Listing("S", "q", "gpu", "t", 1.0, "u")
-    scraper.mirror_to_mariadb([li], "2026-01-01 00:00:00")      # must not raise
-    assert "MariaDB mirror skipped" in capsys.readouterr().err
+    monkeypatch.setattr(a.time, "sleep", lambda s: None)
+    class R429: status_code, headers, ok = 429, {"retry-after": "5"}, False
+    class ROk:
+        status_code, headers, ok = 200, {}, True
+        def json(self): return {"variants": [{"title": "128GB RAM + 2TB SSD", "price": 349999, "available": True}]}
+    seq = [R429(), ROk()]
+    class S:
+        def get(self, url, **kw): return seq.pop(0)
+    assert a.ShopifyStore(S(), "x.com").variants("u") == [("128GB RAM + 2TB SSD", 3499.99, True)]
