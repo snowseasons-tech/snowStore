@@ -19,7 +19,7 @@ export async function onRequestGet({ request, env }) {
     if (!p) return send(410, { error: 'This product is no longer available. Contact support.' });
     // downloads lists what the page offers: one item for a downloadable product, one per included product for a membership.
     const downloads = entitlements.downloadsFor(order.productId, CATALOG).map(({ id: product, name }) => ({ product, name }));
-    return send(200, { ready: true, product: p.name, download: downloads.length > 0, downloads, membership: entitlements.isMembership(p), appUrl: p.appUrl || null, manage: !!order.customer && !!order.subscriptionId });
+    return send(200, { ready: true, product: p.name, download: downloads.length > 0, downloads, membership: entitlements.isMembership(p), appUrl: p.appUrl || null, avatars: !!p.avatarCredits, manage: !!order.customer && !!order.subscriptionId });
   } catch (e) {
     console.error('order', e.message);
     return send(500, { error: 'Lookup failed' });

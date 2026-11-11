@@ -11,6 +11,7 @@
 <a class="btn" id="dl" href="#" hidden>Download your purchase</a>
 <div id="dls" style="display:flex;flex-wrap:wrap;gap:10px" hidden></div>
 <a class="btn" id="app" href="#" hidden>Open your app</a>
+<a class="btn" id="av" href="#" hidden>Make your avatars</a>
 <a class="btn" id="go" href="#" hidden>Tell us about your business</a>
 <button class="btn" id="mg" type="button" hidden>Manage subscription</button>
 <p class="muted" style="margin-top:1rem">A receipt is emailed by our payment processor.<span id="dlnote"> Download links are valid for 5 minutes each time you click; come back to this page (same link) to get a fresh one.</span></p>
@@ -25,12 +26,13 @@
     // Services have nothing to download: confirm the order and say what happens next instead of "is ready".
     // A membership offers one download per included product, available while the membership is active.
     if(d.membership){t.textContent='Thank you! Your '+d.product+' is active.';m.textContent='Your payment is verified. Download any of the apps below while your membership is active. New early-access apps appear here as they open.'}
-    else if(d.download||d.appUrl){t.textContent='Thank you! '+d.product+' is ready.';m.textContent='Your payment is verified.'}
+    else if(d.download||d.appUrl||d.avatars){t.textContent='Thank you! '+d.product+' is ready.';m.textContent='Your payment is verified.'}
     else{t.textContent='Thank you! Your '+d.product+' order is confirmed.';m.textContent='Your payment is verified. To get started, tell us about your business. We\u2019ll email you shortly with next steps.';document.getElementById('dlnote').hidden=true;var go=document.getElementById('go');go.href='/start?session_id='+encodeURIComponent(id);go.hidden=false}
     var list=d.downloads||[];
     if(d.membership||list.length>1){var box=document.getElementById('dls');list.forEach(function(x){var a=document.createElement('a');a.className='btn';a.href='/api/download?session_id='+encodeURIComponent(id)+'&product='+encodeURIComponent(x.product);a.textContent='Download '+x.name;box.appendChild(a)});box.hidden=!list.length}
     else if(d.download){dl.href='/api/download?session_id='+encodeURIComponent(id);dl.hidden=false}
    if(d.appUrl){app.href=d.appUrl;app.hidden=false}
+   if(d.avatars){var av=document.getElementById('av');av.href='/avatar?session_id='+encodeURIComponent(id);av.hidden=false}
    if(d.manage){mg.hidden=false;mg.onclick=function(){fetch('/api/portal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:id})}).then(function(r){return r.json()}).then(function(x){m.textContent=x.sent?'We emailed you a link to manage your subscription. It works for 30 minutes.':(x.error||'Could not open billing portal')})}}
    return}
    if(d.error){t.textContent='Order problem';m.textContent=d.error;return}

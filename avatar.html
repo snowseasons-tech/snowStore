@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Photo Avatar Pack | Snow Seasons Tech</title>
+<link rel="stylesheet" href="/page.css"> <link rel="stylesheet" href="/store-theme.css">
+<style>
+ .row{display:flex;flex-wrap:wrap;gap:10px;margin:.75rem 0}
+ .row label{display:flex;align-items:center;gap:6px;border:1px solid #8886;border-radius:8px;padding:8px 12px;cursor:pointer}
+ .pics{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:1rem}
+ .pics img{width:100%;height:auto;border-radius:12px;display:block}
+ .pics figure{margin:0}
+ #err{color:#c0392b}
+</style>
+</head>
+<body><header><div class="container"><a class="logo" href="/">Snow Seasons Technology</a></div></header>
+<main class="container">
+<h1>Photo Avatar Pack</h1>
+<p class="muted" id="status">Checking your order…</p>
+<form id="f" hidden>
+ <p><strong>1. Choose a photo</strong> of one person (JPEG, PNG or WebP, up to 4 MB). Only use photos of yourself or people who agreed.</p>
+ <input type="file" id="photo" accept="image/jpeg,image/png,image/webp" required>
+ <p><img id="preview" alt="" style="max-width:200px;border-radius:12px" hidden></p>
+ <p><strong>2. Pick a style</strong></p>
+ <div class="row" id="styles"></div>
+ <button class="btn" id="go" type="submit">Make my avatar</button>
+ <p class="muted">Your photo is sent to our image provider (OpenAI) to make the avatar and is not stored by us. Each run uses one credit; a run that fails does not.</p>
+</form>
+<p id="err" role="alert"></p>
+<div class="pics" id="pics"></div>
+<script>
+(function(){
+ var id=new URLSearchParams(location.search).get('session_id')||'';
+ var $=function(x){return document.getElementById(x)},status=$('status'),f=$('f'),err=$('err'),pics=$('pics'),photo=$('photo'),prev=$('preview'),go=$('go');
+ function left(d){status.textContent=d.remaining+' of '+d.total+' avatars left in your pack.'}
+ if(!/^cs_(test|live)_/.test(id)){status.textContent='Open this page from the link on your order confirmation.';return}
+ fetch('/api/avatar?session_id='+encodeURIComponent(id)).then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d}})}).then(function(x){
+  if(!x.ok){status.textContent=x.d.error||'Could not check your order.';return}
+  left(x.d);f.hidden=false;
+  x.d.styles.forEach(function(s,i){var l=document.createElement('label'),r=document.createElement('input');r.type='radio';r.name='style';r.value=s.id;if(!i)r.checked=true;l.appendChild(r);l.appendChild(document.createTextNode(' '+s.name));$('styles').appendChild(l)});
+ }).catch(function(){status.textContent='Could not check your order. Please reload.'});
+ photo.onchange=function(){var file=photo.files[0];prev.hidden=true;if(!file)return;var rd=new FileReader();rd.onload=function(){prev.src=rd.result;prev.hidden=false};rd.readAsDataURL(file)};
+ f.onsubmit=function(e){
+  e.preventDefault();err.textContent='';
+  var file=photo.files[0];if(!file){err.textContent='Choose a photo first.';return}
+  if(file.size>4*1024*1024){err.textContent='That photo is over 4 MB.';return}
+  var fd=new FormData();fd.append('session_id',id);fd.append('style',f.elements.style.value);fd.append('photo',file);
+  go.disabled=true;go.textContent='Drawing… this can take up to a minute';
+  fetch('/api/avatar',{method:'POST',body:fd}).then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d}})}).then(function(x){
+   if(!x.ok){err.textContent=x.d.error||'Something went wrong.';return}
+   var fig=document.createElement('figure'),im=document.createElement('img'),a=document.createElement('a');
+   im.src=x.d.image;im.alt='Your avatar';a.href=x.d.image;a.download='avatar.png';a.className='btn';a.textContent='Download';a.style.marginTop='8px';
+   fig.appendChild(im);fig.appendChild(a);pics.insertBefore(fig,pics.firstChild);
+   fetch('/api/avatar?session_id='+encodeURIComponent(id)).then(function(r){return r.json()}).then(left);
+  }).catch(function(){err.textContent='Network problem. Your credit was not used if the avatar did not appear. Please try again.'}).then(function(){go.disabled=false;go.textContent='Make my avatar'});
+ };
+})();
+</script>
+</main></body></html>
