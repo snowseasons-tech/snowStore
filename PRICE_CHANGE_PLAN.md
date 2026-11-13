@@ -150,3 +150,9 @@ Rollback for any of them: set `active=true` again.
 All 17 old 75% prices archived and the live site checked. It now shows the plan amounts: managed-database 200, website-management 250 / 150 (3m 750 / 450), managed-package 3,050, API integration 499 / 999 / 1,999 / 3,999, API maintenance 49 / 99 (3m 147 / 297), API management 199 (3m 597), founders-membership 29.
 **Beta kept for now:** Operations, MailHub and dotTracker remain at the $10 public-beta price, with dotTracker's 1w/6m/12m options unchanged. Open: decide when to end the beta (then create 350 / 300 / 300 and archive the beta prices).
 Still open from section D: $1/$10 software prices, $0 products, SnowSocial rebuild, Photo Avatar Pack, Basic vs Standard maintenance copy, unhiding social-media plans.
+
+## STATUS UPDATE: beta ended (2026-11-13)
+
+Public beta ended at your instruction. New prices created and checked on the live site: Operations & Lead Intelligence $350/mo, MailHub $300/mo, dotTracker $300/mo with 6m $1,800 and 12m $3,600. Archived: the three $10 beta prices, the three 75% monthly prices, and dotTracker's old 1w ($41.25 and original $55), 6m and 12m prices (75% and original). The weekly option is retired.
+The one dotTracker subscriber is still on their $10/mo beta price; moving them needs an agreed amendment (see section E).
+Rollback for any archived price: set `active=true`.
