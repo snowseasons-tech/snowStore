@@ -1,5 +1,7 @@
 import CATALOG from '../../api/_lib/catalog.js';
 import auth from '../../api/_lib/auth.js';
+import entitlements from '../../api/_lib/entitlements.js';
+const { hasCoin } = entitlements;
 import { send, methodNotAllowed } from '../_lib/http.js';
 import { useEnv, nodeReq, storeConfigured } from '../_lib/env.js';
 
@@ -18,7 +20,7 @@ export async function onRequestGet({ request, env }) {
         const p = CATALOG[id];
         return { id, name: p.name, category: p.category || null, version: p.version || null, sha256: p.sha256 || null, download: !!p.fileKey };
       });
-    return send(200, { email: user.email, apps });
+    return send(200, { email: user.email, apps, coin: hasCoin(user.products) });
   } catch (e) {
     console.error('me', e.message);
     return send(500, { error: 'Could not load your workspace' });

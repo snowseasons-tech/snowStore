@@ -1,7 +1,7 @@
 (function(){
  var form=document.getElementById('login'),account=document.getElementById('account'),logout=document.getElementById('logout');
  var who=document.getElementById('email-display'),msg=document.getElementById('login-msg'),catalog=document.getElementById('catalog');
- var search=document.getElementById('search'),category=document.getElementById('category'),apps=[];
+ var coin=document.getElementById('coin'),search=document.getElementById('search'),category=document.getElementById('category'),apps=[];
  var CATEGORIES={billing:'Billing & Finance',utilities:'Developer Utilities'};
 
  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
@@ -36,12 +36,12 @@
  }
 
  function signedIn(d){
-  apps=d.apps||[];who.textContent=d.email;
+  apps=d.apps||[];who.textContent=d.email;coin.hidden=!d.coin;
   [form,reset].forEach(function(f){f.hidden=true});setpw.hidden=!linkToken;account.hidden=!!linkToken;logout.hidden=false;search.disabled=false;category.disabled=false;
   render()
  }
  function signedOut(){
-  apps=[];account.hidden=true;logout.hidden=true;search.disabled=true;category.disabled=true;
+  apps=[];coin.hidden=true;account.hidden=true;logout.hidden=true;search.disabled=true;category.disabled=true;
   show(linkToken?setpw:form);
   search.value='';category.value='';note('Sign in to view the application catalog.')
  }

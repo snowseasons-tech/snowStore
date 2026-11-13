@@ -489,3 +489,71 @@ footer {
 .portal-hero > div:first-child .trust-row span { background:#e5f4ff; color:#142742; }
 .portal-hero .login-panel { color:var(--sst-ink); }
 :where(a,button,input,summary):focus-visible { outline:3px solid var(--sst-focus); outline-offset:3px; }
+
+/* Snow Seasons Tech coin: shown to Founder's Early Access members (see coin.html for the full 3D version) */
+.coin-panel {
+  display: flex;
+  align-items: center;
+  gap: 1.8rem;
+  padding: 1.5rem 1.8rem;
+  margin-bottom: 1.5rem;
+  border-radius: 24px;
+}
+
+.coin-panel[hidden] {
+  display: none;
+}
+
+.coin-stage {
+  flex: none;
+  width: 140px;
+  height: 140px;
+  perspective: 600px;
+}
+
+.coin-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: url(/img/snowseasonstech-coin.webp) 50% 50% / 114% no-repeat;
+  box-shadow: 0 0 28px rgba(0, 200, 255, 0.35), 0 8px 18px rgba(16, 30, 57, 0.25);
+  animation: coin-tilt 8s ease-in-out infinite;
+}
+
+.coin-face::before,
+.coin-face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* pulsing cyan circuitry: the same art, contrast-boosted so only the bright cyan survives */
+.coin-face::before {
+  background: inherit;
+  filter: brightness(0.6) contrast(3.5) saturate(3);
+  mix-blend-mode: screen;
+  animation: coin-pulse 2.4s ease-in-out infinite;
+}
+
+.coin-face::after {
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.5) 50%, transparent 62%) 150% 0 / 260% 100% no-repeat;
+  mix-blend-mode: soft-light;
+  animation: coin-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes coin-tilt { 0%, 100% { transform: rotateY(-18deg); } 50% { transform: rotateY(18deg); } }
+@keyframes coin-pulse { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.75; } }
+@keyframes coin-shimmer { 0% { background-position: 150% 0; } 60%, 100% { background-position: -50% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .coin-face,
+  .coin-face::before,
+  .coin-face::after { animation: none; }
+}
+
+@media (max-width: 560px) {
+  .coin-panel { flex-direction: column; text-align: center; }
+}

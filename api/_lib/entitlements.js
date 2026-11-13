@@ -13,4 +13,10 @@ function downloadsFor(productId, catalog) {
 
 const isMembership = (product) => !!product && Array.isArray(product.includes);
 
-module.exports = { downloadsFor, isMembership };
+// The portal shows the Snow Seasons Tech coin to accounts holding the Founder's Early Access Membership. The portal's
+// only entitlement is the account's product list (the same one app-download checks), so a lapsed member is
+// simply an account whose list no longer has it.
+const COIN_PRODUCT = 'founders-membership';
+const hasCoin = (products) => Array.isArray(products) && products.includes(COIN_PRODUCT);
+
+module.exports = { downloadsFor, isMembership, hasCoin };
