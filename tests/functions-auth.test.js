@@ -31,6 +31,7 @@ test('login -> me -> logout through Pages Functions', async () => {
     const ws = await (await me({ request: req('/api/me', { cookie }), env })).json();
     assert.strictEqual(ws.email, 'pat@example.com');
     assert.deepStrictEqual(ws.apps.map((a) => a.id), ['bookscan']);
+    assert.strictEqual(ws.coin, false);
 
     const out = await logout({ request: req('/api/logout', { method: 'POST', cookie }), env });
     assert.match(out.headers.get('set-cookie'), /Max-Age=0/);
@@ -115,5 +116,28 @@ test('password reset is unavailable (503) without email settings', async () => {
   const up = fakeUpstash();
   try {
     assert.strictEqual((await resetPw({ request: req('/api/password-reset', { method: 'POST', body: { email: 'pat@example.com' } }), env })).status, 503);
+  } finally { up.restore(); }
+});
+
+test('/api/me shows the coin only to accounts with the Founder\'s membership', async () => {
+  const [{ onRequestPost: login }, { onRequestGet: me }] = await Promise.all([
+    import('../functions/api/login.js'), import('../functions/api/me.js')]);
+  const auth = require('../api/_lib/auth');
+  const store = require('../api/_lib/store');
+  const { hasCoin } = require('../api/_lib/entitlements');
+  assert.ok(hasCoin(['bookscan', 'founders-membership']));
+  assert.ok(!hasCoin(['bookscan']) && !hasCoin([]) && !hasCoin(undefined));
+  const up = fakeUpstash();
+  Object.assign(process.env, env);
+  try {
+    const hash = await auth.hashPassword('s3cret-password');
+    await store.setJSON('user:member@example.com', { hash, products: ['founders-membership'] });
+    await store.setJSON('user:lapsed@example.com', { hash, products: [] });
+    const coinFor = async (email) => {
+      const ok = await login({ request: req('/api/login', { method: 'POST', body: { email, password: 's3cret-password' } }), env });
+      return (await (await me({ request: req('/api/me', { cookie: cookieOf(ok) }), env })).json()).coin;
+    };
+    assert.strictEqual(await coinFor('member@example.com'), true);
+    assert.strictEqual(await coinFor('lapsed@example.com'), false);
   } finally { up.restore(); }
 });

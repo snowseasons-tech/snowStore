@@ -1,5 +1,6 @@
 const CATALOG = require('./_lib/catalog');
 const auth = require('./_lib/auth');
+const { hasCoin } = require('./_lib/entitlements');
 const { send, allow } = require('./_lib/http');
 
 // Signed-in account + the applications it is entitled to. 401 when not signed in.
@@ -14,7 +15,7 @@ module.exports = async (req, res) => {
         const p = CATALOG[id];
         return { id, name: p.name, category: p.category || null, version: p.version || null, sha256: p.sha256 || null, download: !!p.fileKey };
       });
-    send(res, 200, { email: user.email, apps });
+    send(res, 200, { email: user.email, apps, coin: hasCoin(user.products) });
   } catch (e) {
     console.error('me', e.message);
     send(res, 500, { error: 'Could not load your workspace' });
