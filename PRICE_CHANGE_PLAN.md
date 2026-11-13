@@ -111,11 +111,11 @@ These aren't on the rate card, so I won't guess. Evidence is included.
 
 ## C1 result: subscriber check (2026-11-13, live account, read-only)
 
-Four active subscriptions in total; none trialing or past due.
+Four active subscriptions in total; none trialing or past due. The dotTracker one is the owner's own test (see below). The other three are not confirmed as real customers either: nearly all recent checkout sessions have a $0.00 total, so treat them as likely tests until confirmed.
 
 | Product | Subscriber price | Effect of this plan |
 |---|---|---|
-| `inspections-intelligence` | $10/mo (x1) | None: stays at $10 until moved. Card says $300, so decide about amending (section E). |
+| `inspections-intelligence` | $10/mo (x1) | None. **Confirmed to be the owner's own test subscription** (100%-off "ME" coupon, $0 invoices), not a customer. |
 | `founders-membership` | $29/mo (x1) | None. This subscriber already pays $29, so the A3 change brings the list price up to what they pay. |
 | `snowsocial` | $500/mo (x1) | None. Out of scope (see D3). |
 | `social-media-1` | $1,500 per 3 months (x1), i.e. $500/mo | None. Matches the card's $500/mo; new B prices don't touch it. |
@@ -124,7 +124,7 @@ No subscribers on API Maintenance or Management, Website Management, Managed Dat
 
 ## E. Existing subscribers
 
-Everyone already subscribed stays on the old (75%) price until moved. The card says price changes require "agreed amendment or renewal terms", so don't bulk-migrate. Step C1 produces the list; I'd review renewals one by one.
+Archiving prices never changes a running subscription. As of 2026-11-13 no confirmed real customer is subscribed: the dotTracker subscriber is the owner's own test, so no customer notice or amendment is needed for the beta ending. If real customers appear, the card says price changes require "agreed amendment or renewal terms", so move them one by one rather than in bulk.
 
 ## F. Unrelated finding
 
@@ -154,5 +154,5 @@ Still open from section D: $1/$10 software prices, $0 products, SnowSocial rebui
 ## STATUS UPDATE: beta ended (2026-11-13)
 
 Public beta ended at your instruction. New prices created and checked on the live site: Operations & Lead Intelligence $350/mo, MailHub $300/mo, dotTracker $300/mo with 6m $1,800 and 12m $3,600. Archived: the three $10 beta prices, the three 75% monthly prices, and dotTracker's old 1w ($41.25 and original $55), 6m and 12m prices (75% and original). The weekly option is retired.
-The one dotTracker subscriber is still on their $10/mo beta price; moving them needs an agreed amendment (see section E).
+The one dotTracker subscription is the owner's own test (100%-off coupon), so no notice or amendment is needed (see section E).
 Rollback for any archived price: set `active=true`.
