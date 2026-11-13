@@ -6,7 +6,7 @@ LinkedIn and X · 1 post each · drafted with Hook / Body / CTA (AIDA)
 
 Before you post:
 - **Draft only.** Nothing is scheduled or published.
-- **The coin.** Both posts say every member gets a digital coin in their customer portal. **Check the portal actually shows it before posting**; nothing in `snow-seasons-portal/` references a coin yet.
+- **The coin.** Both posts say every member gets a digital coin in their customer portal. The portal shows it to accounts holding the Founder's Early Access Membership (PR #83, `storefront/portal.js` and `/api/me`).
 - **Link.** Both link to `/products`, which lists the membership. There is no anchor straight to the card.
 - **Facts.** Price, the eight included products, auto-renewal and "downloaded files stay yours" come from the Founders Early Access Membership section of `terms.html`. Re-check them if the terms change.
 - **Left out on purpose.** The $29 price lock for subscribers from before Nov 7, 2026, and any promise of future apps or dates.
