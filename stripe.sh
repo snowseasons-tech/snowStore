@@ -1,2 +1,6 @@
-export STRIPE_SECRET_KEY="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"
+#!/usr/bin/env bash
+# Runs the Stripe issuing workflow. The key is read from the environment, never stored in this file:
+#   export STRIPE_SECRET_KEY="rk_live_..."   (or put it in .env, which git ignores, and `source .env`)
+: "${STRIPE_SECRET_KEY:?Set STRIPE_SECRET_KEY first (see the comment at the top of this file)}"
+export STRIPE_SECRET_KEY
 python stripe_issuing_workflow.py
