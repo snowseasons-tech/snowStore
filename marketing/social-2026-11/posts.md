@@ -6,7 +6,7 @@ LinkedIn and X · 1 post each · drafted with Hook / Body / CTA (AIDA)
 
 Before you post:
 - **Draft only.** Nothing is scheduled or published.
-- **The coin.** Both posts call it the membership's emblem. Neither promises members receive a physical or digital coin. Add that line once it is decided.
+- **The coin.** Both posts say every member gets a digital coin in their customer portal. **Check the portal actually shows it before posting**; nothing in `snow-seasons-portal/` references a coin yet.
 - **Link.** Both link to `/products`, which lists the membership. There is no anchor straight to the card.
 - **Facts.** Price, the eight included products, auto-renewal and "downloaded files stay yours" come from the Founders Early Access Membership section of `terms.html`. Re-check them if the terms change.
 - **Left out on purpose.** The $29 price lock for subscribers from before Nov 7, 2026, and any promise of future apps or dates.
@@ -18,7 +18,7 @@ Before you post:
 
 Eight business tools for $21.75 a month, and every file you download stays yours.
 
-Meet the Founder's Early Access Membership, with the Snow Seasons Tech coin as its emblem.
+Meet the Founder's Early Access Membership. Every member gets a digital Snow Seasons Tech coin in their customer portal.
 
 Brushed silver, with a circuit-board snowflake that pulses cyan.
 
@@ -41,7 +41,7 @@ $21.75 USD/month + tax, auto-renewing.
 
 Eight business tools. $21.75/month + tax.
 
-Founder's Early Access: GBP dashboard, lead pipeline, page builder, invoicing and more. Download them, and the files stay yours even if you cancel.
+Founder's Early Access: GBP dashboard, lead pipeline, page builder, invoicing and more. Every member gets a digital coin in the portal, and downloaded files stay yours.
 
 See what's included: https://snowseasonstech.store/products
 
