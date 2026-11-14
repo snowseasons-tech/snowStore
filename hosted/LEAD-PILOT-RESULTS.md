@@ -13,7 +13,7 @@ Date: 2026-11-06. This sheet records evidence levels explicitly; it is not relea
 | Test subscription cleanup | Stripe retrieval expanded latest invoice after cleanup | Passed: both test subscriptions canceled, both invoices zero due and zero paid |
 | Application billing policy on real snapshots | Pure policy evaluated captured real Stripe subscription objects | Passed: trial/scheduled access allowed; canceled denied; new trial allowed; cleanup cancellation denied |
 | Actual deployed application with provider credentials | Requires test application bindings and HubSpot service key | Pending |
-| Real successful Checkout payment and webhook delivery to test app | Requires configured application test key/webhook and a completed test-mode Checkout page | Pending; provider smoke used no-card trials, not completed Checkout |
+| Real successful Checkout payment and webhook delivery to test app | Sandbox Checkout completed as a pilot account in the hosted app; webhook delivery reported by the operator from the Stripe test dashboard | First delivery returned HTTP 200 `pilot-linked` (operator-reported, 2026-11-14); replay, workspace access and cleanup still pending |
 | Direct HubSpot service-key transport from the app | Requires scoped test key entered through CRM connection UI | Pending; connected HubSpot CRUD smoke is a separate path |
 | Pilot user follows written instructions | LEAD-PILOT.md | Pending |
 | Production operating setup | Offsite backups, scheduling and actual alert receipt | Pending |
@@ -45,3 +45,9 @@ The project's Production environment had no plain-text variables, so they were r
 | Encrypted secrets present after deploy | All four |
 
 Not verified here: the plain-text variables read back in the dashboard, the Stripe webhook destination and its signing secret, a completed test Checkout with signed webhook delivery, the HubSpot service-key delivery from the app and the pilot user walkthrough. Phase 7 stays open and the draft and pending catalog flags are unchanged.
+
+## 2026-11-14 sandbox Checkout and webhook delivery
+
+A pilot user completed sandbox Checkout in the hosted pilot app with Stripe test-mode payment details. The operator reported that the first webhook delivery to the pilot's `/api/webhook` returned HTTP 200 with `pilot-linked`, which is the expected response for linking the signed-in workspace. This was read from the Stripe test dashboard by the operator and not independently queried.
+
+Still pending: replaying the same event and confirming `duplicate`, confirming workspace access after **Check availability**, direct HubSpot delivery from the app, the pilot user walkthrough, and cancelling the test subscription with final states and invoice amounts recorded. Phase 7 stays open and the draft and pending catalog flags are unchanged.
