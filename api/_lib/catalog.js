@@ -164,16 +164,6 @@ module.exports = {
     includes: ['gbp-analytics-dashboard', 'lead-generator', 'page-builder', 'booking-app', 'blog-gen', 'invoice-generator', 'bookscan', 'saas-financial-engine'],
   },
   // Bundles: self-serve software access, drafts until every part exists and the price is approved. See scripts/create-bundles.js.
-  'business-launch': {
-    name: 'Business Launch',
-    kind: 'subscription',
-    draft: true,
-    proposedMonthly: 14900,
-    audience: 'Startups and small businesses',
-    blurb: "Website tools, online booking and invoicing for a new business.",
-    includes: ['booking-app', 'invoice-generator'],
-    pending: ['Website management software'],
-  },
   'marketing-automation': {
     name: 'Marketing Automation',
     stripeProduct: 'prod_VXlg9YtHAYA2kJ',

@@ -15,9 +15,9 @@ const fakeStripe = (existing = []) => {
   };
 };
 
-test('the six draft bundles are valid and not on sale', () => {
+test('the five draft bundles are valid and not on sale', () => {
   const bundles = drafts(CATALOG);
-  assert.strictEqual(bundles.length, 6);
+  assert.strictEqual(bundles.length, 5);
   assert.deepStrictEqual(validateCatalog(CATALOG), []);
   for (const b of bundles) assert.strictEqual(b.draft, true, `${b.id} must remain hidden`);
   assert.strictEqual(CATALOG['marketing-automation'].stripeProduct, 'prod_VXlg9YtHAYA2kJ');
@@ -26,13 +26,13 @@ test('the six draft bundles are valid and not on sale', () => {
 
 test('checkout refuses a draft bundle', async () => {
   const { onRequestPost } = await import('../functions/api/checkout.js');
-  const request = new Request('https://x.test/api/checkout', { method: 'POST', body: JSON.stringify({ productId: 'business-launch' }) });
+  const request = new Request('https://x.test/api/checkout', { method: 'POST', body: JSON.stringify({ productId: 'business-operations' }) });
   const res = await onRequestPost({ request, env: { SITE_URL: 'https://x.test', STRIPE_SECRET_KEY: 'sk_test_x' } });
   assert.strictEqual(res.status, 503);
 });
 
 test('a bundle unlocks only software that exists', () => {
-  assert.deepStrictEqual(downloadsFor('business-launch', CATALOG).map((d) => d.id), ['booking-app', 'invoice-generator']);
+  assert.deepStrictEqual(downloadsFor('business-operations', CATALOG).map((d) => d.id), ['booking-app', 'invoice-generator']);
   assert.deepStrictEqual(downloadsFor('ai-business-intelligence', CATALOG), []);
   for (const b of drafts(CATALOG)) {
     for (const id of b.includes || []) assert.ok(CATALOG[id].fileKey && !CATALOG[id].retired, `${b.id} includes ${id}`);
@@ -40,7 +40,7 @@ test('a bundle unlocks only software that exists', () => {
 });
 
 test('every bundle stays blocked until its software exists', () => {
-  assert.strictEqual(drafts(CATALOG).filter(blocked).length, 6);
+  assert.strictEqual(drafts(CATALOG).filter(blocked).length, 5);
 });
 
 test('the validator rejects bad bundles', () => {
