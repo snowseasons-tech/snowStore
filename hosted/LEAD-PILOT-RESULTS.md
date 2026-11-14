@@ -13,7 +13,7 @@ Date: 2026-11-06. This sheet records evidence levels explicitly; it is not relea
 | Test subscription cleanup | Stripe retrieval expanded latest invoice after cleanup | Passed: both test subscriptions canceled, both invoices zero due and zero paid |
 | Application billing policy on real snapshots | Pure policy evaluated captured real Stripe subscription objects | Passed: trial/scheduled access allowed; canceled denied; new trial allowed; cleanup cancellation denied |
 | Actual deployed application with provider credentials | Requires test application bindings and HubSpot service key | Pending |
-| Real successful Checkout payment and webhook delivery to test app | Sandbox Checkout completed as a pilot account in the hosted app; webhook delivery reported by the operator from the Stripe test dashboard | First delivery returned HTTP 200 `pilot-linked` (operator-reported, 2026-11-14); replay, workspace access and cleanup still pending |
+| Real successful Checkout payment and webhook delivery to test app | Stripe test dashboard delivery list for the pilot destination, read 2026-11-14 | Failed: all 9 deliveries this week returned HTTP 400 `Invalid signature`, the newest on 2026-11-07, and none appeared on 2026-11-14. The pilot's webhook signing secret is suspected to differ from the destination's. An earlier note here recording HTTP 200 `pilot-linked` was not supported by Stripe's records and is withdrawn |
 | Direct HubSpot service-key transport from the app | Requires scoped test key entered through CRM connection UI | Pending; connected HubSpot CRUD smoke is a separate path |
 | Pilot user follows written instructions | LEAD-PILOT.md | Pending |
 | Production operating setup | Offsite backups, scheduling and actual alert receipt | Pending |
@@ -46,8 +46,10 @@ The project's Production environment had no plain-text variables, so they were r
 
 Not verified here: the plain-text variables read back in the dashboard, the Stripe webhook destination and its signing secret, a completed test Checkout with signed webhook delivery, the HubSpot service-key delivery from the app and the pilot user walkthrough. Phase 7 stays open and the draft and pending catalog flags are unchanged.
 
-## 2026-11-14 sandbox Checkout and webhook delivery
+## 2026-11-14 webhook delivery correction
 
-A pilot user completed sandbox Checkout in the hosted pilot app with Stripe test-mode payment details. The operator reported that the first webhook delivery to the pilot's `/api/webhook` returned HTTP 200 with `pilot-linked`, which is the expected response for linking the signed-in workspace. This was read from the Stripe test dashboard by the operator and not independently queried.
+An earlier version of this section recorded that the first webhook delivery from a sandbox Checkout returned HTTP 200 `pilot-linked`, as reported by the operator. Reading the Stripe test dashboard afterwards showed otherwise, so that entry is withdrawn.
 
-Still pending: replaying the same event and confirming `duplicate`, confirming workspace access after **Check availability**, direct HubSpot delivery from the app, the pilot user walkthrough, and cancelling the test subscription with final states and invoice amounts recorded. Phase 7 stays open and the draft and pending catalog flags are unchanged.
+The pilot destination's delivery list shows 9 deliveries this week, all failed. Each `checkout.session.completed` delivery returned HTTP 400 with the response body `Invalid signature`. The newest is from 2026-11-07 and nothing was delivered on 2026-11-14. The destination is active and its URL is correct. A signature rejection means the pilot app received the event and the stored `STRIPE_WEBHOOK_SECRET` does not match the destination's signing secret. The cause is a suspicion and has not been confirmed.
+
+Still pending: correcting the stored webhook secret and redeploying, a fresh sandbox Checkout with a delivery returning HTTP 200 `pilot-linked`, replaying that event for `duplicate`, workspace access after **Check availability**, direct HubSpot delivery from the app, the pilot user walkthrough and subscription cleanup. Phase 7 stays open and the draft and pending catalog flags are unchanged.
