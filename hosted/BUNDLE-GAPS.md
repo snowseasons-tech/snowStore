@@ -2,11 +2,10 @@
 
 The active delivery sequence and phase completion checks are in [MVP-WORKFLOW.md](MVP-WORKFLOW.md). It prioritizes finishing Lead Generation Pro before returning to the other draft bundles.
 
-Reviewed 2026-11-06 against the catalog, product source and hosted provisioning code. Source code is evidence of implementation, not proof of a working production service. All six bundles remain drafts; proposed prices are unchanged.
+Reviewed 2026-11-06 against the catalog, product source and hosted provisioning code. Source code is evidence of implementation, not proof of a working production service. All five bundles remain drafts; proposed prices are unchanged.
 
 | Bundle | Existing components | Remaining work |
 | --- | --- | --- |
-| Business Launch | Booking and invoice downloads | Build website management software with customer access, editable site data, publishing and recovery. Page Builder exports HTML but does not fulfill ongoing website management. |
 | Marketing Automation | Auto Blogger download; Social Studio and MailHub applications; hosted provisioning for both | Verify a three-account Social Studio deployment, OAuth callbacks, scheduling and cancellation. Verify MailHub sending, webhooks and unsubscribe links. Choose a monthly email allowance and configure `mailhubSends`; no allowance is currently assigned. |
 | Lead Generation Pro | Lead pipeline download; persistent local workspace; hosted identity and tenant storage; subscription lifecycle checks; reviewed HubSpot contact connector with encrypted credentials, remote IDs and retries | Verify the connector against a real HubSpot test account; complete Stripe sandbox lifecycle, backup/restore and end-to-end pilot checks before enabling access or clearing catalog pending claims. Browser demos remain separate previews. |
 | Business Operations | Booking and invoice downloads | Implement hosted database provisioning, private customer credentials, isolation, backups, tested restore, limits and subscription lifecycle handling. Current hosted provisioning supports Social Studio and MailHub only. |

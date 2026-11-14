@@ -94,10 +94,9 @@ For every completed phase record: commit, environment, exact checks, observed re
 
 1. Lead Generation Pro: finish phases 1–8 above.
 2. Marketing Automation: validate existing Social Studio and MailHub hosting, choose email allowance, test provider connections, quotas, lifecycle and recovery.
-3. Business Launch: implement website management, then integrate booking and invoicing access.
-4. Business Operations: implement isolated database provisioning and tested restore, then integrate existing tools.
-5. AI Business Intelligence: add verified data ingestion and attributable reports after the operational data services exist.
-6. Complete Business Suite: integrate only the completed services, then test one subscription across all of them.
+3. Business Operations: implement isolated database provisioning and tested restore, then integrate existing tools.
+4. AI Business Intelligence: add verified data ingestion and attributable reports after the operational data services exist.
+5. Complete Business Suite: integrate only the completed services, then test one subscription across all of them.
 
 Keep each bundle hidden until its own promised workflows are implemented and verified. See BUNDLE-GAPS.md for the component-level inventory.
 
