@@ -33,3 +33,7 @@ products/snowSocial/
 
 # Encrypted operations backups and private account lists
 backups/
+
+# Local invoices (not part of the store)
+INVOICE_LOG.md
+Invoice_American_Tree_Colorado.*
