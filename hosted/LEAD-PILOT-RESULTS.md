@@ -29,3 +29,19 @@ The pilot fixture verified that signed test Checkout events link only the signed
 The full test suite, lead workspace suite, isolated recovery drill, lint, catalog validation, static Pages build, Functions compilation and local Pages smoke checks passed. The local runtime used a fake store and dummy bindings. The real Checkout, webhook, HubSpot service-key delivery and pilot-user walkthrough are still pending in the separate hosted project.
 
 The updated Functions were deployed to the isolated Pages project. The hosted portal returned 200, the signed-out workspace endpoint returned 401, the unsigned webhook returned 400, and public draft checkout returned 503. The operator reported seeding both accounts. A subsequent deployment confirmed the Stripe API and webhook secret bindings are stored as encrypted secrets and the pilot still has `ALLOW_LIVE=0`. Hosted sign-in, Stripe credential validity, a completed test Checkout and signed webhook delivery remain pending verification.
+
+## 2026-11-14 redeploy and rebuilt bindings
+
+The isolated pilot Pages project was redeployed from `main` at `7bc588e`. Local checks before the deploy: full repository suite (183 passed, 1 skipped), lead workspace suite (30), pilot journey fixture (3), recovery drill, lint and Pages build all passed.
+
+The project's Production environment had no plain-text variables, so they were rebuilt from `LEAD-PILOT.md` and applied through the pilot Wrangler config in a separate checkout. That config targets only the pilot project and is not committed. `ALLOW_LIVE` is `0`, sandbox checkout, billing and CRM are enabled, maintenance is off, and the workspace allowlist holds the two fictional pilot accounts. The Redis store was confirmed to contain only those two accounts. The four encrypted secrets were unchanged. Private provider IDs stay in the project settings and ignored local evidence.
+
+| Check | Result |
+| --- | --- |
+| Storefront `GET /` | 200 |
+| Signed-out workspace session and `GET /api/me` | 401 |
+| Unsigned webhook | 400 |
+| Public draft checkout | 503 (closed) |
+| Encrypted secrets present after deploy | All four |
+
+Not verified here: the plain-text variables read back in the dashboard, the Stripe webhook destination and its signing secret, a completed test Checkout with signed webhook delivery, the HubSpot service-key delivery from the app and the pilot user walkthrough. Phase 7 stays open and the draft and pending catalog flags are unchanged.
