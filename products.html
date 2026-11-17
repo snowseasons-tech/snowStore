@@ -390,7 +390,8 @@ const spinnerLink=el("a","btn","Open free tool");spinnerLink.href="/spinner-stud
 const spinnerActions=el("div","actions");spinnerActions.append(spinnerLink);spinnerCard.append(spinnerActions);
 gridProd.append(makeFlipCard(spinnerCard));
 fetch("/api/products").then((r)=>{if(!r.ok)throw new Error(r.status);return r.json()}).then((d)=>{
- const list=[...d.products].sort((a,b)=>rank(a.id)-rank(b.id));
+ const hiddenProductIds=new Set(["social-media-1","social-media-2","social-media-3","social-media-4","social-media-5"]);
+ const list=[...d.products].filter((p)=>!hiddenProductIds.has(p.id)).sort((a,b)=>rank(a.id)-rank(b.id));
  // The membership leads Founder's Early Access; labelled products follow it there; the rest are Production.
  list.forEach((p)=>{const d=DETAILS[p.id]||{},card=buildCard(p);if(d.membership)gridEarly.prepend(card);else (d.release?gridEarly:gridProd).append(card)});
  if(list.length)status.hidden=true;else status.textContent="No products are available right now. Email us and we'll help you choose.";
