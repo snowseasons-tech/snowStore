@@ -37,3 +37,18 @@ backups/
 # Local invoices (not part of the store)
 INVOICE_LOG.md
 Invoice_American_Tree_Colorado.*
+
+# Local editor state and generated development artifacts
+.vscode/
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+.pytest_cache/
+.venv/
+venv/
+.coverage
+coverage/
