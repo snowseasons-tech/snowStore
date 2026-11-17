@@ -120,7 +120,7 @@ header .logo img { flex:none; }
 <body>
 <header><nav class="container" aria-label="Main navigation">
 <a class="logo" href="/"><img src="/img/snow-mark.svg" width="42" height="42" alt="">Snow Seasons Tech</a>
-<ul class="nav-links"><li><a href="/products" aria-current="page">Products</a></li><li><a href="/#products">Services</a></li><li><a href="/#kit">Website Kit</a></li><li><a href="/blog/">Blog</a></li><li><a href="/#contact">Contact</a></li></ul>
+<ul class="nav-links"><li><a href="/products" aria-current="page">Products</a></li><li><a href="/business-academy">Academy</a></li><li><a href="/#products">Services</a></li><li><a href="/#kit">Website Kit</a></li><li><a href="/blog/">Blog</a></li><li><a href="/#contact">Contact</a></li></ul>
 <button class="btn btn-toggle" id="theme-toggle" type="button" aria-pressed="false">Toggle theme</button>
 </nav></header>
 <main>
@@ -374,6 +374,11 @@ function soonCard(m){
 const gridProd=$("#grid-production"),gridEarly=$("#grid-early"),status=$("#status");
 const sections=[$("#production"),$("#early-access")];
 gridProd.append(kitCard());
+const academyCard=el("article","card");academyCard.dataset.cat="Free";
+academyCard.append(cardTop("website-primary","Free learning resource"),el("h2",null,"Snow Seasons Tech Business Academy"),el("p",null,"A practical, interactive learning path for planning, launching, operating and growing an online business. Includes 11 modules, checklists, progress tracking and personal notes."),el("div","price","Free"));
+const academyLink=el("a","btn","Start learning");academyLink.href="/business-academy";
+const academyActions=el("div","actions");academyActions.append(academyLink);academyCard.append(academyActions);
+gridProd.append(makeFlipCard(academyCard));
 const careCard=el("article","card");careCard.dataset.cat="Website Tools";careCard.id="local-launch-care";
 careCard.append(cardTop("website-primary","Managed add-on"),el("h2",null,"Local Launch Care"),el("p",null,"Managed static hosting and weekly automated organic rank tracking after verified setup. $49/month for one site and 10 keywords in one location."),el("p","soon-status","Setup by request · tracking not yet connected · billing starts after verification"));
 const careLink=el("a","btn alt","View service & request setup");careLink.href="/local-launch-care";
