@@ -52,3 +52,5 @@ Thumbs.db
 venv/
 .coverage
 coverage/
+# Local analytics exports (client and operational data)
+/analytics/*.csv
