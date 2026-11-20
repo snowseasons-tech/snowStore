@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SnowStore BI Assistant</title>
+<style>
+  :root {
+    --bg: #f5f7fa; --card: #ffffff; --ink: #1b2430; --muted: #5b6878; --line: #dde3ea;
+    --accent: #2563eb; --good: #15803d; --bad: #b91c1c; --warn: #b45309; --bar: #93c5fd;
+    --chip: #eef2f7; --radius: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f141b; --card: #171e28; --ink: #e6ebf2; --muted: #98a4b3; --line: #2a3442;
+      --accent: #60a5fa; --good: #4ade80; --bad: #f87171; --warn: #fbbf24; --bar: #1e40af;
+      --chip: #223044;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f141b; --card: #171e28; --ink: #e6ebf2; --muted: #98a4b3; --line: #2a3442;
+    --accent: #60a5fa; --good: #4ade80; --bad: #f87171; --warn: #fbbf24; --bar: #1e40af; --chip: #223044;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--line); background: var(--card); position: sticky; top: 0; z-index: 2; }
+  h1 { font-size: 18px; margin: 0; }
+  h2 { font-size: 15px; margin: 0 0 12px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  main { padding: 16px; max-width: 1200px; margin: 0 auto; display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+  main code { overflow-wrap: anywhere; word-break: break-word; }
+  .grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; min-width: 0; }
+  .kpi .label { color: var(--muted); font-size: 13px; }
+  .kpi .value { font-size: 22px; font-weight: 650; margin-top: 4px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .kpi .sub { font-size: 13px; color: var(--muted); }
+  .up { color: var(--good); } .down { color: var(--bad); }
+  .two { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 900px) { .two { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); } }
+  .pill { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: var(--chip); color: var(--muted); white-space: nowrap; }
+  .pill.ok { color: var(--good); } .pill.off { color: var(--bad); } .pill.sample { color: var(--warn); }
+  select, button, input, textarea { font: inherit; color: var(--ink); }
+  select, .btn { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; min-height: 40px; }
+  .btn { cursor: pointer; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn:disabled { opacity: .55; cursor: wait; }
+  .chip { background: var(--chip); border: 0; border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; min-height: 36px; }
+  textarea { width: 100%; min-height: 84px; border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: var(--card); resize: vertical; font-size: 16px; }
+  .answer { white-space: pre-wrap; background: var(--chip); border-radius: 8px; padding: 12px; margin-top: 12px; min-height: 48px; font-size: 15px; overflow-wrap: anywhere; }
+  .muted { color: var(--muted); font-size: 13px; }
+  .bars { display: grid; gap: 6px; }
+  .bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 2fr auto; gap: 10px; align-items: center; font-size: 14px; }
+  .bar-track { background: var(--chip); border-radius: 6px; height: 12px; overflow: hidden; }
+  .bar-fill { background: var(--accent); height: 100%; border-radius: 6px; }
+  .bar-row .num { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  ul.signals { margin: 0; padding-left: 18px; }
+  ul.signals li { margin: 6px 0; }
+  .chart { width: 100%; height: 200px; display: block; }
+  .chart text { fill: var(--muted); font-size: 11px; }
+  .banner { background: color-mix(in srgb, var(--warn) 18%, var(--card)); border: 1px solid var(--warn); border-radius: var(--radius); padding: 10px 14px; font-size: 14px; }
+  .err { color: var(--bad); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  @media (max-width: 520px) {
+    header, main { padding: 12px 16px; }
+    .bar-row { grid-template-columns: 1fr auto; } .bar-row .bar-track { grid-column: 1 / -1; grid-row: 2; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="row">
+    <h1>SnowStore BI</h1>
+    <span id="source" class="pill">loading…</span>
+    <span id="ollama" class="pill">Ollama: checking…</span>
+  </div>
+  <div class="row">
+    <label class="sr-only" for="window">Time window</label>
+    <select id="window">
+      <option value="7">Last 7 days</option>
+      <option value="30" selected>Last 30 days</option>
+      <option value="90">Last 90 days</option>
+      <option value="365">Last 12 months</option>
+    </select>
+    <label class="btn" for="upload">Upload CSV</label>
+    <input id="upload" class="sr-only" type="file" accept=".csv,text/csv">
+  </div>
+</header>
+
+<main>
+  <div id="sampleBanner" class="banner" hidden>
+    <strong>Sample data.</strong> These numbers are fictional. Upload a Stripe charges export or a CSV with <code>date,product,amount,currency,customer,status,refunded</code> columns to see your store.
+  </div>
+  <div id="msg" class="muted" role="status" aria-live="polite"></div>
+
+  <section class="grid-kpi" aria-label="Key numbers">
+    <div class="card kpi"><div class="label">Net revenue</div><div class="value" id="kNet">–</div><div class="sub" id="kGrowth">&nbsp;</div></div>
+    <div class="card kpi"><div class="label">Orders</div><div class="value" id="kOrders">–</div><div class="sub" id="kFailed">&nbsp;</div></div>
+    <div class="card kpi"><div class="label">Average order</div><div class="value" id="kAov">–</div><div class="sub">&nbsp;</div></div>
+    <div class="card kpi"><div class="label">Payment success</div><div class="value" id="kSuccess">–</div><div class="sub">&nbsp;</div></div>
+    <div class="card kpi"><div class="label">Refund rate</div><div class="value" id="kRefund">–</div><div class="sub">&nbsp;</div></div>
+    <div class="card kpi"><div class="label">Customers</div><div class="value" id="kCust">–</div><div class="sub" id="kCustSub">&nbsp;</div></div>
+  </section>
+
+  <div class="two">
+    <section class="card">
+      <h2>Daily net revenue</h2>
+      <svg id="chart" class="chart" role="img" aria-label="Daily net revenue bar chart"></svg>
+    </section>
+    <section class="card">
+      <h2>Flags to look at</h2>
+      <ul id="signals" class="signals"><li class="muted">Nothing flagged for this window.</li></ul>
+    </section>
+  </div>
+
+  <div class="two">
+    <section class="card">
+      <h2>Products</h2>
+      <div id="products" class="bars"></div>
+      <div class="muted" style="margin-top:10px">Share of gross revenue in this window (not of orders).</div>
+    </section>
+    <section class="card">
+      <h2>Ask the assistant</h2>
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn primary" id="brief">Write weekly brief</button>
+      </div>
+      <div class="row" id="chips" style="margin-bottom:10px">
+        <button class="chip" data-q="How did revenue change compared with the previous period?">Revenue change</button>
+        <button class="chip" data-q="Which product drives the most revenue, and how concentrated is it?">Product mix</button>
+        <button class="chip" data-q="Are there payment failures or refunds I should look at?">Failures and refunds</button>
+        <button class="chip" data-q="How many customers were new versus returning?">New vs returning</button>
+      </div>
+      <label class="sr-only" for="q">Your question</label>
+      <textarea id="q" placeholder="Ask about this window, e.g. “Why did net revenue fall this month?”"></textarea>
+      <div class="row" style="margin-top:8px; justify-content: space-between">
+        <span class="muted">Answers use only the numbers on this page. Model: <span id="model">–</span></span>
+        <button class="btn primary" id="ask">Ask</button>
+      </div>
+      <div id="answer" class="answer" aria-live="polite">The answer appears here.</div>
+    </section>
+  </div>
+
+  <section class="card" id="warnBox" hidden>
+    <h2>Rows skipped during import</h2>
+    <ul id="warnings" class="muted"></ul>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  let currency = "usd";
+  let windowDays = "30";
+
+  const money = (v) => v == null ? "–" : new Intl.NumberFormat("en-US", { style: "currency", currency: currency.toUpperCase(), maximumFractionDigits: 0 }).format(v);
+  const pct = (v, d = 1) => v == null ? "–" : (v * 100).toFixed(d) + "%";
+  const num = (v) => v == null ? "–" : new Intl.NumberFormat("en-US").format(v);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  async function getJSON(url, opts) {
+    const res = await fetch(url, opts);
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || ("Request failed (" + res.status + ")"));
+    return body;
+  }
+  function setMsg(text, isErr) { const m = $("msg"); m.textContent = text || ""; m.className = isErr ? "err" : "muted"; }
+
+  function drawChart(daily) {
+    const svg = $("chart");
+    const W = 600, H = 200, pad = 24;
+    const max = Math.max(1, ...daily.map((d) => d.net));
+    const min = Math.min(0, ...daily.map((d) => d.net));
+    const span = max - min || 1;
+    const bw = (W - pad * 2) / Math.max(1, daily.length);
+    const y = (v) => H - pad - ((v - min) / span) * (H - pad * 2);
+    let parts = [`<line x1="${pad}" x2="${W - pad}" y1="${y(0)}" y2="${y(0)}" stroke="currentColor" opacity=".25"/>`];
+    daily.forEach((d, i) => {
+      const top = y(Math.max(d.net, 0)), bottom = y(Math.min(d.net, 0));
+      parts.push(`<rect x="${(pad + i * bw + 1).toFixed(1)}" y="${top.toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${Math.max(0.5, bottom - top).toFixed(1)}" fill="var(--accent)" opacity=".85"><title>${esc(d.date)}: ${esc(money(d.net))}</title></rect>`);
+    });
+    if (daily.length) {
+      parts.push(`<text x="${pad}" y="${H - 6}">${esc(daily[0].date)}</text>`);
+      parts.push(`<text x="${W - pad}" y="${H - 6}" text-anchor="end">${esc(daily[daily.length - 1].date)}</text>`);
+    }
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.innerHTML = parts.join("");
+  }
+
+  function kpiChange(el, growth) {
+    el.className = "sub " + (growth == null ? "" : growth >= 0 ? "up" : "down");
+    el.textContent = growth == null ? "no comparison data" : (growth >= 0 ? "▲ " : "▼ ") + pct(Math.abs(growth)) + " vs previous period";
+  }
+
+  function render(m, meta) {
+    const c = m.current, p = m.previous;
+    currency = c.currencies.length === 1 ? c.currencies[0] : "usd";
+    $("kNet").textContent = money(c.net);
+    kpiChange($("kGrowth"), m.net_growth);
+    $("kOrders").textContent = num(c.orders);
+    $("kFailed").textContent = num(c.failed_or_pending) + " failed or pending";
+    $("kAov").textContent = money(c.average_order);
+    $("kSuccess").textContent = pct(c.success_rate);
+    $("kRefund").textContent = pct(c.refund_rate);
+    $("kCust").textContent = num(c.unique_customers);
+    $("kCustSub").textContent = num(c.new_customers) + " new · " + num(c.repeat_customers) + " repeat";
+    drawChart(c.daily);
+
+    const sig = $("signals");
+    sig.innerHTML = m.signals.length ? m.signals.map((s) => `<li>${esc(s)}</li>`).join("") : '<li class="muted">Nothing flagged for this window.</li>';
+
+    const products = $("products");
+    products.innerHTML = c.products.length
+      ? c.products.map((r) => `<div class="bar-row"><span>${esc(r.product)}</span><div class="bar-track"><div class="bar-fill" style="width:${(r.share_of_gross * 100).toFixed(1)}%"></div></div><span class="num">${esc(money(r.gross))} · ${pct(r.share_of_gross, 0)}</span></div>`).join("")
+      : '<div class="muted">No successful sales in this window.</div>';
+
+    const prevNote = p.orders ? "" : " (previous period had no sales)";
+    $("msg").textContent = `Window ${m.window.start} to ${m.window.end}${prevNote}`;
+    $("msg").className = "muted";
+    $("source").textContent = meta.sample ? "Sample data" : (num(meta.rows) + " sales rows");
+    $("source").className = "pill " + (meta.sample ? "sample" : "ok");
+    $("sampleBanner").hidden = !meta.sample;
+  }
+
+  function renderWarnings(list) {
+    $("warnBox").hidden = !list.length;
+    $("warnings").innerHTML = list.map((w) => `<li>${esc(w)}</li>`).join("");
+  }
+
+  async function refresh() {
+    try {
+      const [m, s] = await Promise.all([getJSON("/api/metrics?days=" + windowDays), getJSON("/api/status")]);
+      render(m, { sample: s.sample, rows: s.rows });
+      renderWarnings(s.warnings);
+    } catch (e) { setMsg(e.message, true); }
+  }
+
+  async function status() {
+    try {
+      const s = await getJSON("/api/status");
+      const o = s.ollama;
+      const pill = $("ollama");
+      if (!o.online) { pill.textContent = "Ollama offline"; pill.className = "pill off"; pill.title = o.error; }
+      else if (!o.model_installed) { pill.textContent = "Ollama up, model missing"; pill.className = "pill off"; pill.title = "Run: ollama pull " + o.model; }
+      else { pill.textContent = "Ollama: " + o.model; pill.className = "pill ok"; }
+      $("model").textContent = o.model;
+    } catch (e) { setMsg(e.message, true); }
+  }
+
+  async function ask(question) {
+    const answer = $("answer");
+    const buttons = [$("ask"), $("brief")];
+    buttons.forEach((b) => (b.disabled = true));
+    answer.textContent = "Thinking… (the first answer after startup can take a minute)";
+    try {
+      const body = { days: windowDays, ...(question ? { question } : {}) };
+      const r = await getJSON(question ? "/api/ask" : "/api/brief", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+      });
+      answer.textContent = r.answer;
+    } catch (e) {
+      answer.textContent = "Could not get an answer: " + e.message;
+    } finally { buttons.forEach((b) => (b.disabled = false)); }
+  }
+
+  $("window").addEventListener("change", (e) => { windowDays = e.target.value; refresh(); });
+  $("ask").addEventListener("click", () => {
+    const q = $("q").value.trim();
+    if (q) ask(q); else $("answer").textContent = "Type a question first.";
+  });
+  $("brief").addEventListener("click", () => ask(""));
+  document.querySelectorAll("#chips .chip").forEach((b) => b.addEventListener("click", () => { $("q").value = b.dataset.q; ask(b.dataset.q); }));
+  $("upload").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setMsg("Importing " + file.name + "…");
+    try {
+      const r = await getJSON("/api/upload", { method: "POST", headers: { "Content-Type": "text/csv" }, body: file });
+      setMsg(num(r.rows) + " rows imported. " + r.message);
+      await refresh();
+      await status();
+    } catch (err) { setMsg(err.message, true); }
+    e.target.value = "";
+  });
+
+  refresh();
+  status();
+})();
+</script>
+</body>
+</html>

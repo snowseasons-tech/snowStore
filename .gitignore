@@ -54,3 +54,6 @@ venv/
 coverage/
 # Local analytics exports (client and operational data)
 /analytics/*.csv
+
+# BI assistant: real sales exports stay on this machine (sample/ is fictional and committed)
+bi-assistant/data/
