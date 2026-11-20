@@ -113,8 +113,8 @@ module.exports = {
     filename: 'invoice-generator.zip',
     category: 'utilities',
     blurb: 'Make professional invoices in your browser and save them as PDFs. No account, no watermark, your data stays local.',
-    version: '1.0.0',
-    sha256: '0b342147f90fb8af2d770119814886cb5e18e21a985207f708171158539a0024',
+    version: '1.1.0',
+    sha256: '90d43b7a2468ef4fb51cba06f43bfd80217ce23d14c8800b9541ba7a9061fad2',
   },
   'saas-financial-engine': {
     name: 'SaaS Financial Projection Engine',
