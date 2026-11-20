@@ -56,8 +56,25 @@ units, so `49.00` means $49. Rows that can't be read are skipped and listed in t
 "Rows skipped during import". Rows with a status other than succeeded/paid/complete count as failed
 or pending.
 
+### Pulling from Stripe (read-only)
+
+Instead of exporting a CSV, you can pull recent charges straight from Stripe:
+
+```bash
+# Use a restricted key with read access to Charges only (rk_...), never a full secret key
+export STRIPE_API_KEY=rk_live_...     # or rk_test_... while testing
+python3 stripe_sync.py --days 365
+```
+
+The script only sends GET requests to `/v1/charges`. It replaces the current dataset the same way an
+upload does, so re-running never double-counts. It refuses a full `sk_live` key unless you set
+`STRIPE_ALLOW_SECRET_KEY=1`. Product names come from `metadata.product` if you set it on the charge,
+otherwise from the charge description, and charges with neither are counted as "Unlabelled".
+Amounts for zero-decimal currencies such as JPY are read as whole units.
+
 Files you put in `data/` by hand are loaded at startup. Only `*.csv` files at the top of `data/` are
-read.
+read. Whichever way the data arrives, `data/` only ever holds hashed customer ids, never the raw ids
+or emails from the source file.
 
 ## What the app computes
 
@@ -81,9 +98,11 @@ export therefore still shows its most recent period.
 | `bi.py` | CSV import, hashing, metrics, flags (stdlib only, no network) |
 | `assistant.py` | Ollama client, system prompt, context limits |
 | `index.html` | Dashboard page (one file, works offline, responsive) |
+| `stripe_sync.py` | Read-only Stripe charges pull into the dataset |
 | `make_sample.py` | Writes the fictional sample data |
 | `sample/sales_sample.csv` | Fictional sample, committed |
 | `test_bi.py` | 26 unit and endpoint tests |
+| `test_stripe_sync.py` | Stripe sync tests against a local fake Stripe |
 | `data/` | Your real exports and archive. **Git-ignored; never commit it** |
 
 ## API
@@ -113,8 +132,10 @@ by hand against `qwen2.5:7b`.
 
 ## Known limits
 
-- **CSV only.** There's no live Stripe or Upstash sync yet. Export from Stripe and upload. A
-  read-only Stripe pull would be the natural next step.
+- **Charges only.** The Stripe pull reads charges, not invoices or subscription lines, so renewals
+  appear as charges with whatever description Stripe gives them. Set `metadata.product` on recurring
+  prices to get clean product names.
+- **Not live.** Data is as fresh as your last sync. Run `stripe_sync.py` again to refresh it.
 - **Speed.** On this machine a `qwen2.5:7b` answer takes about a minute. The first answer after startup
   is slowest. `gemma3:4b` is faster if you need quicker replies.
 - **Model accuracy.** The model is told to quote only the supplied figures. It has still mislabelled a
