@@ -11,7 +11,27 @@ function downloadsFor(productId, catalog) {
     .map((id) => ({ id, name: catalog[id].name, fileKey: catalog[id].fileKey, filename: catalog[id].filename }));
 }
 
-const isMembership = (product) => !!product && Array.isArray(product.includes);
+const isMembership = (product) =>
+  !!product
+  && Array.isArray(product.includes)
+  && !product.draft
+  && !product.pending
+  && !product.hidden
+  && !product.retired;
+
+// A portal account holds membership product IDs. Those IDs unlock each included download only while the membership
+// remains an active entitlement in the account.
+const accountIncludesProduct = (products, productId, catalog) => {
+  if (!Array.isArray(products)) return false;
+  if (products.includes(productId)) return true;
+  return products.some((membershipId) => {
+    const membership = has(catalog, membershipId) ? catalog[membershipId] : null;
+    return isMembership(membership) && membership.includes.includes(productId);
+  });
+};
+
+const subscriptionActive = (sub) =>
+  !!sub && ['active', 'trialing'].includes(sub.status);
 
 // The portal shows the Snow Seasons Tech coin to accounts holding the Founder's Early Access Membership. The portal's
 // only entitlement is the account's product list (the same one app-download checks), so a lapsed member is
@@ -19,4 +39,4 @@ const isMembership = (product) => !!product && Array.isArray(product.includes);
 const COIN_PRODUCT = 'founders-membership';
 const hasCoin = (products) => Array.isArray(products) && products.includes(COIN_PRODUCT);
 
-module.exports = { downloadsFor, isMembership, hasCoin };
+module.exports = { downloadsFor, isMembership, accountIncludesProduct, subscriptionActive, hasCoin };

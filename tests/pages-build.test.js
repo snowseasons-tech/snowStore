@@ -12,7 +12,7 @@ const list = (dir, base = dir) => fs.readdirSync(dir, { withFileTypes: true })
 test('dist contains only the public site', () => {
   const out = build({ root, out: fs.mkdtempSync(path.join(os.tmpdir(), 'dist-')) });
   const files = list(out).sort();
-  for (const f of ['index.html', '404.html', 'success.html', 'cancel.html', 'privacy.html', 'refund.html', 'terms.html', 'page.css', '_headers',
+  for (const f of ['index.html', '404.html', 'success.html', 'cancel.html', 'privacy.html', 'refund.html', 'terms.html', 'page.css', 'store-theme.css', 'christmas-theme.css', '_headers',
     'storefront/portal.html', 'storefront/portal.js', 'storefront/styles.css', 'img/hero-banner.jpg', 'img/flake-1.png',
     'blog/index.html', 'blog/how-to-create-a-successful-stripe-store/index.html',
     'demos/sql-for-small-business.html', 'demos/small-business-project-cookbook.html',

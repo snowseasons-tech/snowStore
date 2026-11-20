@@ -1,6 +1,6 @@
 const CATALOG = require('./_lib/catalog');
 const store = require('./_lib/store');
-const { downloadsFor, isMembership } = require('./_lib/entitlements');
+const { downloadsFor, isMembership, subscriptionActive } = require('./_lib/entitlements');
 const { logAccess } = require('./_lib/access-log');
 const { presignFromEnv } = require('./_lib/sigv4');
 const { send, allow } = require('./_lib/http');
@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
     if (membership && !order.subscriptionId) return send(res, 403, { error: 'Membership is not active' });
     if (order.subscriptionId) {
       const sub = await store.getJSON(`sub:${order.subscriptionId}`);
-      if (!sub || !['active', 'trialing'].includes(sub.status)) return send(res, 403, { error: membership ? 'Membership is not active' : 'Subscription is not active' });
+      if (!subscriptionActive(sub)) return send(res, 403, { error: membership ? 'Membership is not active' : 'Subscription is not active' });
     }
     // Build the URL first and count last, so failed checks or bad config don't use up the allowance.
     // A membership counts each included download separately.

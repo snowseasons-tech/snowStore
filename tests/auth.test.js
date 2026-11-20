@@ -28,6 +28,21 @@ test('password hashes verify and reject wrong passwords', async () => {
   assert.strictEqual(await auth.verifyPassword('wrong', h), false);
 });
 
+test('legacy account product lists are normalized', async () => {
+  assert.deepStrictEqual(auth.normalizeProducts([' bookscan ', 'bookscan', '', null, 42]), ['bookscan']);
+  assert.deepStrictEqual(auth.normalizeProducts(null), []);
+  assert.deepStrictEqual(auth.normalizeProducts('bookscan'), []);
+});
+
+test('session resolution returns an empty entitlement list for malformed account fields', async () => {
+  const hash = await auth.hashPassword('malformed-password');
+  await store.setJSON('user:malformed@example.com', { hash, products: 'bookscan' });
+  const cookie = cookieOf(await call(login, { method: 'POST', body: { email: 'malformed@example.com', password: 'malformed-password' } }));
+  const workspace = await call(me, { headers: { cookie } });
+  assert.strictEqual(workspace.statusCode, 200);
+  assert.deepStrictEqual(workspace.json.apps, []);
+});
+
 test('login -> me -> download -> logout', async () => {
   await store.setJSON('user:pat@example.com', { hash: await auth.hashPassword('s3cret-password'), products: ['bookscan'] });
 
@@ -56,6 +71,18 @@ test('download refuses products the account does not own', async () => {
   const cookie = cookieOf(await call(login, { method: 'POST', body: { email: 'none@example.com', password: 'another-password' } }));
   assert.strictEqual((await call(appDownload, { url: '/api/app-download?product=bookscan', headers: { cookie } })).statusCode, 403);
   assert.strictEqual((await call(appDownload, { url: '/api/app-download?product=__proto__', headers: { cookie } })).statusCode, 404);
+});
+
+test('portal downloads are limited per account and product', async () => {
+  await store.setJSON('user:limited@example.com', { hash: await auth.hashPassword('limited-password'), products: ['bookscan'] });
+  const cookie = cookieOf(await call(login, { method: 'POST', body: { email: 'limited@example.com', password: 'limited-password' } }));
+  for (let i = 0; i < 10; i++) {
+    const result = await call(appDownload, { url: '/api/app-download?product=bookscan', headers: { cookie } });
+    assert.strictEqual(result.statusCode, 302);
+  }
+  const limited = await call(appDownload, { url: '/api/app-download?product=bookscan', headers: { cookie } });
+  assert.strictEqual(limited.statusCode, 429);
+  assert.strictEqual(limited.headers['retry-after'], '3600');
 });
 
 test('login rejects form posts and rate-limits per email', async () => {
@@ -165,6 +192,10 @@ test('changing the password ends existing sessions', async () => {
   assert.strictEqual((await call(me, { headers: { cookie } })).statusCode, 200);
   // what scripts/add-user.js does
   await store.setJSON('user:reset@example.com', { hash: await auth.hashPassword('new-password-456'), products: ['bookscan'] });
-  assert.strictEqual((await call(me, { headers: { cookie } })).statusCode, 401);
-  assert.strictEqual((await call(appDownload, { url: '/api/app-download?product=bookscan', headers: { cookie } })).statusCode, 401);
+  const staleMe = await call(me, { headers: { cookie } });
+  assert.strictEqual(staleMe.statusCode, 401);
+  assert.match(staleMe.headers['set-cookie'], /Max-Age=0/);
+  const staleDownload = await call(appDownload, { url: '/api/app-download?product=bookscan', headers: { cookie } });
+  assert.strictEqual(staleDownload.statusCode, 401);
+  assert.match(staleDownload.headers['set-cookie'], /Max-Age=0/);
 });

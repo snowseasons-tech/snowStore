@@ -1,5 +1,6 @@
 const defaultCatalog = require('./catalog');
-const { downloadsFor } = require('./entitlements');
+const { downloadsFor, isMembership } = require('./entitlements');
+const { normalizeProducts } = require('./auth');
 const store = require('./store');
 const mail = require('./mail');
 const { linkCheckout } = require('./lead-billing');
@@ -68,13 +69,36 @@ async function processEvent(event, s, catalog, mailer) {
   });
   if (session.subscription) {
     const existing = await s.getJSON(`sub:${session.subscription}`);
-    await s.setJSON(`sub:${session.subscription}`, { status: 'active', productId, email, customer: session.customer || null, ...(existing || {}) });
+    await s.setJSON(`sub:${session.subscription}`, {
+      ...(existing || {}),
+      status: 'active',
+      productId,
+      email,
+      customer: session.customer || null,
+    });
   }
 
   const leadLink = await linkCheckout(session, productId, s);
   const leadPortal = leadLink && !product.draft && !product.hidden && !product.retired
     && leadLink.email.includes('@') && leadLink.email.length <= 254;
-  if (leadPortal) await s.setJSONIfAbsent(`user:${leadLink.email}`, { hash: null, products: [] });
+  const membershipEmail = leadLink?.email || email;
+  const membershipPortal = isMembership(product)
+    && typeof membershipEmail === 'string'
+    && membershipEmail.includes('@')
+    && membershipEmail.length <= 254;
+  if (leadPortal || membershipPortal) {
+    const portalEmail = membershipPortal ? membershipEmail : leadLink.email;
+    const userKey = `user:${portalEmail}`;
+    const existingUser = await s.getJSON(userKey);
+    const user = existingUser
+      ? { ...existingUser, products: normalizeProducts(existingUser.products) }
+      : { hash: null, products: [] };
+    if (isMembership(product) && !user.products.includes(productId)) {
+      await s.setJSON(userKey, { ...user, products: [...user.products, productId] });
+    } else if (!existingUser) {
+      await s.setJSONIfAbsent(userKey, user);
+    }
+  }
 
   // Email the order page link (it mints a fresh 5-minute download URL each visit). Sent once per order.
   let mailed = 'no-email';
@@ -139,15 +163,34 @@ async function applySubscription(event, s) {
   if (existing && existing.lastEventAt && existing.lastEventAt > event.created) return 'stale';
   if (existing && existing.status === 'canceled' && event.type !== 'customer.subscription.deleted') return 'stale';
   const item = sub.items && sub.items.data && sub.items.data[0];
+  const status = event.type === 'customer.subscription.deleted' ? 'canceled' : sub.status;
   await s.setJSON(`sub:${sub.id}`, {
     ...(existing || {}),
     productId: (existing && existing.productId) || (sub.metadata && sub.metadata.product_id) || null,
     customer: sub.customer,
-    status: event.type === 'customer.subscription.deleted' ? 'canceled' : sub.status,
+    status,
+    email: (existing && existing.email) || sub.metadata?.email || null,
     cancelAtPeriodEnd: !!sub.cancel_at_period_end,
     currentPeriodEnd: (item && item.current_period_end) || sub.current_period_end || null,
     lastEventAt: event.created,
   });
+  const productId = (existing && existing.productId) || (sub.metadata && sub.metadata.product_id) || null;
+  const product = Object.prototype.hasOwnProperty.call(defaultCatalog, productId) ? defaultCatalog[productId] : null;
+  const email = (existing && existing.email) || sub.metadata?.email || null;
+  if (product && isMembership(product) && email) {
+    const userKey = `user:${email}`;
+    const user = await s.getJSON(userKey);
+    if (user) {
+      const normalized = normalizeProducts(user.products);
+      const normalizedUser = { ...user, products: normalized };
+      if (['active', 'trialing'].includes(status)) {
+        if (!normalized.includes(productId)) await s.setJSON(userKey, { ...normalizedUser, products: [...normalized, productId] });
+      } else if (status === 'canceled') {
+        const products = normalized.filter((id) => id !== productId);
+        await s.setJSON(userKey, { ...normalizedUser, products });
+      }
+    }
+  }
   return 'subscription-updated';
 }
 module.exports = { handleEvent };

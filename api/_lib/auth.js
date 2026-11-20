@@ -17,6 +17,10 @@ const LOGIN_MAX_PER_EMAIL = 100;
 
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 const normEmail = (e) => String(e || '').trim().toLowerCase();
+const normalizeProducts = (value) =>
+  Array.isArray(value)
+    ? [...new Set(value.filter((id) => typeof id === 'string' && id).map((id) => id.trim()).filter(Boolean))]
+    : [];
 
 function scrypt(password, salt, { N, r, p, keylen }) {
   return new Promise((resolve, reject) =>
@@ -82,7 +86,7 @@ async function getSession(req, s = store) {
   if (!sess) return null;
   const user = await s.getJSON(`user:${sess.email}`);
   if (!user || sess.cred !== credOf(user)) return null;
-  return { email: sess.email, products: user.products || [] };
+  return { email: sess.email, products: normalizeProducts(user.products) };
 }
 async function destroySession(req, s = store) {
   const token = readToken(req);
@@ -133,6 +137,6 @@ function clientIp(req) {
 
 module.exports = {
   SESSION_TTL_SEC, normEmail, hashPassword, verifyPassword, checkCredentials, loginLimited, recordLoginFailure,
-  createSession, getSession, destroySession, sessionCookie, clearCookie, clientIp,
+  createSession, readToken, normalizeProducts, getSession, destroySession, sessionCookie, clearCookie, clientIp,
   PASSWORD_MIN, RESET_TTL_SEC, INVITE_TTL_SEC, createPasswordLink, setPasswordFromLink, passwordLinkMail,
 };

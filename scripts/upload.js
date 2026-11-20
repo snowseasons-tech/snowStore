@@ -5,6 +5,7 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const CATALOG = require('../api/_lib/catalog');
 const { presignPutFromEnv } = require('../api/_lib/sigv4');
 
 const TYPES = {
@@ -20,6 +21,9 @@ async function main() {
   if (!localPath || !key) throw new Error('usage: node scripts/upload.js <local file> <fileKey>');
   const missing = ['S3_ENDPOINT', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY'].filter((k) => !process.env[k]);
   if (missing.length) throw new Error(`Set ${missing.join(', ')}`);
+
+  const matches = Object.entries(CATALOG).filter(([, p]) => p.fileKey === key);
+  if (matches.length !== 1) throw new Error(`fileKey "${key}" does not uniquely match a catalog deliverable`);
 
   const body = fs.readFileSync(localPath);
   const ext = path.extname(localPath).toLowerCase();

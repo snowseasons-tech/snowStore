@@ -8,7 +8,10 @@ module.exports = async (req, res) => {
   if (!allow(req, res, 'GET')) return;
   try {
     const user = await auth.getSession(req);
-    if (!user) return send(res, 401, { error: 'Not signed in' });
+    if (!user) {
+      const headers = auth.readToken(req) ? { 'Set-Cookie': auth.clearCookie() } : undefined;
+      return send(res, 401, { error: 'Not signed in' }, headers);
+    }
     const apps = user.products
       .filter((id) => Object.prototype.hasOwnProperty.call(CATALOG, id))
       .map((id) => {

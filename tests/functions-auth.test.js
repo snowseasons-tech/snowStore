@@ -38,6 +38,43 @@ test('login -> me -> logout through Pages Functions', async () => {
     assert.strictEqual((await me({ request: req('/api/me', { cookie }), env })).status, 401);
   } finally { up.restore(); }
 });
+
+test('malformed account records fail safely in Pages portal routes', async () => {
+  const [{ onRequestPost: login }, { onRequestGet: me }] = await Promise.all([
+    import('../functions/api/login.js'), import('../functions/api/me.js')]);
+  const auth = require('../api/_lib/auth');
+  const store = require('../api/_lib/store');
+  const up = fakeUpstash();
+  Object.assign(process.env, env);
+  try {
+    await store.setJSON('user:malformed@example.com', {
+      hash: await auth.hashPassword('safe-password-123'),
+      products: [' bookscan ', 'bookscan', 'unknown-product', null, 42],
+    });
+    const loginResult = await login({
+      request: req('/api/login', { method: 'POST', body: { email: 'malformed@example.com', password: 'safe-password-123' } }),
+      env,
+    });
+    assert.strictEqual(loginResult.status, 200);
+    const cookie = cookieOf(loginResult);
+    const workspace = await (await me({ request: req('/api/me', { cookie }), env })).json();
+    assert.deepStrictEqual(workspace.apps.map((app) => app.id), ['bookscan']);
+
+    await store.setJSON('user:malformed@example.com', {
+      hash: await auth.hashPassword('safe-password-123'),
+      products: 'bookscan',
+    });
+    const relogin = await login({
+      request: req('/api/login', { method: 'POST', body: { email: 'malformed@example.com', password: 'safe-password-123' } }),
+      env,
+    });
+    const malformedCookie = cookieOf(relogin);
+    const malformedWorkspace = await me({ request: req('/api/me', { cookie: malformedCookie }), env });
+    assert.strictEqual(malformedWorkspace.status, 200);
+    assert.deepStrictEqual((await malformedWorkspace.json()).apps, []);
+  } finally { up.restore(); }
+});
+
 test('login is rate limited per ip and email after repeated failures', async () => {
   const { onRequestPost: login } = await import('../functions/api/login.js');
   const up = fakeUpstash();
@@ -87,7 +124,9 @@ test('forgotten password: reset email -> set password -> signed in, link used up
     const ws = await (await me({ request: req('/api/me', { cookie: cookieOf(ok) }), env })).json();
     assert.deepStrictEqual(ws.apps.map((a) => a.id), ['bookscan']);
 
-    assert.strictEqual((await me({ request: req('/api/me', { cookie: oldSession }), env })).status, 401);
+    const staleMe = await me({ request: req('/api/me', { cookie: oldSession }), env });
+    assert.strictEqual(staleMe.status, 401);
+    assert.match(staleMe.headers.get('set-cookie'), /Max-Age=0/);
     assert.strictEqual((await setPw({ request: req('/api/password-set', { method: 'POST', body: { token, password: 'another-password-789' } }), env })).status, 410);
     assert.strictEqual((await login({ request: req('/api/login', { method: 'POST', body: { email: 'pat@example.com', password: 'old-password-123' } }), env })).status, 401);
     assert.strictEqual((await login({ request: req('/api/login', { method: 'POST', body: { email: 'pat@example.com', password: 'new-password-456' } }), env })).status, 200);

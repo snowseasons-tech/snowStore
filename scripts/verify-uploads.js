@@ -6,18 +6,32 @@ const crypto = require('crypto');
 const CATALOG = require('../api/_lib/catalog');
 const { presignFromEnv } = require('../api/_lib/sigv4');
 
-async function main() {
-  const missing = ['S3_ENDPOINT', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY'].filter((k) => !process.env[k]);
+async function verifyUploads(catalog = CATALOG, env = process.env, fetchImpl = fetch) {
+  const missing = ['S3_ENDPOINT', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY'].filter((k) => !env[k]);
   if (missing.length) throw new Error(`Set ${missing.join(', ')}`);
   let bad = 0;
-  for (const [id, p] of Object.entries(CATALOG)) {
+  const failures = [];
+  for (const [id, p] of Object.entries(catalog)) {
     if (!p.fileKey) continue;
-    const r = await fetch(presignFromEnv(p.fileKey, p.filename, process.env, 60));
-    if (!r.ok) { bad++; console.log(`FAIL ${id}: ${p.fileKey} -> HTTP ${r.status}`); continue; }
+    if (!/^[a-f0-9]{64}$/.test(p.sha256 || '')) {
+      bad++; failures.push(`FAIL ${id}: missing or invalid catalog sha256`);
+      continue;
+    }
+    const r = await fetchImpl(presignFromEnv(p.fileKey, p.filename, env, 60));
+    if (!r.ok) { bad++; failures.push(`FAIL ${id}: ${p.fileKey} -> HTTP ${r.status}`); continue; }
     const sha = crypto.createHash('sha256').update(Buffer.from(await r.arrayBuffer())).digest('hex');
-    if (p.sha256 && sha !== p.sha256) { bad++; console.log(`FAIL ${id}: sha256 ${sha} != catalog ${p.sha256}`); continue; }
-    console.log(`ok   ${id}: ${p.fileKey}`);
+    if (sha !== p.sha256) { bad++; failures.push(`FAIL ${id}: sha256 ${sha} != catalog ${p.sha256}`); continue; }
   }
-  if (bad) throw new Error(`${bad} deliverable(s) missing or out of date`);
+  return { bad, failures };
 }
-main().catch((e) => { console.error(e.message); process.exit(1); });
+
+async function main() {
+  const result = await verifyUploads();
+  for (const [id, p] of Object.entries(CATALOG)) {
+    if (p.fileKey) console.log(result.failures.find((f) => f.startsWith(`FAIL ${id}:`)) || `ok   ${id}: ${p.fileKey}`);
+  }
+  if (result.bad) throw new Error(`${result.bad} deliverable(s) missing or out of date`);
+}
+
+module.exports = { verifyUploads };
+if (require.main === module) main().catch((e) => { console.error(e.message); process.exit(1); });

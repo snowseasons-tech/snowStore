@@ -63,8 +63,16 @@ test('app-download needs a session and entitlement', async () => {
     const ok = await onRequestGet(get('/api/app-download?product=bookscan', { cookie }));
     assert.strictEqual(ok.status, 302);
     assert.match(ok.headers.get('location'), /X-Amz-Expires=120/);
+    for (let i = 1; i < 10; i++) assert.strictEqual((await onRequestGet(get('/api/app-download?product=bookscan', { cookie }))).status, 302);
+    const limited = await onRequestGet(get('/api/app-download?product=bookscan', { cookie }));
+    assert.strictEqual(limited.status, 429);
+    assert.strictEqual(limited.headers.get('retry-after'), '3600');
     await store.setJSON('user:pat@example.com', { ...user, products: [] });
     assert.strictEqual((await onRequestGet(get('/api/app-download?product=bookscan', { cookie }))).status, 403);
+    await store.setJSON('user:pat@example.com', { ...user, hash: await auth.hashPassword('changed-password') });
+    const stale = await onRequestGet(get('/api/app-download?product=bookscan', { cookie }));
+    assert.strictEqual(stale.status, 401);
+    assert.match(stale.headers.get('set-cookie'), /Max-Age=0/);
   } finally { up.restore(); }
 });
 

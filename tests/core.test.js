@@ -83,6 +83,16 @@ test('subscription updates apply, stale ones are ignored, delete cancels', async
   assert.strictEqual((await store.getJSON('sub:sub_1')).status, 'canceled');
   assert.strictEqual((await store.getJSON('sub:sub_1')).currentPeriodEnd, 999);
 });
+test('a paid checkout reactivates a stale subscription record', async () => {
+  await store.setJSON('sub:sub_reactivate', { status: 'canceled', productId: 'sub1', email: 'old@example.com' });
+  const e = subSession('evt_reactivate');
+  e.data.object.id = 'cs_test_reactivate0001';
+  e.data.object.subscription = 'sub_reactivate';
+  e.data.object.customer_details.email = 'buyer@x.co';
+  assert.strictEqual(await handleEvent(e, deps), 'fulfilled:sent');
+  assert.strictEqual((await store.getJSON('sub:sub_reactivate')).status, 'active');
+  assert.strictEqual((await store.getJSON('sub:sub_reactivate')).email, 'buyer@x.co');
+});
 test('mail failure releases claims so Stripe retry re-sends', async () => {
   const bad = { catalog: cat, mail: { sendMail: async () => { throw new Error('boom'); } } };
   const e = subSession('evt_m1'); e.data.object.id = 'cs_test_mailfail00001';

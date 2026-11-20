@@ -32,7 +32,7 @@ export async function onRequestGet({ request, env }) {
     if (membership && !order.subscriptionId) return send(403, { error: 'Membership is not active' });
     if (order.subscriptionId) {
       const sub = await store.getJSON(`sub:${order.subscriptionId}`);
-      if (!sub || !['active', 'trialing'].includes(sub.status)) return send(403, { error: membership ? 'Membership is not active' : 'Subscription is not active' });
+      if (!entitlements.subscriptionActive(sub)) return send(403, { error: membership ? 'Membership is not active' : 'Subscription is not active' });
     }
     // Build the URL first and count last, so failed checks or bad config don't use up the allowance.
     // A membership counts each included download separately.

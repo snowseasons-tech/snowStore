@@ -2,8 +2,7 @@
    Keeps the dark navy background and layout. Only the accent colours change, so the
    text stays readable. To turn the theme off, delete this file and its link line on each page. */
 
-html:root:not([data-theme="light"]),
-html:root[data-theme="dark"] {
+html:root {
   --st-blue: #ffc46b;          /* links and highlights: Flurry's amber */
   --st-button: #ffc46b;        /* primary buttons */
   --st-button-text: #061223;   /* dark text on amber keeps contrast high */

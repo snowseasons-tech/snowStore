@@ -3,7 +3,7 @@ const assert = require('node:assert');
 const fakeUpstash = require('./fake-upstash');
 const store = require('../api/_lib/store');
 const CATALOG = require('../api/_lib/catalog');
-const { downloadsFor, isMembership } = require('../api/_lib/entitlements');
+const { downloadsFor, isMembership, accountIncludesProduct, subscriptionActive } = require('../api/_lib/entitlements');
 const { validateCatalog } = require('../scripts/validate-store-items');
 const { handleEvent } = require('../api/_lib/fulfil');
 
@@ -31,6 +31,12 @@ test('a membership unlocks the files of the products it includes', () => {
   assert.deepStrictEqual(downloadsFor('nofile', catalog), []);
   assert.deepStrictEqual(downloadsFor('__proto__', catalog), []);
   assert.ok(isMembership(catalog.m) && !isMembership(catalog.a) && !isMembership(null));
+  assert.ok(accountIncludesProduct(['m'], 'a', catalog));
+  assert.ok(!accountIncludesProduct(['a'], 'ghost', catalog));
+  assert.ok(subscriptionActive({ status: 'active' }));
+  assert.ok(subscriptionActive({ status: 'trialing' }));
+  assert.ok(!subscriptionActive({ status: 'past_due' }));
+  assert.ok(!subscriptionActive({ status: 'canceled' }));
 });
 
 test('the validator checks memberships', () => {
@@ -92,6 +98,19 @@ test('membership downloads need a chosen product and an active membership, and c
   } finally { up.restore(); }
 });
 
+test('canceling a membership removes it from the normalized customer account', async () => {
+  const up = fakeUpstash();
+  try {
+    await store.setJSON('user:member@example.com', { hash: null, products: [' bookscan ', 'test-membership', 'test-membership', null] });
+    await store.setJSON('sub:sub_cancel', { productId: 'test-membership', email: 'member@example.com', status: 'active' });
+    await handleEvent({
+      id: 'evt_cancel_member', type: 'customer.subscription.deleted', created: 10,
+      data: { object: { id: 'sub_cancel', customer: 'cus_cancel', status: 'canceled', metadata: { product_id: 'test-membership' } } },
+    });
+    assert.deepStrictEqual(await store.getJSON('user:member@example.com'), { hash: null, products: ['bookscan'] });
+  } finally { up.restore(); }
+});
+
 test('a membership purchase email points to the downloads, not the getting-started form', async () => {
   const up = fakeUpstash();
   const sent = [];
@@ -103,5 +122,6 @@ test('a membership purchase email points to the downloads, not the getting-start
     assert.strictEqual(result, 'fulfilled:sent');
     assert.match(sent[0].text, /Get your downloads or manage your order here:\nhttps:\/\/site\.test\/success\?session_id=cs_test_mem0000000005/);
     assert.doesNotMatch(sent[0].text, /\/start\?/);
+    assert.deepStrictEqual(await store.getJSON('user:pat@example.com'), { hash: null, products: ['test-membership'] });
   } finally { up.restore(); }
 });

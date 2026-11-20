@@ -41,3 +41,60 @@ test('webhook function returns 503 so Stripe retries when the store is missing',
   const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, ...noStore } = env;
   assert.strictEqual((await onRequestPost({ request: hook(event('evt_f2')), env: noStore })).status, 503);
 });
+
+test('purchase flow reaches a ready order and signed download', async () => {
+  const { onRequestPost: webhook } = await load();
+  const { onRequestGet: order } = await import('../functions/api/order.js');
+  const { onRequestGet: download } = await import('../functions/api/download.js');
+  const up = fakeUpstash();
+  const flowEnv = {
+    ...env,
+    S3_ENDPOINT: 'https://r2.example.com',
+    S3_BUCKET: 'bucket',
+    S3_ACCESS_KEY_ID: 'key',
+    S3_SECRET_ACCESS_KEY: 'secret',
+  };
+  const sessionId = 'cs_test_e2e00000000001';
+  const payload = JSON.stringify({
+    id: 'evt_e2e_1',
+    type: 'checkout.session.completed',
+    data: {
+      object: {
+        id: sessionId,
+        payment_status: 'paid',
+        metadata: { product_id: 'bookscan' },
+        customer_details: { email: 'buyer@example.com', name: 'Buyer' },
+      },
+    },
+  });
+  try {
+    const fulfilled = await webhook({ request: hook(payload), env: flowEnv });
+    assert.strictEqual(fulfilled.status, 200);
+    assert.strictEqual((await fulfilled.json()).result, 'fulfilled:skipped');
+
+    const ready = await order({
+      request: new Request(`https://x.test/api/order?session_id=${sessionId}`),
+      env: flowEnv,
+    });
+    assert.strictEqual(ready.status, 200);
+    assert.deepStrictEqual(await ready.json(), {
+      ready: true,
+      product: 'BookScan Live',
+      download: true,
+      downloads: [{ product: 'bookscan', name: 'BookScan Live' }],
+      membership: false,
+      appUrl: null,
+      avatars: false,
+      manage: false,
+    });
+
+    const signed = await download({
+      request: new Request(`https://x.test/api/download?session_id=${sessionId}`),
+      env: flowEnv,
+    });
+    assert.strictEqual(signed.status, 302);
+    assert.match(signed.headers.get('location'), /X-Amz-Expires=300/);
+  } finally {
+    up.restore();
+  }
+});

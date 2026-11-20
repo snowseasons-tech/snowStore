@@ -12,8 +12,12 @@ export async function onRequestGet({ request, env }) {
   useEnv(env);
   try {
     if (!storeConfigured(env)) throw new Error('Persistent store not configured');
-    const user = await auth.getSession(nodeReq(request));
-    if (!user) return send(401, { error: 'Not signed in' });
+    const nodeRequest = nodeReq(request);
+    const user = await auth.getSession(nodeRequest);
+    if (!user) {
+      const headers = auth.readToken(nodeRequest) ? { 'Set-Cookie': auth.clearCookie() } : undefined;
+      return send(401, { error: 'Not signed in' }, headers);
+    }
     const apps = user.products
       .filter((id) => Object.prototype.hasOwnProperty.call(CATALOG, id))
       .map((id) => {
