@@ -1,0 +1,30 @@
+/* Snow Seasons Tech Christmas theme, linked after store-theme.css on every store page.
+   Keeps the dark navy background and layout. Only the accent colours change, so the
+   text stays readable. To turn the theme off, delete this file and its link line on each page. */
+
+html:root:not([data-theme="light"]),
+html:root[data-theme="dark"] {
+  --st-blue: #ffc46b;          /* links and highlights: Flurry's amber */
+  --st-button: #ffc46b;        /* primary buttons */
+  --st-button-text: #061223;   /* dark text on amber keeps contrast high */
+  --st-line-strong: #5a4a2e;   /* warm border for cards and dividers */
+  --rel-dev: #a1eaff;          /* secondary tag: ice blue */
+  --primary: #ffc46b;
+  --primary-strong: #ffd98f;
+  --primary-soft: rgba(255, 196, 107, 0.14);
+  --sst-focus: #ffc46b;
+  --sst-ice: #a1eaff;
+}
+
+/* A thin festive stripe across the top of every page, behind the header. */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  z-index: 1000;
+  pointer-events: none;
+  background: linear-gradient(90deg, #a1eaff, #ffc46b, #f4f4f4, #ffc46b, #a1eaff);
+}
