@@ -15,6 +15,24 @@ html:root:not([data-theme="none"]) {
   --sst-ice: #a1eaff;
 }
 
+/* Explicit overrides beat the store theme's direct element rules in both light and dark mode. */
+html body a,
+html body .logo,
+html body .brand {
+  color: #ffc46b;
+}
+
+html body .btn,
+html body .btn-primary,
+html body .button,
+html body .cta,
+html body button.primary,
+html body a.btn,
+html body #hero .btn {
+  background: #ffc46b;
+  color: #061223;
+}
+
 /* A thin festive stripe across the top of every page, behind the header. */
 body::before {
   content: "";
