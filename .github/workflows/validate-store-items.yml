@@ -5,9 +5,15 @@ on:
     paths:
       - '.github/workflows/validate-store-items.yml'
       - 'api/_lib/catalog.js'
+      - 'api/**'
+      - 'functions/**'
+      - 'christmas-theme.css'
+      - 'store-theme.css'
+      - 'page.css'
       - 'products/**'
-      - 'scripts/validate-store-items.js'
-      - 'tests/validate-store-items.test.js'
+      - 'scripts/**'
+      - 'storefront/**'
+      - 'tests/**'
       - 'package.json'
       - 'package-lock.json'
   push:
@@ -16,9 +22,15 @@ on:
     paths:
       - '.github/workflows/validate-store-items.yml'
       - 'api/_lib/catalog.js'
+      - 'api/**'
+      - 'functions/**'
+      - 'christmas-theme.css'
+      - 'store-theme.css'
+      - 'page.css'
       - 'products/**'
-      - 'scripts/validate-store-items.js'
-      - 'tests/validate-store-items.test.js'
+      - 'scripts/**'
+      - 'storefront/**'
+      - 'tests/**'
       - 'package.json'
       - 'package-lock.json'
   workflow_dispatch:
@@ -43,4 +55,5 @@ jobs:
       - run: npm ci
       - run: npm run validate:store-items
       - run: npm run lint
+      - run: npm run build:pages
       - run: npm test
