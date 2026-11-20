@@ -57,3 +57,6 @@ coverage/
 
 # BI assistant: real sales exports stay on this machine (sample/ is fictional and committed)
 bi-assistant/data/
+
+# Copyrighted textbook used as reference for the Social Media Marketing academy: never published or committed
+hosted/*Social Media Marketing All-In-One*.pdf
