@@ -76,7 +76,21 @@ Put Flurry on a single plain white sheet, shown as a reference lineup for artist
 
 ---
 
-## Variations to test (not yet written as prompts)
+## 11. Cone (variation: pine-cone character)
 
-- **Cone:** a pine-cone character with a mitten-shaped body, if the snowball feels too plain.
-- **Globe:** a snow-globe creature holding a tiny laptop inside it, for a more tech-forward look.
+A friendly pine cone character with a plump, mitten-shaped body. Its body is made of neat rows of overlapping scales in slate gray, each scale tipped in amber. Two stubby arms and two dot eyes with a small smile. It wears an ice-blue scarf with one amber stripe. Flat vector logo style, clean even fills, simple slate-gray outlines, no gradients. Full body, centered, plain white background, space around the edges.
+
+**Avoid:** the shared avoid line, plus a fully brown or natural-coloured pine cone, and any scale pattern that makes the face hard to read.
+
+## 12. Globe (variation: snow-globe creature with a laptop)
+
+A round snow globe creature. Its clear glass dome is a flat ice-blue fill outlined in slate gray, with one simple white highlight stripe on the upper left. Its base is snow white. Inside the dome, a small snowball character with two dot eyes and a small smile holds a tiny slate-gray laptop with an amber screen. A few snowflakes float inside the dome. Flat vector logo style, clean even fills, no gradients, no realistic glass reflections. Full body, centered, plain white background, space around the edges.
+
+**Avoid:** the shared avoid line, plus any readable text or symbols on the laptop screen, and any background outside the dome.
+
+---
+
+## Variation notes
+
+- **Cone** is the option to test if the snowball feels too plain. It keeps the same palette and scarf, so it reads as part of the same family.
+- **Globe** is the more tech-forward option. Keep the laptop screen blank, since no readable text is allowed in the images.
