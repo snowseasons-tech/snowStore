@@ -315,8 +315,12 @@ function buildCard(p){
  }
  art.append(price);
  renderPrice(amount,p,base);
- const buy=el("button","btn custom-btn",recurring?"Subscribe":p.amount===0?"Download free":"Buy now");buy.type="button";
- buy.addEventListener("click",()=>checkout(p.id,state.period,buy));
+ // Scope varies on these projects, so show no fixed price and send buyers to a quote request instead of checkout.
+ const quoteOnly=QUOTE_ONLY.has(p.id);
+ if(quoteOnly){price.textContent="Quoted after review";}
+ const buy=quoteOnly?el("a","btn custom-btn","Request a quote"):el("button","btn custom-btn",recurring?"Subscribe":p.amount===0?"Download free":"Buy now");
+ if(quoteOnly){buy.href=`mailto:${EARLY_ACCESS}?subject=${encodeURIComponent("Quote request: "+p.name)}`;}
+ else{buy.type="button";buy.addEventListener("click",()=>checkout(p.id,state.period,buy));}
  art.append(el("div","actions"));art.lastChild.append(buy);
  if(d.demoUrl){const demo=el("a","btn alt","Try demo");demo.href=d.demoUrl;art.lastChild.append(demo)}
  if(d.membership){
@@ -361,7 +365,7 @@ const SOON=[
  {name:"Social Studio",release:"dev",demoUrl:"/demos/social-studio.html",icon:"social-media",status:"In development",blurb:"A self-hosted social media manager for agencies: client workspaces, team roles, approvals, a content calendar and scheduled publishing."},
  {name:"Roadside Delay Planner",release:"dev",demoUrl:"/demos/roadside-delay-planner.html",icon:"inspections",status:"In research",blurb:"For trucking fleets: spot when a temporary roadside inspection site will delay a truck, then update ETAs and warn the receiver automatically."},
 ];
-const EARLY_ACCESS="info@snowseasonstech.net";
+const EARLY_ACCESS="info@snowseasonstech.net"; const QUOTE_ONLY=new Set(["api-integration-standard","api-integration-advanced","api-integration-enterprise"]);
 function soonCard(m){
  const art=el("article","card soon");art.dataset.cat="";
  art.append(cardTop(m.icon,"Coming soon"),relPill(m.release),el("h2",null,m.name),el("p",null,m.blurb),el("p","soon-status",m.status));
