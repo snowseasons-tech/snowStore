@@ -62,3 +62,12 @@ test('the public build publishes the course page and its data', () => {
   assert.ok(fs.existsSync(path.join(out, 'academy', 'social-media-marketing', 'course.js')));
   assert.ok(!fs.existsSync(path.join(out, 'hosted')), 'hosted/ must not be published');
 });
+
+test('learners can export their progress without sending notes to a server', () => {
+  const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
+  assert.match(html, /Download my course progress/);
+  assert.match(html, /JSON\.stringify\(payload, null, 2\)/);
+  assert.match(html, /URL\.createObjectURL\(blob\)/);
+  assert.match(html, /URL\.revokeObjectURL\(url\)/);
+  assert.match(html, /progress: state/);
+});
