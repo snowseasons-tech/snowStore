@@ -73,8 +73,8 @@ module.exports = {
     filename: 'lead-generator.zip',
     category: 'utilities',
     blurb: 'Turn a list of company names into websites, phone numbers and contact details. Python scripts you run on your own machine or on a schedule.',
-    version: '1.0.0',
-    sha256: 'af5645308b4682f9506d4453adfbcb44dfc826cf9f26f76e5e711534e259aae3',
+    version: '1.1.0',
+    sha256: 'db716f537b81d39016ec6de1f73c1fffc9b3d82cc7a5d654c10f2a1448101ce8',
   },
   'blog-gen': {
     name: 'Auto Blogger',
