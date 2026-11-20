@@ -77,7 +77,8 @@ The script only sends GET requests to `/v1/charges`, `/v1/invoices` and `/v1/pro
 current dataset the same way an upload does, so re-running never double-counts. It refuses a full
 `sk_live` key unless you set `STRIPE_ALLOW_SECRET_KEY=1`.
 
-Each charge is one row, so money is never counted twice. Its product name comes from, in order:
+Each charge is one row, so money is never counted twice. If there are no charges in the window, paid
+invoices are imported instead, and charges and invoices are never mixed. Its product name comes from, in order:
 `metadata.product` on the charge, then the product on the invoice the charge paid (this is how
 subscription renewals get real names), then the charge description. Charges with none of these are
 counted as "Unlabelled".
@@ -145,8 +146,10 @@ by hand against `qwen2.5:7b`.
 
 - **Product names.** A charge takes its product from its invoice's largest line. Invoices with several
   products are named by that one line only. Set `metadata.product` on a charge to override.
-- **Invoices feed names only.** Revenue, refunds and customers come from charges. A charge whose
-  invoice falls outside the pull window keeps its description instead of a product name.
+- **Invoices feed names only, unless there are no charges.** Revenue, refunds and customers come from
+  charges. A charge whose invoice falls outside the pull window keeps its description instead of a
+  product name. If a pull returns no charges at all, the sync imports paid invoices instead (zero-total
+  invoices are skipped). Those rows have no refund information.
 - **Not live.** Data is as fresh as your last sync. Run `stripe_sync.py` again to refresh it.
 - **Speed.** On this machine a `qwen2.5:7b` answer takes about a minute. The first answer after startup
   is slowest. `gemma3:4b` is faster if you need quicker replies.

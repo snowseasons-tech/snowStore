@@ -7,8 +7,10 @@ Only issues GET requests (/v1/charges, /v1/invoices, /v1/products). Use a restri
 access to Charges, Invoices and Products, not a full secret key. The pulled rows replace the current
 dataset (the previous files go to data/archive/), so re-running never double-counts.
 
-Money always comes from charges. Invoices and products only supply product names, so a subscription
-renewal is still one charge with a real product name, not an extra row.
+Money comes from charges. Invoices and products supply product names, so a subscription renewal is still
+one charge with a real product name, not an extra row. Only when a pull returns no charges at all (for
+example a new store that takes payment through invoices) are paid invoices imported instead, skipping any
+with a zero total. Charges and invoices are never mixed in one import, so nothing is counted twice.
 """
 from __future__ import annotations
 
@@ -71,21 +73,59 @@ def fetch_charges(api_key: str, since: datetime, base: str = API_BASE) -> list[d
     return _paged(api_key, "/v1/charges", {"created[gte]": int(since.timestamp())}, base)
 
 
+def invoice_product_id(inv: dict) -> str | None:
+    """The product on an invoice's largest line, or None."""
+    best, best_amount = None, -1
+    for line in (inv.get("lines") or {}).get("data", []):
+        price = line.get("price") or {}
+        product = price.get("product") or (line.get("plan") or {}).get("product")
+        if isinstance(product, dict):  # expanded object, not the id
+            product = product.get("id")
+        if product and (line.get("amount") or 0) > best_amount:
+            best, best_amount = product, line.get("amount") or 0
+    return best
+
+
 def fetch_invoice_products(api_key: str, since: datetime, base: str = API_BASE) -> dict[str, str]:
     """Map invoice id -> product id, taken from the invoice's largest line. Invoices only feed names."""
     mapping = {}
     for inv in _paged(api_key, "/v1/invoices", {"created[gte]": int(since.timestamp())}, base):
-        best, best_amount = None, -1
-        for line in (inv.get("lines") or {}).get("data", []):
-            price = line.get("price") or {}
-            product = price.get("product") or (line.get("plan") or {}).get("product")
-            if isinstance(product, dict):  # expanded object, not the id
-                product = product.get("id")
-            if product and (line.get("amount") or 0) > best_amount:
-                best, best_amount = product, line.get("amount") or 0
-        if best:
-            mapping[inv["id"]] = best
+        product = invoice_product_id(inv)
+        if product:
+            mapping[inv["id"]] = product
     return mapping
+
+
+def fetch_paid_invoices(api_key: str, since: datetime, base: str = API_BASE) -> list[dict]:
+    """Paid invoices with a non-zero total. Used only when the charges pull is empty."""
+    invoices = _paged(api_key, "/v1/invoices", {"created[gte]": int(since.timestamp()), "status": "paid"}, base)
+    return [inv for inv in invoices if (inv.get("amount_paid") or 0) > 0]
+
+
+def invoices_to_csv(invoices: list[dict], product_names: dict | None = None) -> str:
+    """The same canonical layout as charges_to_csv, built from paid invoices (no refunds are known here)."""
+    product_names = product_names or {}
+    out = io.StringIO()
+    w = csv.writer(out)
+    w.writerow(["date", "product", "amount", "currency", "customer", "status", "refunded"])
+    for inv in invoices:
+        cur = (inv.get("currency") or "usd").lower()
+        day = datetime.fromtimestamp(inv["created"], tz=timezone.utc).date().isoformat()
+        customer = inv.get("customer") or ""
+        if isinstance(customer, dict):
+            customer = customer.get("id") or ""
+        product_id = invoice_product_id(inv)
+        name = product_names.get(product_id) if product_id else None
+        w.writerow([
+            day,
+            name or inv.get("description") or "Unlabelled",
+            str(to_major(inv["amount_paid"], cur)),
+            cur,
+            customer,
+            "succeeded",
+            "0",
+        ])
+    return out.getvalue()
 
 
 def fetch_product_names(api_key: str, base: str = API_BASE) -> dict[str, str]:
@@ -156,18 +196,29 @@ def main(argv=None) -> int:
         charges = fetch_charges(key, since)
         invoice_products = fetch_invoice_products(key, since)
         product_names = fetch_product_names(key)
+        # Fallback: no charges in the window (e.g. a new store whose sales are invoices or none yet),
+        # so import paid invoices instead. Never mixed with charges, so nothing is counted twice.
+        paid_invoices = [] if charges else fetch_paid_invoices(key, since)
     except StripeError as e:
         print(str(e), file=sys.stderr)
         return 1
-    text = charges_to_csv(charges, invoice_products, product_names)
+    if charges:
+        text = charges_to_csv(charges, invoice_products, product_names)
+        source = "charges"
+    else:
+        text = invoices_to_csv(paid_invoices, product_names)
+        source = "paid invoices (no charges in this window)"
     dataset = server.Dataset(data_dir=Path(__file__).resolve().parent / "data")
     try:
         count = dataset.replace_with(text)
     except ValueError as e:
         print(f"No rows to import: {e}", file=sys.stderr)
         return 1
-    named = sum(1 for c in charges if product_for(c, invoice_products, product_names) != "Unlabelled")
-    print(f"Imported {count} charges from the last {args.days} days ({named} with a product name). Previous files are in data/archive.")
+    if charges:
+        named = sum(1 for c in charges if product_for(c, invoice_products, product_names) != "Unlabelled")
+    else:
+        named = sum(1 for i in paid_invoices if invoice_product_id(i) and product_names.get(invoice_product_id(i)))
+    print(f"Imported {count} {source} from the last {args.days} days ({named} with a product name). Previous files are in data/archive.")
     return 0
 
 
