@@ -14,6 +14,17 @@ html:root:not([data-theme="none"]) {
   --primary-soft: rgba(74, 222, 128, 0.14);
   --sst-focus: #4ade80;
   --sst-ice: #86efac;
+  --glow: rgba(74, 222, 128, 0.45);  /* hover glow on buttons and cards */
+}
+
+/* Hover: buttons turn green with dark text, and nav and footer links turn green. */
+html body .btn:hover, html body .btn-primary:hover, html body .button:hover, html body .cta:hover,
+html body button.primary:hover, html body a.btn:hover, html body #hero .btn:hover {
+  background: #22c55e;
+  color: #04140a;
+}
+html body nav a:hover, html body > footer a:hover {
+  color: #4ade80;
 }
 
 /* Explicit overrides beat the store theme's direct element rules in both light and dark mode. */
