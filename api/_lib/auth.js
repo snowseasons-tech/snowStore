@@ -132,7 +132,10 @@ function sessionCookie(token) {
 const clearCookie = () => `${COOKIE}=; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=0`;
 
 function clientIp(req) {
-  return String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || (req.socket && req.socket.remoteAddress) || 'unknown';
+  return String(req.headers['cf-connecting-ip'] || '').trim()
+    || String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+    || (req.socket && req.socket.remoteAddress)
+    || 'unknown';
 }
 
 module.exports = {

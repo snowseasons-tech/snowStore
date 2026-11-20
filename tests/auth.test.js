@@ -28,6 +28,12 @@ test('password hashes verify and reject wrong passwords', async () => {
   assert.strictEqual(await auth.verifyPassword('wrong', h), false);
 });
 
+test('login IP resolution prefers Cloudflare and ignores a spoofed forwarded address', () => {
+  assert.strictEqual(auth.clientIp({
+    headers: { 'cf-connecting-ip': '203.0.113.10', 'x-forwarded-for': '198.51.100.20' },
+  }), '203.0.113.10');
+});
+
 test('legacy account product lists are normalized', async () => {
   assert.deepStrictEqual(auth.normalizeProducts([' bookscan ', 'bookscan', '', null, 42]), ['bookscan']);
   assert.deepStrictEqual(auth.normalizeProducts(null), []);

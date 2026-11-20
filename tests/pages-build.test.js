@@ -76,6 +76,13 @@ test('dist is rebuilt from scratch and fails on a missing index', () => {
   assert.throws(() => build({ root: tmp, out: path.join(tmp, 'dist') }), /index\.html/);
 });
 
+test('Christmas theme overrides the store theme variables', () => {
+  const css = fs.readFileSync(path.join(root, 'christmas-theme.css'), 'utf8');
+  assert.match(css, /html:root:not\(\[data-theme="none"\]\)\s*\{/);
+  assert.match(css, /--st-blue:\s*#ffc46b/);
+  assert.match(css, /--st-button:\s*#ffc46b/);
+});
+
 test('security headers match across Functions and pages/_headers', async () => {
   const { SECURITY_HEADERS } = await import('../functions/_lib/headers.js');
   const { send } = await import('../functions/_lib/http.js');
