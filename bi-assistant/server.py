@@ -184,17 +184,23 @@ def make_handler(dataset: Dataset, ollama: Ollama):
                 except ValueError as e:
                     return self._error(400, str(e))
                 metrics = build_metrics(rows, start, end)
+                model = str(req.get("model") or "").strip() or None
+                if model:
+                    # only models Ollama reports as installed; never pass arbitrary names through
+                    installed = ollama.status().get("models", [])
+                    if model not in installed:
+                        return self._error(400, f"Model {model!r} is not installed in Ollama")
                 try:
                     if path == "/api/ask":
                         question = str(req.get("question") or "").strip()
                         if not question:
                             return self._error(400, "Ask a question")
-                        answer = ollama.ask(question, metrics)
+                        answer = ollama.ask(question, metrics, model)
                     else:
-                        answer = ollama.brief(metrics)
+                        answer = ollama.brief(metrics, model)
                 except AssistantError as e:
                     return self._error(503, str(e))
-                return self._json(200, {"answer": answer, "model": ollama.model, "window": metrics["window"]})
+                return self._json(200, {"answer": answer, "model": model or ollama.model, "window": metrics["window"]})
             return self._error(404, "Not found")
 
     return Handler

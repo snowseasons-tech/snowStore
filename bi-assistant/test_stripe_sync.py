@@ -1,27 +1,41 @@
 """Tests for the read-only Stripe sync, against a local fake Stripe. Run: python3 -m unittest test_stripe_sync"""
 import json
 import os
+import tempfile
 import threading
 import unittest
 from datetime import datetime, timezone
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import urlparse, parse_qs
 from decimal import Decimal
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from unittest import mock
+from urllib.parse import parse_qs, urlparse
 
 import bi
 import stripe_sync as ss
 
 NOW = int(datetime(2026, 11, 10, 12, tzinfo=timezone.utc).timestamp())
-PAGES = {
+CHARGE_PAGES = {
     None: {"data": [
-        {"id": "ch_3", "created": NOW, "amount": 4900, "amount_refunded": 0, "currency": "usd", "status": "succeeded", "description": None, "metadata": {"product": "Pro Bundle"}, "customer": "cus_A"},
-        {"id": "ch_2", "created": NOW - 60, "amount": 1900, "amount_refunded": 1900, "currency": "usd", "status": "succeeded", "description": "Starter Kit", "metadata": {}, "customer": None},
+        {"id": "ch_3", "created": NOW, "amount": 4900, "amount_refunded": 0, "currency": "usd", "status": "succeeded", "description": None, "metadata": {"product": "Pro Bundle"}, "customer": "cus_A", "invoice": None},
+        {"id": "ch_2", "created": NOW - 60, "amount": 1900, "amount_refunded": 1900, "currency": "usd", "status": "succeeded", "description": "Starter Kit", "metadata": {}, "customer": None, "invoice": None},
     ], "has_more": True},
     "ch_2": {"data": [
-        {"id": "ch_1", "created": NOW - 3600, "amount": 500, "amount_refunded": 0, "currency": "jpy", "status": "failed", "description": "Sticker", "metadata": {}, "customer": {"id": "cus_B"}},
-    ], "has_more": False},
+        {"id": "ch_1", "created": NOW - 3600, "amount": 500, "amount_refunded": 0, "currency": "jpy", "status": "failed", "description": "Sticker", "metadata": {}, "customer": {"id": "cus_B"}, "invoice": None},
+    ], "has_more": True},
 }
+# A renewal: no description and no metadata, but its invoice names a product via the price.
+CHARGE_PAGES["ch_1"] = {"data": [
+    {"id": "ch_0", "created": NOW - 7200, "amount": 2900, "amount_refunded": 0, "currency": "usd", "status": "succeeded", "description": None, "metadata": {}, "customer": "cus_C", "invoice": "in_1"},
+], "has_more": False}
+INVOICE_PAGES = {None: {"data": [
+    {"id": "in_1", "lines": {"data": [
+        {"id": "il_1", "amount": 2900, "price": {"product": "prod_mem"}},
+        {"id": "il_2", "amount": 100, "price": {"product": "prod_other"}},
+    ]}},
+    {"id": "in_2", "lines": {"data": []}},
+], "has_more": False}}
+PRODUCT_PAGES = {None: {"data": [{"id": "prod_mem", "name": "Monthly Membership"}, {"id": "prod_other", "name": "Add-on"}], "has_more": False}}
 seen = []
 
 
@@ -30,18 +44,24 @@ class FakeStripe(BaseHTTPRequestHandler):
         pass
 
     def do_GET(self):
-        q = parse_qs(urlparse(self.path).query)
-        seen.append({"auth": self.headers.get("Authorization"), "path": urlparse(self.path).path, "q": q})
+        url = urlparse(self.path)
+        q = parse_qs(url.query)
+        seen.append({"auth": self.headers.get("Authorization"), "path": url.path, "q": q})
         if self.headers.get("Authorization") != "Bearer rk_test_123":
             body, code = {"error": {"message": "bad key"}}, 401
         else:
-            body, code = PAGES[q.get("starting_after", [None])[0]], 200
+            cursor = q.get("starting_after", [None])[0]
+            table = {"/v1/charges": CHARGE_PAGES, "/v1/invoices": INVOICE_PAGES, "/v1/products": PRODUCT_PAGES}.get(url.path)
+            body, code = (table or {}).get(cursor, {"data": [], "has_more": False}), (200 if table else 404)
         data = json.dumps(body).encode()
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
         self.wfile.write(data)
+
+
+SINCE = datetime(2026, 1, 1, tzinfo=timezone.utc)
 
 
 class SyncTests(unittest.TestCase):
@@ -59,53 +79,67 @@ class SyncTests(unittest.TestCase):
     def setUp(self):
         seen.clear()
 
+    def pull(self):
+        charges = ss.fetch_charges("rk_test_123", SINCE, base=self.base)
+        inv = ss.fetch_invoice_products("rk_test_123", SINCE, base=self.base)
+        names = ss.fetch_product_names("rk_test_123", base=self.base)
+        return charges, inv, names
+
     def test_follows_pagination_with_auth_and_read_only_get(self):
-        charges = ss.fetch_charges("rk_test_123", datetime(2026, 1, 1, tzinfo=timezone.utc), base=self.base)
-        self.assertEqual([c["id"] for c in charges], ["ch_3", "ch_2", "ch_1"])
-        self.assertEqual(len(seen), 2)
-        self.assertTrue(all(s["path"] == "/v1/charges" for s in seen))
-        self.assertEqual(seen[1]["q"]["starting_after"], ["ch_2"])
-        self.assertIn("created[gte]", seen[0]["q"])
+        charges, _, _ = self.pull()
+        self.assertEqual([c["id"] for c in charges], ["ch_3", "ch_2", "ch_1", "ch_0"])
+        charge_calls = [s for s in seen if s["path"] == "/v1/charges"]
+        self.assertEqual(len(charge_calls), 3)
+        self.assertEqual(charge_calls[1]["q"]["starting_after"], ["ch_2"])
+        self.assertTrue(all(s["auth"] == "Bearer rk_test_123" for s in seen))
+
+    def test_invoice_products_map_to_the_largest_line(self):
+        _, inv, names = self.pull()
+        self.assertEqual(inv, {"in_1": "prod_mem"})
+        self.assertEqual(names["prod_mem"], "Monthly Membership")
 
     def test_bad_key_gives_clear_error(self):
         with self.assertRaisesRegex(ss.StripeError, "rejected the key"):
-            ss.fetch_charges("rk_wrong", datetime(2026, 1, 1, tzinfo=timezone.utc), base=self.base)
+            ss.fetch_charges("rk_wrong", SINCE, base=self.base)
 
     def test_unreachable_stripe_gives_clear_error(self):
         with self.assertRaisesRegex(ss.StripeError, "Could not reach Stripe"):
-            ss.fetch_charges("rk_test_123", datetime(2026, 1, 1, tzinfo=timezone.utc), base="http://127.0.0.1:1")
+            ss.fetch_charges("rk_test_123", SINCE, base="http://127.0.0.1:1")
 
-    def test_csv_is_readable_by_the_importer(self):
-        charges = ss.fetch_charges("rk_test_123", datetime(2026, 1, 1, tzinfo=timezone.utc), base=self.base)
-        rows, warnings = bi.parse_csv(ss.charges_to_csv(charges))
+    def test_product_name_priority_and_csv_for_importer(self):
+        charges, inv, names = self.pull()
+        text = ss.charges_to_csv(charges, inv, names)
+        rows, warnings = bi.parse_csv(text)
         self.assertEqual(warnings, [])
-        self.assertEqual(len(rows), 3)
-        by_amount = {r["product"]: r for r in rows}
-        # metadata.product wins over description; description is used when there is no metadata
-        self.assertIn("Pro Bundle", by_amount)
-        self.assertEqual(by_amount["Pro Bundle"]["amount"], Decimal("49"))
-        self.assertEqual(by_amount["Starter Kit"]["refunded"], Decimal("19"))
-        # jpy is zero-decimal: 500 is 500 yen, not 5
-        jpy = [r for r in rows if r["currency"] == "jpy"][0]
-        self.assertEqual(jpy["amount"], Decimal("500"))
+        self.assertEqual(len(rows), 4)  # one row per charge: no double counting for renewals
+        products = [r["product"] for r in rows]
+        self.assertEqual(products, ["Pro Bundle", "Starter Kit", "Sticker", "Monthly Membership"])
+        self.assertEqual(rows[0]["amount"], Decimal("49"))
+        self.assertEqual(rows[1]["refunded"], Decimal("19"))
+        jpy = rows[2]
+        self.assertEqual(jpy["amount"], Decimal("500"))  # zero-decimal: 500 yen, not 5
         self.assertFalse(jpy["ok"])
-        # customer ids are hashed by the importer, never stored raw
-        self.assertEqual(len(rows[0]["customer"]), 12)
+        self.assertEqual(rows[3]["amount"], Decimal("29"))
+
+    def test_metadata_beats_invoice_and_invoice_beats_description(self):
+        charge = {"metadata": {"product": "Meta"}, "invoice": "in_1", "description": "Desc"}
+        self.assertEqual(ss.product_for(charge, {"in_1": "prod_mem"}, {"prod_mem": "Membership"}), "Meta")
+        charge = {"metadata": {}, "invoice": "in_1", "description": "Desc"}
+        self.assertEqual(ss.product_for(charge, {"in_1": "prod_mem"}, {"prod_mem": "Membership"}), "Membership")
+        charge = {"metadata": {}, "invoice": "in_9", "description": "Desc"}
+        self.assertEqual(ss.product_for(charge, {}, {}), "Desc")
 
     def test_saved_dataset_never_holds_raw_customer_ids(self):
-        import tempfile
-        from pathlib import Path
-        import server
-        charges = ss.fetch_charges("rk_test_123", datetime(2026, 1, 1, tzinfo=timezone.utc), base=self.base)
+        charges, inv, names = self.pull()
         with tempfile.TemporaryDirectory() as tmp:
+            import server
             ds = server.Dataset(data_dir=Path(tmp) / "data", sample_dir=Path(tmp) / "none")
-            self.assertEqual(ds.replace_with(ss.charges_to_csv(charges)), 3)
+            self.assertEqual(ds.replace_with(ss.charges_to_csv(charges, inv, names)), 4)
             saved = "".join(p.read_text(encoding="utf-8") for p in (Path(tmp) / "data").glob("*.csv"))
             self.assertNotIn("cus_A", saved)
             self.assertNotIn("cus_B", saved)
-            self.assertEqual(len(ds.rows), 3)
-            # the two charges for the same customer still count as one customer
-            self.assertEqual(ds.rows[0]["customer"], [r for r in ds.rows if r["product"] == "Pro Bundle"][0]["customer"])
+            self.assertNotIn("cus_C", saved)
+            self.assertEqual(len(ds.rows), 4)
 
     def test_main_refuses_missing_and_full_secret_keys(self):
         with mock.patch.dict(os.environ, {}, clear=True):

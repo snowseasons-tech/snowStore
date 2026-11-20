@@ -56,20 +56,31 @@ units, so `49.00` means $49. Rows that can't be read are skipped and listed in t
 "Rows skipped during import". Rows with a status other than succeeded/paid/complete count as failed
 or pending.
 
+### Choosing a model and speed
+
+The assistant panel has a **Model** picker listing the models Ollama reports as installed. The server
+only accepts models from that list. Answers keep the model loaded for 30 minutes (`BI_KEEP_ALIVE`) and
+are capped at 500 tokens (`BI_MAX_ANSWER_TOKENS`), so repeat questions are much quicker. The first
+answer after a restart still waits for the model to load.
+
 ### Pulling from Stripe (read-only)
 
 Instead of exporting a CSV, you can pull recent charges straight from Stripe:
 
 ```bash
-# Use a restricted key with read access to Charges only (rk_...), never a full secret key
+# Use a restricted key (rk_...) with read access to Charges, Invoices and Products; never a full secret key
 export STRIPE_API_KEY=rk_live_...     # or rk_test_... while testing
 python3 stripe_sync.py --days 365
 ```
 
-The script only sends GET requests to `/v1/charges`. It replaces the current dataset the same way an
-upload does, so re-running never double-counts. It refuses a full `sk_live` key unless you set
-`STRIPE_ALLOW_SECRET_KEY=1`. Product names come from `metadata.product` if you set it on the charge,
-otherwise from the charge description, and charges with neither are counted as "Unlabelled".
+The script only sends GET requests to `/v1/charges`, `/v1/invoices` and `/v1/products`. It replaces the
+current dataset the same way an upload does, so re-running never double-counts. It refuses a full
+`sk_live` key unless you set `STRIPE_ALLOW_SECRET_KEY=1`.
+
+Each charge is one row, so money is never counted twice. Its product name comes from, in order:
+`metadata.product` on the charge, then the product on the invoice the charge paid (this is how
+subscription renewals get real names), then the charge description. Charges with none of these are
+counted as "Unlabelled".
 Amounts for zero-decimal currencies such as JPY are read as whole units.
 
 Files you put in `data/` by hand are loaded at startup. Only `*.csv` files at the top of `data/` are
@@ -98,7 +109,7 @@ export therefore still shows its most recent period.
 | `bi.py` | CSV import, hashing, metrics, flags (stdlib only, no network) |
 | `assistant.py` | Ollama client, system prompt, context limits |
 | `index.html` | Dashboard page (one file, works offline, responsive) |
-| `stripe_sync.py` | Read-only Stripe charges pull into the dataset |
+| `stripe_sync.py` | Read-only Stripe charges pull (product names from invoices) |
 | `make_sample.py` | Writes the fictional sample data |
 | `sample/sales_sample.csv` | Fictional sample, committed |
 | `test_bi.py` | 26 unit and endpoint tests |
@@ -111,8 +122,8 @@ export therefore still shows its most recent period.
 |---|---|---|
 | `GET /api/status` | | row count, sample flag, import warnings, Ollama status |
 | `GET /api/metrics` | `days=7/30/90/365` or `start=&end=` (YYYY-MM-DD) | current and previous window, growth, flags |
-| `POST /api/ask` | JSON `{question, days}` | `{answer, model, window}` |
-| `POST /api/brief` | JSON `{days}` | `{answer, model, window}` |
+| `POST /api/ask` | JSON `{question, days, model?}` | `{answer, model, window}` |
+| `POST /api/brief` | JSON `{days, model?}` | `{answer, model, window}` |
 | `POST /api/upload` | raw CSV, `Content-Type: text/csv`, max 5 MB | `{rows, message}` |
 
 Requests with the wrong content type or a non-local `Host` header are refused. If Ollama is down, the
@@ -132,9 +143,10 @@ by hand against `qwen2.5:7b`.
 
 ## Known limits
 
-- **Charges only.** The Stripe pull reads charges, not invoices or subscription lines, so renewals
-  appear as charges with whatever description Stripe gives them. Set `metadata.product` on recurring
-  prices to get clean product names.
+- **Product names.** A charge takes its product from its invoice's largest line. Invoices with several
+  products are named by that one line only. Set `metadata.product` on a charge to override.
+- **Invoices feed names only.** Revenue, refunds and customers come from charges. A charge whose
+  invoice falls outside the pull window keeps its description instead of a product name.
 - **Not live.** Data is as fresh as your last sync. Run `stripe_sync.py` again to refresh it.
 - **Speed.** On this machine a `qwen2.5:7b` answer takes about a minute. The first answer after startup
   is slowest. `gemma3:4b` is faster if you need quicker replies.

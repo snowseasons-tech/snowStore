@@ -12,6 +12,8 @@ from decimal import Decimal
 
 import bi
 import server
+from unittest import mock
+
 from assistant import AssistantError, Ollama
 
 CANON = (
@@ -128,20 +130,37 @@ class FakeOllama(Ollama):
         self.calls = []
 
     def status(self):
-        return {"online": True, "host": self.host, "model": self.model, "model_installed": True, "models": [self.model]}
+        return {"online": True, "host": self.host, "model": self.model, "model_installed": True, "models": [self.model, "other-model:1b"]}
 
-    def ask(self, question, metrics):
-        self.calls.append(("ask", question, metrics))
+    def ask(self, question, metrics, model=None):
+        self.calls.append(("ask", question, metrics, model))
         return f"answer to: {question}"
 
-    def brief(self, metrics):
-        self.calls.append(("brief", None, metrics))
+    def brief(self, metrics, model=None):
+        self.calls.append(("brief", None, metrics, model))
         return "weekly brief"
 
 
 class BrokenOllama(FakeOllama):
-    def ask(self, question, metrics):
+    def ask(self, question, metrics, model=None):
         raise AssistantError("Ollama is not reachable")
+
+
+class ChatOptionTests(unittest.TestCase):
+    def test_payload_keeps_model_loaded_and_caps_answer_length(self):
+        client = Ollama(host="http://127.0.0.1:1", model="default-model")
+        with mock.patch.object(client, "_call", return_value={"message": {"content": "ok"}}) as call:
+            self.assertEqual(client.ask("q?", {"net": 1}, model="other-model:1b"), "ok")
+        payload = call.call_args[0][1]
+        self.assertEqual(payload["model"], "other-model:1b")
+        self.assertIn("keep_alive", payload)
+        self.assertLessEqual(payload["options"]["num_predict"], 500)
+
+    def test_default_model_used_when_none_chosen(self):
+        client = Ollama(host="http://127.0.0.1:1", model="default-model")
+        with mock.patch.object(client, "_call", return_value={"message": {"content": "ok"}}) as call:
+            client.brief({"net": 1})
+        self.assertEqual(call.call_args[0][1]["model"], "default-model")
 
 
 class ServerTests(unittest.TestCase):
@@ -204,7 +223,7 @@ class ServerTests(unittest.TestCase):
         code, body = self.call("POST", "/api/ask", {"question": "How did we do?", "days": "7"}, ctype="application/json")
         self.assertEqual(code, 200)
         self.assertEqual(body["answer"], "answer to: How did we do?")
-        kind, question, metrics = self.ollama.calls[-1]
+        kind, question, metrics, _model = self.ollama.calls[-1]
         self.assertEqual(kind, "ask")
         self.assertNotIn("@", json.dumps(metrics))  # no raw customer identifiers reach the model
 
@@ -217,6 +236,15 @@ class ServerTests(unittest.TestCase):
         code, body = self.call("POST", "/api/ask", {"question": "hi"}, ctype="application/json")
         self.assertEqual(code, 503)
         self.assertIn("not reachable", body["error"])
+
+    def test_ask_accepts_installed_model_and_rejects_others(self):
+        code, body = self.call("POST", "/api/ask", {"question": "hi", "model": "other-model:1b"}, ctype="application/json")
+        self.assertEqual(code, 200)
+        self.assertEqual(body["model"], "other-model:1b")
+        self.assertEqual(self.ollama.calls[-1][3], "other-model:1b")
+        code, body = self.call("POST", "/api/ask", {"question": "hi", "model": "not-installed:latest"}, ctype="application/json")
+        self.assertEqual(code, 400)
+        self.assertIn("not installed", body["error"])
 
     def test_brief_endpoint(self):
         code, body = self.call("POST", "/api/brief", {"days": "30"}, ctype="application/json")
