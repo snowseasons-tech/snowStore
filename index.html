@@ -84,6 +84,8 @@ header .logo img { flex:none; }
 #hero p { color:#d0e2f1; }
 #hero .btn { background:var(--sst-frost); color:var(--sst-navy); }
 #hero .btn.alt { background:transparent; color:var(--sst-frost); border-color:var(--sst-ice); }
+.mascot-hero { display:block; width:150px; height:auto; margin:0 auto 18px; filter:drop-shadow(0 6px 18px rgba(161,234,255,.35)); }
+@media(max-width:600px){.mascot-hero{width:120px}}
 .card { border-radius:var(--sst-radius); }
 :where(a,button,input,summary):focus-visible { outline:3px solid var(--sst-focus); outline-offset:3px; }
 </style>  <link rel="stylesheet" href="/store-theme.css">
@@ -97,6 +99,7 @@ header .logo img { flex:none; }
 </nav></header>
 <main>
 <section id="hero"><div class="container">
+<img class="mascot-hero" src="/img/mascots/snowflake-phone.webp" width="458" height="480" alt="Snow Seasons Tech snowflake mascot holding a phone" decoding="async">
 <h1>Technology &amp; Marketing Services</h1>
 <p>API integrations, website and social media management, managed databases and business intelligence, handled for you.</p>
 <a class="btn" href="#products">Browse services</a> <a class="btn alt" href="/coin.html">See the coin</a></div></section>

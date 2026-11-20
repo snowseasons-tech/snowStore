@@ -113,6 +113,8 @@ header .logo img { flex:none; }
 .intro h1 { text-shadow:none; letter-spacing:-.055em; }
 .intro p { color:#d0e2f1; }
 .intro p a { color:var(--sst-ice); }
+.intro-mascot { float:right; width:120px; height:auto; margin:0 0 10px 22px; filter:drop-shadow(0 6px 18px rgba(161,234,255,.45)); }
+@media(max-width:600px){.intro-mascot{float:none;display:block;width:96px;margin:0 auto 14px}}
 .card { border-radius:var(--sst-radius); }
 :where(a,button,input,select,summary):focus-visible { outline:3px solid var(--sst-focus); outline-offset:3px; }
 </style>  <link rel="stylesheet" href="/store-theme.css">
@@ -127,6 +129,7 @@ header .logo img { flex:none; }
 <main>
 <div class="container">
 <section class="intro">
+<img class="intro-mascot" src="/img/mascots/penguin-gamer.webp" width="300" height="480" alt="Snow Seasons Tech penguin mascot wearing a winter hat and VR headset, holding a game controller" decoding="async">
 <h1>Find the right Snow Seasons Tech product</h1>
 <p>Start with a free download or a fixed-price product you can buy today. Larger integration projects are quoted after we review your systems.</p>
 <div class="grid start-here" aria-label="Start here" style="margin:20px 0 24px">
