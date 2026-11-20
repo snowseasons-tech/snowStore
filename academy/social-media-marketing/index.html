@@ -140,6 +140,33 @@ footer{max-width:980px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font
       render(null);
     });
 
+    var exportButton = el("button", { type: "button", class: "ghost", text: "Download my course progress" });
+    var exportStatus = el("p", { class: "small", role: "status", "aria-live": "polite" });
+    exportButton.addEventListener("click", function () {
+      var url = null;
+      try {
+        var payload = {
+          course: "social-media-marketing",
+          formatVersion: 1,
+          exportedAt: new Date().toISOString(),
+          progress: state,
+        };
+        var blob = new Blob([JSON.stringify(payload, null, 2) + "\\n"], { type: "application/json" });
+        url = URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.href = url;
+        link.download = "snow-seasons-tech-social-media-academy-progress.json";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        exportStatus.textContent = "Progress exported. Keep the file private if your notes contain personal information.";
+      } catch (e) {
+        exportStatus.textContent = "Unable to download progress in this browser. Please copy your notes before clearing site data.";
+      } finally {
+        if (url) URL.revokeObjectURL(url);
+      }
+    });
+
     return el("section", {}, [
       el("p", { class: "eyebrow", text: "FREE COURSE · SNOW SEASONS TECH ACADEMY" }),
       el("h1", { text: course.title }),
@@ -156,6 +183,8 @@ footer{max-width:980px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font
       el("div", { class: "grid" }, modules.map(moduleCard)),
       el("div", { class: "panel" }, [
         el("p", { class: "small", text: "Progress is stored only in this browser. Clearing site data or using another device starts you again." }),
+        exportButton,
+        exportStatus,
         reset,
       ]),
     ]);
