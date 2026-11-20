@@ -52,12 +52,13 @@ class Dataset:
         rows, _ = bi.parse_csv(text)
         if not rows:
             raise ValueError("The file has a header but no sales rows")
+        canonical = bi.to_canonical_csv(rows)
         archive = self.data_dir / "archive"
         archive.mkdir(parents=True, exist_ok=True)
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
         for old in self.data_dir.glob("*.csv"):
             old.rename(archive / f"{stamp}-{old.name}")
-        (self.data_dir / f"sales-{stamp}.csv").write_text(text, encoding="utf-8")
+        (self.data_dir / f"sales-{stamp}.csv").write_text(canonical, encoding="utf-8")
         self.reload()
         return len(rows)
 

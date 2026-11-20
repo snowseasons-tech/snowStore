@@ -85,6 +85,21 @@ def parse_csv(text: str) -> tuple[list[dict], list[str]]:
     return rows, warnings
 
 
+def to_canonical_csv(rows: list[dict]) -> str:
+    """Re-write parsed rows in the canonical layout, with customers already hashed.
+
+    This is what gets saved to data/, so raw customer ids or emails from an upload or a Stripe pull
+    never sit on disk.
+    """
+    out = io.StringIO()
+    w = csv.writer(out)
+    w.writerow(["date", "product", "amount", "currency", "customer", "status", "refunded"])
+    for r in rows:
+        w.writerow([r["date"].isoformat(), r["product"], str(r["amount"]), r["currency"], r["customer"],
+                    "succeeded" if r["ok"] else "failed", str(r["refunded"])])
+    return out.getvalue()
+
+
 def load_dir(path) -> tuple[list[dict], list[str]]:
     from pathlib import Path
 
