@@ -79,8 +79,8 @@ test('dist is rebuilt from scratch and fails on a missing index', () => {
 test('Christmas theme overrides the store theme variables', () => {
   const css = fs.readFileSync(path.join(root, 'christmas-theme.css'), 'utf8');
   assert.match(css, /html:root:not\(\[data-theme="none"\]\)\s*\{/);
-  assert.match(css, /--st-blue:\s*#ffc46b/);
-  assert.match(css, /--st-button:\s*#ffc46b/);
+  assert.match(css, /--st-blue:\s*#4ade80/);
+  assert.match(css, /--st-button:\s*#d6303a/);
 });
 
 test('security headers match across Functions and pages/_headers', async () => {
