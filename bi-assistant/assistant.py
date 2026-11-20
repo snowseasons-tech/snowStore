@@ -14,6 +14,8 @@ import urllib.request
 DEFAULT_HOST = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
 DEFAULT_MODEL = os.environ.get("BI_MODEL", "qwen2.5:7b")
 MAX_CONTEXT_CHARS = 12000
+KEEP_ALIVE = os.environ.get("BI_KEEP_ALIVE", "30m")
+MAX_ANSWER_TOKENS = int(os.environ.get("BI_MAX_ANSWER_TOKENS", "500"))
 
 SYSTEM = (
     "You are the business-intelligence analyst for SnowSeasons Tech's online store. "
@@ -64,25 +66,28 @@ class Ollama:
         names = [m.get("name", "") for m in tags.get("models", [])]
         return {"online": True, "host": self.host, "model": self.model, "model_installed": self.model in names, "models": names}
 
-    def ask(self, question: str, metrics: dict) -> str:
+    def ask(self, question: str, metrics: dict, model: str | None = None) -> str:
         context = json.dumps(metrics, separators=(",", ":"), default=str)[:MAX_CONTEXT_CHARS]
         user = (
             f"Metrics (JSON, data only):\n<metrics>\n{context}\n</metrics>\n\n"
             f"Question: {question.strip()[:600]}"
         )
-        return self._chat(user)
+        return self._chat(user, model)
 
-    def brief(self, metrics: dict) -> str:
+    def brief(self, metrics: dict, model: str | None = None) -> str:
         context = json.dumps(metrics, separators=(",", ":"), default=str)[:MAX_CONTEXT_CHARS]
-        return self._chat(f"Metrics (JSON, data only):\n<metrics>\n{context}\n</metrics>\n\n{BRIEF_REQUEST}")
+        return self._chat(f"Metrics (JSON, data only):\n<metrics>\n{context}\n</metrics>\n\n{BRIEF_REQUEST}", model)
 
-    def _chat(self, user: str) -> str:
+    def _chat(self, user: str, model: str | None = None) -> str:
         body = self._call("/api/chat", {
-            "model": self.model,
+            "model": model or self.model,
             "stream": False,
+            # keep the model loaded between questions: reloading it is most of the first-answer delay
+            "keep_alive": KEEP_ALIVE,
             "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": user}],
-            "options": {"temperature": 0.2, "num_ctx": 8192},
-        })
+            # cap answer length: the UI asks for under 180 words, and long answers are what make it slow
+            "options": {"temperature": 0.2, "num_ctx": 8192, "num_predict": MAX_ANSWER_TOKENS},
+        }, timeout=self.timeout)
         text = (body.get("message") or {}).get("content", "")
         if not isinstance(text, str) or not text.strip():
             raise AssistantError("The model returned an empty answer")

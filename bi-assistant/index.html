@@ -136,7 +136,7 @@
       <label class="sr-only" for="q">Your question</label>
       <textarea id="q" placeholder="Ask about this window, e.g. “Why did net revenue fall this month?”"></textarea>
       <div class="row" style="margin-top:8px; justify-content: space-between">
-        <span class="muted">Answers use only the numbers on this page. Model: <span id="model">–</span></span>
+        <span class="muted">Answers use only the numbers on this page. <label for="model">Model</label> <select id="model" aria-label="Model"></select></span>
         <button class="btn primary" id="ask">Ask</button>
       </div>
       <div id="answer" class="answer" aria-live="polite">The answer appears here.</div>
@@ -245,7 +245,10 @@
       if (!o.online) { pill.textContent = "Ollama offline"; pill.className = "pill off"; pill.title = o.error; }
       else if (!o.model_installed) { pill.textContent = "Ollama up, model missing"; pill.className = "pill off"; pill.title = "Run: ollama pull " + o.model; }
       else { pill.textContent = "Ollama: " + o.model; pill.className = "pill ok"; }
-      $("model").textContent = o.model;
+      const picker = $("model");
+      const names = o.models && o.models.length ? o.models : [o.model];
+      picker.innerHTML = names.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+      if (names.includes(o.model)) picker.value = o.model;
     } catch (e) { setMsg(e.message, true); }
   }
 
@@ -255,7 +258,7 @@
     buttons.forEach((b) => (b.disabled = true));
     answer.textContent = "Thinking… (the first answer after startup can take a minute)";
     try {
-      const body = { days: windowDays, ...(question ? { question } : {}) };
+      const body = { days: windowDays, model: $("model").value, ...(question ? { question } : {}) };
       const r = await getJSON(question ? "/api/ask" : "/api/brief", {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
       });
