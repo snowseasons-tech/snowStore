@@ -406,10 +406,6 @@ academyCard.append(cardTop("website-primary","Free learning resource"),el("h2",n
 const academyLink=el("a","btn","Start learning");academyLink.href="/business-academy";
 const academyActions=el("div","actions");academyActions.append(academyLink);academyCard.append(academyActions);
 gridProd.append(makeFlipCard(academyCard));
-const careCard=el("article","card");careCard.dataset.cat="Website Tools";careCard.id="local-launch-care";
-careCard.append(cardTop("website-primary","Managed add-on"),el("h2",null,"Local Launch Care"),el("p",null,"Managed static hosting and weekly automated organic rank tracking after verified setup. $49/month for one site and 10 keywords in one location."),el("p","soon-status","Setup by request · tracking not yet connected · billing starts after verification"));
-const careLink=el("a","btn alt","View service & request setup");careLink.href="/local-launch-care";
-const careActions=el("div","actions");careActions.append(careLink);careCard.append(careActions);gridProd.append(makeFlipCard(careCard));
 
 const spinnerCard=el("article","card");spinnerCard.dataset.cat="Free";
 spinnerCard.append(cardTop("website-primary","Free tool"),el("h2",null,"Spinner & Button Studio"),el("p",null,"Customize atomic spinners, upload your own image, and preview animated buttons. Adjust colors, speed and size, then copy starter CSS snippets."),el("div","price","Free"));
