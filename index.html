@@ -86,6 +86,9 @@ header .logo img { flex:none; }
 #hero .btn.alt { background:transparent; color:var(--sst-frost); border-color:var(--sst-ice); }
 .mascot-hero { display:block; width:150px; height:auto; margin:0 auto 18px; filter:drop-shadow(0 6px 18px rgba(161,234,255,.35)); }
 @media(max-width:600px){.mascot-hero{width:120px}}
+.mascot-panel { display:block; width:150px; height:auto; margin:0 auto 18px; padding:10px; border-radius:18px; background:#f4f8fb; box-shadow:var(--shadow); }
+.mascot-side { display:block; width:130px; height:auto; margin:0 auto 16px; filter:drop-shadow(0 6px 18px rgba(0,184,217,.3)); }
+@media(max-width:600px){.mascot-panel{width:120px}.mascot-side{width:110px}}
 .card { border-radius:var(--sst-radius); }
 :where(a,button,input,summary):focus-visible { outline:3px solid var(--sst-focus); outline-offset:3px; }
 </style>  <link rel="stylesheet" href="/store-theme.css">
@@ -105,10 +108,12 @@ header .logo img { flex:none; }
 <a class="btn" href="#products">Browse services</a> <a class="btn alt" href="/coin.html">See the coin</a></div></section>
 
 <section id="products"><div class="container">
+<img class="mascot-panel" src="/img/mascots/yeti-toolbelt.webp" width="396" height="480" alt="Snow Seasons Tech yeti mascot in glasses and a tool belt, giving a thumbs up and holding a laptop" loading="lazy" decoding="async">
 <h2>Services</h2><p class="sub">One-time integration projects and monthly managed plans.</p>
 <div class="grid" id="product-grid"></div></div></section>
 
 <section id="kit"><div class="container">
+<img class="mascot-side" src="/img/mascots/robot-wave.webp" width="396" height="480" alt="Snow Seasons Tech snowman robot mascot waving hello" loading="lazy" decoding="async">
 <h2>Website Kit</h2>
 <p class="sub">A free, ready-to-edit landing page: one HTML file with a hero, features, FAQ and call to action, plus a light/dark toggle and CSS variables for easy theming.</p>
 <div class="kitgrid" style="margin-top:24px">
