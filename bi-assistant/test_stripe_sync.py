@@ -147,6 +147,58 @@ class SyncTests(unittest.TestCase):
         with mock.patch.dict(os.environ, {"STRIPE_API_KEY": "sk_live_abc"}, clear=True):
             self.assertEqual(ss.main([]), 2)
 
+    def test_paid_invoice_fetch_skips_zero_totals(self):
+        pages = [
+            {"id": "in_paid", "amount_paid": 1500, "currency": "usd", "lines": {"data": []}},
+            {"id": "in_free", "amount_paid": 0, "currency": "usd", "lines": {"data": []}},
+        ]
+        with mock.patch.object(ss, "_paged", return_value=pages) as paged:
+            kept = ss.fetch_paid_invoices("rk_test_123", SINCE, base=self.base)
+        self.assertEqual([i["id"] for i in kept], ["in_paid"])
+        self.assertEqual(paged.call_args.args[2]["status"], "paid")
+
+    def test_invoices_csv_uses_paid_total_and_product_name(self):
+        invoices = [{
+            "id": "in_9", "created": NOW, "amount_paid": 2900, "currency": "usd", "customer": "cus_Z",
+            "lines": {"data": [{"amount": 2900, "price": {"product": "prod_mem"}}]},
+        }]
+        text = ss.invoices_to_csv(invoices, {"prod_mem": "Monthly Membership"})
+        rows, warnings = bi.parse_csv(text)
+        self.assertEqual(warnings, [])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["product"], "Monthly Membership")
+        self.assertEqual(rows[0]["amount"], Decimal("29"))
+        self.assertEqual(rows[0]["refunded"], Decimal("0"))
+
+    def test_main_falls_back_to_paid_invoices_when_no_charges(self):
+        invoice = {"id": "in_9", "created": NOW, "amount_paid": 2900, "currency": "usd", "customer": "cus_Z",
+                   "lines": {"data": [{"amount": 2900, "price": {"product": "prod_mem"}}]}}
+        import server
+        with mock.patch.dict(os.environ, {"STRIPE_API_KEY": "rk_test_123"}, clear=True), \
+             mock.patch.object(ss, "fetch_charges", return_value=[]), \
+             mock.patch.object(ss, "fetch_invoice_products", return_value={}), \
+             mock.patch.object(ss, "fetch_product_names", return_value={"prod_mem": "Monthly Membership"}), \
+             mock.patch.object(ss, "fetch_paid_invoices", return_value=[invoice]), \
+             mock.patch.object(server, "Dataset") as dataset_cls:
+            dataset_cls.return_value.replace_with.return_value = 1
+            self.assertEqual(ss.main(["--days", "30"]), 0)
+        saved = dataset_cls.return_value.replace_with.call_args.args[0]
+        self.assertIn("Monthly Membership", saved)
+
+    def test_charges_block_the_invoice_fallback(self):
+        charge = {"id": "ch_1", "created": NOW, "amount": 4900, "amount_refunded": 0, "currency": "usd",
+                  "status": "succeeded", "description": "Pro", "metadata": {}, "customer": None, "invoice": None}
+        import server
+        with mock.patch.dict(os.environ, {"STRIPE_API_KEY": "rk_test_123"}, clear=True), \
+             mock.patch.object(ss, "fetch_charges", return_value=[charge]), \
+             mock.patch.object(ss, "fetch_invoice_products", return_value={}), \
+             mock.patch.object(ss, "fetch_product_names", return_value={}), \
+             mock.patch.object(ss, "fetch_paid_invoices") as fallback, \
+             mock.patch.object(server, "Dataset") as dataset_cls:
+            dataset_cls.return_value.replace_with.return_value = 1
+            self.assertEqual(ss.main(["--days", "30"]), 0)
+        fallback.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
