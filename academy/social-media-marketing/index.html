@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Free Snow Seasons Tech course: Social Media Marketing — From Strategy to Results. Nine modules with lessons, practical checklists and quizzes.">
+<title>Social Media Marketing Academy | Snow Seasons Tech</title>
+<style>
+:root{--bg:#07111d;--panel:#0d1c2b;--panel2:#112438;--line:#20394d;--text:#e8f3fb;--muted:#9ab0c2;--cyan:#59d8f5;--green:#68d6ae;--gold:#f3c978;--red:#ff9aa8;--shadow:0 18px 50px #0005}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 80% -10%,#12304a 0,transparent 45%),var(--bg);color:var(--text);font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+a{color:var(--cyan)}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px;border-bottom:1px solid var(--line);background:#081522ef;position:sticky;top:0;z-index:2}
+header.top .brand{font-weight:800;letter-spacing:.06em;text-decoration:none;color:var(--text);font-size:14px}
+header.top .back{font-size:14px}
+.wrap{max-width:980px;margin:0 auto;padding:24px 16px 48px}
+.eyebrow{color:var(--cyan);font-size:12px;letter-spacing:.12em;font-weight:800;margin:0 0 6px}
+h1{font-size:clamp(26px,4vw,36px);line-height:1.2;margin:4px 0 10px}
+h2{font-size:20px;margin:0 0 10px}
+h3{margin:8px 0 6px;font-size:17px}
+.intro{color:var(--muted);max-width:720px}
+.panel,.module,.lesson,.callout,.quiz,.notes{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.panel{padding:18px;margin:20px 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.bar{height:10px;background:#0a1828;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-top:10px}
+.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green))}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:18px}
+.module{display:block;padding:18px;color:var(--text);text-decoration:none}
+.module:hover,.module:focus-visible{border-color:var(--cyan);outline:none}
+.module .top,.module .foot{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.module .num{color:var(--cyan);font-weight:800;letter-spacing:.08em}
+.module p{color:var(--muted);font-size:14px;margin:6px 0 12px}
+.status.ok{color:var(--green)}
+.lesson{padding:18px;margin-top:16px}
+.lesson p{margin:0 0 12px}
+.callout{padding:14px 16px;margin:16px 0;background:var(--panel2);border-color:#2c4f6e}
+.task{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.task input{margin-top:5px;width:18px;height:18px;flex:0 0 auto}
+.quiz{padding:18px;margin-top:16px}
+fieldset.q{border:0;border-top:1px solid var(--line);margin:14px 0 0;padding:14px 0 0}
+fieldset.q legend{font-weight:700;padding:0;margin-bottom:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:6px 0;color:var(--text);cursor:pointer}
+.opt input{margin-top:6px}
+.feedback p{margin:8px 0;color:var(--muted)}
+.feedback .score{color:var(--text);font-weight:700}
+.saved{color:var(--muted);font-size:14px}
+button,.btn{font:inherit;border:0;border-radius:10px;padding:11px 16px;background:var(--cyan);color:#061223;font-weight:800;cursor:pointer}
+button.ghost{background:transparent;color:var(--text);border:1px solid #46556b;font-weight:600}
+button.complete{margin-top:8px}
+button.complete.done{background:var(--green)}
+textarea{width:100%;min-height:120px;margin-top:6px;padding:12px;border-radius:10px;border:1px solid #46556b;background:#0a1828;color:var(--text);font:inherit}
+.notes{padding:18px;margin-top:16px}
+.nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
+.nav a{display:inline-block;padding:10px 14px;border:1px solid #46556b;border-radius:10px;text-decoration:none;color:var(--text)}
+.small{color:var(--muted);font-size:13px}
+footer{max-width:980px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font-size:12px}
+@media (max-width:600px){header.top{position:static}.row{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/business-academy.html">❄ SNOW SEASONS TECH ACADEMY</a>
+  <a class="back" href="/business-academy.html">← Business Academy</a>
+</header>
+
+<main id="app" class="wrap" aria-live="off"><p class="small">Loading course…</p></main>
+
+<footer>
+  Free educational course from Snow Seasons Tech. The lessons are general guidance written for this course, not legal, tax or
+  advertising-platform advice. Platform features and policies change, so check each platform's current help pages before you act.
+</footer>
+
+<script src="course.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var KEY = "snowseasons-smm-academy-v1";
+  var course = window.SMM_COURSE;
+  var modules = course.modules;
+
+  // ---- Local progress (browser only). Every storage call is guarded: private windows can block it. ----
+  function blankState() { return { done: {}, tasks: {}, notes: {}, quiz: {} }; }
+  function load() {
+    try {
+      var raw = window.localStorage.getItem(KEY);
+      if (raw) {
+        var saved = JSON.parse(raw);
+        if (saved && typeof saved === "object") {
+          return { done: saved.done || {}, tasks: saved.tasks || {}, notes: saved.notes || {}, quiz: saved.quiz || {} };
+        }
+      }
+    } catch (e) { /* unreadable or blocked storage: start fresh for this visit */ }
+    return blankState();
+  }
+  var state = load();
+  function save() {
+    try { window.localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* progress lasts this visit only */ }
+  }
+
+  // ---- DOM helper: builds nodes with textContent so stored notes and course text never run as HTML. ----
+  function el(tag, props, children) {
+    var node = document.createElement(tag);
+    Object.keys(props || {}).forEach(function (key) {
+      var value = props[key];
+      if (value === undefined || value === null || value === false) return;
+      if (key === "text") node.textContent = value;
+      else if (key === "class") node.className = value;
+      else if (key === "value") node.value = value;
+      else if (key === "checked") node.checked = !!value;
+      else if (key.slice(0, 2) === "on") node.addEventListener(key.slice(2), value);
+      else node.setAttribute(key, value === true ? "" : value);
+    });
+    (children || []).forEach(function (child) {
+      if (child === null || child === undefined) return;
+      node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+    });
+    return node;
+  }
+
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function completedCount() {
+    return modules.filter(function (m) { return !!state.done[m.id]; }).length;
+  }
+
+  // ---- Views ----
+  function overviewView() {
+    var done = completedCount();
+    var pct = Math.round((done / modules.length) * 100);
+    var resetArmed = false;
+    var reset = el("button", { type: "button", class: "ghost", text: "Reset course progress" });
+    reset.addEventListener("click", function () {
+      if (!resetArmed) {
+        resetArmed = true;
+        reset.textContent = "Click again to clear all progress";
+        return;
+      }
+      state = blankState();
+      save();
+      render(null);
+    });
+
+    return el("section", {}, [
+      el("p", { class: "eyebrow", text: "FREE COURSE · SNOW SEASONS TECH ACADEMY" }),
+      el("h1", { text: course.title }),
+      el("p", { class: "intro", text: "Nine short modules. Each one has a lesson, a practical checklist, notes space and a quiz. Your progress is saved in this browser." }),
+      el("div", { class: "panel" }, [
+        el("div", { class: "row" }, [
+          el("strong", { text: "Course progress" }),
+          el("span", { text: done + " of " + modules.length + " modules complete (" + pct + "%)" }),
+        ]),
+        el("div", { class: "bar", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(pct) }, [
+          el("span", { style: "width:" + pct + "%" }),
+        ]),
+      ]),
+      el("div", { class: "grid" }, modules.map(moduleCard)),
+      el("div", { class: "panel" }, [
+        el("p", { class: "small", text: "Progress is stored only in this browser. Clearing site data or using another device starts you again." }),
+        reset,
+      ]),
+    ]);
+  }
+
+  function moduleCard(m, index) {
+    var quiz = state.quiz[m.id];
+    var complete = !!state.done[m.id];
+    return el("a", { class: "module", href: "#" + m.id }, [
+      el("div", { class: "top" }, [
+        el("span", { class: "num", text: "MODULE " + pad(index + 1) }),
+        el("span", { class: complete ? "status ok" : "status", text: complete ? "Completed" : "In progress" }),
+      ]),
+      el("h3", { text: m.title }),
+      el("p", { text: m.desc }),
+      el("div", { class: "foot" }, [
+        el("span", { text: quiz ? "Quiz best: " + quiz.best + " of " + quiz.total : "Quiz not taken yet" }),
+        el("span", { text: "Open →" }),
+      ]),
+    ]);
+  }
+
+  function bestText(score) {
+    return "Best score so far: " + score.best + " of " + score.total + " (" + score.attempts + " attempt(s)).";
+  }
+
+  function quizBlock(m) {
+    var saved = state.quiz[m.id];
+    var feedback = el("div", { class: "feedback", "aria-live": "polite" });
+    var bestLine = el("p", { class: "saved", text: saved ? bestText(saved) : "", hidden: !saved });
+    var form = el("form", { novalidate: true }, [
+      el("p", { class: "small", text: "Choose one answer per question, then check your answers." }),
+    ].concat(m.quiz.map(function (item, qi) {
+      return el("fieldset", { class: "q" }, [
+        el("legend", { text: (qi + 1) + ". " + item.q }),
+        el("div", {}, item.options.map(function (option, oi) {
+          return el("label", { class: "opt" }, [
+            el("input", { type: "radio", name: "q" + qi, value: String(oi) }),
+            el("span", { text: option }),
+          ]);
+        })),
+      ]);
+    })).concat([
+      el("p", {}, [el("button", { type: "submit", text: "Check answers" })]),
+      feedback,
+    ]));
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var answers = m.quiz.map(function (_, qi) {
+        var chosen = form.querySelector('input[name="q' + qi + '"]:checked');
+        return chosen ? Number(chosen.value) : null;
+      });
+      if (answers.some(function (a) { return a === null; })) {
+        feedback.replaceChildren(el("p", { text: "Please answer every question before checking." }));
+        return;
+      }
+      var correct = 0;
+      var lines = m.quiz.map(function (item, qi) {
+        var right = answers[qi] === item.answer;
+        if (right) correct += 1;
+        return el("p", { text: (qi + 1) + ". " + (right ? "Correct. " : "Not quite. ") + item.why });
+      });
+      var previous = state.quiz[m.id];
+      state.quiz[m.id] = {
+        best: Math.max(previous ? previous.best : 0, correct),
+        total: m.quiz.length,
+        attempts: (previous ? previous.attempts : 0) + 1,
+      };
+      save();
+      lines.push(el("p", { class: "score", text: "You scored " + correct + " of " + m.quiz.length + "." }));
+      feedback.replaceChildren(...lines);
+      bestLine.textContent = bestText(state.quiz[m.id]);
+      bestLine.hidden = false;
+    });
+
+    return el("section", { class: "quiz" }, [el("h2", { text: "Quiz" }), bestLine, form]);
+  }
+
+  function moduleView(m) {
+    var index = modules.indexOf(m);
+    var complete = !!state.done[m.id];
+    var toggle = el("button", {
+      type: "button",
+      class: complete ? "complete done" : "complete",
+      text: complete ? "✓ Module completed — mark incomplete" : "Mark module complete",
+      onclick: function () {
+        if (state.done[m.id]) delete state.done[m.id];
+        else state.done[m.id] = true;
+        save();
+        render(m);
+      },
+    });
+    var notes = el("textarea", {
+      id: "notes-" + m.id,
+      "aria-label": "Your notes for " + m.title,
+      placeholder: "Record decisions, assumptions and open questions…",
+      value: state.notes[m.id] || "",
+      oninput: function (event) {
+        state.notes[m.id] = event.target.value;
+        save();
+      },
+    });
+    var prev = modules[index - 1];
+    var next = modules[index + 1];
+
+    return el("section", {}, [
+      el("a", { href: "#", text: "← Back to course overview" }),
+      el("p", { class: "eyebrow", text: "MODULE " + pad(index + 1) + " OF " + pad(modules.length) }),
+      el("h1", { text: m.title }),
+      el("p", { class: "intro", text: m.desc }),
+      el("section", { class: "lesson" }, [el("h2", { text: "Lesson" })].concat(m.lesson.map(function (p) { return el("p", { text: p }); }))),
+      el("div", { class: "callout" }, [el("strong", { text: "Module outcome: " }), m.outcome]),
+      el("section", { class: "lesson" }, [
+        el("h2", { text: "Action checklist" }),
+        el("p", { class: "small", text: "Your ticks are saved in this browser." }),
+      ].concat(m.actions.map(function (action, j) {
+        var key = m.id + "-" + j;
+        return el("label", { class: "task" }, [
+          el("input", {
+            type: "checkbox",
+            checked: !!state.tasks[key],
+            onchange: function (event) {
+              if (event.target.checked) state.tasks[key] = true;
+              else delete state.tasks[key];
+              save();
+            },
+          }),
+          el("span", { text: action }),
+        ]);
+      }))),
+      quizBlock(m),
+      el("section", { class: "notes" }, [
+        el("h2", { text: "Your notes" }),
+        notes,
+      ]),
+      el("div", { class: "panel" }, [
+        el("h2", { text: "Module progress" }),
+        el("p", { class: "small", text: "Mark the module complete when you have a usable result from its checklist." }),
+        toggle,
+      ]),
+      el("nav", { class: "nav", "aria-label": "Module navigation" }, [
+        prev ? el("a", { href: "#" + prev.id, text: "← " + prev.title }) : el("span", {}),
+        next ? el("a", { href: "#" + next.id, text: next.title + " →" }) : el("span", {}),
+      ]),
+    ]);
+  }
+
+  function render(m) {
+    document.getElementById("app").replaceChildren(m ? moduleView(m) : overviewView());
+    window.scrollTo(0, 0);
+  }
+
+  function route() {
+    var id = window.location.hash.replace(/^#/, "");
+    var m = modules.filter(function (x) { return x.id === id; })[0];
+    render(m || null);
+  }
+
+  window.addEventListener("hashchange", route);
+  route();
+})();
+</script>
+</body>
+</html>

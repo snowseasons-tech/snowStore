@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const PUBLIC_DIRS = ['storefront', 'img', 'blog'];
+const PUBLIC_DIRS = ['storefront', 'img', 'blog', 'academy'];
 const PUBLIC_FILES = ['page.css', 'store-theme.css', 'christmas-theme.css'];
 const isPublic = (name) => !name.startsWith('.') && !name.endsWith('.md');
 
