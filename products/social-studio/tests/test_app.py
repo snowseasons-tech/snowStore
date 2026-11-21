@@ -149,6 +149,22 @@ def test_requests_without_a_valid_login_are_rejected(client):
     assert bad.status_code == 401
 
 
+def test_sign_in_with_a_short_or_wrong_password_says_invalid_credentials(client):
+    # Sign-in must answer "Invalid credentials" for any wrong password, not a 422 validation error.
+    register(client, 'owner@example.com')
+    for password in ['hunter2', 'x', 'a' * 200]:
+        r = client.post('/api/auth/login', json={'email': 'owner@example.com', 'password': password})
+        assert r.status_code == 401, (password, r.status_code)
+        assert r.json()['detail'] == 'Invalid credentials'
+    ok = client.post('/api/auth/login', json={'email': 'OWNER@example.com', 'password': 'correct-horse-battery'})
+    assert ok.status_code == 200 and ok.json()['token']
+
+
+def test_sign_up_still_requires_a_12_character_password(client):
+    r = client.post('/api/auth/register', json={'email': 'new@example.com', 'password': 'hunter2'})
+    assert r.status_code == 422
+
+
 # --- Post lifecycle and scheduling ----------------------------------------------------------
 
 def test_rejected_and_failed_posts_go_back_to_draft_when_edited(client):

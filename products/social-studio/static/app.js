@@ -4,14 +4,21 @@ function msg(v){$('message').textContent=v||'';}
 async function api(path,opts={}){
  const r=await fetch('/api'+path,{...opts,headers:{'Content-Type':'application/json',...(token?{'Authorization':'Bearer '+token}:{}),...(opts.headers||{})}});
  const j=await r.json().catch(()=>({detail:'Server returned non-JSON response'}));
- if(!r.ok)throw Error(typeof j.detail==='string'?j.detail:JSON.stringify(j.detail||j));return j;
+ if(!r.ok)throw Error(errorText(j));return j;
 }
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function forgotPassword(){const email=$('email').value.trim()||prompt('Your account email');if(!email)return;try{const r=await api('/auth/forgot',{method:'POST',body:JSON.stringify({email})});msg(r.email_enabled?'If that email has an account, a reset link is on its way. It works for 30 minutes.':'Email isn\'t set up on this server, so ask your administrator to reset your password.');}catch(e){msg(e.message)}}
 async function resetPassword(){const p1=$('newPassword').value,p2=$('newPassword2').value;if(p1!==p2)return msg('The two passwords don\'t match.');try{const r=await api('/auth/reset',{method:'POST',body:JSON.stringify({code:resetCode,password:p1})});token=r.token;localStorage.setItem('social_token',token);resetCode='';$('reset').classList.add('hidden');msg('Password updated.');await init();}catch(e){msg(e.message)}}
 function cancelReset(){resetCode='';$('reset').classList.add('hidden');$('auth').classList.remove('hidden');msg('')}
 function logout(){localStorage.removeItem('social_token');localStorage.removeItem('social_client');location.reload();}
-async function auth(which){try{const body={email:$('email').value,password:$('password').value};const code=$('inviteCode').value.trim();if(which==='register'&&code)body.invite_code=code;const data=await api('/auth/'+which,{method:'POST',body:JSON.stringify(body)});token=data.token;localStorage.setItem('social_token',token);await init();}catch(e){msg(e.message)}}
+// FastAPI validation errors arrive as a list of {loc, msg}; show them as plain sentences instead of raw JSON.
+function errorText(j){
+ const d=j&&j.detail;
+ if(typeof d==='string')return d;
+ if(Array.isArray(d)&&d.length)return d.map(x=>{const field=String(x.loc&&x.loc[x.loc.length-1]||'').replace(/_/g,' ');const m=x.msg||'Invalid value';return field&&field!=='body'?field.charAt(0).toUpperCase()+field.slice(1)+': '+m:m;}).join('. ');
+ return 'Something went wrong. Please try again.';
+}
+async function auth(which){try{const body={email:$('email').value.trim(),password:$('password').value};const code=$('inviteCode').value.trim();if(which==='register'&&code)body.invite_code=code;const data=await api('/auth/'+which,{method:'POST',body:JSON.stringify(body)});token=data.token;localStorage.setItem('social_token',token);await init();}catch(e){msg(e.message)}}
 async function loadConfig(){try{const c=await api('/config');emailReset=!!c.password_reset_email;document.title=c.name;$('appName').textContent=c.name;$('authNote').textContent=c.registration_open?'Sign in, or create an account.':'Sign in to your workspace. New users need an invite code from a workspace owner.';}catch(e){}}
 async function init(){await loadConfig();const q=new URLSearchParams(location.search);if(q.get('connected')){const skipped=Number(q.get('skipped'))||0;msg('Connected '+q.get('connected')+' accounts.'+(skipped?` ${skipped} more weren't added because your plan's account limit is full.`:''));history.replaceState(null,'',location.pathname);}if(q.get('setup')){$('inviteCode').value=q.get('setup');history.replaceState(null,'',location.pathname);msg('Enter your email and a password, then choose Create account.');}if(q.get('reset')){resetCode=q.get('reset');history.replaceState(null,'',location.pathname);$('auth').classList.add('hidden');$('reset').classList.remove('hidden');return}if(!token){$('auth').classList.remove('hidden');return}try{const u=await api('/me');$('identity').textContent=u.email;$('auth').classList.add('hidden');await loadClients();}catch(e){msg(e.message);$('auth').classList.remove('hidden');}}
 async function loadClients(){const cs=await api('/clients');$('clientSelect').innerHTML=cs.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');if(!cs.length){msg('Create your first client workspace to begin.');await newClient();return;}if(!cs.some(c=>c.id===clientId))clientId=cs[0].id;$('clientSelect').value=clientId;await refresh();}

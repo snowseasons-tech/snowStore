@@ -34,8 +34,12 @@ app.mount('/static',StaticFiles(directory=BASE/'static'),name='static')
 @app.get('/',include_in_schema=False)
 def index(): return FileResponse(BASE/'static/index.html')
 
-class Credentials(BaseModel):
+class LoginIn(BaseModel):
+    # No minimum length here: the 12-character rule applies when a password is set, not when it is checked.
+    # Otherwise an older or shorter password gets a validation error instead of "Invalid credentials".
     email:EmailStr
+    password:str=Field(min_length=1,max_length=256)
+class Credentials(LoginIn):
     password:str=Field(min_length=12,max_length=256)
 class RegisterIn(Credentials):
     invite_code:str|None=Field(default=None,max_length=100)
@@ -107,7 +111,7 @@ def register(data:RegisterIn,db:DBSession=Depends(db_session)):
             db.delete(inv)
     db.commit();return {'token':issue(u.id)}
 @app.post('/api/auth/login')
-def login(data:Credentials,request:Request,db:DBSession=Depends(db_session)):
+def login(data:LoginIn,request:Request,db:DBSession=Depends(db_session)):
     email=str(data.email).lower()
     # Locks stay held through password verification, serializing attempts that
     # share an account or IP. A locked account's password is never tested.
